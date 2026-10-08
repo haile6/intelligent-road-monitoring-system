@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.env
+
+# Generated outputs
+outputs/
+detections/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# GPS data
+data/*.csv
+
+# Test videos
+data/*.mp4
+data/*.avi
+data/*.mov
+data/*.mkv
+
+# Generated maps
+*.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Python cache
+.pytest_cache/
