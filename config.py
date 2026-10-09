@@ -14,7 +14,7 @@ MODEL_PATH = os.path.join(BASE_DIR, "models", "road_damage_best.pt")
 VIDEO_PATH = os.path.join(BASE_DIR, "data", "test_video.mp4")
 
 # Where the annotated video is saved.
-OUTPUT_VIDEO_PATH = os.path.join(BASE_DIR, "outputs", "annotated_test.mp4")
+OUTPUT_VIDEO_PATH = os.path.join(BASE_DIR, "data", "test_video.mp4")
 
 # ---- Model ----------------------------------------------------------------
 # The model must have EXACTLY these two classes. The program stops if it does not.
@@ -31,3 +31,11 @@ CLASS_COLORS = {
     "alligator_crack": (0, 165, 255),   # orange
     "pothole": (0, 0, 255),             # red
 }
+
+# ---- Phase 2: Tracking and confirmation -------------------------------
+TRACK_IOU_THRESHOLD = 0.30
+TRACK_MAX_MISSED_FRAMES = 5
+MIN_CONFIRMATION_FRAMES = 3
+
+OUTPUT_VIDEO_PHASE2 = os.path.join(BASE_DIR, "outputs", "phase2_tracked.mp4")
+EVENTS_CSV_PATH = os.path.join(BASE_DIR, "outputs", "phase2_events.csv")
