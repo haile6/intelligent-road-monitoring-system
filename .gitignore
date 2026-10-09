@@ -38,3 +38,21 @@ Thumbs.db
 
 # Python cache
 .pytest_cache/
+# Phase update archives and temporary extraction
+phase2_update.zip
+phase3_update.zip
+phase4_update.zip
+phase4_temp/
+
+# Local backups
+config_phase3_backup.py
+detection/tracker_phase2_backup.py
+detection/tracker_phase3_backup.py
+visualization/overlay_phase2_backup.py
+visualization/overlay_phase3_backup.py
+
+# Local pretrained weights
+models/yolo11s.pt
+
+# Temporary config instructions
+ADD_THIS_TO_config.py.txt
