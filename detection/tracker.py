@@ -46,6 +46,11 @@ class Track:
         self.path_frames = 0             # in how many frames was it in our path
         self.first_path_frame = None
         self.max_path_overlap = 0.0
+        # Phase 5: estimated distance in metres (None = unknown)
+        self.distance_m = None                # current (smoothed)
+        self.first_distance_m = None          # when the damage was confirmed
+        self.path_entry_distance_m = None     # when it first entered our path
+        self.min_distance_m = None            # closest estimate so far
 
     def update(self, det, frame_no, timestamp=None, adopt_class=False):
         # Vehicles: YOLO may call the same vehicle "car" then "truck".

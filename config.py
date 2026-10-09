@@ -86,3 +86,26 @@ PHASE4_USE_VEHICLES = True     # False = faster, damage + path only
 OUTPUT_VIDEO_PHASE4 = os.path.join(BASE_DIR, "outputs", "annotated_phase4.mp4")
 DAMAGE_CSV_PHASE4 = os.path.join(BASE_DIR, "outputs", "phase4_damage_events.csv")
 
+
+# ============================================================
+# PHASE 5: DISTANCE ESTIMATION
+# ============================================================
+# Camera height reported by the user: 1.2 metres.
+CAMERA_HEIGHT_M = 1.2
+
+# TEMPORARY PLACEHOLDERS ONLY — calibrate before trusting distances.
+CAMERA_TILT_DEG = 5.0
+CAMERA_HORIZONTAL_FOV_DEG = 70.0
+FOCAL_LENGTH_PX = None
+
+DISTANCE_METHOD = "perspective"
+DISTANCE_MAX_M = 80
+DISTANCE_SMOOTHING = 0.5
+SHOW_HORIZON_LINE = True
+
+OUTPUT_VIDEO_PHASE5 = os.path.join(
+    BASE_DIR, "outputs", "annotated_phase5.mp4"
+)
+DAMAGE_CSV_PHASE5 = os.path.join(
+    BASE_DIR, "outputs", "phase5_damage_events.csv"
+)

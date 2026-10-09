@@ -11,7 +11,7 @@ def _label(frame, x1, y1, text, color, scale=0.6):
                 cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), 2)
 
 
-def draw_tracks(frame, tracks, path_mode=False):
+def draw_tracks(frame, tracks, path_mode=False, show_distance=False):
     """Road damage. Confirmed = coloured box + ID.
     Not yet confirmed = thin grey box with a 'checking 2/3' counter.
     path_mode (Phase 4): damage in our path = thick box + 'IN PATH', otherwise a thin box."""
@@ -25,6 +25,8 @@ def draw_tracks(frame, tracks, path_mode=False):
                 thickness = config.BOX_THICKNESS + 2 if t.in_path else 2
                 if t.in_path:
                     text += "  IN PATH"
+            if show_distance and t.distance_m is not None:
+                text += f"  ~{t.distance_m:.0f} m"          # estimated distance
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
             _label(frame, x1, y1, text, color)
         else:
@@ -54,6 +56,17 @@ def draw_path(frame, polygon, danger):
     cv2.fillPoly(layer, [polygon], color)
     cv2.addWeighted(layer, 0.25, frame, 0.75, 0, frame)
     cv2.polylines(frame, [polygon], True, color, 2)
+    return frame
+
+
+def draw_horizon(frame, row):
+    """Dashed line showing the horizon the distance estimator assumes."""
+    y = int(row)
+    if 0 <= y < frame.shape[0]:
+        for x in range(0, frame.shape[1], 24):
+            cv2.line(frame, (x, y), (x + 12, y), (255, 255, 0), 1)
+        cv2.putText(frame, "assumed horizon", (frame.shape[1] - 190, max(y - 6, 15)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
     return frame
 
 
