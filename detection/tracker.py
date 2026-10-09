@@ -1,17 +1,17 @@
 """
-Phase 2: road-damage tracker.
+Trackers (Phase 2 + Phase 3).
 
-Problem: one pothole is visible in many video frames, so YOLO "finds" it again
-and again. This tracker gives every physical damage ONE track ID, and only
-confirms it after it has been seen in MIN_CONFIRMATION_FRAMES frames.
+Problem: one pothole (or one car) is visible in many video frames, so YOLO "finds" it
+again and again. A tracker gives every physical object ONE track ID, and only confirms
+it after it has been seen in several frames.
 
 How it works (simple version):
   1. For each new frame we compare every new detection with every known track.
-  2. If a detection overlaps a track of the SAME class enough (IoU), it is the same damage.
+  2. If a detection overlaps a track enough (IoU), it is the same object.
   3. Detections that match nothing start a new track.
   4. Tracks that are not seen for a while are removed from the active list.
 
-This is an approximation. It can be replaced later by ByteTrack or DeepSORT.
+This is an approximation. It can later be replaced by ByteTrack or DeepSORT.
 """
 import config
 
@@ -36,17 +36,24 @@ class Track:
         self.confidence = det["confidence"]        # latest confidence
         self.best_confidence = det["confidence"]   # highest confidence so far
         self.first_frame = self.last_frame = frame_no
-        self.first_time = self.confirmed_time = timestamp
-        self.hits = 1                # number of frames this damage was detected in
+        self.first_time = self.last_time = self.confirmed_time = timestamp
+        self.hits = 1                # number of frames this object was detected in
         self.missed = 0              # frames in a row where it was not detected
         self.confirmed = False
         self.confirmed_frame = None
 
-    def update(self, det, frame_no):
+    def update(self, det, frame_no, timestamp=None, adopt_class=False):
+        # Vehicles: YOLO may call the same vehicle "car" then "truck".
+        # We keep the class that had the highest confidence.
+        if adopt_class and det["confidence"] > self.best_confidence:
+            self.class_id = det["class_id"]
+            self.class_name = det["class_name"]
         self.bbox = det["bbox"]
         self.confidence = det["confidence"]
         self.best_confidence = max(self.best_confidence, det["confidence"])
         self.last_frame = frame_no
+        if timestamp is not None:
+            self.last_time = timestamp
         self.hits += 1
         self.missed = 0
 
@@ -58,20 +65,22 @@ class DamageTracker:
         self.iou_threshold = iou_threshold
         self.max_missed = max_missed
         self.min_confirm = min_confirm
+        self.match_class = True    # True: only match boxes of the same class (road damage)
         self.active = []           # tracks still being followed
         self.all_tracks = []       # every track ever created (for the final report)
         self._next_id = 1
 
     def update(self, detections, frame_no, timestamp):
         """Call once per frame. Returns (visible_tracks, newly_confirmed_tracks)."""
-        # 1. Score every (track, detection) pair of the same class
+        # 1. Score every (track, detection) pair
         pairs = []
         for ti, t in enumerate(self.active):
             for di, d in enumerate(detections):
-                if t.class_id == d["class_id"]:
-                    score = iou(t.bbox, d["bbox"])
-                    if score >= self.iou_threshold:
-                        pairs.append((score, ti, di))
+                if self.match_class and t.class_id != d["class_id"]:
+                    continue
+                score = iou(t.bbox, d["bbox"])
+                if score >= self.iou_threshold:
+                    pairs.append((score, ti, di))
         pairs.sort(reverse=True)               # best overlaps first
 
         # 2. Match greedily: each track and each detection is used at most once
@@ -79,7 +88,8 @@ class DamageTracker:
         for score, ti, di in pairs:
             if ti in used_t or di in used_d:
                 continue
-            self.active[ti].update(detections[di], frame_no)
+            self.active[ti].update(detections[di], frame_no, timestamp,
+                                   adopt_class=not self.match_class)
             used_t.add(ti)
             used_d.add(di)
 
@@ -113,3 +123,13 @@ class DamageTracker:
 
     def confirmed_tracks(self):
         return [t for t in self.all_tracks if t.confirmed]
+
+
+class VehicleTracker(DamageTracker):
+    """Same tracker, but for OTHER vehicles: boxes match regardless of class,
+    and the track keeps its most confident class."""
+    def __init__(self):
+        super().__init__(iou_threshold=config.VEHICLE_TRACK_IOU_THRESHOLD,
+                         max_missed=config.VEHICLE_TRACK_MAX_MISSED_FRAMES,
+                         min_confirm=config.VEHICLE_MIN_CONFIRMATION_FRAMES)
+        self.match_class = False
