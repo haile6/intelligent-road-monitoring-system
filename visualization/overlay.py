@@ -11,15 +11,22 @@ def _label(frame, x1, y1, text, color, scale=0.6):
                 cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), 2)
 
 
-def draw_tracks(frame, tracks):
-    """Road damage. Confirmed = thick coloured box + ID.
-    Not yet confirmed = thin grey box with a 'checking 2/3' counter."""
+def draw_tracks(frame, tracks, path_mode=False):
+    """Road damage. Confirmed = coloured box + ID.
+    Not yet confirmed = thin grey box with a 'checking 2/3' counter.
+    path_mode (Phase 4): damage in our path = thick box + 'IN PATH', otherwise a thin box."""
     for t in tracks:
         x1, y1, x2, y2 = t.bbox
         if t.confirmed:
             color = config.CLASS_COLORS.get(t.class_name, (0, 255, 0))
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, config.BOX_THICKNESS)
-            _label(frame, x1, y1, f"ID {t.id} {t.class_name.upper()} {t.confidence:.2f}", color)
+            thickness = config.BOX_THICKNESS
+            text = f"ID {t.id} {t.class_name.upper()} {t.confidence:.2f}"
+            if path_mode:
+                thickness = config.BOX_THICKNESS + 2 if t.in_path else 2
+                if t.in_path:
+                    text += "  IN PATH"
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
+            _label(frame, x1, y1, text, color)
         else:
             color = (170, 170, 170)
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
@@ -37,6 +44,16 @@ def draw_vehicles(frame, tracks):
             _label(frame, x1, y2 + 22, f"{t.class_name.upper()} ID {t.id}", color, 0.55)
         else:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (170, 170, 170), 1)
+    return frame
+
+
+def draw_path(frame, polygon, danger):
+    """Draws our projected path as a see-through shape: green = clear, red = damage in path."""
+    color = (0, 0, 255) if danger else (0, 200, 0)
+    layer = frame.copy()
+    cv2.fillPoly(layer, [polygon], color)
+    cv2.addWeighted(layer, 0.25, frame, 0.75, 0, frame)
+    cv2.polylines(frame, [polygon], True, color, 2)
     return frame
 
 

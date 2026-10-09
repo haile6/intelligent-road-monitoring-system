@@ -41,6 +41,11 @@ class Track:
         self.missed = 0              # frames in a row where it was not detected
         self.confirmed = False
         self.confirmed_frame = None
+        # Phase 4: path analysis results
+        self.in_path = False             # is it in our path right now?
+        self.path_frames = 0             # in how many frames was it in our path
+        self.first_path_frame = None
+        self.max_path_overlap = 0.0
 
     def update(self, det, frame_no, timestamp=None, adopt_class=False):
         # Vehicles: YOLO may call the same vehicle "car" then "truck".

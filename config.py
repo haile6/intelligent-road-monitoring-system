@@ -64,3 +64,25 @@ VEHICLES_CSV_PATH = os.path.join(BASE_DIR, "outputs", "phase3_vehicles.csv")
 DAMAGE_CSV_PHASE3 = os.path.join(BASE_DIR, 'outputs', 'phase3_damage_events.csv')
 
 DAMAGE_CSV_PHASE3 = os.path.join(BASE_DIR, 'outputs', 'phase3_damage_events.csv')
+
+
+# Phase 4 settings
+# ==== PHASE 4: vehicle-path analysis =======================================
+# The "projected path" is a trapezoid in the lower-centre of the picture:
+#
+#            ____________            <- top edge at PATH_TOP_Y_RATIO (far away, narrow)
+#           /            \
+#          /              \
+#         /________________\         <- bottom edge of the picture (close, wide)
+#
+PATH_WIDTH_RATIO = 0.35        # width of the path at the BOTTOM of the picture (35% of the width)
+PATH_TOP_WIDTH_RATIO = 0.12    # width of the path at its far (top) edge
+PATH_TOP_Y_RATIO = 0.55        # height of the far edge (0 = top of picture, 1 = bottom)
+PATH_CENTER_X_RATIO = 0.50     # 0.5 = the camera points straight along the road
+PATH_MIN_OVERLAP_RATIO = 0.30  # damage counts as "in path" if >= 30% of its box is inside the path
+                               # (or if the bottom-centre of its box is inside)
+
+PHASE4_USE_VEHICLES = True     # False = faster, damage + path only
+OUTPUT_VIDEO_PHASE4 = os.path.join(BASE_DIR, "outputs", "annotated_phase4.mp4")
+DAMAGE_CSV_PHASE4 = os.path.join(BASE_DIR, "outputs", "phase4_damage_events.csv")
+
