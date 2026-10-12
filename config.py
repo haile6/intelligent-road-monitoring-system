@@ -129,3 +129,14 @@ HEADING_MIN_MOVE_M = 3.0    # if the car moved less than this, the direction is 
 
 OUTPUT_VIDEO_PHASE6 = os.path.join(BASE_DIR, "outputs", "annotated_phase6.mp4")
 DAMAGE_CSV_PHASE6 = os.path.join(BASE_DIR, "outputs", "phase6_damage_events.csv")
+
+# ==== PHASE 7: Vehicle speed ================================================
+DEFAULT_SPEED_KMH = 30
+FORCE_DEFAULT_SPEED = False
+SPEED_FROM_POSITIONS = True
+SPEED_WINDOW_S = 2.0
+MAX_PLAUSIBLE_SPEED_KMH = 200
+MIN_MOVING_SPEED_KMH = 2.0
+
+OUTPUT_VIDEO_PHASE7 = os.path.join(BASE_DIR, "outputs", "annotated_phase7.mp4")
+DAMAGE_CSV_PHASE7 = os.path.join(BASE_DIR, "outputs", "phase7_damage_events.csv")

@@ -71,10 +71,29 @@ def draw_horizon(frame, row):
 
 
 def draw_banner(frame, lines):
-    """Small text panel in the top-left corner (width adjusts to the text)."""
-    widths = [cv2.getTextSize(t, cv2.FONT_HERSHEY_SIMPLEX, 0.65, 2)[0][0] for t in lines]
-    cv2.rectangle(frame, (0, 0), (max(widths) + 20, 12 + 26 * len(lines)), (0, 0, 0), -1)
-    for i, text in enumerate(lines):
-        cv2.putText(frame, text, (10, 26 + 26 * i), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.65, (255, 255, 255), 2)
+    """Draw banner lines; each item may be text or (text, colour)."""
+    items = []
+    for item in lines:
+        if isinstance(item, (tuple, list)) and len(item) == 2:
+            text, color = item
+            items.append((str(text), tuple(color)))
+        else:
+            items.append((str(item), (255, 255, 255)))
+
+    if not items:
+        return frame
+
+    widths = [
+        cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.65, 2)[0][0]
+        for text, _ in items
+    ]
+    cv2.rectangle(
+        frame, (0, 0), (max(widths) + 20, 12 + 26 * len(items)),
+        (0, 0, 0), -1
+    )
+    for i, (text, color) in enumerate(items):
+        cv2.putText(
+            frame, text, (10, 26 + 26 * i),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2
+        )
     return frame
