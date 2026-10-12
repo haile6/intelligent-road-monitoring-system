@@ -51,6 +51,12 @@ class Track:
         self.first_distance_m = None          # when the damage was confirmed
         self.path_entry_distance_m = None     # when it first entered our path
         self.min_distance_m = None            # closest estimate so far
+        # Phase 6: GPS at the moment the damage was confirmed
+        self.gps_status = None                # None = not looked up yet, "ok" or "no_fix"
+        self.gps_time = None                  # real clock time
+        self.latitude = self.longitude = None            # position of the CAR
+        self.speed_kmh = None
+        self.damage_latitude = self.damage_longitude = None   # estimated position of the DAMAGE
 
     def update(self, det, frame_no, timestamp=None, adopt_class=False):
         # Vehicles: YOLO may call the same vehicle "car" then "truck".

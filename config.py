@@ -109,3 +109,23 @@ OUTPUT_VIDEO_PHASE5 = os.path.join(
 DAMAGE_CSV_PHASE5 = os.path.join(
     BASE_DIR, "outputs", "phase5_damage_events.csv"
 )
+# ==== PHASE 6: GPS ==========================================================
+# CSV columns:  timestamp,latitude,longitude,speed_kmh
+# Example row:  2026-10-08T10:30:00,9.123456,39.123456,35.0
+GPS_PATH = os.path.join(BASE_DIR, "data", "gps_track.csv")
+
+# When did the VIDEO start, on the same clock and time zone as the GPS file?
+#   None  = assume the video started at the first GPS record (fine for tests)
+#   or a text such as "2026-10-08T10:30:00"
+VIDEO_START_TIME = None
+GPS_TIME_OFFSET_S = 0.0     # fine adjustment: if damage appears at the wrong place, shift by a few seconds
+GPS_MAX_GAP_S = 5.0         # no position if the GPS file has a hole longer than this
+
+# The GPS gives the position of the CAR. The damage is some metres ahead of it.
+# True = also save an estimated position of the damage itself (needs distance + movement)
+PROJECT_DAMAGE_LOCATION = True
+HEADING_LOOKBACK_S = 2.0    # direction of travel is measured over the last 2 seconds
+HEADING_MIN_MOVE_M = 3.0    # if the car moved less than this, the direction is not trusted
+
+OUTPUT_VIDEO_PHASE6 = os.path.join(BASE_DIR, "outputs", "annotated_phase6.mp4")
+DAMAGE_CSV_PHASE6 = os.path.join(BASE_DIR, "outputs", "phase6_damage_events.csv")
