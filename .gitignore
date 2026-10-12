@@ -56,3 +56,15 @@ models/yolo11s.pt
 
 # Temporary config instructions
 ADD_THIS_TO_config.py.txt
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+outputs/
+runs/
+*.mp4
+*.avi
+*.mov
