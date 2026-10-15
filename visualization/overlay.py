@@ -11,7 +11,8 @@ def _label(frame, x1, y1, text, color, scale=0.6):
                 cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), 2)
 
 
-def draw_tracks(frame, tracks, path_mode=False, show_distance=False):
+def draw_tracks(frame, tracks, path_mode=False, show_distance=False, show_ttc=False,
+                show_risk=False):
     """Road damage. Confirmed = coloured box + ID.
     Not yet confirmed = thin grey box with a 'checking 2/3' counter.
     path_mode (Phase 4): damage in our path = thick box + 'IN PATH', otherwise a thin box."""
@@ -27,6 +28,10 @@ def draw_tracks(frame, tracks, path_mode=False, show_distance=False):
                     text += "  IN PATH"
             if show_distance and t.distance_m is not None:
                 text += f"  ~{t.distance_m:.0f} m"          # estimated distance
+            if show_ttc and t.in_path and t.ttc_s is not None:
+                text += f"  TTC {t.ttc_s:.1f}s"             # time to impact (damage in our path only)
+            if show_risk and t.in_path and t.risk_rank >= 1:
+                text += f"  {config.RISK_DISPLAY[t.risk_level]}"
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
             _label(frame, x1, y1, text, color)
         else:
@@ -49,9 +54,11 @@ def draw_vehicles(frame, tracks):
     return frame
 
 
-def draw_path(frame, polygon, danger):
-    """Draws our projected path as a see-through shape: green = clear, red = damage in path."""
-    color = (0, 0, 255) if danger else (0, 200, 0)
+def draw_path(frame, polygon, danger, color=None):
+    """Draws our projected path as a see-through shape: green = clear, red = damage in path.
+    Phase 9: pass color to show the risk level instead."""
+    if color is None:
+        color = (0, 0, 255) if danger else (0, 200, 0)
     layer = frame.copy()
     cv2.fillPoly(layer, [polygon], color)
     cv2.addWeighted(layer, 0.25, frame, 0.75, 0, frame)
@@ -71,29 +78,11 @@ def draw_horizon(frame, row):
 
 
 def draw_banner(frame, lines):
-    """Draw banner lines; each item may be text or (text, colour)."""
-    items = []
-    for item in lines:
-        if isinstance(item, (tuple, list)) and len(item) == 2:
-            text, color = item
-            items.append((str(text), tuple(color)))
-        else:
-            items.append((str(item), (255, 255, 255)))
-
-    if not items:
-        return frame
-
-    widths = [
-        cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.65, 2)[0][0]
-        for text, _ in items
-    ]
-    cv2.rectangle(
-        frame, (0, 0), (max(widths) + 20, 12 + 26 * len(items)),
-        (0, 0, 0), -1
-    )
+    """Small text panel in the top-left corner (width adjusts to the text).
+    A line is either a text, or a pair (text, colour) - for example to highlight a test value."""
+    items = [(ln, (255, 255, 255)) if isinstance(ln, str) else ln for ln in lines]
+    widths = [cv2.getTextSize(t, cv2.FONT_HERSHEY_SIMPLEX, 0.65, 2)[0][0] for t, _ in items]
+    cv2.rectangle(frame, (0, 0), (max(widths) + 20, 12 + 26 * len(items)), (0, 0, 0), -1)
     for i, (text, color) in enumerate(items):
-        cv2.putText(
-            frame, text, (10, 26 + 26 * i),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2
-        )
+        cv2.putText(frame, text, (10, 26 + 26 * i), cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2)
     return frame

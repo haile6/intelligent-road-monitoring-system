@@ -35,6 +35,7 @@ class Track:
         self.bbox = det["bbox"]
         self.confidence = det["confidence"]        # latest confidence
         self.best_confidence = det["confidence"]   # highest confidence so far
+        self.conf_sum = det["confidence"]          # for the average confidence
         self.first_frame = self.last_frame = frame_no
         self.first_time = self.last_time = self.confirmed_time = timestamp
         self.hits = 1                # number of frames this object was detected in
@@ -56,7 +57,25 @@ class Track:
         self.gps_time = None                  # real clock time
         self.latitude = self.longitude = None            # position of the CAR
         self.speed_kmh = None
+        self.speed_mps = None                 # Phase 7
+        self.speed_source = None              # "gps", "computed_from_positions" or "default"
+        # Phase 8: time-to-impact in seconds (None = not available)
+        self.ttc_s = None                     # current
+        self.ttc_status = None                # "ok", "stopped" or "no_distance"
+        self.first_ttc_s = None               # when the damage was confirmed
+        self.min_ttc_s = None                 # shortest TTC seen while the damage was in our path
+        # Phase 9: risk level
+        self.risk_level = "SAFE"              # current level (see config.RISK_LEVELS)
+        self.risk_rank = 0
+        self.max_risk_level = "SAFE"          # highest level this damage ever reached
+        self.max_risk_rank = 0
+        self.max_risk_reasons = []
         self.damage_latitude = self.damage_longitude = None   # estimated position of the DAMAGE
+
+    @property
+    def mean_confidence(self):
+        """Average confidence over all frames the object was detected in."""
+        return self.conf_sum / self.hits
 
     def update(self, det, frame_no, timestamp=None, adopt_class=False):
         # Vehicles: YOLO may call the same vehicle "car" then "truck".
@@ -67,6 +86,7 @@ class Track:
         self.bbox = det["bbox"]
         self.confidence = det["confidence"]
         self.best_confidence = max(self.best_confidence, det["confidence"])
+        self.conf_sum += det["confidence"]
         self.last_frame = frame_no
         if timestamp is not None:
             self.last_time = timestamp
