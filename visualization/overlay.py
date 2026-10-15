@@ -42,13 +42,36 @@ def draw_tracks(frame, tracks, path_mode=False, show_distance=False, show_ttc=Fa
 
 
 def draw_vehicles(frame, tracks):
-    """Other vehicles. Only confirmed vehicles are labelled, e.g. 'CAR ID 3'."""
+    """Other vehicles. Displays tracking ID, estimated distance, relative closing speed, and collision warning."""
     for t in tracks:
         x1, y1, x2, y2 = t.bbox
         if t.confirmed:
-            color = config.VEHICLE_COLORS.get(t.class_name, (255, 255, 255))
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-            _label(frame, x1, y2 + 22, f"{t.class_name.upper()} ID {t.id}", color, 0.55)
+            risk = getattr(t, "risk_level", "SAFE")
+            if risk == "IMMEDIATE_DANGER":
+                color = (0, 0, 255)  # Red
+                thickness = 3
+            elif risk == "WARNING":
+                color = (0, 140, 255)  # Orange
+                thickness = 2
+            elif risk == "CAUTION":
+                color = (0, 255, 255)  # Yellow
+                thickness = 2
+            else:
+                color = config.VEHICLE_COLORS.get(t.class_name, (255, 255, 255))
+                thickness = 2
+
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
+            label_text = f"{t.class_name.upper()} ID {t.id}"
+            if getattr(t, "distance_m", None) is not None:
+                label_text += f" ~{t.distance_m:.0f}m"
+            if getattr(t, "closing_speed_kmh", 0) > 3:
+                label_text += f" +{t.closing_speed_kmh:.0f}km/h"
+            if getattr(t, "ttc_s", None) is not None and t.ttc_s < 5.0:
+                label_text += f" TTC {t.ttc_s:.1f}s"
+            if risk in ["WARNING", "IMMEDIATE_DANGER"]:
+                label_text += " [SLOW VEHICLE!]"
+
+            _label(frame, x1, max(y1, 20), label_text, color, 0.50)
         else:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (170, 170, 170), 1)
     return frame

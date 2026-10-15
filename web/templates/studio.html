@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Video Telemetry Studio{% endblock %}
+{% block page_title %}Video Telemetry & Visual Inspection Studio{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row g-3">
+        <!-- Main Video & Inspection Column -->
+        <div class="col-12 col-xl-9">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-white py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-camera-reels text-primary fs-5"></i>
+                        <span class="fw-semibold text-dark">Active Video Stream:</span>
+                        <select class="form-select form-select-sm" style="width: auto;" onchange="location.href='/studio?file=' + this.value">
+                            {% for v in video_files %}
+                            <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-primary" onclick="toggleViewerMode('video')" id="btn-mode-video">
+                            <i class="bi bi-play-btn-fill me-1"></i>HTML5 Video Player
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleViewerMode('frame')" id="btn-mode-frame">
+                            <i class="bi bi-layers-half me-1"></i>Precision Frame Scrubber
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body p-0 bg-dark text-center position-relative">
+                    <!-- HTML5 Video Player Mode (Default) -->
+                    <div id="video-container" class="w-100" style="display: block; min-height: 480px;">
+                        <video id="main-video" controls autoplay muted playsinline class="w-100" style="max-height: 540px; background: #000;">
+                            <source src="/media/video/{{ selected_video }}" type="video/mp4">
+                            Your browser does not support HTML5 video streaming with this codec. Use the Precision Frame Scrubber.
+                        </video>
+                    </div>
+
+                    <!-- Precision OpenCV Frame Inspector Mode (Fallback) -->
+                    <div id="frame-container" class="w-100 p-2 d-flex flex-column align-items-center justify-content-center" style="display: none; min-height: 480px; background: #111;">
+                        <img id="frame-image" src="/api/video/frame?file={{ selected_video }}&time=0" 
+                             class="img-fluid rounded border border-secondary border-opacity-50" 
+                             style="max-height: 520px; object-fit: contain;" alt="Video Frame">
+                        <div id="frame-loading" class="spinner-border text-primary position-absolute" style="display: none;" role="status">
+                            <span class="visually-hidden">Loading frame...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inspection Controls Toolbar -->
+                <div class="card-footer bg-white py-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)"><i class="bi bi-chevron-double-left"></i> -10</button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-1)"><i class="bi bi-chevron-left"></i> -1</button>
+                            <button class="btn btn-sm btn-success px-3" onclick="togglePlay()" id="btn-play"><i class="bi bi-play-fill"></i> Play</button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)"><i class="bi bi-chevron-right"></i> +1</button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)">+10 <i class="bi bi-chevron-double-right"></i></button>
+                        </div>
+                        <div class="col-12 col-md-6 d-flex align-items-center justify-content-md-end gap-3">
+                            <span class="text-secondary small">Timeline Position:</span>
+                            <span class="badge bg-light text-dark border font-mono fs-6" id="time-display">00:00.00</span>
+                            <span class="badge bg-secondary font-mono" id="frame-display">Frame: 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Scrubber Slider -->
+                    <div class="mt-3">
+                        <input type="range" class="form-range" id="time-slider" min="0" max="10" step="0.05" value="0" oninput="onSliderChange(this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Telemetry & Jump-to-Hazard Sidebar -->
+        <div class="col-12 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-semibold text-dark">
+                        <i class="bi bi-crosshair me-2 text-danger"></i>Hazard Timeline Keyframes
+                    </h6>
+                    <small class="text-secondary">Click any hazard to seek video frame</small>
+                </div>
+                <div class="card-body p-2 overflow-auto" style="max-height: 600px;">
+                    <div class="d-flex flex-column gap-2">
+                        {% for inc in incidents %}
+                        <div class="card p-2 border hover-shadow cursor-pointer" onclick="seekToTime({{ inc.video_time_s }})">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-dark small">
+                                    <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s) }}s
+                                </span>
+                                {% if 'IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level %}
+                                    <span class="badge bg-danger" style="font-size: 0.65rem;">IMMEDIATE DANGER</span>
+                                {% elif 'WARNING' in inc.max_risk_level %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">WARNING</span>
+                                {% else %}
+                                    <span class="badge bg-success" style="font-size: 0.65rem;">SAFE / MONITOR</span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-secondary">
+                                <b>{{ inc.damage_type }} #{{ inc.track_id }}</b> &bull; Frame {{ inc.frame_number }}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top text-muted" style="font-size: 0.72rem;">
+                                <span>Dist: <b>{{ inc.distance_m }}m</b></span>
+                                <span>TTC: <b class="text-danger">{% if inc.ttc_seconds %}{{ inc.ttc_seconds }}s{% else %}Safe{% endif %}</b></span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const selectedVideo = "{{ selected_video }}";
+    let currentTime = 0;
+    let isPlaying = false;
+    let playInterval = null;
+    let currentMode = 'video';
+
+    const frameImg = document.getElementById('frame-image');
+    const timeDisplay = document.getElementById('time-display');
+    const frameDisplay = document.getElementById('frame-display');
+    const timeSlider = document.getElementById('time-slider');
+    const playBtn = document.getElementById('btn-play');
+    const mainVideo = document.getElementById('main-video');
+
+    if (mainVideo) {
+        mainVideo.addEventListener('timeupdate', () => {
+            if (currentMode === 'video') {
+                currentTime = mainVideo.currentTime;
+                timeSlider.value = currentTime;
+                timeDisplay.textContent = formatTime(currentTime);
+                frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 30)}`;
+            }
+        });
+        mainVideo.addEventListener('loadedmetadata', () => {
+            if (mainVideo.duration) {
+                timeSlider.max = mainVideo.duration;
+            }
+        });
+        mainVideo.addEventListener('play', () => {
+            playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
+            playBtn.classList.replace('btn-success', 'btn-warning');
+            isPlaying = true;
+        });
+        mainVideo.addEventListener('pause', () => {
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
+            playBtn.classList.replace('btn-warning', 'btn-success');
+            isPlaying = false;
+        });
+    }
+
+    function toggleViewerMode(mode) {
+        currentMode = mode;
+        const videoCont = document.getElementById('video-container');
+        const frameCont = document.getElementById('frame-container');
+        const btnVideo = document.getElementById('btn-mode-video');
+        const btnFrame = document.getElementById('btn-mode-frame');
+
+        if (mode === 'video') {
+            videoCont.style.display = 'block';
+            frameCont.style.display = 'none';
+            btnVideo.classList.replace('btn-outline-secondary', 'btn-primary');
+            btnFrame.classList.replace('btn-primary', 'btn-outline-secondary');
+            if (mainVideo) {
+                mainVideo.currentTime = currentTime;
+                mainVideo.play().catch(e => console.log('Autoplay deferred:', e));
+            }
+        } else {
+            videoCont.style.display = 'none';
+            frameCont.style.display = 'flex';
+            btnFrame.classList.replace('btn-outline-secondary', 'btn-primary');
+            btnVideo.classList.replace('btn-primary', 'btn-outline-secondary');
+            if (mainVideo) mainVideo.pause();
+            updateFrame(currentTime);
+        }
+    }
+
+    function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = (sec % 60).toFixed(2);
+        return `${m.toString().padStart(2, '0')}:${s.padStart(5, '0')}`;
+    }
+
+    function updateFrame(time) {
+        currentTime = Math.max(0, time);
+        timeSlider.value = currentTime;
+        timeDisplay.textContent = formatTime(currentTime);
+        frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 30)}`;
+
+        if (currentMode === 'video' && mainVideo) {
+            mainVideo.currentTime = currentTime;
+        } else if (frameImg) {
+            frameImg.src = `/api/video/frame?file=${encodeURIComponent(selectedVideo)}&time=${currentTime.toFixed(2)}&t=${Date.now()}`;
+        }
+    }
+
+    function seekToTime(time) {
+        updateFrame(time);
+        if (currentMode === 'video' && mainVideo) {
+            mainVideo.currentTime = time;
+            mainVideo.play().catch(e => console.log('Playback:', e));
+        }
+    }
+
+    function onSliderChange(val) {
+        updateFrame(parseFloat(val));
+    }
+
+    function stepFrame(step) {
+        const newTime = currentTime + (step / 30.0);
+        updateFrame(newTime);
+    }
+
+    function togglePlay() {
+        if (currentMode === 'video' && mainVideo) {
+            if (mainVideo.paused) {
+                mainVideo.play();
+            } else {
+                mainVideo.pause();
+            }
+            return;
+        }
+
+        // Frame mode fallback
+        if (isPlaying) {
+            clearInterval(playInterval);
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
+            playBtn.classList.replace('btn-warning', 'btn-success');
+        } else {
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
+            playBtn.classList.replace('btn-success', 'btn-warning');
+            playInterval = setInterval(() => {
+                currentTime += 0.2;
+                if (mainVideo && mainVideo.duration && currentTime >= mainVideo.duration) {
+                    togglePlay();
+                    return;
+                }
+                updateFrame(currentTime);
+            }, 200);
+        }
+    }
+
+    // Set default initial frame
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTime = parseFloat(urlParams.get('time')) || 0.0;
+    updateFrame(initialTime);
+</script>
+{% endblock %}

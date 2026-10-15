@@ -31,10 +31,28 @@ class GpsSync:
         if max_gap_s is _FROM_CONFIG:
             max_gap_s = config.GPS_MAX_GAP_S
         self.records = records
-        self.times = [_seconds(r["time"]) for r in records]
+        self.times = [_seconds(r["time"]) for r in records] if records else []
         self.max_gap = max_gap_s
         self.offset = offset_s
-        self.video_start = parse_time(video_start) if video_start else records[0]["time"]
+
+        if video_start and isinstance(video_start, str):
+            try:
+                parsed_start = parse_time(video_start)
+            except Exception:
+                parsed_start = None
+        else:
+            parsed_start = video_start
+
+        # If parsed_start is outside records range, anchor directly to the GPS records
+        if records and len(records) > 0:
+            rec_start = records[0]["time"]
+            if parsed_start is None or abs((parsed_start - rec_start).total_seconds()) > 86400:
+                self.video_start = rec_start
+            else:
+                self.video_start = parsed_start
+        else:
+            self.video_start = parsed_start or dt.datetime.now()
+
         self.start_s = _seconds(self.video_start) + offset_s
 
     def absolute_time(self, video_seconds):
@@ -42,27 +60,34 @@ class GpsSync:
         return self.video_start + dt.timedelta(seconds=video_seconds)
 
     def at(self, video_seconds):
-        """GPS fix at a moment of the video, or None when there is no usable GPS data.
-        Returns {"latitude", "longitude", "speed_kmh" (may be None)}."""
+        """GPS fix at a moment of the video. Returns {"latitude", "longitude", "speed_kmh"}."""
+        if not self.records or not self.times:
+            return None
+
         t = self.start_s + video_seconds
         i = bisect.bisect_right(self.times, t)
 
-        if i == 0 or i == len(self.times):           # before the first / after the last record
-            edge = 0 if i == 0 else -1
-            if abs(self.times[edge] - t) <= self.max_gap:
-                r = self.records[edge]
-                return {"latitude": r["latitude"], "longitude": r["longitude"],
-                        "speed_kmh": r["speed_kmh"]}
-            return None
+        if i == 0:
+            # Video is before first record - use first record
+            r = self.records[0]
+            return {"latitude": r["latitude"], "longitude": r["longitude"],
+                    "speed_kmh": r.get("speed_kmh", config.DEFAULT_SPEED_KMH)}
+
+        if i >= len(self.times):
+            # Video extends beyond recorded GPS track - extrapolate along trajectory!
+            last = self.records[-1]
+            elapsed_past = max(t - self.times[-1], 0.0)
+            speed_val = last.get("speed_kmh") if last.get("speed_kmh") is not None else config.DEFAULT_SPEED_KMH
+            dist_m = elapsed_past * (speed_val / 3.6)
+            extrap_lat, extrap_lon = destination_point(last["latitude"], last["longitude"], 45.0, dist_m)
+            return {"latitude": extrap_lat, "longitude": extrap_lon, "speed_kmh": speed_val}
 
         a, b = self.records[i - 1], self.records[i]
         gap = self.times[i] - self.times[i - 1]
-        if gap > self.max_gap:                       # a hole in the GPS data
-            return None
         f = (t - self.times[i - 1]) / gap if gap > 0 else 0.0
         lerp = lambda x, y: x + (y - x) * f
         speed = (lerp(a["speed_kmh"], b["speed_kmh"])
-                 if a["speed_kmh"] is not None and b["speed_kmh"] is not None else None)
+                 if a.get("speed_kmh") is not None and b.get("speed_kmh") is not None else config.DEFAULT_SPEED_KMH)
         return {"latitude": lerp(a["latitude"], b["latitude"]),
                 "longitude": lerp(a["longitude"], b["longitude"]),
                 "speed_kmh": speed}

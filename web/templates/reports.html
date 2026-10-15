@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Maintenance Reports & Work Orders{% endblock %}
+{% block page_title %}Maintenance Dispatch & Pavement Work Orders{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        .sidebar, .navbar, .btn, footer, .no-print {
+            display: none !important;
+        }
+        .main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .card {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+        body {
+            background-color: #fff !important;
+            color: #000 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Action Bar (Hidden during printing) -->
+    <div class="card mb-4 no-print">
+        <div class="card-body py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h6 class="fw-bold mb-1">Official Pavement Maintenance & Hazard Work Order</h6>
+                <small class="text-secondary">Ready for immediate distribution to asphalt repair contractors and road crews.</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-sm btn-primary d-flex align-items-center gap-2">
+                    <i class="bi bi-printer-fill"></i> Print / Save PDF
+                </button>
+                <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-success text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> Export CSV Dataset
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official Work Order Sheet -->
+    <div class="card shadow-sm p-4 bg-white" id="printable-report">
+        <!-- Report Header -->
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="bg-primary text-white p-2 rounded"><i class="bi bi-cone-striped fs-4"></i></div>
+                    <h4 class="fw-bold text-dark mb-0">DEPARTMENT OF TRANSPORTATION & ROAD MAINTENANCE</h4>
+                </div>
+                <div class="text-secondary small">
+                    <b>AI ROAD SURVEILLANCE & HAZARD MITIGATION WORK ORDER</b><br>
+                    Generated on: {{ report_date }} &bull; System: RoadEye Pro AI v2.4
+                </div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-danger fs-6 px-3 py-2 mb-1">PRIORITY 1 DISPATCH</span>
+                <div class="text-muted small font-mono">ORDER REF: RM-2026-OCT-{{ stats.total_incidents }}</div>
+            </div>
+        </div>
+
+        <!-- Executive Statistics Matrix -->
+        <div class="row g-3 mb-4">
+            <div class="col-3">
+                <div class="p-3 border rounded bg-light">
+                    <span class="text-secondary small fw-semibold">TOTAL HAZARDS</span>
+                    <h3 class="fw-bold text-dark mb-0">{{ stats.total_incidents }}</h3>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="p-3 border rounded bg-danger bg-opacity-10 border-danger-subtle">
+                    <span class="text-danger small fw-semibold">IMMEDIATE DANGER</span>
+                    <h3 class="fw-bold text-danger mb-0">{{ stats.immediate_danger }}</h3>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="p-3 border rounded bg-warning bg-opacity-10 border-warning-subtle">
+                    <span class="text-warning-emphasis small fw-semibold">WARNING / CAUTION</span>
+                    <h3 class="fw-bold text-warning-emphasis mb-0">{{ stats.warning_count + stats.caution_count }}</h3>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="p-3 border rounded bg-light">
+                    <span class="text-secondary small fw-semibold">MONITORED SPEED</span>
+                    <h3 class="fw-bold text-dark mb-0">{{ stats.avg_speed }} km/h</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Action Items Section -->
+        <div class="mb-4">
+            <h5 class="fw-bold text-danger mb-3 border-bottom pb-2">
+                <i class="bi bi-exclamation-octagon-fill me-2"></i>Urgent Maintenance Required (Immediate Danger & Warning)
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hazard ID</th>
+                            <th>Damage Type</th>
+                            <th>GPS Coordinates</th>
+                            <th>Distance / TTC</th>
+                            <th>Risk Assessment</th>
+                            <th>Assigned Crew</th>
+                            <th>Action Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inc in critical_incidents %}
+                        <tr>
+                            <td class="fw-bold font-mono">#{{ inc.track_id }}</td>
+                            <td>
+                                <b class="text-uppercase">{{ inc.damage_type }}</b>
+                                <div class="text-muted small">Conf: {{ "%.0f"|format(inc.confidence * 100) }}%</div>
+                            </td>
+                            <td class="font-mono small">
+                                {% if inc.damage_latitude and inc.damage_longitude %}
+                                    {{ "%.5f"|format(inc.damage_latitude) }}, {{ "%.5f"|format(inc.damage_longitude) }}
+                                {% else %}
+                                    {{ "%.5f"|format(inc.latitude or 0) }}, {{ "%.5f"|format(inc.longitude or 0) }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>Dist: <b>{{ inc.distance_m }}m</b></div>
+                                <div class="text-danger fw-bold font-mono small">TTC: {{ inc.ttc_seconds }}s</div>
+                            </td>
+                            <td>
+                                <span class="badge {% if 'IMMEDIATE' in inc.max_risk_level %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                    {{ inc.max_risk_level }}
+                                </span>
+                                <div class="small text-muted mt-1">{{ inc.risk_reasons }}</div>
+                            </td>
+                            <td class="small">{{ inc.assigned_crew }}</td>
+                            <td class="small">
+                                {% if inc.damage_type == 'pothole' %}
+                                    Cold/Hot Mix Asphalt fill & compaction
+                                {% else %}
+                                    Crack seal bitumen injection
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sign-Off Section -->
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-6">
+                <div class="border-top border-dark pt-2" style="width: 250px;">
+                    <div class="fw-semibold">Inspecting Field Engineer</div>
+                    <div class="text-muted small">Signature & Date</div>
+                </div>
+            </div>
+            <div class="col-6 text-end">
+                <div class="border-top border-dark pt-2 ms-auto" style="width: 250px;">
+                    <div class="fw-semibold">Highway Maintenance Supervisor</div>
+                    <div class="text-muted small">Approval & Crew Dispatch</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

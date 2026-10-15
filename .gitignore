@@ -26,7 +26,8 @@ data/*.mov
 data/*.mkv
 
 # Generated maps
-*.html
+outputs/*.html
+!web/templates/*.html
 
 # OS
 .DS_Store
@@ -68,3 +69,10 @@ runs/
 *.mp4
 *.avi
 *.mov
+
+# Backups & temp inspection
+*.backup*
+*_backup.py
+phase*_temp/
+phase*_inspection.txt
+phase7_update_review/

@@ -1,0 +1,167 @@
+/* Custom Modern Styles for Road Monitoring Web Management Panel */
+:root {
+    --primary-color: #0d6efd;
+    --danger-color: #dc3545;
+    --warning-color: #fd7e14;
+    --caution-color: #ffc107;
+    --safe-color: #198754;
+    --dark-bg: #1e2430;
+    --sidebar-bg: #161c28;
+    --card-border: rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #334155;
+    background-color: #f8fafc;
+}
+
+code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.sidebar {
+    background-color: var(--sidebar-bg) !important;
+}
+
+.sidebar .nav-link {
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.card {
+    border: 1px solid var(--card-border);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    border-radius: 0.65rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--card-border);
+}
+
+/* Stat KPI Cards */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+/* Risk Badges */
+.badge-danger-risk {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    font-weight: 600;
+}
+
+.badge-warning-risk {
+    background-color: #ffedd5;
+    color: #c2410c;
+    border: 1px solid #fdba74;
+    font-weight: 600;
+}
+
+.badge-caution-risk {
+    background-color: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fde047;
+    font-weight: 600;
+}
+
+.badge-safe-risk {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+    font-weight: 600;
+}
+
+/* Status Badges */
+.badge-status-reported {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.badge-status-review {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.badge-status-scheduled {
+    background-color: #fae8ff;
+    color: #86198f;
+}
+
+.badge-status-repaired {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+/* Incident Table styling */
+.table th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    font-weight: 600;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 0.88rem;
+}
+
+/* Log Terminal Window */
+.terminal-window {
+    background-color: #0f172a;
+    color: #38bdf8;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    height: 380px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Video Canvas / Controls */
+.video-scrubber-container {
+    background-color: #000;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+/* Plate Crop Cards */
+.plate-card {
+    transition: transform 0.2s ease;
+}
+
+.plate-card:hover {
+    transform: scale(1.02);
+}

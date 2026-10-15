@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}AI Engine{% endblock %}
+{% block page_title %}Complete Road Intelligence & Hazard Detection AI Engine{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row g-3">
+        <!-- Unified Engine Execution Card -->
+        <div class="col-12 col-xl-5">
+            <div class="card shadow-sm mb-3 border-primary border-2">
+                <div class="card-header bg-primary bg-opacity-10 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary text-white mb-1">ALL-IN-ONE PIPELINE</span>
+                        <h5 class="mb-0 fw-bold text-dark">Unified AI Road Analysis</h5>
+                    </div>
+                    <i class="bi bi-cpu-fill text-primary fs-3"></i>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-secondary small mb-3">
+                        Executes all detection, tracking, physical distance estimation, GPS synchronization, collision corridor analysis, Time-to-Collision (TTC), risk assessment, and evidence image generation in <b>ONE SINGLE PASS</b>.
+                    </p>
+
+                    <div class="d-grid mb-4">
+                        <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2 py-3 fw-bold shadow-sm" 
+                                onclick="runUnifiedPipeline()">
+                            <i class="bi bi-play-circle-fill fs-4"></i> Run Complete Integrated Analysis
+                        </button>
+                    </div>
+
+                    <h6 class="fw-bold text-dark small text-uppercase mb-2">Integrated Pipeline Capabilities:</h6>
+                    <ul class="list-group list-group-flush small text-secondary">
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> Road Damage AI: Potholes & Alligator Cracks
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> Vehicle Detection: Cars, Trucks, Buses, Motorcycles
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> Perspective Metric Distance Estimation (meters)
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> Vehicle Path Collision Corridor & Impact Projection
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> GPS Velocity & Waypoint Geotagging
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> Time-To-Collision (TTC) & Driver Audio Warning
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> High-Resolution Evidence Crop Saving (`evidence_crops/`)
+                        </li>
+                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> Interactive Folium Road Damage Map Generation
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-Time Logs & Job Status Column -->
+        <div class="col-12 col-xl-7">
+            <!-- Active Job Monitor -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-terminal-fill text-dark"></i>
+                        <h6 class="mb-0 fw-semibold text-dark">Live Console Output</h6>
+                    </div>
+                    <div id="jobStatusBadge">
+                        <span class="badge bg-secondary">IDLE</span>
+                    </div>
+                </div>
+                <div class="card-body p-3 bg-dark">
+                    <div class="terminal-window" id="terminalOutput">Click "Run Complete Integrated Analysis" to start processing the video.</div>
+                </div>
+            </div>
+
+            <!-- Recent Pipeline Runs -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-clock-history me-2 text-primary"></i>Execution History</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Run ID</th>
+                                <th>Analysis Type</th>
+                                <th>Status</th>
+                                <th>Started At</th>
+                                <th>Finished At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for run in recent_runs %}
+                            <tr>
+                                <td><b>#{{ run.id }}</b></td>
+                                <td><span class="fw-semibold">All-in-One Road Analysis</span></td>
+                                <td>
+                                    {% if run.status == 'completed' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Success</span>
+                                    {% elif run.status == 'failed' %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Failed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Running</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ run.started_at }}</td>
+                                <td>{{ run.finished_at or '--' }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if recent_runs|length == 0 %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3 text-muted">No execution runs recorded yet.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let activePollInterval = null;
+
+    async function runUnifiedPipeline() {
+        const terminal = document.getElementById('terminalOutput');
+        const statusBadge = document.getElementById('jobStatusBadge');
+        terminal.textContent = `[System] Launching All-in-One Integrated Road Monitoring Engine...\n`;
+        statusBadge.innerHTML = '<span class="badge bg-warning text-dark"><i class="spinner-border spinner-border-sm me-1"></i> RUNNING</span>';
+
+        try {
+            const res = await fetch('/api/pipeline/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script: 'run_integrated.py' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                pollJob(data.run_id);
+            } else {
+                terminal.textContent += `[Error] ${data.error}\n`;
+                statusBadge.innerHTML = '<span class="badge bg-danger">FAILED</span>';
+            }
+        } catch (err) {
+            terminal.textContent += `[Error] Failed to trigger job: ${err}\n`;
+            statusBadge.innerHTML = '<span class="badge bg-danger">ERROR</span>';
+        }
+    }
+
+    function pollJob(runId) {
+        if (activePollInterval) clearInterval(activePollInterval);
+
+        activePollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/pipeline/status/${runId}`);
+                const data = await res.json();
+                if (data.success && data.run) {
+                    const run = data.run;
+                    const terminal = document.getElementById('terminalOutput');
+                    terminal.textContent = run.logs || '[Waiting for output...]';
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                    const statusBadge = document.getElementById('jobStatusBadge');
+                    if (run.status === 'completed') {
+                        statusBadge.innerHTML = '<span class="badge bg-success">COMPLETED</span>';
+                        clearInterval(activePollInterval);
+                    } else if (run.status === 'failed') {
+                        statusBadge.innerHTML = '<span class="badge bg-danger">FAILED</span>';
+                        clearInterval(activePollInterval);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }, 1500);
+    }
+</script>
+{% endblock %}

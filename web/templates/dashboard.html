@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Operational Overview & Hazard Telemetry{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    {% if new_video_available %}
+    <div class="alert alert-warning border-warning d-flex flex-wrap justify-content-between align-items-center p-3 mb-4 rounded shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-warning text-dark p-2 rounded"><i class="bi bi-camera-video-fill fs-4"></i></div>
+            <div>
+                <h6 class="fw-bold mb-1 text-dark">New Video Uploaded (`data/test_video.mp4`)</h6>
+                <p class="mb-0 text-secondary small">A new video file has been uploaded but has not been analyzed by the AI pipeline yet.</p>
+            </div>
+        </div>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a href="{{ url_for('pipeline_runner') }}" class="btn btn-warning text-dark fw-bold d-flex align-items-center gap-2">
+                <i class="bi bi-play-circle-fill"></i> Run AI Detection Pipeline Now
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- User-Friendly 3-Step Getting Started Banner -->
+    <div class="card bg-primary text-white border-0 shadow-sm mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div>
+                    <span class="badge bg-white text-primary fw-bold text-uppercase px-2 py-1 mb-2" style="font-size: 0.72rem; letter-spacing: 0.05em;">Complete Road Intelligence System</span>
+                    <h3 class="fw-bold mb-1 text-white">RoadEye Pro &bull; AI Road Damage & Hazard Monitoring</h3>
+                    <p class="mb-0 text-white-50" style="font-size: 0.92rem;">Real-time AI detection of potholes, alligator cracks, surrounding traffic, collision distances, and driver safety alarms.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4" class="btn btn-light text-primary fw-bold px-3 shadow-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-play-circle-fill fs-5 text-primary"></i> <span>Watch Master Video</span>
+                    </a>
+                    <a href="{{ url_for('map_view') }}" class="btn btn-outline-light fw-semibold px-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt-fill"></i> <span>Open GIS Map</span>
+                    </a>
+                </div>
+            </div>
+
+            <hr class="border-white border-opacity-25 my-3">
+
+            <!-- 3 Easy Steps for the User -->
+            <div class="row g-3 text-white">
+                <div class="col-12 col-md-4">
+                    <div class="d-flex align-items-start gap-3 bg-white bg-opacity-10 p-3 rounded">
+                        <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 flex-shrink-0" style="width: 36px; height: 36px;">1</div>
+                        <div>
+                            <div class="fw-bold fs-6 mb-1">Step 1: Upload Dashcam Video</div>
+                            <small class="text-white-75 d-block" style="font-size: 0.78rem;">Click <b>Upload Video</b> at the top right to analyze your own road footage, or use the pre-loaded highway test video.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="d-flex align-items-start gap-3 bg-white bg-opacity-10 p-3 rounded">
+                        <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 flex-shrink-0" style="width: 36px; height: 36px;">2</div>
+                        <div>
+                            <div class="fw-bold fs-6 mb-1">Step 2: Run AI Analysis</div>
+                            <small class="text-white-75 d-block" style="font-size: 0.78rem;">Click <b>Run AI Analysis</b>. The neural network detects potholes, estimates distance in meters, and calculates Time-To-Collision in one pass.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="d-flex align-items-start gap-3 bg-white bg-opacity-10 p-3 rounded">
+                        <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 flex-shrink-0" style="width: 36px; height: 36px;">3</div>
+                        <div>
+                            <div class="fw-bold fs-6 mb-1">Step 3: Review Results</div>
+                            <small class="text-white-75 d-block" style="font-size: 0.78rem;">Play the annotated video with telemetry overlays, view GPS pins on the interactive map, and manage repair work orders.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role-Based Persona Quick Launcher -->
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-people-fill text-primary me-2"></i>Role-Based Operations Console</h6>
+                <small class="text-muted">Select a persona to tailor workflows and tools for specific operational duties</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="setRole('all', false)"><i class="bi bi-arrow-repeat me-1"></i>Reset to Full System</button>
+            </div>
+        </div>
+        <div class="card-body p-3 bg-light bg-opacity-50">
+            <div class="row g-3">
+                <!-- Role 1: Driver -->
+                <div class="col-12 col-md-4">
+                    <div class="card h-100 border-danger border-opacity-25 shadow-none bg-white p-3 role-launcher-card" style="border-left: 4px solid #dc3545 !important;">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-danger rounded-circle p-2"><i class="bi bi-speedometer2 fs-6"></i></span>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">1. The Driver</h6>
+                                <small class="text-danger fw-semibold" style="font-size: 0.72rem;">In-Vehicle Real-Time Safety</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-3" style="font-size: 0.78rem;">
+                            Live collision corridor, immediate pothole impact alerts, TTC countdown, and audible chimes for defensive steering.
+                        </p>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4" onclick="setRole('driver')" class="btn btn-sm btn-danger text-white w-100 fw-semibold">
+                                <i class="bi bi-play-circle-fill me-1"></i> Open Driver HUD (TTC)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role 2: Road Manager -->
+                <div class="col-12 col-md-4">
+                    <div class="card h-100 border-warning border-opacity-25 shadow-none bg-white p-3 role-launcher-card" style="border-left: 4px solid #ffc107 !important;">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-warning text-dark rounded-circle p-2"><i class="bi bi-tools fs-6"></i></span>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">2. Road Manager</h6>
+                                <small class="text-warning-emphasis fw-semibold" style="font-size: 0.72rem;">Field Operations & Maintenance</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-3" style="font-size: 0.78rem;">
+                            GIS map with GPS-tagged damage pins, metric square-meter severity calculations, repair ticket lifecycle & crew dispatch.
+                        </p>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ url_for('map_view') }}" onclick="setRole('manager')" class="btn btn-sm btn-warning text-dark w-50 fw-semibold">
+                                <i class="bi bi-geo-alt-fill me-1"></i> GIS Map
+                            </a>
+                            <a href="{{ url_for('incidents_view') }}" onclick="setRole('manager')" class="btn btn-sm btn-outline-dark w-50 fw-semibold">
+                                <i class="bi bi-clipboard-check me-1"></i> Work Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role 3: Governing Body -->
+                <div class="col-12 col-md-4">
+                    <div class="card h-100 border-info border-opacity-25 shadow-none bg-white p-3 role-launcher-card" style="border-left: 4px solid #0dcaf0 !important;">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-info text-dark rounded-circle p-2"><i class="bi bi-building-check fs-6"></i></span>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">3. Governing Body</h6>
+                                <small class="text-info-emphasis fw-semibold" style="font-size: 0.72rem;">City Council & Transport Ministry</small>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-3" style="font-size: 0.78rem;">
+                            City road health scoring, accident liability reduction, contractor verification, and asphalt repair budget allocation.
+                        </p>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ url_for('reports_view') }}" onclick="setRole('executive')" class="btn btn-sm btn-info text-dark w-50 fw-semibold">
+                                <i class="bi bi-bar-chart-fill me-1"></i> Audit Report
+                            </a>
+                            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-info text-dark w-50 fw-semibold">
+                                <i class="bi bi-download me-1"></i> Export CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top KPI Cards Row -->
+    <div class="row g-3 mb-4">
+        <!-- Total Incidents -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card stat-card h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem;">Total Incidents</span>
+                        <h2 class="fw-bold mb-0 text-dark">{{ stats.total_incidents }}</h2>
+                        <small class="text-muted"><i class="bi bi-clock-history"></i> Detected on road corridor</small>
+                    </div>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-cone-striped fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Immediate Danger -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card stat-card h-100 p-3 border-danger-subtle">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-danger text-uppercase fw-semibold" style="font-size: 0.75rem;">Immediate Danger</span>
+                        <h2 class="fw-bold mb-0 text-danger">{{ stats.immediate_danger }}</h2>
+                        <small class="text-danger-emphasis"><i class="bi bi-exclamation-octagon-fill"></i> In-path TTC &lt; 1.0s</small>
+                    </div>
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                        <i class="bi bi-shield-slash-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning / Caution -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card stat-card h-100 p-3 border-warning-subtle">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-warning-emphasis text-uppercase fw-semibold" style="font-size: 0.75rem;">Warnings</span>
+                        <h2 class="fw-bold mb-0 text-warning-emphasis">{{ stats.warning_count }}</h2>
+                        <small class="text-muted"><i class="bi bi-sign-stop-fill"></i> Approaching trajectory</small>
+                    </div>
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning-emphasis">
+                        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Speed & Vehicles -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card stat-card h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem;">Monitored Speed</span>
+                        <h2 class="fw-bold mb-0 text-success">{{ stats.avg_speed }} <span class="fs-6 fw-normal text-muted">km/h</span></h2>
+                        <small class="text-muted"><i class="bi bi-car-front"></i> {{ stats.total_plates }} plate scans</small>
+                    </div>
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-speedometer2 fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts & Summary Row -->
+    <div class="row g-3 mb-4">
+        <!-- Risk Distribution Chart -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between py-3">
+                    <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Risk Severity Breakdown</h6>
+                    <span class="badge bg-light text-dark border">AI Risk Engine</span>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center p-4">
+                    <div style="max-height: 260px; width: 100%;">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Damage Types Chart -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between py-3">
+                    <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Hazard Classification (YOLOv8)</h6>
+                    <span class="badge bg-light text-dark border">Potholes & Cracks</span>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center p-4">
+                    <div style="max-height: 260px; width: 100%;">
+                        <canvas id="damageTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Critical Incidents & Quick Management -->
+    <div class="row g-3">
+        <div class="col-12 col-xl-8">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-list-check me-2 text-primary"></i>Recent Damage Incidents</h6>
+                    </div>
+                    <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-primary">
+                        View All ({{ stats.total_incidents }}) &rarr;
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Risk Level</th>
+                                <th>Distance</th>
+                                <th>TTC</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for inc in recent_incidents %}
+                            <tr>
+                                <td>
+                                    <span class="fw-semibold">#{{ inc.track_id }}</span>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Frame {{ inc.frame_number }}</div>
+                                </td>
+                                <td>
+                                    {% if inc.damage_type == 'pothole' %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-record-circle me-1"></i>Pothole
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                            <i class="bi bi-slash-square me-1"></i>Crack
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if 'IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level %}
+                                        <span class="badge badge-danger-risk px-2 py-1"><i class="bi bi-exclamation-octagon-fill me-1"></i>{{ inc.max_risk_level }}</span>
+                                    {% elif 'WARNING' in inc.max_risk_level %}
+                                        <span class="badge badge-warning-risk px-2 py-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ inc.max_risk_level }}</span>
+                                    {% elif 'CAUTION' in inc.max_risk_level %}
+                                        <span class="badge badge-caution-risk px-2 py-1"><i class="bi bi-info-circle-fill me-1"></i>{{ inc.max_risk_level }}</span>
+                                    {% else %}
+                                        <span class="badge badge-safe-risk px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i>{{ inc.max_risk_level }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="fw-medium">{{ inc.distance_m or '--' }} m</span>
+                                </td>
+                                <td>
+                                    {% if inc.ttc_seconds %}
+                                        <span class="badge bg-dark font-mono">{{ inc.ttc_seconds }}s</span>
+                                    {% else %}
+                                        <span class="text-muted">&mdash;</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill 
+                                        {% if inc.status == 'Repaired' %}badge-status-repaired
+                                        {% elif inc.status == 'Scheduled for Repair' %}badge-status-scheduled
+                                        {% elif inc.status == 'In Review' %}badge-status-review
+                                        {% else %}badge-status-reported{% endif %}">
+                                        {{ inc.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&time={{ inc.video_time_s }}" class="btn btn-sm btn-light border p-1 px-2" title="Inspect in Video Studio">
+                                        <i class="bi bi-camera-video text-primary"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links & Operation Shortcuts -->
+        <div class="col-12 col-xl-4">
+            <div class="card h-100">
+                <div class="card-header py-3">
+                    <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Operations & Tools</h6>
+                </div>
+                <div class="card-body d-flex flex-column gap-3">
+                    <a href="{{ url_for('map_view') }}" class="card text-decoration-none p-3 border hover-shadow bg-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 bg-primary text-white rounded"><i class="bi bi-geo-alt fs-4"></i></div>
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">GIS Road Map</h6>
+                                <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Explore GPS trajectory & pinpointed potholes.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('video_studio') }}" class="card text-decoration-none p-3 border hover-shadow bg-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 bg-success text-white rounded"><i class="bi bi-film fs-4"></i></div>
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">Video Telemetry Studio</h6>
+                                <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Interactive frame scrubber with bounding boxes & TTC overlay.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('pipeline_runner') }}" class="card text-decoration-none p-3 border hover-shadow bg-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 bg-info text-white rounded"><i class="bi bi-play-circle fs-4"></i></div>
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">AI Pipeline Runner</h6>
+                                <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Re-run Phase 9 risk calculations or update models.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('reports_view') }}" class="card text-decoration-none p-3 border hover-shadow bg-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 bg-danger text-white rounded"><i class="bi bi-tools fs-4"></i></div>
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">Work Orders & Crew Dispatch</h6>
+                                <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Print maintenance reports for repair crews.</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    // 1. Risk Severity Chart
+    const ctxRisk = document.getElementById('riskChart').getContext('2d');
+    new Chart(ctxRisk, {
+        type: 'doughnut',
+        data: {
+            labels: ['Immediate Danger', 'Warning', 'Caution', 'Safe / Monitor'],
+            datasets: [{
+                data: [
+                    {{ stats.immediate_danger }},
+                    {{ stats.warning_count }},
+                    {{ stats.caution_count }},
+                    {{ stats.safe_count }}
+                ],
+                backgroundColor: [
+                    '#ef4444',
+                    '#f97316',
+                    '#eab308',
+                    '#22c55e'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 12, padding: 15, font: { family: 'Inter', size: 12 } }
+                }
+            },
+            cutout: '68%'
+        }
+    });
+
+    // 2. Damage Types Chart
+    const ctxDamage = document.getElementById('damageTypeChart').getContext('2d');
+    new Chart(ctxDamage, {
+        type: 'bar',
+        data: {
+            labels: ['Potholes', 'Alligator Cracks'],
+            datasets: [{
+                label: 'Detections',
+                data: [{{ stats.potholes }}, {{ stats.cracks }}],
+                backgroundColor: ['#dc2626', '#d97706'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

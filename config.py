@@ -21,7 +21,7 @@ EXPECTED_CLASSES = {
     1: "pothole",
 }
 
-CONFIDENCE_THRESHOLD = 0.40
+CONFIDENCE_THRESHOLD = 0.25  # Lowered from 0.40 to capture fainter alligator cracks
 IMAGE_SIZE = 640
 
 # ============================================================
@@ -40,7 +40,7 @@ CLASS_COLORS = {
 # ============================================================
 TRACK_IOU_THRESHOLD = 0.30
 TRACK_MAX_MISSED_FRAMES = 5
-MIN_CONFIRMATION_FRAMES = 3
+MIN_CONFIRMATION_FRAMES = 2  # Lowered from 3 to confirm faster on moving footage
 
 OUTPUT_VIDEO_PHASE2 = os.path.join(
     BASE_DIR, "outputs", "phase2_tracked.mp4"
@@ -56,7 +56,7 @@ VEHICLE_MODEL_PATH = os.path.join(
     BASE_DIR, "models", "yolo11s.pt"
 )
 
-VEHICLE_CONFIDENCE_THRESHOLD = 0.40
+VEHICLE_CONFIDENCE_THRESHOLD = 0.30  # Lowered from 0.40 to capture distant vehicles
 VEHICLE_IMAGE_SIZE = 640
 
 VEHICLE_CLASSES = {
@@ -75,7 +75,7 @@ VEHICLE_COLORS = {
 
 VEHICLE_TRACK_IOU_THRESHOLD = 0.30
 VEHICLE_TRACK_MAX_MISSED_FRAMES = 15
-VEHICLE_MIN_CONFIRMATION_FRAMES = 3
+VEHICLE_MIN_CONFIRMATION_FRAMES = 2
 
 IGNORE_OWN_VEHICLE = True
 OWN_VEHICLE_BOTTOM_MARGIN = 0.02

@@ -1,354 +1,265 @@
+r"""
+PHASE 8: time-to-impact (TTC).
 
-import os
+Run:   python run_phase8.py
+
+Builds on Phase 7:  TTC = estimated distance / speed.
+  20 m at 36 km/h (10 m/s)  ->  2 seconds.   Speed zero -> TTC is "N/A" (no division by zero).
+The distance is an ESTIMATE and the speed may be a DEFAULT test value, so the TTC is
+marked as a test value whenever the speed is the default one.
+
+Outputs (folder outputs):
+  annotated_phase8.mp4        video with distance, speed and time-to-impact
+  phase8_damage_events.csv    confirmed damage events with TTC
+"""
 import csv
-
+import os
 import cv2
-import easyocr
-from ultralytics import YOLO
 
-from detection.vehicle_detector import VehicleDetector
-from detection.tracker import VehicleTracker
+import config
+from detection.road_damage_detector import RoadDamageDetector
+from detection.tracker import DamageTracker, VehicleTracker
+from gps.gps_reader import load_gps_csv, describe
+from gps.gps_sync import GpsSync
+from gps.speed_provider import SpeedProvider
+from risk.path_analyzer import PathAnalyzer
+from risk.distance_estimator import make_estimator
+from risk.ttc_calculator import calculate_ttc, format_ttc
+from visualization.overlay import (draw_tracks, draw_vehicles, draw_path,
+                                   draw_horizon, draw_banner)
 
-
-# Phase 6 video already contains GPS and road-damage overlays.
-INPUT_VIDEO = r"outputs\annotated_phase7.mp4"
-
-# License plate detection model.
-PLATE_MODEL_PATH = r"models\license_plate_detector.pt"
-
-OUTPUT_DIR = r"outputs"
-OUTPUT_VIDEO = os.path.join(
-    OUTPUT_DIR, "annotated_phase8.mp4"
-)
-OUTPUT_CSV = os.path.join(
-    OUTPUT_DIR, "phase8_plate_readings.csv"
-)
-
-PLATE_CONFIDENCE = 0.25
-PLATE_IMAGE_SIZE = 960
-OCR_EVERY_N_FRAMES = 3
+WHITE, YELLOW, ORANGE = (255, 255, 255), (0, 255, 255), (0, 140, 255)
 
 
-def associate_vehicle(plate_box, vehicles):
-    """Associate a plate with a confirmed tracked vehicle."""
-    px1, py1, px2, py2 = plate_box
-    cx = (px1 + px2) / 2
-    cy = (py1 + py2) / 2
-
-    candidates = []
-
-    for vehicle in vehicles:
-        if not vehicle.confirmed:
-            continue
-
-        x1, y1, x2, y2 = vehicle.bbox
-
-        if x1 <= cx <= x2 and y1 <= cy <= y2:
-            area = max(1, (x2 - x1) * (y2 - y1))
-            candidates.append((area, vehicle.id))
-
-    if not candidates:
-        return ""
-
-    candidates.sort()
-    return candidates[0][1]
+def fmt_time(seconds):
+    return f"{int(seconds // 60):02d}:{seconds % 60:04.1f}"
 
 
-def main():
-    if not os.path.isfile(INPUT_VIDEO):
-        raise SystemExit(
-            f"Phase 6 video not found: {INPUT_VIDEO}"
-        )
+def num(value, digits):
+    return "" if value is None else f"{value:.{digits}f}"
 
-    if not os.path.isfile(PLATE_MODEL_PATH):
-        raise SystemExit(
-            f"Plate model not found: {PLATE_MODEL_PATH}"
-        )
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+def speed_text(info):
+    """Text and colour for the speed line: a default value is clearly marked."""
+    if info["is_default"]:
+        return f"Speed: {info['speed_kmh']:.0f} km/h  (DEFAULT - test value)", ORANGE
+    if info["source"] == "computed_from_positions":
+        return f"Speed: {info['speed_kmh']:.0f} km/h  (computed from GPS positions)", YELLOW
+    return f"Speed: {info['speed_kmh']:.0f} km/h  (GPS)", WHITE
 
-    print("Loading vehicle detector...")
-    vehicle_detector = VehicleDetector()
-    vehicle_tracker = VehicleTracker()
 
-    print("Loading license plate detector...")
-    plate_detector = YOLO(PLATE_MODEL_PATH)
+def main(detector=None, vehicle_detector=None):
+    if not os.path.exists(config.VIDEO_PATH):
+        raise SystemExit(f"Video not found: {config.VIDEO_PATH}\nFix VIDEO_PATH in config.py")
+    if detector is None:
+        if not os.path.exists(config.MODEL_PATH):
+            raise SystemExit(f"Model not found: {config.MODEL_PATH}")
+        detector = RoadDamageDetector()
+    if vehicle_detector is None and config.PHASE4_USE_VEHICLES:
+        from detection.vehicle_detector import VehicleDetector
+        vehicle_detector = VehicleDetector()
+    use_vehicles = config.PHASE4_USE_VEHICLES and vehicle_detector is not None
 
-    print("Loading EasyOCR...")
-    reader = easyocr.Reader(["en"], gpu=False)
-
-    cap = cv2.VideoCapture(INPUT_VIDEO)
-
+    cap = cv2.VideoCapture(config.VIDEO_PATH)
     if not cap.isOpened():
-        raise SystemExit(
-            f"Cannot open video: {INPUT_VIDEO}"
-        )
-
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    if fps <= 0:
-        fps = 30.0
-
+        raise SystemExit("Could not open the video.")
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    duration = total / fps
 
-    writer = cv2.VideoWriter(
-        OUTPUT_VIDEO,
-        cv2.VideoWriter_fourcc(*"mp4v"),
-        fps,
-        (width, height),
-    )
+    # ---- GPS (optional in this phase) ----
+    gps = None
+    if os.path.exists(config.GPS_PATH):
+        records = load_gps_csv(config.GPS_PATH)
+        gps = GpsSync(records)
+        print(f"\nGPS: {describe(records)}")
+        print(f"GPS position available for {gps.coverage(duration):.0%} of the video")
+    else:
+        print(f"\nNOTE: no GPS file at {config.GPS_PATH}")
+        print(f"      Every speed will be the DEFAULT test value ({config.DEFAULT_SPEED_KMH} km/h).")
+    if config.FORCE_DEFAULT_SPEED:
+        print(f"NOTE: FORCE_DEFAULT_SPEED is on: GPS speed is ignored.")
+    speed_provider = SpeedProvider(gps)
+    print(f"Video: {width}x{height}, {fps:.1f} fps, {duration:.0f} s\n")
 
-    if not writer.isOpened():
-        cap.release()
-        raise SystemExit(
-            f"Cannot create output video: {OUTPUT_VIDEO}"
-        )
+    path = PathAnalyzer(width, height)
+    distance = make_estimator(width, height)
 
-    best_reading = {}
-    rows = []
+    os.makedirs(os.path.dirname(config.OUTPUT_VIDEO_PHASE8), exist_ok=True)
+    writer = cv2.VideoWriter(config.OUTPUT_VIDEO_PHASE8,
+                             cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
+
+    damage_tracker = DamageTracker()
+    vehicle_tracker = VehicleTracker()
+    damage_counts = {name: 0 for name in config.EXPECTED_CLASSES.values()}
+    speed_frames = {"gps": 0, "computed_from_positions": 0, "default": 0}
+    speeds = []
+    vehicle_total = 0
+    frames_with_path_risk = 0
     frame_no = 0
-    plate_count = 0
+    a = config.DISTANCE_SMOOTHING
 
-    try:
-        while True:
-            ok, frame = cap.read()
+    while True:
+        ok, frame = cap.read()
+        if not ok:
+            break
+        frame_no += 1
+        timestamp = frame_no / fps
+        fix = gps.at(timestamp) if gps else None
+        speed = speed_provider.get(timestamp)             # speed now, with its source
+        speed_frames[speed["source"]] += 1
+        speeds.append(speed["speed_kmh"])
 
-            if not ok:
-                break
+        visible, newly_confirmed = damage_tracker.update(
+            detector.detect(frame), frame_no, timestamp)
+        for t in newly_confirmed:
+            damage_counts[t.class_name] += 1
 
-            frame_no += 1
-            timestamp = (frame_no - 1) / fps
+        danger_now = []
+        for t in visible:
+            result = path.analyze(t.bbox)
+            t.in_path = result["in_path"]
 
-            # Detect and track vehicles.
-            detections = vehicle_detector.detect(frame)
+            d = distance.estimate(t.bbox, frame)["distance_m"]
+            if d is not None:
+                t.distance_m = d if t.distance_m is None else a * d + (1 - a) * t.distance_m
+                t.min_distance_m = (t.distance_m if t.min_distance_m is None
+                                    else min(t.min_distance_m, t.distance_m))
+            if t.confirmed and t.first_distance_m is None:
+                t.first_distance_m = t.distance_m
 
-            vehicles, _ = vehicle_tracker.update(
-                detections,
-                frame_no,
-                timestamp,
-            )
+            # ---- time-to-impact: estimated distance / CURRENT speed ----
+            ttc = calculate_ttc(t.distance_m, speed["speed_mps"])
+            t.ttc_s, t.ttc_status = ttc["ttc_s"], ttc["status"]
+            if t.confirmed and t.in_path and t.ttc_s is not None:
+                t.min_ttc_s = t.ttc_s if t.min_ttc_s is None else min(t.min_ttc_s, t.ttc_s)
 
-            # Detect license plates.
-            result = plate_detector.predict(
-                frame,
-                imgsz=PLATE_IMAGE_SIZE,
-                conf=PLATE_CONFIDENCE,
-                verbose=False,
-            )[0]
-
-            # Draw vehicle IDs.
-            for vehicle in vehicles:
-                x1, y1, x2, y2 = vehicle.bbox
-
-                cv2.rectangle(
-                    frame,
-                    (x1, y1),
-                    (x2, y2),
-                    (255, 180, 0),
-                    2,
-                )
-
-                cv2.putText(
-                    frame,
-                    f"Vehicle {vehicle.id}",
-                    (x1, max(20, y1 - 8)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.55,
-                    (255, 180, 0),
-                    2,
-                )
-
-            # Recognize each detected plate.
-            for box in result.boxes:
-                x1, y1, x2, y2 = map(
-                    int, box.xyxy[0].tolist()
-                )
-
-                x1 = max(0, min(x1, width - 1))
-                y1 = max(0, min(y1, height - 1))
-                x2 = max(0, min(x2, width))
-                y2 = max(0, min(y2, height))
-
-                if x2 <= x1 or y2 <= y1:
-                    continue
-
-                plate_count += 1
-                plate_box = (x1, y1, x2, y2)
-
-                vehicle_id = associate_vehicle(
-                    plate_box, vehicles
-                )
-
-                plate_text = ""
-                ocr_confidence = None
-
-                # OCR every third frame.
-                if (frame_no - 1) % OCR_EVERY_N_FRAMES == 0:
-                    crop = frame[y1:y2, x1:x2]
-
-                    if crop.size > 0:
-                        crop = cv2.copyMakeBorder(
-                            crop,
-                            8, 8, 8, 8,
-                            cv2.BORDER_REPLICATE,
-                        )
-
-                        crop = cv2.resize(
-                            crop,
-                            None,
-                            fx=3,
-                            fy=3,
-                            interpolation=cv2.INTER_CUBIC,
-                        )
-
-                        readings = reader.readtext(
-                            crop,
-                            detail=1,
-                            paragraph=False,
-                            allowlist=(
-                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                "0123456789"
-                            ),
-                        )
-
-                        readings = [
-                            (text.strip(), float(score))
-                            for _, text, score in readings
-                            if text.strip()
-                        ]
-
-                        if readings:
-                            plate_text = " ".join(
-                                text for text, _ in readings
-                            )
-
-                            ocr_confidence = sum(
-                                score for _, score in readings
-                            ) / len(readings)
-
-                            if vehicle_id != "":
-                                previous = best_reading.get(
-                                    vehicle_id
-                                )
-
-                                if (
-                                    previous is None
-                                    or ocr_confidence > previous[1]
-                                ):
-                                    best_reading[vehicle_id] = (
-                                        plate_text,
-                                        ocr_confidence,
-                                    )
-
-                # Reuse a previous reading for this vehicle.
-                if (
-                    vehicle_id != ""
-                    and vehicle_id in best_reading
-                ):
-                    old_text, old_confidence = best_reading[
-                        vehicle_id
-                    ]
-
-                    if not plate_text:
-                        plate_text = old_text
-                        ocr_confidence = old_confidence
-
-                if plate_text:
-                    label = plate_text
+            # ---- GPS + speed for the event: looked up ONCE, when it is confirmed ----
+            if t.confirmed and t.gps_status is None:
+                if gps is not None:
+                    t.gps_time = gps.absolute_time(timestamp)
+                t.speed_kmh, t.speed_mps, t.speed_source = (
+                    speed["speed_kmh"], speed["speed_mps"], speed["source"])
+                t.first_ttc_s = t.ttc_s
+                if gps is None:
+                    t.gps_status = "no_gps_file"
+                elif fix is None:
+                    t.gps_status = "no_fix"
                 else:
-                    label = "Plate unreadable"
+                    t.gps_status = "ok"
+                    t.latitude, t.longitude = fix["latitude"], fix["longitude"]
+                    if config.PROJECT_DAMAGE_LOCATION:
+                        t.damage_latitude, t.damage_longitude = gps.damage_location(
+                            timestamp, t.distance_m)
+                dist_text = f"~{t.distance_m:.0f} m" if t.distance_m is not None else "unknown"
+                tag = "DEFAULT test value" if speed["is_default"] else speed["source"]
+                print(f"[{fmt_time(timestamp)}] CONFIRMED  {t.class_name:16s} ID {t.id:<3d} "
+                      f"conf {t.confidence:.2f} | {dist_text} | "
+                      f"{speed['speed_kmh']:.0f} km/h ({tag}, {speed['speed_mps']:.1f} m/s) | "
+                      f"TTC {format_ttc(t.ttc_s, t.ttc_status)}"
+                      f"{' [test value: default speed]' if speed['is_default'] and t.ttc_s is not None else ''}")
 
-                if vehicle_id != "":
-                    label = f"ID {vehicle_id}: {label}"
+            if t.in_path:
+                t.path_frames += 1
+                t.max_path_overlap = max(t.max_path_overlap, result["overlap_ratio"])
+                if t.first_path_frame is None:
+                    t.first_path_frame = frame_no
+                    t.path_entry_distance_m = t.distance_m
+                if t.confirmed:
+                    danger_now.append(t)
+        if danger_now:
+            frames_with_path_risk += 1
 
-                # Green boxes mark license plates.
-                cv2.rectangle(
-                    frame,
-                    (x1, y1),
-                    (x2, y2),
-                    (0, 255, 0),
-                    2,
-                )
+        vehicle_visible = []
+        if use_vehicles:
+            vehicle_visible, vehicle_new = vehicle_tracker.update(
+                vehicle_detector.detect(frame), frame_no, timestamp)
+            vehicle_total += len(vehicle_new)
 
-                cv2.putText(
-                    frame,
-                    label[:70],
-                    (x1, max(20, y1 - 8)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (0, 255, 0),
-                    2,
-                )
+        # ---- draw ----
+        draw_path(frame, path.polygon, danger=bool(danger_now))
+        if config.SHOW_HORIZON_LINE:
+            draw_horizon(frame, distance.horizon_row)
+        if use_vehicles:
+            draw_vehicles(frame, vehicle_visible)
+        draw_tracks(frame, visible, path_mode=True, show_distance=True, show_ttc=True)
 
-                rows.append({
-                    "frame": frame_no,
-                    "video_time_s": f"{timestamp:.3f}",
-                    "vehicle_id": vehicle_id,
-                    "plate_text": plate_text,
-                    "ocr_confidence": (
-                        f"{ocr_confidence:.3f}"
-                        if ocr_confidence is not None
-                        else ""
-                    ),
-                    "plate_x1": x1,
-                    "plate_y1": y1,
-                    "plate_x2": x2,
-                    "plate_y2": y2,
-                })
+        nearest = min((t for t in danger_now if t.distance_m is not None),
+                      key=lambda t: t.distance_m, default=None)
+        if nearest is None:
+            near_line = "Nearest damage in path: none"
+            ttc_line = ("Time to impact: -", WHITE)
+        else:
+            near_line = f"Nearest damage in path: ~{nearest.distance_m:.0f} m (estimated)"
+            ttc_text = f"Time to impact: {format_ttc(nearest.ttc_s, nearest.ttc_status)}"
+            if speed["is_default"] and nearest.ttc_s is not None:
+                ttc_line = (ttc_text + "  (default speed - test)", ORANGE)
+            else:
+                ttc_line = (ttc_text, WHITE)
+        gps_line = ("GPS: no GPS file" if gps is None else "GPS: no fix" if fix is None
+                    else f"GPS {fix['latitude']:.5f}, {fix['longitude']:.5f}")
+        lines = ["PATH RISK: TRUE" if danger_now else "PATH RISK: FALSE",
+                 near_line,
+                 ttc_line,
+                 gps_line,
+                 speed_text(speed),
+                 f"Damage events: {sum(damage_counts.values())}"]
+        draw_banner(frame, lines)
+        writer.write(frame)
 
-            # Keep the existing Phase 6 overlay visible.
-            writer.write(frame)
+        if config.SHOW_PREVIEW:
+            cv2.imshow("Phase 8 - press q to stop", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+        if frame_no % 100 == 0:
+            print(f"  processed {frame_no}/{total} frames")
 
-            if frame_no % 30 == 0:
-                print(
-                    f"Processed {frame_no}/{total_frames}"
-                )
+    cap.release()
+    writer.release()
+    try:
+    	cv2.destroyAllWindows()
+    except cv2.error:
+    	pass
+    # ---- save the events ----
+    events = damage_tracker.confirmed_tracks()
+    with open(config.DAMAGE_CSV_PHASE8, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["track_id", "damage_type", "confidence", "frame_number", "video_time_s",
+                    "timestamp", "latitude", "longitude",
+                    "speed_kmh", "speed_mps", "speed_source", "speed_is_default",
+                    "distance_m", "ttc_seconds", "min_ttc_in_path_s", "severity",
+                    "damage_latitude", "damage_longitude",
+                    "ever_in_path", "est_min_distance_m", "gps_status"])
+        for t in events:
+            w.writerow([t.id, t.class_name, f"{t.best_confidence:.3f}", t.confirmed_frame,
+                        f"{t.confirmed_time:.2f}",
+                        t.gps_time.isoformat(" ", "seconds") if t.gps_time else "",
+                        num(t.latitude, 6), num(t.longitude, 6),
+                        num(t.speed_kmh, 1), num(t.speed_mps, 2), t.speed_source,
+                        t.speed_source == "default",
+                        num(t.first_distance_m, 1), num(t.first_ttc_s, 2), num(t.min_ttc_s, 2), "",
+                        num(t.damage_latitude, 6), num(t.damage_longitude, 6),
+                        t.path_frames > 0, num(t.min_distance_m, 1), t.gps_status])
 
-    finally:
-        cap.release()
-        writer.release()
-
-        try:
-            cv2.destroyAllWindows()
-        except cv2.error:
-            pass
-
-    columns = [
-        "frame",
-        "video_time_s",
-        "vehicle_id",
-        "plate_text",
-        "ocr_confidence",
-        "plate_x1",
-        "plate_y1",
-        "plate_x2",
-        "plate_y2",
-    ]
-
-    with open(
-        OUTPUT_CSV,
-        "w",
-        newline="",
-        encoding="utf-8-sig",
-    ) as file:
-        csv_writer = csv.DictWriter(
-            file,
-            fieldnames=columns,
-        )
-        csv_writer.writeheader()
-        csv_writer.writerows(rows)
-
-    print("\nPHASE 6 + LICENSE PLATE RECOGNITION COMPLETE")
-    print(f"Frames processed: {frame_no}")
-    print(f"Plate detections: {plate_count}")
-    print(f"CSV rows: {len(rows)}")
-    print(f"Final video: {OUTPUT_VIDEO}")
-    print(f"Plate report: {OUTPUT_CSV}")
-    print(
-        "OCR readings are estimates; verify them against "
-        "the actual plates."
-    )
+    default_events = sum(1 for t in events if t.speed_source == "default")
+    print("\nDONE")
+    print(f"  Frames processed:          {frame_no}")
+    print(f"  Confirmed damage events:   {len(events)}  {damage_counts}")
+    if speeds:
+        print(f"  Speed during the video:    min {min(speeds):.0f} / average {sum(speeds)/len(speeds):.0f}"
+              f" / max {max(speeds):.0f} km/h")
+    print(f"  Speed source (frames):     GPS {speed_frames['gps']}, "
+          f"computed {speed_frames['computed_from_positions']}, DEFAULT {speed_frames['default']}")
+    ttcs = [t.min_ttc_s for t in events if t.min_ttc_s is not None]
+    if ttcs:
+        print(f"  Shortest time-to-impact for damage in our path: {min(ttcs):.1f} s")
+    if default_events:
+        print(f"  WARNING: {default_events} of {len(events)} events use the DEFAULT speed "
+              f"({config.DEFAULT_SPEED_KMH} km/h). Time-to-impact for them is only a test value.")
+    print(f"  Saved video:  {config.OUTPUT_VIDEO_PHASE8}")
+    print(f"  Saved events: {config.DAMAGE_CSV_PHASE8}")
 
 
 if __name__ == "__main__":

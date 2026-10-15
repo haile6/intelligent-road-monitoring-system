@@ -1,3 +1,9 @@
-# Phase 1
+# Road Monitoring System Dependencies
 ultralytics
 opencv-python
+easyocr
+flask
+jinja2
+numpy
+torch
+torchvision

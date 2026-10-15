@@ -57,3 +57,8 @@ class PathAnalyzer:
 
         in_path = overlap >= config.PATH_MIN_OVERLAP_RATIO or bottom_centre_inside
         return {"in_path": in_path, "overlap_ratio": overlap}
+
+    def check(self, bbox):
+        """Alias for analyze."""
+        return self.analyze(bbox)
+
