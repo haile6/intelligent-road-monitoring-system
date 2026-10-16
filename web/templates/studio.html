@@ -29,10 +29,28 @@
                     </div>
                 </div>
 
+                <!-- Persistent ADAS Voice Audio Notification Bar -->
+                <div id="audio-alert-banner" class="bg-primary bg-opacity-10 border-bottom border-primary border-opacity-25 py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="spinner-grow spinner-grow-sm text-danger" role="status">
+                            <span class="visually-hidden">Live</span>
+                        </div>
+                        <i class="bi bi-megaphone-fill text-primary fs-6"></i>
+                        <span class="fw-semibold text-dark small">ADAS Voice Alerts & Collision Chimes:</span>
+                        <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO STREAM ATTACHED</span>
+                        <span class="text-secondary small d-none d-md-inline">&bull; Spoken warnings on hazards & slow vehicles</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-primary px-3 shadow-sm fw-semibold" id="btn-unmute-banner" onclick="unmuteAudio()">
+                            <i class="bi bi-volume-up-fill me-1"></i><span id="unmute-banner-text">🔊 Sound is ON (Click to Test)</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="card-body p-0 bg-dark text-center position-relative">
                     <!-- HTML5 Video Player Mode (Default) -->
                     <div id="video-container" class="w-100" style="display: block; min-height: 480px;">
-                        <video id="main-video" controls autoplay muted playsinline class="w-100" style="max-height: 540px; background: #000;">
+                        <video id="main-video" controls autoplay playsinline class="w-100" style="max-height: 540px; background: #000;">
                             <source src="/media/video/{{ selected_video }}" type="video/mp4">
                             Your browser does not support HTML5 video streaming with this codec. Use the Precision Frame Scrubber.
                         </video>
@@ -52,15 +70,23 @@
                 <!-- Inspection Controls Toolbar -->
                 <div class="card-footer bg-white py-3">
                     <div class="row align-items-center g-3">
-                        <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                        <div class="col-12 col-md-7 d-flex flex-wrap align-items-center gap-2">
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)"><i class="bi bi-chevron-double-left"></i> -10</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-1)"><i class="bi bi-chevron-left"></i> -1</button>
                             <button class="btn btn-sm btn-success px-3" onclick="togglePlay()" id="btn-play"><i class="bi bi-play-fill"></i> Play</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)"><i class="bi bi-chevron-right"></i> +1</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)">+10 <i class="bi bi-chevron-double-right"></i></button>
+
+                            <!-- Volume & Mute Controls -->
+                            <div class="d-flex align-items-center gap-1 ms-2 border-start ps-2">
+                                <button class="btn btn-sm btn-outline-secondary" id="btn-mute" onclick="toggleMute()" title="Toggle Sound">
+                                    <i class="bi bi-volume-up-fill" id="mute-icon"></i>
+                                </button>
+                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 75px;" oninput="setVolume(this.value)" title="Volume">
+                            </div>
                         </div>
-                        <div class="col-12 col-md-6 d-flex align-items-center justify-content-md-end gap-3">
-                            <span class="text-secondary small">Timeline Position:</span>
+                        <div class="col-12 col-md-5 d-flex align-items-center justify-content-md-end gap-3">
+                            <span class="text-secondary small">Timeline:</span>
                             <span class="badge bg-light text-dark border font-mono fs-6" id="time-display">00:00.00</span>
                             <span class="badge bg-secondary font-mono" id="frame-display">Frame: 0</span>
                         </div>
@@ -81,7 +107,7 @@
                     <h6 class="mb-0 fw-semibold text-dark">
                         <i class="bi bi-crosshair me-2 text-danger"></i>Hazard Timeline Keyframes
                     </h6>
-                    <small class="text-secondary">Click any hazard to seek video frame</small>
+                    <small class="text-secondary">Click any hazard to seek video frame & sound</small>
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 600px;">
                     <div class="d-flex flex-column gap-2">
@@ -130,14 +156,37 @@
     const timeSlider = document.getElementById('time-slider');
     const playBtn = document.getElementById('btn-play');
     const mainVideo = document.getElementById('main-video');
+    const muteIcon = document.getElementById('mute-icon');
+    const volumeSlider = document.getElementById('volume-slider');
+    const unmuteBannerBtn = document.getElementById('btn-unmute-banner');
+    const unmuteBannerText = document.getElementById('unmute-banner-text');
 
     if (mainVideo) {
+        // Set maximum volume and attempt unmuted playback
+        mainVideo.volume = 1.0;
+
+        // Try playing unmuted. If browser autoplay policy blocks unmuted audio on load,
+        // mute temporarily for autoplay and update the banner button so user can unmute in 1 click.
+        const playPromise = mainVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Succeeded unmuted or user previously interacted
+                updateAudioUI();
+            }).catch(error => {
+                // Autoplay with sound prevented by browser policy: mute and continue autoplay
+                console.log('Autoplay unmuted blocked by browser policy. Starting muted until interaction.');
+                mainVideo.muted = true;
+                mainVideo.play();
+                updateAudioUI();
+            });
+        }
+
         mainVideo.addEventListener('timeupdate', () => {
             if (currentMode === 'video') {
                 currentTime = mainVideo.currentTime;
                 timeSlider.value = currentTime;
                 timeDisplay.textContent = formatTime(currentTime);
-                frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 30)}`;
+                frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
             }
         });
         mainVideo.addEventListener('loadedmetadata', () => {
@@ -149,12 +198,69 @@
             playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
             playBtn.classList.replace('btn-success', 'btn-warning');
             isPlaying = true;
+            updateAudioUI();
         });
         mainVideo.addEventListener('pause', () => {
             playBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
             playBtn.classList.replace('btn-warning', 'btn-success');
             isPlaying = false;
         });
+        mainVideo.addEventListener('volumechange', () => {
+            updateAudioUI();
+        });
+
+        // Unmute on first user click anywhere on video
+        mainVideo.addEventListener('click', () => {
+            if (mainVideo.muted) {
+                mainVideo.muted = false;
+                mainVideo.volume = 1.0;
+                updateAudioUI();
+            }
+        });
+    }
+
+    function unmuteAudio() {
+        if (!mainVideo) return;
+        mainVideo.muted = false;
+        mainVideo.volume = 1.0;
+        volumeSlider.value = 1.0;
+        if (mainVideo.paused) {
+            mainVideo.play();
+        }
+        updateAudioUI();
+    }
+
+    function toggleMute() {
+        if (!mainVideo) return;
+        mainVideo.muted = !mainVideo.muted;
+        if (!mainVideo.muted && mainVideo.volume === 0) {
+            mainVideo.volume = 1.0;
+            volumeSlider.value = 1.0;
+        }
+        updateAudioUI();
+    }
+
+    function setVolume(val) {
+        if (!mainVideo) return;
+        mainVideo.volume = parseFloat(val);
+        if (mainVideo.volume > 0) {
+            mainVideo.muted = false;
+        }
+        updateAudioUI();
+    }
+
+    function updateAudioUI() {
+        if (!mainVideo) return;
+        const isMuted = mainVideo.muted || mainVideo.volume === 0;
+        if (isMuted) {
+            muteIcon.className = 'bi bi-volume-mute-fill text-danger';
+            unmuteBannerBtn.className = 'btn btn-sm btn-danger px-3 shadow-sm fw-semibold animate-pulse';
+            unmuteBannerText.innerHTML = '🔇 Sound is MUTED (Click to Unmute)';
+        } else {
+            muteIcon.className = 'bi bi-volume-up-fill text-success';
+            unmuteBannerBtn.className = 'btn btn-sm btn-success px-3 shadow-sm fw-semibold';
+            unmuteBannerText.innerHTML = '🔊 Sound is ACTIVE (100% Volume)';
+        }
     }
 
     function toggleViewerMode(mode) {
@@ -193,7 +299,7 @@
         currentTime = Math.max(0, time);
         timeSlider.value = currentTime;
         timeDisplay.textContent = formatTime(currentTime);
-        frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 30)}`;
+        frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
 
         if (currentMode === 'video' && mainVideo) {
             mainVideo.currentTime = currentTime;
@@ -206,7 +312,11 @@
         updateFrame(time);
         if (currentMode === 'video' && mainVideo) {
             mainVideo.currentTime = time;
+            // Always ensure audio is active on seek
+            mainVideo.muted = false;
+            mainVideo.volume = 1.0;
             mainVideo.play().catch(e => console.log('Playback:', e));
+            updateAudioUI();
         }
     }
 
@@ -215,14 +325,18 @@
     }
 
     function stepFrame(step) {
-        const newTime = currentTime + (step / 30.0);
+        const newTime = currentTime + (step / 24.0);
         updateFrame(newTime);
     }
 
     function togglePlay() {
         if (currentMode === 'video' && mainVideo) {
             if (mainVideo.paused) {
+                // Unmute automatically when user clicks Play
+                mainVideo.muted = false;
+                mainVideo.volume = 1.0;
                 mainVideo.play();
+                updateAudioUI();
             } else {
                 mainVideo.pause();
             }
