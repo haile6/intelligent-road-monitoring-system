@@ -20,7 +20,7 @@ from web.app import app
 def main():
     parser = argparse.ArgumentParser(description="Road Monitoring System Web Management Panel")
     parser.add_argument("--host", default="127.0.0.1", help="Host IP to bind (default: 127.0.0.1)")
-    parser.add_argument("--port", type=int, default=5000, help="Port to listen on (default: 5000)")
+    parser.add_argument("--port", type=int, default=8080, help="Port to listen on (default: 8080)")
     parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
     args = parser.parse_args()
 
@@ -39,7 +39,7 @@ def main():
     target_port = args.port
     if is_port_in_use(target_port, args.host):
         print(f"[!] Notice: Port {target_port} is already in use by another running app.")
-        for p in [5050, 5001, 8080, 8000, 8888]:
+        for p in [8080, 8888, 9090, 8000, 7070]:
             if not is_port_in_use(p, args.host):
                 target_port = p
                 break

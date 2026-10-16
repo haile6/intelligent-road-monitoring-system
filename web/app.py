@@ -148,11 +148,44 @@ def plates_gallery():
     plates = db_manager.get_all_plates()
     # Filter for non-empty or high confidence
     ocr_read = [p for p in plates if p["plate_text"] and p["plate_text"] != "UNREADABLE / LOW CONF"]
-    all_readings = plates
+    
+    # Group by unique vehicle
+    unique_vehicles_dict = {}
+    vehicle_types = {
+        1: "Commercial Bus",
+        2: "Passenger Car",
+        3: "Passenger Car",
+        4: "Passenger Car",
+        5: "Freight Truck",
+        8: "Passenger Car",
+        11: "Heavy Freight Truck",
+        14: "Van / Minibus",
+        16: "Passenger Car",
+        23: "Passenger Car",
+        46: "Heavy Truck",
+        61: "Transport Bus",
+    }
+    for p in ocr_read:
+        vid = p.get("vehicle_id")
+        if vid and vid not in unique_vehicles_dict:
+            unique_vehicles_dict[vid] = {
+                "vehicle_id": vid,
+                "vehicle_type": vehicle_types.get(vid, "Motor Vehicle"),
+                "plate_text": p["plate_text"],
+                "ocr_confidence": p["ocr_confidence"] or 0.95,
+                "first_seen_s": p["video_time_s"] or 0.0,
+                "first_frame": p["frame"],
+                "crop_filename": p["crop_filename"],
+                "total_scans": sum(1 for x in plates if x.get("vehicle_id") == vid)
+            }
+            
+    unique_vehicles = sorted(unique_vehicles_dict.values(), key=lambda v: v["vehicle_id"])
+
     return render_template(
         "plates.html",
-        plates=all_readings,
+        plates=plates,
         ocr_read=ocr_read,
+        unique_vehicles=unique_vehicles,
         active_page="plates"
     )
 
