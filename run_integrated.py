@@ -41,7 +41,7 @@ from visualization.overlay import (
     draw_horizon, draw_banner
 )
 from database import db_manager
-from alerts.audio_warning import play_warning_sound
+from alerts.audio_warning import play_warning_sound, ADASAudioTrackGenerator
 from risk.severity_estimator import estimate_damage_severity
 from gps.folium_map import generate_folium_map
 
@@ -182,6 +182,7 @@ def main():
     plate_scan_records = []
     crops_dir = os.path.join(BASE_DIR, "outputs", "plate_crops")
     os.makedirs(crops_dir, exist_ok=True)
+    audio_gen = ADASAudioTrackGenerator(duration_s=duration if duration > 0 else 10.0)
     frame_no = 0
     a = config.DISTANCE_SMOOTHING
 
@@ -349,6 +350,7 @@ def main():
                                         "time_s": timestamp
                                     }
                                     print(f"[{fmt_time(timestamp)}] ANPR RECOGNIZED: Vehicle #{vid} ({matched_vt.class_name}) -> [{plate_text}] Conf {eff_conf*100:.0f}%")
+                                    audio_gen.add_event(timestamp, "ANPR_PLATE")
                                 elif crop_fname and not vehicle_plates[vid].get("crop_filename"):
                                     vehicle_plates[vid]["crop_filename"] = crop_fname
 
@@ -424,9 +426,14 @@ def main():
         risk_frames[scene_level] += 1
         scene_color = config.RISK_COLORS[scene_level]
 
-        # Phase 10: Driver Warning Audio Chime
+        # Phase 10: Driver Warning Audio Chime & Synchronized Timeline Voice
         if scene_level in ["WARNING", "IMMEDIATE_DANGER"]:
             play_warning_sound(scene_level)
+            audio_gen.add_event(timestamp, scene_level)
+        elif lead_car_danger is not None:
+            audio_gen.add_event(timestamp, "LEAD_VEHICLE")
+        elif scene_level == "CAUTION" and visible:
+            audio_gen.add_event(timestamp, "CAUTION")
 
         # 6. Integrated Drawing Overlays
         draw_path(frame, path.polygon, danger=bool(danger_now or lead_car_danger), color=scene_color)
@@ -503,6 +510,16 @@ def main():
                 print("[*] Master video successfully optimized for universal web browser playback (H.264).")
     except Exception as e:
         print(f"[*] Notice: Web H.264 video optimization skipped: {e}")
+
+    # 6b. Merge Synchronized ADAS Voice Warnings & Chimes into Video Audio Track
+    try:
+        print("[*] Merging synchronized voice alerts and ADAS chimes into video audio track...")
+        audio_gen.merge_into_video(master_path)
+        if os.path.exists(phase9_video_path):
+            audio_gen.merge_into_video(phase9_video_path)
+        print(f"[*] Voice & ADAS audio track successfully merged into video ({audio_gen.events_logged} events synthesized).")
+    except Exception as e:
+        print(f"[*] Audio track merge notice: {e}")
 
     # 7. Save Unified CSV
     master_csv_path = os.path.join(BASE_DIR, "outputs", "integrated_damage_events.csv")
