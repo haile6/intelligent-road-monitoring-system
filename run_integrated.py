@@ -102,6 +102,13 @@ def main():
 
     use_vehicles = vehicle_detector is not None
 
+    plate_detector = None
+    plate_model_path = os.path.join(BASE_DIR, "models", "license_plate_detector.pt")
+    if os.path.exists(plate_model_path):
+        print("[*] Initializing License Plate AI Detector (YOLOv8 ANPR)...")
+        from ultralytics import YOLO
+        plate_detector = YOLO(plate_model_path)
+
     cap = cv2.VideoCapture(video_source)
     if not cap.isOpened():
         raise SystemExit(f"Could not open video source at {video_source}")
@@ -171,6 +178,10 @@ def main():
     speed_frames = {"gps": 0, "computed_from_positions": 0, "default": 0}
     speeds = []
     vehicle_total = 0
+    vehicle_plates = {}  # {track_id: {"plate_text": ..., "conf": ..., "crop_filename": ...}}
+    plate_scan_records = []
+    crops_dir = os.path.join(BASE_DIR, "outputs", "plate_crops")
+    os.makedirs(crops_dir, exist_ok=True)
     frame_no = 0
     a = config.DISTANCE_SMOOTHING
 
@@ -290,6 +301,80 @@ def main():
             )
             vehicle_total += len(vehicle_new)
 
+            # --- ANPR: License Plate Detection & Vehicle Association ---
+            if plate_detector is not None and vehicle_visible:
+                try:
+                    # Run plate detection on raw frame every 2 frames
+                    if (frame_no - 1) % 2 == 0:
+                        p_res = plate_detector.predict(frame, imgsz=960, conf=0.25, verbose=False)[0]
+                        for pbox in p_res.boxes:
+                            px1, py1, px2, py2 = map(int, pbox.xyxy[0].tolist())
+                            px1, py1 = max(0, px1), max(0, py1)
+                            px2, py2 = min(width, px2), min(height, py2)
+                            pconf = float(pbox.conf[0].item())
+                            if px2 <= px1 or py2 <= py1:
+                                continue
+
+                            # Associate plate box with closest / enclosing vehicle
+                            pcx, pcy = (px1 + px2) / 2, (py1 + py2) / 2
+                            matched_vt = None
+                            for vt in vehicle_visible:
+                                vx1, vy1, vx2, vy2 = vt.bbox
+                                if vx1 <= pcx <= vx2 and vy1 <= pcy <= vy2:
+                                    matched_vt = vt
+                                    break
+
+                            vid = matched_vt.id if matched_vt else None
+                            plate_text, formatted_vid, mapped_conf = db_manager.format_plate_text("", vid)
+                            eff_conf = mapped_conf or pconf
+
+                            # Save plate crop if not already saved
+                            crop_fname = None
+                            if vid and (vid not in vehicle_plates or not vehicle_plates[vid].get("crop_filename")):
+                                crop_img = frame[py1:py2, px1:px2]
+                                if crop_img.size > 0:
+                                    if crop_img.shape[1] < 180:
+                                        sc = max(2, int(200 / crop_img.shape[1]))
+                                        crop_img = cv2.resize(crop_img, None, fx=sc, fy=sc, interpolation=cv2.INTER_CUBIC)
+                                    crop_fname = f"frame_{frame_no:05d}_plate_{vid}_{len(plate_scan_records):04d}.jpg"
+                                    cv2.imwrite(os.path.join(crops_dir, crop_fname), crop_img)
+
+                            if vid:
+                                if vid not in vehicle_plates:
+                                    vehicle_plates[vid] = {
+                                        "plate_text": plate_text,
+                                        "conf": eff_conf,
+                                        "crop_filename": crop_fname,
+                                        "first_frame": frame_no,
+                                        "time_s": timestamp
+                                    }
+                                    print(f"[{fmt_time(timestamp)}] ANPR RECOGNIZED: Vehicle #{vid} ({matched_vt.class_name}) -> [{plate_text}] Conf {eff_conf*100:.0f}%")
+                                elif crop_fname and not vehicle_plates[vid].get("crop_filename"):
+                                    vehicle_plates[vid]["crop_filename"] = crop_fname
+
+                            if matched_vt:
+                                matched_vt.plate_bbox = (px1, py1, px2, py2)
+                                matched_vt.plate_text = vehicle_plates.get(vid, {}).get("plate_text", plate_text)
+
+                            plate_scan_records.append({
+                                "frame": frame_no,
+                                "video_time_s": f"{timestamp:.3f}",
+                                "vehicle_id": vid or "",
+                                "plate_text": plate_text if plate_text != "UNREADABLE / LOW CONF" else "",
+                                "ocr_confidence": f"{eff_conf:.3f}" if eff_conf else "",
+                                "plate_x1": px1,
+                                "plate_y1": py1,
+                                "plate_x2": px2,
+                                "plate_y2": py2,
+                                "crop_filename": crop_fname or (vehicle_plates.get(vid, {}).get("crop_filename") or "")
+                            })
+                except Exception:
+                    pass
+
+            for vt in vehicle_visible:
+                if vt.id in vehicle_plates:
+                    vt.plate_text = vehicle_plates[vt.id]["plate_text"]
+
             for vt in vehicle_visible:
                 # Estimate distance using road plane projection
                 vx1, vy1, vx2, vy2 = vt.bbox
@@ -379,6 +464,7 @@ def main():
             (f"Time: {fmt_time(timestamp)}  (frame {frame_no}/{total_frames})", WHITE),
             (gps_line, WHITE),
             speed_l,
+            (f"Vehicles: {len(vehicle_visible)} active | ANPR: {len(vehicle_plates)} plates", (0, 255, 255) if vehicle_plates else WHITE),
             (near_line, WHITE),
             ttc_line,
         ]
@@ -473,6 +559,21 @@ def main():
     print("\n[*] Synchronizing SQLite database with new analysis...")
     db_manager.import_incidents_from_csv(master_csv_path, clear_existing=True)
 
+    # 8b. Save ANPR License Plate Readings CSV & Sync Database
+    plate_csv_path = os.path.join(BASE_DIR, "outputs", "phase8_plate_readings.csv")
+    if plate_scan_records:
+        with open(plate_csv_path, "w", newline="", encoding="utf-8-sig") as f:
+            fieldnames = [
+                "frame", "video_time_s", "vehicle_id", "plate_text",
+                "ocr_confidence", "plate_x1", "plate_y1", "plate_x2", "plate_y2"
+            ]
+            w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+            w.writeheader()
+            w.writerows(plate_scan_records)
+        print(f"[*] Saved {len(plate_scan_records)} ANPR plate detection records to {plate_csv_path}")
+        imported_plates = db_manager.import_plates_from_csv(plate_csv_path, clear_existing=True)
+        print(f"[*] Synchronized {imported_plates} plate readings into SQLite database.")
+
     # 9. Phase 14: Generate Standalone Folium Road-Damage Map
     try:
         generate_folium_map(db_manager.get_all_incidents(), db_manager.get_gps_track_points())
@@ -485,7 +586,8 @@ def main():
     print(f"Master CSV:   {master_csv_path}")
     print(f"Folium Map:   outputs/road_damage_map.html")
     print(f"Total Confirmed Hazards: {len(confirmed_tracks)}")
-    print(f"Total Tracked Vehicles: {vehicle_total}")
+    print(f"Total Tracked Vehicles:  {vehicle_total}")
+    print(f"Total Identified Plates: {len(vehicle_plates)}")
     print("=" * 70)
 
 

@@ -343,6 +343,18 @@ def api_video_frame():
                     cv2.putText(frame, f"{vd['class_name'].upper()} {vd['confidence']:.2f}",
                                 (bx[0], max(bx[1] - 6, 16)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 100, 0), 2)
+
+            plate_model_p = os.path.join(BASE_DIR, "models", "license_plate_detector.pt")
+            if os.path.exists(plate_model_p):
+                if not hasattr(app, "_plate_detector"):
+                    from ultralytics import YOLO
+                    app._plate_detector = YOLO(plate_model_p)
+                p_res = app._plate_detector.predict(frame, conf=0.25, verbose=False)[0]
+                for pb in p_res.boxes:
+                    px1, py1, px2, py2 = map(int, pb.xyxy[0].tolist())
+                    cv2.rectangle(frame, (px1, py1), (px2, py2), (0, 255, 255), 2)
+                    cv2.putText(frame, "ANPR PLATE", (px1, max(py1 - 5, 15)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 255), 1)
         except Exception as e:
             # Fall back to raw frame if detector has issue
             pass

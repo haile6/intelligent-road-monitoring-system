@@ -42,7 +42,7 @@ def draw_tracks(frame, tracks, path_mode=False, show_distance=False, show_ttc=Fa
 
 
 def draw_vehicles(frame, tracks):
-    """Other vehicles. Displays tracking ID, estimated distance, relative closing speed, and collision warning."""
+    """Other vehicles. Displays tracking ID, estimated distance, relative closing speed, collision warning, and ANPR license plate."""
     for t in tracks:
         x1, y1, x2, y2 = t.bbox
         if t.confirmed:
@@ -72,6 +72,22 @@ def draw_vehicles(frame, tracks):
                 label_text += " [SLOW VEHICLE!]"
 
             _label(frame, x1, max(y1, 20), label_text, color, 0.50)
+
+            # Draw Plate Bounding Box if detected on vehicle
+            plate_box = getattr(t, "plate_bbox", None)
+            if plate_box:
+                px1, py1, px2, py2 = plate_box
+                cv2.rectangle(frame, (px1, py1), (px2, py2), (0, 255, 255), 2)
+
+            # Draw License Plate Tag Badge
+            plate_str = getattr(t, "plate_text", None)
+            if plate_str and plate_str != "UNREADABLE / LOW CONF":
+                tag_str = f"PLATE: {plate_str}"
+                (tw, th), base = cv2.getTextSize(tag_str, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 2)
+                badge_y = min(frame.shape[0] - 8, y2 + th + base + 8)
+                cv2.rectangle(frame, (x1, badge_y - th - 6), (x1 + tw + 10, badge_y + 4), (15, 15, 15), -1)
+                cv2.rectangle(frame, (x1, badge_y - th - 6), (x1 + tw + 10, badge_y + 4), (0, 255, 255), 1)
+                cv2.putText(frame, tag_str, (x1 + 5, badge_y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (170, 170, 170), 1)
     return frame
