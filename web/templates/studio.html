@@ -47,7 +47,20 @@
                     </div>
                 </div>
 
-                <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden">
+                <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden cockpit-viewport">
+                    <!-- Automotive Cockpit Framing Brackets -->
+                    <div class="cockpit-bracket cockpit-bracket-tl"></div>
+                    <div class="cockpit-bracket cockpit-bracket-tr"></div>
+                    <div class="cockpit-bracket cockpit-bracket-bl"></div>
+                    <div class="cockpit-bracket cockpit-bracket-br"></div>
+
+                    <!-- Live Telemetry Radar Badge -->
+                    <div class="cockpit-radar-badge d-flex align-items-center gap-2">
+                        <span class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
+                        <span class="fw-bold tracking-wide">ADAS RADAR &bull; CORRIDOR ACTIVE</span>
+                        <span class="text-white-50">| 1080p 24FPS</span>
+                    </div>
+
                     <!-- HTML5 Video Player Mode (Default) -->
                     <div id="video-container" class="w-100 position-relative" style="display: block; min-height: 480px;">
                         <video id="main-video" controls autoplay playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
@@ -115,6 +128,14 @@
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i> +1</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
 
+                            <!-- Speed Selector Group -->
+                            <div class="btn-group btn-group-sm speed-btn-group ms-1 border-start ps-2" role="group" title="Playback Speed">
+                                <button type="button" class="btn btn-outline-secondary" id="speed-05x" onclick="setSpeed(0.5)">0.5x</button>
+                                <button type="button" class="btn btn-outline-secondary active" id="speed-10x" onclick="setSpeed(1.0)">1.0x</button>
+                                <button type="button" class="btn btn-outline-secondary" id="speed-15x" onclick="setSpeed(1.5)">1.5x</button>
+                                <button type="button" class="btn btn-outline-secondary" id="speed-20x" onclick="setSpeed(2.0)">2.0x</button>
+                            </div>
+
                             <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
                             <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
                                 <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
@@ -147,6 +168,11 @@
                                 </button>
                                 <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 65px; cursor: pointer;" oninput="setVolume(this.value)" title="Volume">
                             </div>
+
+                            <!-- Fullscreen Button -->
+                            <button class="btn btn-sm btn-outline-dark ms-1" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
                         </div>
                         <div class="col-12 col-md-4 d-flex align-items-center justify-content-md-end gap-3">
                             <span class="text-secondary small">Timeline:</span>
@@ -155,16 +181,20 @@
                         </div>
                     </div>
 
-                    <!-- Scrubber Slider -->
+                    <!-- Interactive Timeline Hazard Pins & Scrubber Slider -->
                     <div class="mt-3 position-relative">
-                        <input type="range" class="form-range cursor-pointer" id="time-slider" min="0" max="10" step="0.05" value="0" style="cursor: pointer;" title="Drag or click to scrub timeline">
+                        <!-- Hazard Markers Track -->
+                        <div class="timeline-track-container" id="timeline-pins-track" title="Click any hazard dot on timeline to jump directly to event">
+                            <!-- Injected via JavaScript dynamically -->
+                        </div>
+                        <input type="range" class="form-range cursor-pointer w-100" id="time-slider" min="0" max="10" step="0.05" value="0" style="cursor: pointer;" title="Drag or click to scrub timeline">
                     </div>
 
                     <!-- Keyboard Quick Shortcuts Bar -->
                     <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 pt-2 border-top text-secondary" style="font-size: 0.72rem;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-keyboard text-primary"></i>
-                            <span><b>Keyboard Controls:</b> <kbd class="bg-light text-dark border">Space</kbd> Play/Pause &bull; <kbd class="bg-light text-dark border">←</kbd> / <kbd class="bg-light text-dark border">→</kbd> Frame Step &bull; <kbd class="bg-light text-dark border">M</kbd> Mute &bull; <kbd class="bg-light text-dark border">C</kbd> Subtitles &bull; <kbd class="bg-light text-dark border">V</kbd> Voice Alert</span>
+                            <span><b>Keyboard Controls:</b> <kbd class="bg-light text-dark border">Space</kbd> Play/Pause &bull; <kbd class="bg-light text-dark border">←</kbd> / <kbd class="bg-light text-dark border">→</kbd> Frame Step &bull; <kbd class="bg-light text-dark border">M</kbd> Mute &bull; <kbd class="bg-light text-dark border">C</kbd> Subtitles &bull; <kbd class="bg-light text-dark border">V</kbd> Voice Alert &bull; <kbd class="bg-light text-dark border">F</kbd> Fullscreen</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-light text-secondary border font-mono"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
@@ -178,33 +208,46 @@
         <div class="col-12 col-xl-3">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3">
-                    <h6 class="mb-0 fw-semibold text-dark">
-                        <i class="bi bi-crosshair me-2 text-danger"></i>Hazard Timeline Keyframes
-                    </h6>
-                    <small class="text-secondary">Click any hazard to seek video frame & sound</small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-semibold text-dark">
+                            <i class="bi bi-crosshair me-2 text-danger"></i>Hazard Keyframes
+                        </h6>
+                        <span class="badge bg-light text-dark border font-mono" id="hazard-count-badge">{{ incidents|length }} detected</span>
+                    </div>
+                    <small class="text-secondary d-block mt-1">Click any hazard to seek video frame & sound</small>
+                    
+                    <!-- Quick Risk Filter Pills -->
+                    <div class="d-flex gap-1 mt-2">
+                        <button class="btn btn-sm btn-outline-dark active py-0 px-2 filter-btn" onclick="filterHazardCards('all', this)" style="font-size: 0.68rem;">All</button>
+                        <button class="btn btn-sm btn-outline-danger py-0 px-2 filter-btn" onclick="filterHazardCards('danger', this)" style="font-size: 0.68rem;">Danger</button>
+                        <button class="btn btn-sm btn-outline-warning py-0 px-2 filter-btn" onclick="filterHazardCards('warning', this)" style="font-size: 0.68rem;">Warning</button>
+                        <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.68rem;">Safe</button>
+                    </div>
                 </div>
-                <div class="card-body p-2 overflow-auto" style="max-height: 600px;">
-                    <div class="d-flex flex-column gap-2">
+                <div class="card-body p-2 overflow-auto" id="hazard-sidebar-scroll" style="max-height: 560px;">
+                    <div class="d-flex flex-column gap-2" id="hazard-cards-list">
                         {% for inc in incidents %}
-                        <div class="card p-2 border hover-shadow cursor-pointer" onclick="seekToTime({{ inc.video_time_s or 0 }})" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
+                        {% set risk_cat = 'danger' if ('IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level) else ('warning' if 'WARNING' in inc.max_risk_level else 'safe') %}
+                        <div class="card p-2 border hover-shadow cursor-pointer hazard-card" data-risk="{{ risk_cat }}" onclick="seekToTime({{ inc.video_time_s or 0 }})" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="fw-bold text-dark small">
                                     <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
                                 </span>
-                                {% if 'IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level %}
+                                {% if risk_cat == 'danger' %}
                                     <span class="badge bg-danger" style="font-size: 0.65rem;">IMMEDIATE DANGER</span>
-                                {% elif 'WARNING' in inc.max_risk_level %}
+                                {% elif risk_cat == 'warning' %}
                                     <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">WARNING</span>
                                 {% else %}
                                     <span class="badge bg-success" style="font-size: 0.65rem;">SAFE / MONITOR</span>
                                 {% endif %}
                             </div>
-                            <div class="small text-secondary">
-                                <b>{{ inc.damage_type }} #{{ inc.track_id }}</b> &bull; Frame {{ inc.frame_number }}
+                            <div class="small text-secondary d-flex align-items-center justify-content-between">
+                                <span><b>{{ inc.damage_type }} #{{ inc.track_id }}</b> &bull; Frame {{ inc.frame_number }}</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.62rem;"><i class="bi bi-play-circle-fill me-1"></i>Jump</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top text-muted" style="font-size: 0.72rem;">
                                 <span>Dist: <b>{{ inc.distance_m }}m</b></span>
-                                <span>TTC: <b class="text-danger">{% if inc.ttc_seconds %}{{ inc.ttc_seconds }}s{% else %}Safe{% endif %}</b></span>
+                                <span>TTC: <b class="{% if risk_cat == 'danger' %}text-danger{% elif risk_cat == 'warning' %}text-warning{% else %}text-success{% endif %}">{% if inc.ttc_seconds %}{{ inc.ttc_seconds }}s{% else %}Safe{% endif %}</b></span>
                             </div>
                         </div>
                         {% endfor %}
@@ -366,8 +409,12 @@
             if (data.success && data.cues && data.cues.length > 0) {
                 subtitleCues = data.cues;
             }
+            renderTimelinePins();
         })
-        .catch(err => console.log('Subtitles loaded from server fallback.'));
+        .catch(err => {
+            console.log('Subtitles loaded from server fallback.');
+            renderTimelinePins();
+        });
 
     // DOM References
     const frameImg = document.getElementById('frame-image');
@@ -575,12 +622,13 @@
                     speakAdasAlert(spoken, isDanger);
                 }
 
-                // Highlight sidebar card
+                // Highlight sidebar card & smooth auto-scroll into view
                 const cueTime = Number(activeCue.time_s || 0);
                 sidebarCards.forEach(card => {
                     const onclickStr = card.getAttribute('onclick') || '';
                     if (onclickStr.includes(cueTime.toFixed(2)) || onclickStr.includes(cueTime.toString())) {
                         card.classList.add('active-hazard-card');
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                 });
 
@@ -597,9 +645,107 @@
                 hudSpeedVal.textContent = isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h';
                 if (hudSpeechBar) hudSpeechBar.style.setProperty('display', 'none', 'important');
             }
+
+            // Sync Timeline Marker Pins
+            const pins = document.querySelectorAll('.timeline-hazard-pin');
+            pins.forEach(pin => {
+                const pinTime = parseFloat(pin.getAttribute('data-time') || '0');
+                if (Math.abs(time - pinTime) <= 0.45) {
+                    pin.classList.add('pin-active');
+                } else {
+                    pin.classList.remove('pin-active');
+                }
+            });
         } catch (err) {
             console.warn('Subtitle sync warning:', err);
         }
+    }
+
+    // ============================================================
+    // INTERACTIVE TIMELINE HAZARD PINS RENDERER
+    // ============================================================
+    function renderTimelinePins() {
+        const track = document.getElementById('timeline-pins-track');
+        if (!track) return;
+        track.innerHTML = '';
+        const maxDur = (mainVideo && mainVideo.duration) ? mainVideo.duration : 10.0;
+        if (!maxDur || maxDur <= 0) return;
+
+        const cuesToRender = (subtitleCues && subtitleCues.length > 0) ? subtitleCues : fallbackIncidents;
+        cuesToRender.forEach(cue => {
+            const t = Number(cue.time_s || 0);
+            const pct = Math.min(100, Math.max(0, (t / maxDur) * 100));
+            const risk = (cue.risk_level || 'SAFE').toUpperCase();
+            const isDanger = risk.includes('IMMEDIATE') || risk.includes('DANGER');
+            const isWarning = risk.includes('WARNING');
+            const pinClass = isDanger ? 'pin-danger' : (isWarning ? 'pin-warning' : 'pin-safe');
+
+            const pin = document.createElement('div');
+            pin.className = `timeline-hazard-pin ${pinClass}`;
+            pin.style.left = `${pct}%`;
+            pin.setAttribute('data-time', t);
+            const label = isDanger ? 'CRITICAL DANGER' : (isWarning ? 'WARNING' : 'SAFE / MONITOR');
+            const damage = cue.damage_type || 'Road Defect';
+            pin.title = `[${t.toFixed(2)}s] ${label}: ${damage} (Click to Seek)`;
+            pin.addEventListener('click', (e) => {
+                e.stopPropagation();
+                seekToTime(t);
+            });
+            track.appendChild(pin);
+        });
+    }
+
+    // ============================================================
+    // PLAYBACK SPEED CONTROLLER
+    // ============================================================
+    function setSpeed(rate) {
+        if (mainVideo) {
+            mainVideo.playbackRate = rate;
+        }
+        document.querySelectorAll('.speed-btn-group .btn').forEach(b => b.classList.remove('active'));
+        const btnId = `speed-${String(rate).replace('.', '')}x`;
+        const btn = document.getElementById(btnId);
+        if (btn) btn.classList.add('active');
+    }
+
+    // ============================================================
+    // FULLSCREEN TOGGLER
+    // ============================================================
+    function toggleFullscreen() {
+        const target = document.getElementById('video-container') || mainVideo;
+        if (!document.fullscreenElement) {
+            if (target && target.requestFullscreen) {
+                target.requestFullscreen();
+            } else if (mainVideo && mainVideo.requestFullscreen) {
+                mainVideo.requestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    // ============================================================
+    // SIDEBAR HAZARD KEYFRAME FILTERING
+    // ============================================================
+    function filterHazardCards(cat, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const cards = document.querySelectorAll('.hazard-card');
+        let count = 0;
+        cards.forEach(card => {
+            const risk = card.getAttribute('data-risk') || '';
+            if (cat === 'all' || risk === cat) {
+                card.style.display = 'block';
+                count++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        const badge = document.getElementById('hazard-count-badge');
+        if (badge) badge.textContent = `${count} shown`;
     }
 
     // ============================================================
@@ -800,6 +946,7 @@
             if (mainVideo.textTracks && mainVideo.textTracks[0]) {
                 mainVideo.textTracks[0].mode = subtitlesEnabled ? 'showing' : 'hidden';
             }
+            renderTimelinePins();
         });
 
         mainVideo.addEventListener('volumechange', () => {
@@ -1080,6 +1227,7 @@
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
         setLanguage(currentLang);
+        renderTimelinePins();
     });
 
     // Immediate fallback execution if DOMContentLoaded already fired
@@ -1088,6 +1236,7 @@
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
         setLanguage(currentLang);
+        renderTimelinePins();
     }
 </script>
 {% endblock %}

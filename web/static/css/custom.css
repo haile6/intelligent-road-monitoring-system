@@ -1,72 +1,355 @@
-/* Custom Modern Styles for Road Monitoring Web Management Panel */
+/* ==========================================================================
+   RoadEye Pro - Advanced Automotive AI & Telemetry Design System
+   Rich Modern Glassmorphism, Automotive Cockpit UI, Cyber Accents & Micro-Interactions
+   ========================================================================== */
+
 :root {
-    --primary-color: #0d6efd;
-    --danger-color: #dc3545;
-    --warning-color: #fd7e14;
-    --caution-color: #ffc107;
-    --safe-color: #198754;
-    --dark-bg: #1e2430;
-    --sidebar-bg: #161c28;
-    --card-border: rgba(0, 0, 0, 0.08);
+    /* Brand & Accent Palette */
+    --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    --cyber-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    --danger-gradient: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    
+    /* Surface Colors */
+    --body-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --card-border: rgba(226, 232, 240, 0.85);
+    --sidebar-bg: #0b0f19;
+    --sidebar-surface: #111827;
+    
+    /* Glassmorphism Tokens */
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-dark-bg: rgba(15, 23, 42, 0.85);
+    --glass-dark-border: rgba(255, 255, 255, 0.15);
+    --glass-blur: blur(16px);
+    
+    /* Shadows */
+    --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    --shadow-hover: 0 12px 30px -4px rgba(37, 99, 235, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+    --shadow-glow-blue: 0 0 25px rgba(37, 99, 235, 0.45);
+    --shadow-glow-danger: 0 0 25px rgba(239, 68, 68, 0.55);
 }
 
+/* Base Document Styles */
 body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: #334155;
-    background-color: #f8fafc;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    background-color: var(--body-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code, pre, .font-mono {
     font-family: 'JetBrains Mono', monospace;
 }
 
+/* Custom Sleek Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.6);
+}
+
+/* ==========================================================================
+   Sidebar Navigation - Modern Deep Cyber Theme
+   ========================================================================== */
 .sidebar {
-    background-color: var(--sidebar-bg) !important;
+    background: linear-gradient(180deg, #090d16 0%, #0f172a 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar .brand-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .sidebar .nav-link {
     font-size: 0.88rem;
     font-weight: 500;
-    transition: all 0.2s ease-in-out;
+    color: #94a3b8 !important;
+    border-radius: 0.65rem;
+    padding: 0.65rem 0.9rem !important;
+    margin-bottom: 2px;
+    position: relative;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar .nav-link:hover {
-    color: #fff !important;
-    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.09) !important;
+    transform: translateX(4px);
     opacity: 1 !important;
 }
 
+.sidebar .nav-link.active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+    font-weight: 600;
+}
+
+.sidebar .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60%;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: #60a5fa;
+}
+
+/* Pulsing AI Live Status Badge */
+.live-pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulseRing 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes pulseRing {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* ==========================================================================
+   Header Navbar & Glassmorphic Elevation
+   ========================================================================== */
+header.navbar {
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* ==========================================================================
+   Card Styling & Modern Elevations
+   ========================================================================== */
 .card {
+    background-color: var(--card-bg);
     border: 1px solid var(--card-border);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-    border-radius: 0.65rem;
+    border-radius: 0.85rem;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
 }
 
 .card-header {
-    background-color: #fff;
-    border-bottom: 1px solid var(--card-border);
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    border-top-left-radius: 0.85rem !important;
+    border-top-right-radius: 0.85rem !important;
+}
+
+.card-footer {
+    border-bottom-left-radius: 0.85rem !important;
+    border-bottom-right-radius: 0.85rem !important;
+}
+
+/* Interactive Card Hovers */
+.hover-lift {
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover) !important;
+}
+
+.hover-shadow {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09) !important;
+    transform: translateY(-2px);
+    border-color: rgba(59, 130, 246, 0.45) !important;
+}
+
+.cursor-pointer {
+    cursor: pointer !important;
 }
 
 /* Stat KPI Cards */
 .stat-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08);
 }
 
+.stat-card.stat-danger::after { background: #ef4444; }
+.stat-card.stat-warning::after { background: #f59e0b; }
+.stat-card.stat-primary::after { background: #2563eb; }
+.stat-card.stat-success::after { background: #10b981; }
+
 .stat-icon {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 1.4rem;
 }
 
-/* Risk Badges */
+/* Role Launcher Cards */
+.role-launcher-card {
+    cursor: pointer;
+    border-radius: 0.85rem;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-launcher-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ==========================================================================
+   Interactive Automotive Cockpit HUD & Studio
+   ========================================================================== */
+.cockpit-viewport {
+    background: #000000;
+    border-radius: 0.85rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+/* Cockpit HUD Glass Card */
+#hud-subtitle-container {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+#hud-subtitle-card {
+    pointer-events: none !important;
+    user-select: none !important;
+    background: rgba(10, 15, 29, 0.88) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#hud-subtitle-card * {
+    pointer-events: none !important;
+}
+
+/* Glowing Risk States on HUD */
+.hud-glow-danger {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.85), inset 0 0 20px rgba(239, 68, 68, 0.3) !important;
+    animation: hudPulseDanger 1.2s infinite alternate ease-in-out;
+}
+
+.hud-glow-warning {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), inset 0 0 15px rgba(245, 158, 11, 0.25) !important;
+}
+
+.hud-glow-safe {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+}
+
+@keyframes hudPulseDanger {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.02); }
+}
+
+/* Audio Soundwave Live Dispatch Animation */
+.sound-wave-anim .bar {
+    display: inline-block;
+    width: 3px;
+    height: 12px;
+    border-radius: 2px;
+    background-color: #38bdf8;
+    animation: soundwave 0.65s ease-in-out infinite alternate;
+}
+.sound-wave-anim .bar:nth-child(2) { animation-delay: 0.18s; }
+.sound-wave-anim .bar:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes soundwave {
+    0% { height: 4px; }
+    100% { height: 18px; }
+}
+
+/* High-Tech Custom Range Slider */
+input[type="range"].form-range {
+    height: 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+input[type="range"].form-range::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.6);
+    border: 2.5px solid #ffffff;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 18px rgba(37, 99, 235, 0.85);
+}
+
+/* Keyframe Hazard Card in Sidebar */
+.active-hazard-card {
+    border-color: #2563eb !important;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28) !important;
+    transform: translateX(5px);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Badge Risk Indicators */
 .badge-danger-risk {
     background-color: #fee2e2;
     color: #b91c1c;
@@ -95,107 +378,225 @@ code, pre, .font-mono {
     font-weight: 600;
 }
 
-/* Status Badges */
-.badge-status-reported {
-    background-color: #e0f2fe;
-    color: #0369a1;
+/* Plate Crop Cards */
+.plate-card {
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
 }
 
-.badge-status-review {
-    background-color: #fef3c7;
-    color: #92400e;
+.plate-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
-.badge-status-scheduled {
-    background-color: #fae8ff;
-    color: #86198f;
-}
-
-.badge-status-repaired {
-    background-color: #dcfce7;
-    color: #15803d;
-}
-
-/* Incident Table styling */
-.table th {
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #64748b;
-    font-weight: 600;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-}
-
-.table td {
-    vertical-align: middle;
-    font-size: 0.88rem;
-}
-
-/* Log Terminal Window */
+/* Terminal Log Window */
 .terminal-window {
-    background-color: #0f172a;
+    background-color: #0b0f19;
     color: #38bdf8;
-    border-radius: 0.5rem;
-    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.65rem;
+    padding: 1.1rem;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem;
     height: 380px;
     overflow-y: auto;
     white-space: pre-wrap;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* Video Canvas / Controls */
-.video-scrubber-container {
-    background-color: #000;
-    border-radius: 0.5rem;
-    overflow: hidden;
+/* Buttons with Tactile Elevation */
+.btn {
+    border-radius: 0.55rem;
+    font-weight: 500;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+    transform: translateY(-1px);
+}
+
+/* Dropdown Menu Glassmorphism */
+.dropdown-menu {
+    border-radius: 0.75rem;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+    padding: 0.5rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.dropdown-item {
+    border-radius: 0.45rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #2563eb;
+    transform: translateX(3px);
+}
+
+.dropdown-item.active {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   Timeline Hazard Markers & Interactive Scrub Track
+   ========================================================================== */
+.timeline-track-container {
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
+    width: 100%;
+    height: 24px;
+    margin-bottom: 2px;
 }
 
-/* Plate Crop Cards */
-.plate-card {
-    transition: transform 0.2s ease;
-}
-
-.plate-card:hover {
-    transform: scale(1.02);
-}
-
-/* Interactive Utility Classes */
-.cursor-pointer {
-    cursor: pointer !important;
-}
-
-.hover-shadow {
-    transition: all 0.2s ease-in-out;
-}
-
-.hover-shadow:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
-    transform: translateY(-2px);
-}
-
-.role-launcher-card {
+.timeline-hazard-pin {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 5;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 2px solid #ffffff;
 }
 
-.role-launcher-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+.timeline-hazard-pin:hover {
+    transform: translate(-50%, -50%) scale(1.6);
+    z-index: 10;
 }
 
-/* Isolate HUD Overlay from intercepting mouse clicks */
-#hud-subtitle-container,
-#hud-subtitle-card,
-#hud-subtitle-card * {
-    pointer-events: none !important;
-    user-select: none !important;
+.timeline-hazard-pin.pin-danger {
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.9);
+}
+
+.timeline-hazard-pin.pin-warning {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+}
+
+.timeline-hazard-pin.pin-safe {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.timeline-hazard-pin.pin-active {
+    transform: translate(-50%, -50%) scale(1.8) !important;
+    border-color: #38bdf8 !important;
+    animation: pinPulse 0.9s infinite alternate;
+}
+
+@keyframes pinPulse {
+    0% { box-shadow: 0 0 6px rgba(56, 189, 248, 0.7); }
+    100% { box-shadow: 0 0 16px rgba(56, 189, 248, 1), 0 0 25px rgba(239, 68, 68, 0.8); }
+}
+
+/* Cockpit Viewport HUD Framing Brackets */
+.cockpit-bracket {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.65;
+}
+.cockpit-bracket-tl {
+    top: 10px;
+    left: 10px;
+    border-top: 2px solid #38bdf8;
+    border-left: 2px solid #38bdf8;
+}
+.cockpit-bracket-tr {
+    top: 10px;
+    right: 10px;
+    border-top: 2px solid #38bdf8;
+    border-right: 2px solid #38bdf8;
+}
+.cockpit-bracket-bl {
+    bottom: 10px;
+    left: 10px;
+    border-bottom: 2px solid #38bdf8;
+    border-left: 2px solid #38bdf8;
+}
+.cockpit-bracket-br {
+    bottom: 10px;
+    right: 10px;
+    border-bottom: 2px solid #38bdf8;
+    border-right: 2px solid #38bdf8;
+}
+
+/* Live Telemetry Radar Badge */
+.cockpit-radar-badge {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    z-index: 12;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    pointer-events: none;
+}
+
+/* Speed Selector Pills */
+.speed-btn-group .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.55rem;
+}
+.speed-btn-group .btn.active {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+}
+
+/* Telemetry Mini Progress Bar */
+.telemetry-dist-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    overflow: hidden;
+    width: 60px;
+}
+.telemetry-dist-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+    width: 50%;
+    transition: width 0.3s ease;
 }
 

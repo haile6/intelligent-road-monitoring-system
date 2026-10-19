@@ -20,102 +20,114 @@
     <!-- Sidebar & Main Container Wrapper -->
     <div class="d-flex" id="wrapper">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar bg-dark text-white shadow-sm flex-shrink-0" style="width: 270px; min-height: 100vh;">
-            <div class="sidebar-brand p-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25">
-                <div class="brand-icon bg-primary text-white rounded p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                    <i class="bi bi-cone-striped fs-5"></i>
+        <aside class="sidebar bg-dark text-white shadow-sm flex-shrink-0 d-flex flex-column" style="width: 275px; min-height: 100vh;">
+            <div class="sidebar-brand p-3 d-flex align-items-center gap-2 border-bottom border-white border-opacity-10">
+                <div class="brand-icon rounded-3 p-2 d-flex align-items-center justify-content-center text-white" style="width: 42px; height: 42px;">
+                    <i class="bi bi-shield-shaded fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold tracking-wide text-light">RoadEye Pro</h6>
-                    <small class="text-white-50" style="font-size: 0.72rem;">Road Monitoring & Risk AI</small>
+                    <div class="d-flex align-items-center gap-2">
+                        <h6 class="mb-0 fw-bold tracking-wide text-light">RoadEye Pro</h6>
+                        <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25" style="font-size: 0.6rem;">AI v2.4</span>
+                    </div>
+                    <small class="text-white-50" style="font-size: 0.72rem;">Road Telemetry & Hazard AI</small>
                 </div>
             </div>
 
-            <div class="px-3 py-3">
+            <div class="px-3 pt-3 pb-2">
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-uppercase text-secondary fw-semibold" style="font-size: 0.68rem; letter-spacing: 0.08em;">Role Navigation</small>
-                    <span class="badge bg-secondary text-light px-1" id="sidebarRoleBadge" style="font-size: 0.65rem;">ALL</span>
+                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.65rem; letter-spacing: 0.08em;">Role View Navigation</small>
+                    <span class="badge bg-secondary text-light px-2" id="sidebarRoleBadge" style="font-size: 0.65rem;">ALL ROLES</span>
                 </div>
             </div>
 
             <nav class="nav flex-column px-2 gap-1" id="sidebarNav">
-                <a href="{{ url_for('dashboard') }}" data-roles="manager executive all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'dashboard' %}active text-white bg-primary bg-opacity-75{% endif %}">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                    <span>Dashboard</span>
-                    <span class="badge bg-info-subtle text-info ms-auto" style="font-size: 0.65rem;">Gov / Ops</span>
+                <a href="{{ url_for('dashboard') }}" data-roles="manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2-fill text-primary"></i>
+                    <span>Executive Dashboard</span>
+                    <span class="badge bg-info-subtle text-info ms-auto" style="font-size: 0.62rem;">KPIs</span>
                 </a>
-                <a href="{{ url_for('video_studio') }}" data-roles="driver all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'studio' %}active text-white bg-danger bg-opacity-75{% endif %}">
+                <a href="{{ url_for('video_studio') }}" data-roles="driver all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'studio' %}active{% endif %}">
                     <i class="bi bi-speedometer2 text-danger"></i>
-                    <span>Driver HUD (TTC)</span>
-                    <span class="badge bg-danger ms-auto" style="font-size: 0.65rem;">Driver</span>
+                    <span>Driver HUD & Studio</span>
+                    <span class="badge bg-danger ms-auto" style="font-size: 0.62rem;">TTC Live</span>
                 </a>
-                <a href="{{ url_for('incidents_view') }}" data-roles="manager all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center justify-content-between {% if active_page == 'incidents' %}active text-white bg-primary bg-opacity-75{% endif %}">
+                <a href="{{ url_for('incidents_view') }}" data-roles="manager all" class="nav-link rounded px-3 py-2 d-flex align-items-center justify-content-between {% if active_page == 'incidents' %}active{% endif %}">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-tools text-warning"></i>
                         <span>Incidents & Repairs</span>
                     </div>
-                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Manager</span>
+                    <span class="badge bg-warning text-dark" style="font-size: 0.62rem;">Tickets</span>
                 </a>
-                <a href="{{ url_for('map_view') }}" data-roles="manager executive all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'map' %}active text-white bg-primary bg-opacity-75{% endif %}">
+                <a href="{{ url_for('map_view') }}" data-roles="manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'map' %}active{% endif %}">
                     <i class="bi bi-geo-alt-fill text-success"></i>
-                    <span>GIS Road Map</span>
-                    <span class="badge bg-success-subtle text-success ms-auto" style="font-size: 0.65rem;">GIS</span>
+                    <span>GIS Road Defect Map</span>
+                    <span class="badge bg-success-subtle text-success ms-auto" style="font-size: 0.62rem;">GIS</span>
                 </a>
-                <a href="{{ url_for('plates_gallery') }}" data-roles="manager all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'plates' %}active text-white bg-primary bg-opacity-75{% endif %}">
-                    <i class="bi bi-car-front-fill"></i>
-                    <span>Vehicles & OCR</span>
-                    <span class="badge bg-secondary ms-auto" style="font-size: 0.65rem;">Manager</span>
+                <a href="{{ url_for('plates_gallery') }}" data-roles="manager all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'plates' %}active{% endif %}">
+                    <i class="bi bi-car-front-fill text-info"></i>
+                    <span>Vehicles & Plate OCR</span>
+                    <span class="badge bg-secondary ms-auto" style="font-size: 0.62rem;">ANPR</span>
                 </a>
             </nav>
 
-            <div class="px-3 py-3 mt-3">
-                <small class="text-uppercase text-secondary fw-semibold" style="font-size: 0.68rem; letter-spacing: 0.08em;">Maintenance & AI</small>
+            <div class="px-3 pt-3 pb-2 mt-2">
+                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.65rem; letter-spacing: 0.08em;">Maintenance & Analysis</small>
             </div>
 
             <nav class="nav flex-column px-2 gap-1">
-                <a href="{{ url_for('pipeline_runner') }}" data-roles="driver manager executive all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'pipeline' %}active text-white bg-primary bg-opacity-75{% endif %}">
-                    <i class="bi bi-cpu-fill"></i>
-                    <span>AI Engine</span>
+                <a href="{{ url_for('pipeline_runner') }}" data-roles="driver manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'pipeline' %}active{% endif %}">
+                    <i class="bi bi-cpu-fill text-primary"></i>
+                    <span>AI Detection Engine</span>
                 </a>
-                <a href="{{ url_for('reports_view') }}" data-roles="manager executive all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'reports' %}active text-white bg-primary bg-opacity-75{% endif %}">
-                    <i class="bi bi-clipboard2-data-fill"></i>
-                    <span>Work Orders & Reports</span>
+                <a href="{{ url_for('reports_view') }}" data-roles="manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'reports' %}active{% endif %}">
+                    <i class="bi bi-clipboard2-data-fill text-warning"></i>
+                    <span>Work Orders & Print</span>
                 </a>
-                <a href="{{ url_for('api_export_csv') }}" data-roles="executive manager all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2">
-                    <i class="bi bi-download"></i>
-                    <span>Export CSV</span>
-                    <span class="badge bg-info text-dark ms-auto" style="font-size: 0.65rem;">Gov</span>
+                <a href="{{ url_for('api_export_csv') }}" data-roles="executive manager all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2">
+                    <i class="bi bi-download text-success"></i>
+                    <span>Export CSV Dataset</span>
+                    <span class="badge bg-success-subtle text-success ms-auto" style="font-size: 0.62rem;">Data</span>
                 </a>
             </nav>
 
             <!-- Status Indicator at Bottom -->
-            <div class="mt-auto p-3 m-3 bg-secondary bg-opacity-10 rounded border border-secondary border-opacity-25 text-white-50" style="font-size: 0.8rem;">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-light fw-medium">AI Engine</span>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">ONLINE</span>
+            <div class="mt-auto p-3 m-3 rounded-3 text-white-50 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.8rem;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="live-pulse-dot"></span>
+                        <span class="text-light fw-bold" style="font-size: 0.74rem; letter-spacing: 0.04em;">NEURAL PIPELINE</span>
+                    </div>
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 font-mono" style="font-size: 0.65rem;">ACTIVE</span>
                 </div>
-                <div class="text-truncate" style="font-size: 0.74rem;">Integrated Road & Vehicle Model</div>
-                <div class="text-truncate" style="font-size: 0.74rem;">GPS Speed & TTC: Active</div>
+                <div class="text-truncate text-white-50" style="font-size: 0.72rem;"><i class="bi bi-radar text-info me-1"></i>YOLOv8 + Metric Depth + TTC</div>
+                <div class="text-truncate text-white-50 mt-1" style="font-size: 0.72rem;"><i class="bi bi-soundwave text-warning me-1"></i>Bilingual ADAS Audio Dispatch</div>
             </div>
         </aside>
 
         <!-- Main Content Area -->
         <div class="main-content flex-grow-1 d-flex flex-column" style="min-width: 0; min-height: 100vh;">
             <!-- Top Navigation Bar -->
-            <header class="navbar navbar-expand bg-white border-bottom px-4 py-2 sticky-top shadow-sm">
+            <header class="navbar navbar-expand px-4 py-2 sticky-top shadow-sm">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="mb-0 fw-semibold text-dark">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
+                    <h5 class="mb-0 fw-bold text-dark">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
                 </div>
                 <div class="ms-auto d-flex align-items-center gap-2">
+                    <!-- Live Clock Indicator -->
+                    <div class="d-none d-lg-flex align-items-center gap-2 px-3 py-1 bg-light rounded-pill border font-mono small text-secondary me-2">
+                        <i class="bi bi-clock-history text-primary"></i>
+                        <span id="liveClock">00:00:00</span>
+                    </div>
+
                     <!-- Role Switcher Dropdown -->
                     <div class="dropdown me-1">
-                        <button class="btn btn-sm btn-outline-dark dropdown-toggle d-flex align-items-center gap-2 fw-medium px-3" type="button" id="roleSelectorBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm btn-outline-dark dropdown-toggle d-flex align-items-center gap-2 fw-medium px-3 shadow-sm" type="button" id="roleSelectorBtn" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-badge-fill text-primary" id="roleIcon"></i>
                             <span id="roleLabel">Role: Full System</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="roleSelectorBtn" style="min-width: 260px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="roleSelectorBtn" style="min-width: 270px;">
                             <li class="px-3 py-2 bg-light border-bottom">
-                                <span class="text-uppercase text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.05em;">Select Persona / View</span>
+                                <span class="text-uppercase text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.05em;">Select Persona / Work View</span>
                             </li>
                             <li>
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('driver')">
@@ -153,10 +165,10 @@
                         </ul>
                     </div>
 
-                    <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
+                    <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
                         <i class="bi bi-cloud-arrow-up-fill"></i> Upload Video
                     </button>
-                    <a href="{{ url_for('pipeline_runner') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                    <a href="{{ url_for('pipeline_runner') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm">
                         <i class="bi bi-play-circle-fill"></i> Run AI Analysis
                     </a>
                     <a href="{{ url_for('reports_view') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">

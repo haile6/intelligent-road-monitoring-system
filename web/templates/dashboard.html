@@ -165,7 +165,7 @@
     <div class="row g-3 mb-4">
         <!-- Total Incidents -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card stat-card h-100 p-3">
+            <div class="card stat-card stat-primary hover-lift h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem;">Total Incidents</span>
@@ -181,12 +181,16 @@
 
         <!-- Immediate Danger -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card stat-card h-100 p-3 border-danger-subtle">
+            <div class="card stat-card stat-danger hover-lift h-100 p-3 border-danger-subtle">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-danger text-uppercase fw-semibold" style="font-size: 0.75rem;">Immediate Danger</span>
                         <h2 class="fw-bold mb-0 text-danger">{{ stats.immediate_danger }}</h2>
-                        <small class="text-danger-emphasis"><i class="bi bi-exclamation-octagon-fill"></i> In-path TTC &lt; 1.0s</small>
+                        <div class="mt-1">
+                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&time=2.45" class="badge bg-danger-subtle text-danger border border-danger-subtle text-decoration-none d-inline-flex align-items-center gap-1" title="Jump directly to immediate danger frame in studio">
+                                <i class="bi bi-play-circle-fill"></i> TTC &lt; 1.0s (Seek HUD)
+                            </a>
+                        </div>
                     </div>
                     <div class="stat-icon bg-danger bg-opacity-10 text-danger">
                         <i class="bi bi-shield-slash-fill fs-4"></i>
@@ -197,7 +201,7 @@
 
         <!-- Warning / Caution -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card stat-card h-100 p-3 border-warning-subtle">
+            <div class="card stat-card stat-warning hover-lift h-100 p-3 border-warning-subtle">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-warning-emphasis text-uppercase fw-semibold" style="font-size: 0.75rem;">Warnings</span>
@@ -213,7 +217,7 @@
 
         <!-- Average Speed & Vehicles -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card stat-card h-100 p-3">
+            <div class="card stat-card stat-success hover-lift h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem;">Monitored Speed</span>
