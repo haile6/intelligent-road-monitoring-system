@@ -193,7 +193,18 @@ def main():
     frame_no = 0
     a = config.DISTANCE_SMOOTHING
 
-    print("\n[*] Processing frames & executing unified detection...")
+    # Fast CPU Optimization: use stride=2 when processing recorded video for 2x faster pipeline
+    stride = max(1, args.stride)
+    if not is_webcam and stride == 1 and total_frames > 150:
+        stride = 2
+        print(f"[*] Fast CPU Mode Active: Processing every {stride}nd frame (2x faster execution)...", flush=True)
+
+    print("\n[*] Processing frames & executing unified detection...", flush=True)
+
+    last_damage_dets = []
+    last_vehicle_dets = []
+    visible = []
+    vehicle_visible = []
 
     while True:
         ok, frame = cap.read()
@@ -201,7 +212,7 @@ def main():
             break
         frame_no += 1
         if args.max_frames and frame_no > args.max_frames:
-            print(f"[*] Reached max_frames limit ({args.max_frames}). Finishing...")
+            print(f"[*] Reached max_frames limit ({args.max_frames}). Finishing...", flush=True)
             break
         timestamp = frame_no / fps
         fix = gps.at(timestamp) if gps else None
@@ -209,12 +220,18 @@ def main():
         speed_frames[speed["source"]] += 1
         speeds.append(speed["speed_kmh"])
 
+        should_detect = (stride == 1 or (frame_no % stride == 1) or is_webcam)
+
         # 1. Road Damage Detection & Tracking
-        visible, newly_confirmed = damage_tracker.update(
-            detector.detect(frame), frame_no, timestamp
-        )
-        for t in newly_confirmed:
-            damage_counts[t.class_name] += 1
+        if should_detect:
+            last_damage_dets = detector.detect(frame)
+            visible, newly_confirmed = damage_tracker.update(
+                last_damage_dets, frame_no, timestamp
+            )
+            for t in newly_confirmed:
+                damage_counts[t.class_name] += 1
+        else:
+            visible = [t for t in damage_tracker.active if t.missed <= 1]
 
         danger_now = []
         for t in visible:
@@ -301,16 +318,19 @@ def main():
                     danger_now.append(t)
 
         # 5. Vehicle Detection, Metric Distance & Forward Collision Analysis
-        vehicle_visible = []
         lead_car_danger = None
         if use_vehicles:
-            vehicle_visible, vehicle_new = vehicle_tracker.update(
-                vehicle_detector.detect(frame), frame_no, timestamp
-            )
-            vehicle_total += len(vehicle_new)
+            if should_detect:
+                last_vehicle_dets = vehicle_detector.detect(frame)
+                vehicle_visible, vehicle_new = vehicle_tracker.update(
+                    last_vehicle_dets, frame_no, timestamp
+                )
+                vehicle_total += len(vehicle_new)
+            else:
+                vehicle_visible = [t for t in vehicle_tracker.active if t.missed <= 1]
 
             # --- ANPR: License Plate Detection & Vehicle Association ---
-            if plate_detector is not None and vehicle_visible:
+            if plate_detector is not None and vehicle_visible and should_detect:
                 try:
                     # Run plate detection on raw frame every 2 frames
                     if (frame_no - 1) % 2 == 0:
@@ -502,11 +522,13 @@ def main():
             except cv2.error:
                 pass
 
-        if frame_no % 100 == 0 or (total_frames > 0 and frame_no == total_frames) or (is_webcam and frame_no % 30 == 0):
+        if frame_no % 15 == 0 or (total_frames > 0 and frame_no == total_frames) or (is_webcam and frame_no % 30 == 0):
             if total_frames > 0:
-                print(f"  Processed {frame_no}/{total_frames} frames ({frame_no/total_frames*100:.0f}%)")
+                pct = (frame_no / total_frames) * 100
+                total_defects = sum(damage_counts.values())
+                print(f"[*] Processing: Frame {frame_no}/{total_frames} ({pct:.0f}%) | Hazards: {total_defects} | Vehicles: {len(vehicle_visible)}", flush=True)
             else:
-                print(f"  Processed {frame_no} live frames")
+                print(f"[*] Processed {frame_no} live frames", flush=True)
 
     cap.release()
     writer.release()

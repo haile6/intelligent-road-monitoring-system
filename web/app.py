@@ -164,14 +164,17 @@ def video_studio():
     integrated_path = "outputs/final_integrated_video.mp4"
     if os.path.exists(os.path.join(BASE_DIR, integrated_path)):
         video_files.append({"name": "★ Master Integrated Analysis Video", "path": integrated_path})
-    elif os.path.exists(os.path.join(BASE_DIR, "outputs", "annotated_phase9.mp4")):
-        video_files.append({"name": "★ Master Integrated Analysis Video", "path": "outputs/annotated_phase9.mp4"})
+    if os.path.exists(os.path.join(BASE_DIR, "outputs", "annotated_phase9.mp4")):
+        video_files.append({"name": "★ Collision Avoidance Analysis (Phase 9)", "path": "outputs/annotated_phase9.mp4"})
 
-    raw_path = "data/test_video.mp4"
-    if os.path.exists(os.path.join(BASE_DIR, raw_path)):
-        video_files.append({"name": "Raw Camera Video (Live AI Detection)", "path": raw_path})
+    if os.path.exists(data_dir):
+        for fn in sorted(os.listdir(data_dir)):
+            if fn.lower().endswith((".mp4", ".mov", ".avi", ".mkv")):
+                v_path = f"data/{fn}"
+                label = "Active Inspection Video (data/test_video.mp4)" if fn == "test_video.mp4" else f"Uploaded Video: {fn}"
+                video_files.append({"name": label, "path": v_path})
 
-    default_video = video_files[0]["path"] if video_files else raw_path
+    default_video = video_files[0]["path"] if video_files else "data/test_video.mp4"
     selected_video = request.args.get("file", default_video)
     incidents = db_manager.get_all_incidents()
 
@@ -685,7 +688,7 @@ def api_pipeline_run():
     def worker():
         try:
             process = subprocess.Popen(
-                [python_exe, script_path],
+                [python_exe, "-u", script_path],
                 cwd=BASE_DIR,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -695,8 +698,8 @@ def api_pipeline_run():
             logs = []
             for line in iter(process.stdout.readline, ''):
                 logs.append(line)
-                # Keep last 500 lines in database
-                if len(logs) % 20 == 0:
+                # Keep last 500 lines in database and update database frequently so UI streams live
+                if len(logs) % 2 == 0 or "Frame" in line or "Processing" in line or "Processed" in line or "RISK" in line or "CONFIRMED" in line:
                     db_manager.update_pipeline_run(run_id, "running", "".join(logs[-500:]), None)
 
             process.wait()
@@ -704,11 +707,15 @@ def api_pipeline_run():
             status = "completed" if exit_code == 0 else "failed"
             db_manager.update_pipeline_run(run_id, status, "".join(logs[-1000:]), exit_code)
 
-            # Re-sync CSV data if run_phase9 or run_phase8 was executed
+            # Re-sync CSV data if run_integrated, run_phase9 or run_phase8 was executed
             if exit_code == 0:
-                if script_name in ["run_phase9.py", "run_phase8.py"]:
+                if script_name in ["run_integrated.py", "run_phase9.py", "run_phase8.py"]:
                     p9_csv = os.path.join(BASE_DIR, "outputs", "phase9_damage_events.csv")
-                    db_manager.import_incidents_from_csv(p9_csv)
+                    if os.path.exists(p9_csv):
+                        db_manager.import_incidents_from_csv(p9_csv)
+                    int_csv = os.path.join(BASE_DIR, "outputs", "integrated_damage_events.csv")
+                    if os.path.exists(int_csv):
+                        db_manager.import_incidents_from_csv(int_csv)
         except Exception as e:
             db_manager.update_pipeline_run(run_id, "failed", f"Execution error: {str(e)}", -1)
 

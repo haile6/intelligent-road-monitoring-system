@@ -229,11 +229,11 @@
                     <div class="modal-footer border-top d-flex justify-content-between" style="background: #f8fafc;">
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="btnUploadOnly">
-                                <i class="bi bi-cloud-arrow-up me-1"></i> Upload Only
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="btnUploadOnly" title="Upload and open directly in Video Telemetry Studio without waiting for AI pipeline">
+                                <i class="bi bi-speedometer2 me-1"></i> Upload &amp; Watch in Studio (Instant)
                             </button>
-                            <button type="submit" class="btn btn-sm btn-primary fw-semibold" id="btnUploadRun">
-                                <i class="bi bi-play-circle-fill me-1"></i> Upload &amp; Run AI Pipeline
+                            <button type="submit" class="btn btn-sm btn-primary fw-semibold" id="btnUploadRun" title="Upload and execute full YOLOv8 deep learning detection pipeline">
+                                <i class="bi bi-cpu-fill me-1"></i> Upload &amp; Run AI Pipeline
                             </button>
                         </div>
                     </div>
@@ -360,7 +360,8 @@
                                 if (autoRunPipeline) {
                                     window.location.href = '/pipeline?autorun=1';
                                 } else {
-                                    window.location.reload();
+                                    const studioTarget = res.path ? ('/studio?file=' + encodeURIComponent(res.path)) : '/studio';
+                                    window.location.href = studioTarget;
                                 }
                             }, 1200);
                         } else {
