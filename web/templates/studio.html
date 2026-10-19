@@ -21,13 +21,16 @@
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-primary fw-semibold" onclick="toggleViewerMode('video')" id="btn-mode-video">
-                            <i class="bi bi-play-btn-fill me-1"></i> Synchronized Video Stream
+                            <i class="bi bi-play-btn-fill me-1"></i> Recorded Stream
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger fw-semibold" onclick="toggleViewerMode('live_camera')" id="btn-mode-live">
+                            <i class="bi bi-camera-video-fill me-1"></i> Live Phone / Web Camera
                         </button>
                         <button class="btn btn-sm btn-outline-secondary fw-semibold" onclick="toggleViewerMode('frame')" id="btn-mode-frame">
-                            <i class="bi bi-layers-half me-1"></i> Frame-by-Frame Inspector
+                            <i class="bi bi-layers-half me-1"></i> Frame Inspector
                         </button>
-                        <button class="btn btn-sm btn-outline-success fw-semibold" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
-                            <i class="bi bi-broadcast me-1"></i> Live &amp; Mobile Stream
+                        <button class="btn btn-sm btn-outline-secondary fw-semibold" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
+                            <i class="bi bi-info-circle me-1"></i> Hardware Setup
                         </button>
                     </div>
                 </div>
@@ -84,6 +87,29 @@
                              style="max-height: 520px; object-fit: contain; cursor: pointer;" alt="Video Frame" title="Click to Step Frame Forward (+1)">
                         <div id="frame-loading" class="spinner-border text-primary position-absolute" style="display: none;" role="status">
                             <span class="visually-hidden">Loading frame...</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Device Camera Mode (Mobile Phone Back Camera / Laptop Camera) -->
+                    <div id="live-camera-container" class="w-100 position-relative" style="display: none; min-height: 480px; background: #000;">
+                        <video id="live-camera-video" playsinline autoplay muted class="w-100" style="max-height: 540px; object-fit: contain; background: #000;"></video>
+                        <canvas id="live-camera-canvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 10;"></canvas>
+                        
+                        <!-- Floating Live Camera Overlay Controls -->
+                        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex align-items-center gap-2 p-2 rounded shadow" style="background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); z-index: 20;">
+                            <span class="badge bg-danger d-flex align-items-center gap-1 font-mono">
+                                <span class="spinner-grow spinner-grow-sm text-light" style="width: 8px; height: 8px;"></span> LIVE FEED
+                            </span>
+                            <button class="btn btn-sm btn-outline-light fw-semibold" onclick="switchLiveCameraFacing()" title="Switch between Front and Back camera">
+                                <i class="bi bi-arrow-repeat me-1"></i> Flip Camera
+                            </button>
+                            <button class="btn btn-sm btn-danger fw-semibold" onclick="toggleViewerMode('video')" title="Return to Recorded Video">
+                                <i class="bi bi-stop-circle-fill me-1"></i> Stop Camera
+                            </button>
+                            <div class="form-check form-switch text-white small mb-0 ms-1">
+                                <input class="form-check-input" type="checkbox" id="live-ai-switch" checked>
+                                <label class="form-check-label" for="live-ai-switch">AI Detection</label>
+                            </div>
                         </div>
                     </div>
 
@@ -1076,14 +1102,28 @@
         currentMode = mode;
         const videoCont = document.getElementById('video-container');
         const frameCont = document.getElementById('frame-container');
+        const liveCont = document.getElementById('live-camera-container');
         const btnVideo = document.getElementById('btn-mode-video');
         const btnFrame = document.getElementById('btn-mode-frame');
+        const btnLive = document.getElementById('btn-mode-live');
 
-        if (mode === 'video') {
+        if (mode === 'live_camera') {
+            if (videoCont) videoCont.style.display = 'none';
+            if (frameCont) frameCont.style.display = 'none';
+            if (liveCont) liveCont.style.display = 'block';
+            if (btnLive) btnLive.className = 'btn btn-sm btn-danger fw-semibold';
+            if (btnVideo) btnVideo.className = 'btn btn-sm btn-outline-secondary fw-semibold';
+            if (btnFrame) btnFrame.className = 'btn btn-sm btn-outline-secondary fw-semibold';
+            if (mainVideo) mainVideo.pause();
+            startLiveDeviceCamera();
+        } else if (mode === 'video') {
+            stopLiveDeviceCamera();
+            if (liveCont) liveCont.style.display = 'none';
             if (videoCont) videoCont.style.display = 'block';
             if (frameCont) frameCont.style.display = 'none';
-            if (btnVideo) btnVideo.classList.replace('btn-outline-secondary', 'btn-primary');
-            if (btnFrame) btnFrame.classList.replace('btn-primary', 'btn-outline-secondary');
+            if (btnVideo) btnVideo.className = 'btn btn-sm btn-primary fw-semibold';
+            if (btnLive) btnLive.className = 'btn btn-sm btn-outline-danger fw-semibold';
+            if (btnFrame) btnFrame.className = 'btn btn-sm btn-outline-secondary fw-semibold';
             if (mainVideo) {
                 mainVideo.currentTime = currentTime;
                 mainVideo.play().then(() => {
@@ -1092,12 +1132,152 @@
                 }).catch(e => console.log('Autoplay deferred:', e));
             }
         } else {
+            stopLiveDeviceCamera();
+            if (liveCont) liveCont.style.display = 'none';
             if (videoCont) videoCont.style.display = 'none';
             if (frameCont) frameCont.style.display = 'flex';
-            if (btnFrame) btnFrame.classList.replace('btn-outline-secondary', 'btn-primary');
-            if (btnVideo) btnVideo.classList.replace('btn-primary', 'btn-outline-secondary');
+            if (btnFrame) btnFrame.className = 'btn btn-sm btn-primary fw-semibold';
+            if (btnVideo) btnVideo.className = 'btn btn-sm btn-outline-secondary fw-semibold';
+            if (btnLive) btnLive.className = 'btn btn-sm btn-outline-danger fw-semibold';
             if (mainVideo) mainVideo.pause();
             updateFrame(currentTime);
+        }
+    }
+
+    let activeLiveStream = null;
+    let liveFacingMode = 'environment'; // Back road camera on mobile
+    let liveAiInterval = null;
+    let liveDetectionBusy = false;
+
+    async function startLiveDeviceCamera() {
+        try {
+            stopLiveDeviceCamera();
+            const constraints = {
+                video: {
+                    facingMode: { ideal: liveFacingMode },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            activeLiveStream = stream;
+            const liveVideoEl = document.getElementById('live-camera-video');
+            if (liveVideoEl) {
+                liveVideoEl.srcObject = stream;
+                liveVideoEl.play();
+            }
+            const badge = document.getElementById('audio-status-badge');
+            if (badge) {
+                badge.className = 'badge bg-danger font-mono';
+                badge.textContent = 'LIVE ROAD CAMERA ACTIVE';
+            }
+            startLiveDetectionLoop();
+        } catch (err) {
+            alert('Camera notice: ' + err.message + '\nPlease grant camera permission in your browser.');
+            toggleViewerMode('video');
+        }
+    }
+
+    function stopLiveDeviceCamera() {
+        if (liveAiInterval) {
+            clearInterval(liveAiInterval);
+            liveAiInterval = null;
+        }
+        if (activeLiveStream) {
+            activeLiveStream.getTracks().forEach(track => track.stop());
+            activeLiveStream = null;
+        }
+        const liveCanvas = document.getElementById('live-camera-canvas');
+        if (liveCanvas) {
+            const ctx = liveCanvas.getContext('2d');
+            ctx.clearRect(0, 0, liveCanvas.width, liveCanvas.height);
+        }
+        const badge = document.getElementById('audio-status-badge');
+        if (badge) {
+            badge.className = 'badge bg-success font-mono';
+            badge.textContent = 'AUDIO SYNCHRONIZED';
+        }
+    }
+
+    function switchLiveCameraFacing() {
+        liveFacingMode = (liveFacingMode === 'environment') ? 'user' : 'environment';
+        startLiveDeviceCamera();
+    }
+
+    function startLiveDetectionLoop() {
+        if (liveAiInterval) clearInterval(liveAiInterval);
+        const captureCanvas = document.createElement('canvas');
+        captureCanvas.width = 640;
+        captureCanvas.height = 360;
+        const captureCtx = captureCanvas.getContext('2d');
+
+        liveAiInterval = setInterval(async () => {
+            const liveVideoEl = document.getElementById('live-camera-video');
+            const aiSwitch = document.getElementById('live-ai-switch');
+            if (!liveVideoEl || !activeLiveStream || liveVideoEl.readyState < 2 || (aiSwitch && !aiSwitch.checked)) return;
+            if (liveDetectionBusy) return;
+
+            try {
+                liveDetectionBusy = true;
+                captureCtx.drawImage(liveVideoEl, 0, 0, 640, 360);
+                const b64 = captureCanvas.toDataURL('image/jpeg', 0.6);
+
+                const res = await fetch('/api/detect_live_frame', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: b64 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    drawLiveDetections(data);
+                }
+            } catch (e) {
+                console.warn('Live detect error:', e);
+            } finally {
+                liveDetectionBusy = false;
+            }
+        }, 850);
+    }
+
+    function drawLiveDetections(data) {
+        const liveVideoEl = document.getElementById('live-camera-video');
+        const overlayCanvas = document.getElementById('live-camera-canvas');
+        if (!liveVideoEl || !overlayCanvas) return;
+
+        overlayCanvas.width = liveVideoEl.clientWidth || 640;
+        overlayCanvas.height = liveVideoEl.clientHeight || 360;
+        const ctx = overlayCanvas.getContext('2d');
+        ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+        const scaleX = overlayCanvas.width / (data.width || 640);
+        const scaleY = overlayCanvas.height / (data.height || 360);
+
+        (data.detections || []).forEach(d => {
+            const [x1, y1, x2, y2] = d.bbox;
+            const rx1 = x1 * scaleX, ry1 = y1 * scaleY, rw = (x2 - x1) * scaleX, rh = (y2 - y1) * scaleY;
+
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = d.risk_level === 'IMMEDIATE_DANGER' ? '#ef4444' : (d.risk_level === 'WARNING' ? '#f59e0b' : '#06b6d4');
+            ctx.strokeRect(rx1, ry1, rw, rh);
+
+            const text = `${d.class_name.toUpperCase()} ~${d.distance_m}m`;
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillRect(rx1, Math.max(0, ry1 - 20), ctx.measureText(text).width + 10, 20);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(text, rx1 + 5, Math.max(14, ry1 - 5));
+        });
+
+        // Trigger voice alert on hazardous road defect
+        if (data.highest_risk === 'IMMEDIATE_DANGER' || data.highest_risk === 'WARNING') {
+            const spoken = currentLang === 'am' ? data.spoken_am : data.spoken_en;
+            if (spoken && !spokenAlertsSet.has(spoken)) {
+                spokenAlertsSet.add(spoken);
+                playChimeSound(data.highest_risk);
+                speakText(spoken);
+                setTimeout(() => spokenAlertsSet.delete(spoken), 6000);
+            }
         }
     }
 

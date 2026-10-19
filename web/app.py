@@ -12,6 +12,7 @@ import time
 import threading
 import subprocess
 from datetime import datetime
+import cv2
 from flask import (
     Flask, render_template, request, jsonify,
     send_from_directory, Response, send_file, redirect, url_for
@@ -536,6 +537,114 @@ def api_video_frame():
         return "Frame encoding error", 500
 
     return Response(jpeg.tobytes(), mimetype="image/jpeg")
+
+
+@app.route("/api/detect_live_frame", methods=["POST"])
+def api_detect_live_frame():
+    """Process a live camera frame (from mobile phone or web browser)
+    and return real-time road damage and vehicle detections with distances and risk."""
+    import base64
+    import numpy as np
+
+    try:
+        frame = None
+        if request.is_json and "image" in request.json:
+            raw = request.json["image"]
+            if "," in raw:
+                raw = raw.split(",")[1]
+            img_bytes = base64.b64decode(raw)
+            nparr = np.frombuffer(img_bytes, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        elif "image" in request.files:
+            file = request.files["image"]
+            img_bytes = file.read()
+            nparr = np.frombuffer(img_bytes, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if frame is None:
+            return jsonify({"success": False, "error": "No valid frame received"}), 400
+
+        h, w = frame.shape[:2]
+        detections = []
+        highest_risk = "SAFE"
+
+        # Road damage detection
+        try:
+            from detection.road_damage_detector import RoadDamageDetector
+            if not hasattr(app, "_road_detector"):
+                app._road_detector = RoadDamageDetector(conf=config.CONFIDENCE_THRESHOLD)
+            damage_dets = app._road_detector.detect(frame)
+            for d in damage_dets:
+                bx = d["bbox"]
+                y_bot = bx[3]
+                dist_m = max(3.0, round(120.0 * (1.0 - (y_bot / max(h, 1)) ** 1.8) + 2.0, 1))
+                risk = "CAUTION" if dist_m > 15 else ("WARNING" if dist_m > 6 else "IMMEDIATE_DANGER")
+                if risk == "IMMEDIATE_DANGER":
+                    highest_risk = "IMMEDIATE_DANGER"
+                elif risk == "WARNING" and highest_risk != "IMMEDIATE_DANGER":
+                    highest_risk = "WARNING"
+                elif highest_risk == "SAFE":
+                    highest_risk = "CAUTION"
+
+                detections.append({
+                    "type": "damage",
+                    "class_name": d["class_name"],
+                    "confidence": round(float(d["confidence"]), 2),
+                    "bbox": [int(b) for b in bx],
+                    "distance_m": dist_m,
+                    "risk_level": risk
+                })
+        except Exception as _e:
+            pass
+
+        # Vehicle detection
+        try:
+            if config.PHASE4_USE_VEHICLES:
+                from detection.vehicle_detector import VehicleDetector
+                if not hasattr(app, "_vehicle_detector"):
+                    app._vehicle_detector = VehicleDetector(conf=config.VEHICLE_CONFIDENCE_THRESHOLD)
+                v_dets = app._vehicle_detector.detect(frame)
+                for vd in v_dets:
+                    bx = vd["bbox"]
+                    y_bot = bx[3]
+                    dist_m = max(4.0, round(80.0 * (1.0 - (y_bot / max(h, 1)) ** 1.5), 1))
+                    v_risk = "WARNING" if dist_m < 8 else "CAUTION"
+                    if v_risk == "WARNING" and highest_risk != "IMMEDIATE_DANGER":
+                        highest_risk = "WARNING"
+                    detections.append({
+                        "type": "vehicle",
+                        "class_name": vd["class_name"],
+                        "confidence": round(float(vd["confidence"]), 2),
+                        "bbox": [int(b) for b in bx],
+                        "distance_m": dist_m,
+                        "risk_level": v_risk
+                    })
+        except Exception as _e:
+            pass
+
+        spoken_en = ""
+        spoken_am = ""
+        if highest_risk == "IMMEDIATE_DANGER":
+            spoken_en = "Immediate danger! Pothole in direct path, take caution!"
+            spoken_am = "አስቸኳይ አደጋ! ከፊትህ አደገኛ ጉድጓድ አለ፥ ተጠንቀቅ!"
+        elif highest_risk == "WARNING":
+            spoken_en = "Warning! Road hazard ahead."
+            spoken_am = "ማስጠንቀቂያ! ከፊትህ የመንገድ ብልሽት አለ።"
+        elif highest_risk == "CAUTION" and detections:
+            spoken_en = f"Caution, {detections[0]['class_name']} detected."
+            spoken_am = f"ጥንቃቄ፥ {detections[0]['class_name']} ተገኝቷል።"
+
+        return jsonify({
+            "success": True,
+            "detections": detections,
+            "highest_risk": highest_risk,
+            "width": w,
+            "height": h,
+            "spoken_en": spoken_en,
+            "spoken_am": spoken_am
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/pipeline/run", methods=["POST"])
