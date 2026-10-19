@@ -8,53 +8,53 @@
     <!-- Top Summary Banner -->
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card p-3 shadow-sm border-0 bg-white">
+            <div class="card stat-card stat-primary p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-muted small fw-semibold text-uppercase">Total Camera Scans</span>
-                        <h3 class="fw-bold mb-0 text-dark mt-1">{{ plates|length }}</h3>
+                        <span class="text-muted small fw-semibold text-uppercase">Total Scans</span>
+                        <h3 class="fw-bold mb-0 text-white mt-1">{{ plates|length }}</h3>
                     </div>
-                    <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                        <i class="bi bi-camera fs-3"></i>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-camera fs-4"></i>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card p-3 shadow-sm border-0 bg-white">
+            <div class="card stat-card stat-success p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-success small fw-semibold text-uppercase">Recognized Plates</span>
                         <h3 class="fw-bold mb-0 text-success mt-1">{{ ocr_read|length }}</h3>
                     </div>
-                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-3 p-3">
-                        <i class="bi bi-check2-circle fs-3"></i>
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-check2-circle fs-4"></i>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card p-3 shadow-sm border-0 bg-white">
+            <div class="card stat-card stat-primary p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-info small fw-semibold text-uppercase">Unique Vehicles</span>
-                        <h3 class="fw-bold mb-0 text-info mt-1">{{ unique_vehicles|length }}</h3>
+                        <span class="text-primary small fw-semibold text-uppercase">Unique Vehicles</span>
+                        <h3 class="fw-bold mb-0 text-white mt-1">{{ unique_vehicles|length }}</h3>
                     </div>
-                    <div class="stat-icon bg-info bg-opacity-10 text-info rounded-3 p-3">
-                        <i class="bi bi-truck-front fs-3"></i>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-truck-front fs-4"></i>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card p-3 shadow-sm border-0 bg-white">
+            <div class="card stat-card stat-warning p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-muted small fw-semibold text-uppercase">OCR Intelligence</span>
-                        <h5 class="fw-bold mb-0 text-dark mt-2">EasyOCR + YOLO</h5>
+                        <span class="text-muted small fw-semibold text-uppercase">ANPR Engine</span>
+                        <h5 class="fw-bold mb-0 text-warning mt-2">EasyOCR + YOLO</h5>
                     </div>
-                    <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-3 p-3">
-                        <i class="bi bi-cpu fs-3"></i>
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-cpu fs-4"></i>
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
 
     <!-- Navigation Tabs & Search Controls -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="card-header py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
             <ul class="nav nav-pills" id="anprTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active px-3 py-2 fw-semibold" id="tab-verified-btn" data-bs-toggle="pill" data-bs-target="#tab-verified" type="button" role="tab">

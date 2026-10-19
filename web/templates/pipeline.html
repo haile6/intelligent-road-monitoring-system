@@ -8,53 +8,66 @@
     <div class="row g-3">
         <!-- Unified Engine Execution Card -->
         <div class="col-12 col-xl-5">
-            <div class="card shadow-sm mb-3 border-primary border-2">
-                <div class="card-header bg-primary bg-opacity-10 py-3 d-flex justify-content-between align-items-center">
+            <div class="card mb-3">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <div>
-                        <span class="badge bg-primary text-white mb-1">ALL-IN-ONE PIPELINE</span>
-                        <h5 class="mb-0 fw-bold text-dark">Unified AI Road Analysis</h5>
+                        <span class="badge bg-primary font-mono mb-1">NEURAL ENGINE CONTROL</span>
+                        <h5 class="mb-0 fw-bold text-white">Automated Inspection Pipeline</h5>
                     </div>
                     <i class="bi bi-cpu-fill text-primary fs-3"></i>
                 </div>
                 <div class="card-body p-4">
-                    <p class="text-secondary small mb-3">
-                        Executes all detection, tracking, physical distance estimation, GPS synchronization, collision corridor analysis, Time-to-Collision (TTC), risk assessment, and evidence image generation in <b>ONE SINGLE PASS</b>.
-                    </p>
-
-                    <div class="d-grid mb-4">
-                        <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2 py-3 fw-bold shadow-sm" 
+                    <!-- Descriptive Action Controls -->
+                    <div class="d-grid gap-2 mb-4">
+                        <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2 py-3 fw-bold" 
                                 onclick="runUnifiedPipeline()">
-                            <i class="bi bi-play-circle-fill fs-4"></i> Run Complete Integrated Analysis
+                            <i class="bi bi-play-circle-fill fs-5"></i> Execute Full Neural Pipeline
                         </button>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('video_studio') }}" class="btn btn-sm btn-outline-secondary flex-grow-1">
+                                <i class="bi bi-speedometer2"></i> Telemetry Studio
+                            </a>
+                            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success flex-grow-1">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                            </a>
+                        </div>
                     </div>
 
-                    <h6 class="fw-bold text-dark small text-uppercase mb-2">Integrated Pipeline Capabilities:</h6>
-                    <ul class="list-group list-group-flush small text-secondary">
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Road Damage AI: Potholes & Alligator Cracks
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Vehicle Detection: Cars, Trucks, Buses, Motorcycles
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Perspective Metric Distance Estimation (meters)
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Vehicle Path Collision Corridor & Impact Projection
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> GPS Velocity & Waypoint Geotagging
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Time-To-Collision (TTC) & Driver Audio Warning
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> High-Resolution Evidence Crop Saving (`evidence_crops/`)
-                        </li>
-                        <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Interactive Folium Road Damage Map Generation
-                        </li>
-                    </ul>
+                    <h6 class="fw-bold text-white small text-uppercase mb-2">Engine Architecture &amp; Calibration:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm border table-hover align-middle mb-0" style="font-size: 0.8rem;">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted fw-semibold" style="width: 42%;">Target Input Source</td>
+                                    <td class="font-mono text-white">data/test_video.mp4</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Pavement Defect AI</td>
+                                    <td><span class="badge bg-primary">YOLOv8x-Damage (Conf &ge; 0.25)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Vehicle Detection</td>
+                                    <td><span class="badge bg-secondary">YOLOv8-COCO Multi-Class</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Metric Projection</td>
+                                    <td class="text-white">Perspective IPM (Calibrated 1150px)</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Collision Horizon</td>
+                                    <td><span class="badge bg-danger">TTC &lt; 2.0s</span> <span class="badge bg-warning">TTC &lt; 4.0s</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Audio Dispatch</td>
+                                    <td><span class="badge bg-success">Dual Amharic (አማርኛ) + English</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Evidence Capture</td>
+                                    <td class="font-mono text-white">outputs/evidence_crops/</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

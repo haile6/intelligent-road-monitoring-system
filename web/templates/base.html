@@ -16,21 +16,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-body-tertiary">
+<body>
     <!-- Sidebar & Main Container Wrapper -->
     <div class="d-flex" id="wrapper">
         <!-- Sidebar Navigation -->
         <aside class="sidebar bg-dark text-white shadow-sm flex-shrink-0 d-flex flex-column" style="width: 275px; min-height: 100vh;">
             <div class="sidebar-brand p-3 d-flex align-items-center gap-2 border-bottom border-white border-opacity-10">
-                <div class="brand-icon rounded-3 p-2 d-flex align-items-center justify-content-center text-white" style="width: 42px; height: 42px;">
-                    <i class="bi bi-shield-shaded fs-4"></i>
+                <div class="brand-icon rounded-3 p-2 d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px; background: var(--brand-primary);">
+                    <i class="bi bi-shield-shaded fs-5"></i>
                 </div>
                 <div>
                     <div class="d-flex align-items-center gap-2">
-                        <h6 class="mb-0 fw-bold tracking-wide text-light">RoadEye Pro</h6>
-                        <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25" style="font-size: 0.6rem;">AI v2.4</span>
+                        <h6 class="mb-0 fw-bold tracking-wide text-white" style="font-size:0.95rem;">RoadEye Enterprise™</h6>
                     </div>
-                    <small class="text-white-50" style="font-size: 0.72rem;">Road Telemetry & Hazard AI</small>
+                    <small class="text-muted font-mono" style="font-size: 0.68rem; letter-spacing:0.02em;">National Infrastructure ITS</small>
                 </div>
             </div>
 
@@ -92,49 +91,51 @@
             </nav>
 
             <!-- Status Indicator at Bottom -->
-            <div class="mt-auto p-3 m-3 rounded-3 text-white-50 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.8rem;">
+            <!-- Status Indicator at Bottom -->
+            <div class="mt-auto p-3 m-3 rounded-2 text-white-50" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); font-size: 0.8rem;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-2">
                         <span class="live-pulse-dot"></span>
-                        <span class="text-light fw-bold" style="font-size: 0.74rem; letter-spacing: 0.04em;">NEURAL PIPELINE</span>
+                        <span class="text-white fw-bold font-mono" style="font-size: 0.72rem; letter-spacing: 0.04em;">NEURAL SUBSYSTEM</span>
                     </div>
-                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 font-mono" style="font-size: 0.65rem;">ACTIVE</span>
+                    <span class="badge bg-success font-mono" style="font-size: 0.65rem;">ACTIVE</span>
                 </div>
-                <div class="text-truncate text-white-50" style="font-size: 0.72rem;"><i class="bi bi-radar text-info me-1"></i>YOLOv8 + Metric Depth + TTC</div>
-                <div class="text-truncate text-white-50 mt-1" style="font-size: 0.72rem;"><i class="bi bi-soundwave text-warning me-1"></i>Bilingual ADAS Audio Dispatch</div>
+                <div class="text-truncate text-muted" style="font-size: 0.72rem;"><i class="bi bi-radar text-primary me-1"></i>YOLOv8x + Perspective Distance</div>
+                <div class="text-truncate text-muted mt-1" style="font-size: 0.72rem;"><i class="bi bi-soundwave text-info me-1"></i>Dual ADAS Voice Telemetry</div>
             </div>
         </aside>
 
         <!-- Main Content Area -->
         <div class="main-content flex-grow-1 d-flex flex-column" style="min-width: 0; min-height: 100vh;">
             <!-- Top Navigation Bar -->
-            <header class="navbar navbar-expand px-4 py-2 sticky-top shadow-sm">
+            <header class="navbar navbar-expand px-4 py-2 sticky-top">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="mb-0 fw-bold text-dark">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
+                    <h5 class="mb-0 fw-bold text-white">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
                 </div>
                 <div class="ms-auto d-flex align-items-center gap-2">
                     <!-- Live Clock Indicator -->
-                    <div class="d-none d-lg-flex align-items-center gap-2 px-3 py-1 bg-light rounded-pill border font-mono small text-secondary me-2">
-                        <i class="bi bi-clock-history text-primary"></i>
-                        <span id="liveClock">00:00:00</span>
+                    <div class="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded me-2"
+                         style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); font-family:'JetBrains Mono',monospace; font-size:0.82rem;">
+                        <i class="bi bi-clock-history text-muted"></i>
+                        <span id="liveClock" class="text-white">00:00:00</span>
                     </div>
 
                     <!-- Role Switcher Dropdown -->
                     <div class="dropdown me-1">
-                        <button class="btn btn-sm btn-outline-dark dropdown-toggle d-flex align-items-center gap-2 fw-medium px-3 shadow-sm" type="button" id="roleSelectorBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm btn-outline-dark dropdown-toggle d-flex align-items-center gap-2 fw-medium px-3" type="button" id="roleSelectorBtn" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-badge-fill text-primary" id="roleIcon"></i>
                             <span id="roleLabel">Role: Full System</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="roleSelectorBtn" style="min-width: 270px;">
-                            <li class="px-3 py-2 bg-light border-bottom">
-                                <span class="text-uppercase text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.05em;">Select Persona / Work View</span>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="roleSelectorBtn" style="min-width: 280px;">
+                            <li class="px-3 py-2 border-bottom border-subtle">
+                                <span class="text-uppercase fw-bold font-mono" style="font-size: 0.68rem; letter-spacing: 0.05em; color: var(--text-muted);">Operational Role Persona</span>
                             </li>
                             <li>
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('driver')">
                                     <span class="badge bg-danger rounded p-1 mt-1"><i class="bi bi-speedometer2"></i></span>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">1. Driver (In-Vehicle)</div>
-                                        <small class="text-muted d-block" style="font-size: 0.75rem;">Real-time HUD, TTC, collision corridor & audio alert</small>
+                                        <div class="fw-bold text-white" style="font-size: 0.85rem;">1. Field Operator / Driver</div>
+                                        <small class="text-muted d-block" style="font-size: 0.74rem;">In-vehicle HUD, TTC distance radar &amp; audio alerts</small>
                                     </div>
                                 </a>
                             </li>
@@ -142,37 +143,38 @@
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('manager')">
                                     <span class="badge bg-warning text-dark rounded p-1 mt-1"><i class="bi bi-tools"></i></span>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">2. Road Manager (Maintenance)</div>
-                                        <small class="text-muted d-block" style="font-size: 0.75rem;">GIS defect map, severity m², crew dispatch & tickets</small>
+                                        <div class="fw-bold text-white" style="font-size: 0.85rem;">2. Road Maintenance Engineer</div>
+                                        <small class="text-muted d-block" style="font-size: 0.74rem;">GIS defect maps, damage m² area &amp; crew dispatch</small>
                                     </div>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('executive')">
-                                    <span class="badge bg-info text-dark rounded p-1 mt-1"><i class="bi bi-building-check"></i></span>
+                                    <span class="badge bg-primary text-white rounded p-1 mt-1"><i class="bi bi-building-check"></i></span>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">3. Executive / City Council</div>
-                                        <small class="text-muted d-block" style="font-size: 0.75rem;">Fleet KPIs, road health index & budget audit reports</small>
+                                        <div class="fw-bold text-white" style="font-size: 0.85rem;">3. Executive Governing Body</div>
+                                        <small class="text-muted d-block" style="font-size: 0.74rem;">Asset health index, budget KPIs &amp; audit reports</small>
                                     </div>
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
-                                <a class="dropdown-item py-1 text-secondary small d-flex align-items-center gap-2" href="javascript:void(0)" onclick="setRole('all')">
-                                    <i class="bi bi-grid-fill"></i> Full System View (Admin Mode)
+                                <a class="dropdown-item py-2 text-secondary small d-flex align-items-center gap-2" href="javascript:void(0)" onclick="setRole('all')">
+                                    <i class="bi bi-shield-lock-fill text-primary"></i> Full System View (Admin Mode)
                                 </a>
                             </li>
                         </ul>
                     </div>
 
-                    <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
-                        <i class="bi bi-cloud-arrow-up-fill"></i> Upload Video
+                    <!-- Descriptive Enterprise Action Buttons -->
+                    <button class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
+                        <i class="bi bi-cloud-arrow-up-fill"></i> Upload Inspection Video
                     </button>
-                    <a href="{{ url_for('pipeline_runner') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm">
-                        <i class="bi bi-play-circle-fill"></i> Run AI Analysis
+                    <a href="{{ url_for('pipeline_runner') }}" class="btn btn-sm btn-primary fw-semibold">
+                        <i class="bi bi-cpu-fill"></i> Execute AI Pipeline
                     </a>
-                    <a href="{{ url_for('reports_view') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-                        <i class="bi bi-printer"></i> Work Order
+                    <a href="{{ url_for('reports_view') }}" class="btn btn-sm btn-outline-secondary fw-semibold">
+                        <i class="bi bi-file-earmark-text-fill"></i> Maintenance Work Orders
                     </a>
                 </div>
             </header>
@@ -183,9 +185,13 @@
             </main>
 
             <!-- Footer -->
-            <footer class="bg-white border-top py-3 px-4 text-secondary text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center" style="font-size: 0.82rem;">
-                <div>RoadEye Pro &bull; Complete Integrated Road & Hazard Intelligence System</div>
-                <div class="mt-1 mt-md-0" id="footerRoleText">Role: System Administrator &bull; SQLite Persistence Active</div>
+            <footer class="py-3 px-4 text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="live-pulse-dot" style="width:6px;height:6px;"></span>
+                    <span class="fw-bold text-white">RoadEye Enterprise™</span>
+                    <span class="text-muted">&bull; National Road Infrastructure &amp; Pavement Telemetry System</span>
+                </div>
+                <div class="mt-1 mt-md-0 font-mono text-muted" id="footerRoleText">Enterprise Console &bull; Security Level: Admin &bull; SQLite Telemetry Active</div>
             </footer>
         </div>
     </div>
@@ -196,41 +202,41 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="uploadVideoModalLabel">
-                        <i class="bi bi-cloud-arrow-up-fill me-2 text-success"></i>Upload Video for Road Analysis
+                        <i class="bi bi-cloud-arrow-up-fill me-2 text-primary"></i>Upload Video for Automated Road Analysis
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="uploadVideoForm" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold">Select Video File (.mp4, .avi, .mov)</label>
+                            <label class="form-label small fw-semibold text-white">Video Source File (.mp4, .avi, .mov)</label>
                             <input type="file" id="uploadVideoInput" name="video" class="form-control" accept="video/*" required>
-                            <small class="text-muted">Standard MP4 from smartphone, dashcam, or camera.</small>
+                            <small class="text-muted">High-definition roadway capture from dashcam, drone, or survey vehicle.</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold">
-                                <i class="bi bi-geo-alt-fill text-success me-1"></i>GPS Track (.gpx or .csv) <span class="badge bg-light text-secondary border">Optional</span>
+                            <label class="form-label small fw-semibold text-white">
+                                <i class="bi bi-geo-alt-fill text-primary me-1"></i>GPS Telemetry Track (.gpx or .csv) <span class="badge bg-secondary font-mono">Optional</span>
                             </label>
                             <input type="file" id="uploadGpsInput" name="gps" class="form-control" accept=".csv,.gpx">
-                            <small class="text-muted">If left empty, the AI will <b>automatically generate a synchronized GPS route</b> matching your video!</small>
+                            <small class="text-muted">Optional external telemetry; synchronized corridor is automatically synthesized if omitted.</small>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="setAsDefaultCheck" name="set_as_default" value="true" checked>
-                            <label class="form-check-label small" for="setAsDefaultCheck">
-                                <b>Set as active test video (`data/test_video.mp4`)</b><br>
-                                <span class="text-secondary">If checked, existing pipelines (Phases 1-9) will automatically analyze this new video.</span>
+                            <label class="form-check-label small text-secondary" for="setAsDefaultCheck">
+                                <b class="text-white">Assign as active analysis target (`data/test_video.mp4`)</b><br>
+                                <span>Configures the integrated neural engine to target this uploaded footage.</span>
                             </label>
                         </div>
-                        <div id="uploadProgress" class="progress mb-3" style="display: none; height: 10px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%"></div>
+                        <div id="uploadProgress" class="progress mb-3" style="display: none; height: 8px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%"></div>
                         </div>
                         <div id="uploadAlert" class="alert small py-2" style="display: none;"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" id="btnUploadSubmit" onclick="submitVideoUpload()">
-                        <i class="bi bi-upload me-1"></i> Upload & Sync GPS
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary fw-semibold" id="btnUploadSubmit" onclick="submitVideoUpload()">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload &amp; Initialize Pipeline
                     </button>
                 </div>
             </div>
@@ -331,7 +337,7 @@
                     iconClass: 'bi bi-tools text-warning',
                     badge: 'ROAD MANAGER',
                     badgeClass: 'badge bg-warning text-dark px-2',
-                    footer: 'Role: Road Manager &bull; GIS Map, Severity m² & Repair Crews'
+                    footer: 'Role: Road Manager &bull; GIS Map, Severity mÂ² & Repair Crews'
                 },
                 'executive': {
                     name: 'Executive Body',
@@ -401,8 +407,111 @@
                     }
                 }
             });
+
+            // â”€â”€ Live animated clock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            function updateClock() {
+                const el = document.getElementById('liveClock');
+                if (!el) return;
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2,'0');
+                const m = String(now.getMinutes()).padStart(2,'0');
+                const s = String(now.getSeconds()).padStart(2,'0');
+                el.textContent = `${h}:${m}:${s}`;
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // â”€â”€ Animated counter numbers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            function animateCounter(el) {
+                const target = parseFloat(el.textContent.replace(/[^0-9.]/g,'')) || 0;
+                const suffix = el.textContent.replace(/[0-9. ]/g,'');
+                const duration = 900;
+                const startTime = performance.now();
+                const startVal = 0;
+                function step(now) {
+                    const progress = Math.min((now - startTime) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const current = Math.round(startVal + (target - startVal) * eased);
+                    el.textContent = current + (suffix || '');
+                    if (progress < 1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            }
+
+            // Find all KPI stat h2 elements and animate them
+            document.querySelectorAll('.stat-card h2').forEach(el => {
+                setTimeout(() => animateCounter(el), 250);
+            });
+
+            // â”€â”€ Entrance fade-in for cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            const cards = document.querySelectorAll('.card, .role-launcher-card');
+            cards.forEach((card, i) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(18px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)';
+                    card.style.opacity = '';
+                    card.style.transform = '';
+                }, 80 + i * 55);
+            });
+
+            // â”€â”€ Toast notification system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            window.showToast = function(msg, type = 'info', duration = 3500) {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+                    document.body.appendChild(container);
+                }
+                const colors = {
+                    success: 'rgba(16,185,129,0.95)',
+                    danger:  'rgba(239,68,68,0.95)',
+                    warning: 'rgba(245,158,11,0.95)',
+                    info:    'rgba(37,99,235,0.95)'
+                };
+                const icons = {
+                    success: 'bi-check-circle-fill',
+                    danger:  'bi-exclamation-octagon-fill',
+                    warning: 'bi-exclamation-triangle-fill',
+                    info:    'bi-info-circle-fill'
+                };
+                const toast = document.createElement('div');
+                toast.style.cssText = `background:${colors[type] || colors.info};color:#fff;padding:12px 18px;border-radius:0.75rem;font-size:0.87rem;font-weight:500;box-shadow:0 12px 35px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;pointer-events:auto;min-width:240px;max-width:380px;transform:translateX(120%);transition:transform 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.35s;opacity:0;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);`;
+                toast.innerHTML = `<i class="bi ${icons[type] || icons.info} fs-5 flex-shrink-0"></i><span>${msg}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => { toast.style.transform='translateX(0)'; toast.style.opacity='1'; }, 20);
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(120%)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 400);
+                }, duration);
+            };
+
+            // â”€â”€ Button ripple effect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            document.addEventListener('click', e => {
+                const btn = e.target.closest('.btn');
+                if (!btn) return;
+                const rect = btn.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                const size = Math.max(rect.width, rect.height) * 2;
+                ripple.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,0.25);pointer-events:none;transform:scale(0);left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;animation:rippleBurst 0.5s ease forwards;z-index:9;`;
+                if (getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
+                btn.style.overflow = 'hidden';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 550);
+            });
+
+            // Inject ripple keyframe into document
+            if (!document.getElementById('ripple-kf-style')) {
+                const st = document.createElement('style');
+                st.id = 'ripple-kf-style';
+                st.textContent = '@keyframes rippleBurst { to { transform:scale(1); opacity:0; } }';
+                document.head.appendChild(st);
+            }
         });
     </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
+

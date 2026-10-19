@@ -29,18 +29,21 @@
 <div class="container-fluid px-0">
     <!-- Action Bar (Hidden during printing) -->
     <div class="card mb-4 no-print">
-        <div class="card-body py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="card-body py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
-                <h6 class="fw-bold mb-1">Official Pavement Maintenance & Hazard Work Order</h6>
-                <small class="text-secondary">Ready for immediate distribution to asphalt repair contractors and road crews.</small>
+                <h6 class="fw-bold mb-1 text-white">Department of Transportation &bull; Official Maintenance Directive</h6>
+                <small class="text-muted font-mono">Formal pavement mitigation work order generated from automated neural telemetry.</small>
             </div>
-            <div class="d-flex gap-2">
-                <button onclick="window.print()" class="btn btn-sm btn-primary d-flex align-items-center gap-2">
-                    <i class="bi bi-printer-fill"></i> Print / Save PDF
+            <div class="d-flex flex-wrap gap-2">
+                <button onclick="window.print()" class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-semibold">
+                    <i class="bi bi-printer-fill"></i> Print / Generate Official PDF
                 </button>
-                <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-success text-white d-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> Export CSV Dataset
+                <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success d-flex align-items-center gap-2 fw-semibold">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> Export CSV Telemetry
                 </a>
+                <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 fw-semibold" onclick="alert('Directive successfully transmitted to Field Maintenance Division.')">
+                    <i class="bi bi-send-check-fill"></i> Transmit Work Order
+                </button>
             </div>
         </div>
     </div>
@@ -52,11 +55,11 @@
             <div>
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <div class="bg-primary text-white p-2 rounded"><i class="bi bi-cone-striped fs-4"></i></div>
-                    <h4 class="fw-bold text-dark mb-0">DEPARTMENT OF TRANSPORTATION & ROAD MAINTENANCE</h4>
+                    <h4 class="fw-bold text-dark mb-0">DEPARTMENT OF TRANSPORTATION &amp; INFRASTRUCTURE</h4>
                 </div>
                 <div class="text-secondary small">
-                    <b>AI ROAD SURVEILLANCE & HAZARD MITIGATION WORK ORDER</b><br>
-                    Generated on: {{ report_date }} &bull; System: RoadEye Pro AI v2.4
+                    <b>PAVEMENT INTEGRITY &amp; HAZARD MITIGATION WORK DIRECTIVE</b><br>
+                    Generated on: {{ report_date }} &bull; Telemetry Authority: RoadEye Enterprise™ v4.0
                 </div>
             </div>
             <div class="text-end">

@@ -44,18 +44,18 @@
         <!-- Map Column -->
         <div class="col-12 col-xl-9">
             <div class="card shadow-sm h-100">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-semibold text-dark">
-                        <i class="bi bi-geo-alt-fill me-2 text-danger"></i>Road Damage Geographic Distribution & Vehicle Path
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold text-white">
+                        <i class="bi bi-geo-alt-fill me-2 text-primary"></i>GIS Spatial Road Defect &amp; Waypoint Corridor
                     </h6>
                     <div class="d-flex align-items-center gap-2">
-                        <a href="/folium_map" target="_blank" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
-                            <i class="bi bi-map-fill"></i> Standalone Folium Map
+                        <a href="/folium_map" target="_blank" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                            <i class="bi bi-map-fill"></i> Standalone Folium GIS
                         </a>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                        <span class="badge bg-primary font-mono">
                             <i class="bi bi-pin-map-fill me-1"></i>{{ incidents|length }} Geotagged Hazards
                         </span>
-                        <span class="badge bg-secondary-subtle text-secondary border">
+                        <span class="badge bg-secondary font-mono">
                             <i class="bi bi-signpost-2-fill me-1"></i>{{ gps_points|length }} GPS Waypoints
                         </span>
                     </div>

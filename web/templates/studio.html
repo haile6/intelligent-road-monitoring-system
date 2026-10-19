@@ -9,10 +9,10 @@
         <!-- Main Video & Inspection Column -->
         <div class="col-12 col-xl-9">
             <div class="card shadow-sm mb-3">
-                <div class="card-header bg-white py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-camera-reels text-primary fs-5"></i>
-                        <span class="fw-semibold text-dark">Active Video Stream:</span>
+                        <span class="fw-semibold text-white">Active Video Stream:</span>
                         <select class="form-select form-select-sm" style="width: auto;" onchange="location.href='/studio?file=' + this.value">
                             {% for v in video_files %}
                             <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
@@ -21,7 +21,7 @@
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-primary" onclick="toggleViewerMode('video')" id="btn-mode-video">
-                            <i class="bi bi-play-btn-fill me-1"></i>HTML5 Video Player
+                            <i class="bi bi-play-btn-fill me-1"></i>HTML5 Telemetry Stream
                         </button>
                         <button class="btn btn-sm btn-outline-secondary" onclick="toggleViewerMode('frame')" id="btn-mode-frame">
                             <i class="bi bi-layers-half me-1"></i>Precision Frame Scrubber
@@ -30,19 +30,19 @@
                 </div>
 
                 <!-- Persistent ADAS Voice Audio Notification Bar -->
-                <div id="audio-alert-banner" class="bg-primary bg-opacity-10 border-bottom border-primary border-opacity-25 py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div id="audio-alert-banner" class="border-bottom border-subtle py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: rgba(15, 23, 42, 0.7);">
                     <div class="d-flex align-items-center gap-2">
                         <div class="spinner-grow spinner-grow-sm text-danger" role="status">
                             <span class="visually-hidden">Live</span>
                         </div>
                         <i class="bi bi-megaphone-fill text-primary fs-6"></i>
-                        <span class="fw-semibold text-dark small">ADAS Voice Alerts & Collision Chimes:</span>
-                        <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO STREAM ATTACHED</span>
-                        <span class="text-secondary small d-none d-md-inline">&bull; Spoken warnings on hazards & slow vehicles</span>
+                        <span class="fw-semibold text-white small">ADAS Voice Telemetry Channel:</span>
+                        <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO STREAM SYNCHRONIZED</span>
+                        <span class="text-muted small d-none d-md-inline font-mono">&bull; Real-time bilingual auditory warnings</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-sm btn-primary px-3 shadow-sm fw-semibold" id="btn-unmute-banner" onclick="unmuteAudio()">
-                            <i class="bi bi-volume-up-fill me-1"></i><span id="unmute-banner-text">🔊 Sound is ON (Click to Test)</span>
+                        <button class="btn btn-sm btn-outline-primary px-3 fw-semibold" id="btn-unmute-banner" onclick="unmuteAudio()">
+                            <i class="bi bi-volume-up-fill me-1"></i><span id="unmute-banner-text">Audio Active (Click to Test)</span>
                         </button>
                     </div>
                 </div>
@@ -119,7 +119,7 @@
                 </div>
 
                 <!-- Inspection Controls Toolbar -->
-                <div class="card-footer bg-white py-3">
+                <div class="card-footer py-3">
                     <div class="row align-items-center g-3">
                         <div class="col-12 col-md-8 d-flex flex-wrap align-items-center gap-2">
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
@@ -207,14 +207,14 @@
         <!-- Telemetry & Jump-to-Hazard Sidebar -->
         <div class="col-12 col-xl-3">
             <div class="card shadow-sm h-100">
-                <div class="card-header bg-white py-3">
+                <div class="card-header py-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 fw-semibold text-dark">
-                            <i class="bi bi-crosshair me-2 text-danger"></i>Hazard Keyframes
+                        <h6 class="mb-0 fw-semibold text-white">
+                            <i class="bi bi-crosshair me-2 text-primary"></i>Telemetry Keyframes
                         </h6>
-                        <span class="badge bg-light text-dark border font-mono" id="hazard-count-badge">{{ incidents|length }} detected</span>
+                        <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
                     </div>
-                    <small class="text-secondary d-block mt-1">Click any hazard to seek video frame & sound</small>
+                    <small class="text-muted d-block mt-1 font-mono">Synchronized Event Timestamps</small>
                     
                     <!-- Quick Risk Filter Pills -->
                     <div class="d-flex gap-1 mt-2">

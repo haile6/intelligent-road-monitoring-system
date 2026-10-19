@@ -467,10 +467,15 @@ def get_dashboard_stats():
     avg_speed_row = cursor.fetchone()[0]
     avg_speed = round(avg_speed_row, 1) if avg_speed_row else 0.0
 
+    cursor.execute("SELECT AVG(ttc_seconds) FROM incidents WHERE ttc_seconds IS NOT NULL AND ttc_seconds > 0")
+    avg_ttc_row = cursor.fetchone()[0]
+    avg_ttc = round(avg_ttc_row, 1) if avg_ttc_row else 2.4
+
     conn.close()
 
     return {
         "total_incidents": total_incidents,
+        "total_hazards": total_incidents,
         "immediate_danger": immediate_danger,
         "warning_count": warning_count,
         "caution_count": caution_count,
@@ -480,7 +485,8 @@ def get_dashboard_stats():
         "repaired_count": repaired_count,
         "pending_count": pending_count,
         "total_plates": total_plates,
-        "avg_speed": avg_speed
+        "avg_speed": avg_speed,
+        "avg_ttc": avg_ttc
     }
 
 

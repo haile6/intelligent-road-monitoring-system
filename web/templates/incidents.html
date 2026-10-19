@@ -51,11 +51,15 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="col-6 col-md-3 d-flex gap-2 justify-content-end">
-                    <button type="submit" class="btn btn-sm btn-primary px-3">Filter</button>
-                    <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
-                    <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-success text-white" title="Export as CSV">
-                        <i class="bi bi-file-earmark-spreadsheet"></i> Export
+                <div class="col-12 col-md-3 d-flex gap-2 justify-content-end">
+                    <button type="submit" class="btn btn-sm btn-primary px-3 fw-semibold">
+                        <i class="bi bi-funnel-fill"></i> Apply Filter
+                    </button>
+                    <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-secondary fw-semibold">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                    <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success fw-semibold" title="Export incident dataset as CSV">
+                        <i class="bi bi-file-earmark-spreadsheet-fill"></i> Export CSV
                     </a>
                 </div>
             </form>
@@ -64,13 +68,13 @@
 
     <!-- Incidents Table Card -->
     <div class="card shadow-sm">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h6 class="mb-0 fw-semibold text-dark">
-                <i class="bi bi-cone me-2 text-danger"></i>Detected Hazards List ({{ incidents|length }} records)
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-semibold text-white d-flex align-items-center gap-2">
+                <i class="bi bi-shield-exclamation text-danger"></i> Highway Asset Defect &amp; Hazard Ledger
             </h6>
-            <div class="text-secondary small">
-                Click <b>Manage</b> on any item to update maintenance status or crew assignment.
-            </div>
+            <span class="badge bg-secondary font-mono" style="font-size:0.75rem;">
+                {{ incidents|length }} CATALOGED HAZARDS
+            </span>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
