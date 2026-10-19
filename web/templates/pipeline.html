@@ -142,6 +142,15 @@
 <script>
     let activePollInterval = null;
 
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autorun') === '1') {
+            setTimeout(() => {
+                runUnifiedPipeline();
+            }, 600);
+        }
+    });
+
     async function runUnifiedPipeline() {
         const terminal = document.getElementById('terminalOutput');
         const statusBadge = document.getElementById('jobStatusBadge');

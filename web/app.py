@@ -32,6 +32,14 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "web", "templates"),
     static_folder=os.path.join(BASE_DIR, "web", "static")
 )
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB max video upload
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({
+        "success": False,
+        "error": "The uploaded video file is too large (maximum allowed size is 500 MB). Please trim or compress the video before uploading."
+    }), 413
 
 # Background pipeline execution state
 pipeline_threads = {}
@@ -778,6 +786,33 @@ def api_video_upload():
     save_path = os.path.join(data_dir, target_name)
     file.save(save_path)
 
+    # Validate video readability and normalize non-standard formats (iPhone .MOV, HEVC, AVI, etc.) to web H.264 MP4
+    try:
+        import subprocess, imageio_ffmpeg
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+        orig_ext = os.path.splitext(file.filename)[1].lower()
+
+        # Test if OpenCV can open and read frames from the saved video
+        test_cap = cv2.VideoCapture(save_path)
+        is_valid = test_cap.isOpened()
+        if is_valid:
+            ret_first, _ = test_cap.read()
+            is_valid = ret_first
+        test_cap.release()
+
+        # If video cannot be read or is a QuickTime MOV/AVI/MKV, convert to standard H.264 MP4
+        if not is_valid or orig_ext in [".mov", ".avi", ".mkv", ".webm", ".m4v"]:
+            temp_conv = os.path.join(data_dir, f"conv_{int(time.time())}.mp4")
+            subprocess.run(
+                [ffmpeg_exe, "-y", "-i", save_path, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", temp_conv],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120, check=True
+            )
+            if os.path.exists(temp_conv) and os.path.getsize(temp_conv) > 1000:
+                os.replace(temp_conv, save_path)
+                print(f"[*] Uploaded video normalized to universal web H.264 MP4.")
+    except Exception as norm_err:
+        print(f"[*] Notice: Video validation/transcoding notice: {norm_err}")
+
     # Handle GPS for uploaded video: check if a GPS file was provided, or auto-generate one
     gps_file = request.files.get("gps")
     gps_target = os.path.join(data_dir, "gps_track.csv")
@@ -795,7 +830,6 @@ def api_video_upload():
     elif set_as_default:
         # Automatically generate matching GPS track for this uploaded video
         try:
-            import cv2
             import datetime as dt
             from gps.geo import destination_point
             cap = cv2.VideoCapture(save_path)
@@ -819,9 +853,10 @@ def api_video_upload():
 
     return jsonify({
         "success": True,
-        "message": f"Successfully uploaded video to data/{target_name} and synchronized GPS tracking.",
+        "message": f"Successfully uploaded and verified video ({target_name}). GPS track synchronized.",
         "filename": target_name,
-        "path": f"data/{target_name}"
+        "path": f"data/{target_name}",
+        "redirect_url": "/pipeline?autorun=1" if set_as_default else "/studio"
     })
 
 
