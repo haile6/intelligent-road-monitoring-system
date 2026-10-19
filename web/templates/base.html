@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=5.2">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -91,8 +91,7 @@
             </nav>
 
             <!-- Status Indicator at Bottom -->
-            <!-- Status Indicator at Bottom -->
-            <div class="mt-auto p-3 m-3 rounded-2 text-white-50" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); font-size: 0.8rem;">
+            <div class="mt-auto p-3 m-3 rounded-2 text-white-50" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.8rem;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-2">
                         <span class="live-pulse-dot"></span>
@@ -110,14 +109,14 @@
             <!-- Top Navigation Bar -->
             <header class="navbar navbar-expand px-4 py-2 sticky-top">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="mb-0 fw-bold text-white">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
+                    <h5 class="mb-0 fw-bold" style="color: var(--text-primary); font-size: 1.05rem;">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
                 </div>
                 <div class="ms-auto d-flex align-items-center gap-2">
                     <!-- Live Clock Indicator -->
                     <div class="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded me-2"
-                         style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); font-family:'JetBrains Mono',monospace; font-size:0.82rem;">
+                         style="background: #f8fafc; border: 1px solid var(--border-subtle); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;">
                         <i class="bi bi-clock-history text-muted"></i>
-                        <span id="liveClock" class="text-white">00:00:00</span>
+                        <span id="liveClock" class="fw-semibold" style="color: var(--text-secondary);">00:00:00</span>
                     </div>
 
                     <!-- Role Switcher Dropdown -->
@@ -126,7 +125,7 @@
                             <i class="bi bi-person-badge-fill text-primary" id="roleIcon"></i>
                             <span id="roleLabel">Role: Full System</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="roleSelectorBtn" style="min-width: 280px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border" aria-labelledby="roleSelectorBtn" style="min-width: 280px; background: #ffffff;">
                             <li class="px-3 py-2 border-bottom border-subtle">
                                 <span class="text-uppercase fw-bold font-mono" style="font-size: 0.68rem; letter-spacing: 0.05em; color: var(--text-muted);">Operational Role Persona</span>
                             </li>
@@ -134,7 +133,7 @@
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('driver')">
                                     <span class="badge bg-danger rounded p-1 mt-1"><i class="bi bi-speedometer2"></i></span>
                                     <div>
-                                        <div class="fw-bold text-white" style="font-size: 0.85rem;">1. Field Operator / Driver</div>
+                                        <div class="fw-bold" style="color: var(--text-primary); font-size: 0.85rem;">1. Field Operator / Driver</div>
                                         <small class="text-muted d-block" style="font-size: 0.74rem;">In-vehicle HUD, TTC distance radar &amp; audio alerts</small>
                                     </div>
                                 </a>
@@ -143,7 +142,7 @@
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('manager')">
                                     <span class="badge bg-warning text-dark rounded p-1 mt-1"><i class="bi bi-tools"></i></span>
                                     <div>
-                                        <div class="fw-bold text-white" style="font-size: 0.85rem;">2. Road Maintenance Engineer</div>
+                                        <div class="fw-bold" style="color: var(--text-primary); font-size: 0.85rem;">2. Road Maintenance Engineer</div>
                                         <small class="text-muted d-block" style="font-size: 0.74rem;">GIS defect maps, damage m² area &amp; crew dispatch</small>
                                     </div>
                                 </a>
@@ -152,7 +151,7 @@
                                 <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('executive')">
                                     <span class="badge bg-primary text-white rounded p-1 mt-1"><i class="bi bi-building-check"></i></span>
                                     <div>
-                                        <div class="fw-bold text-white" style="font-size: 0.85rem;">3. Executive Governing Body</div>
+                                        <div class="fw-bold" style="color: var(--text-primary); font-size: 0.85rem;">3. Executive Governing Body</div>
                                         <small class="text-muted d-block" style="font-size: 0.74rem;">Asset health index, budget KPIs &amp; audit reports</small>
                                     </div>
                                 </a>
@@ -185,10 +184,10 @@
             </main>
 
             <!-- Footer -->
-            <footer class="py-3 px-4 text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <footer class="py-3 px-4 text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center" style="background: #ffffff; border-top: 1px solid var(--border-subtle);">
                 <div class="d-flex align-items-center gap-2">
                     <span class="live-pulse-dot" style="width:6px;height:6px;"></span>
-                    <span class="fw-bold text-white">RoadEye Enterprise™</span>
+                    <span class="fw-bold" style="color: var(--text-primary);">RoadEye Enterprise™</span>
                     <span class="text-muted">&bull; National Road Infrastructure &amp; Pavement Telemetry System</span>
                 </div>
                 <div class="mt-1 mt-md-0 font-mono text-muted" id="footerRoleText">Enterprise Console &bull; Security Level: Admin &bull; SQLite Telemetry Active</div>
@@ -199,22 +198,22 @@
     <!-- Upload Video Modal -->
     <div class="modal fade" id="uploadVideoModal" tabindex="-1" aria-labelledby="uploadVideoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="uploadVideoModalLabel">
+            <div class="modal-content" style="background: #ffffff;">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="uploadVideoModalLabel" style="color: var(--text-primary);">
                         <i class="bi bi-cloud-arrow-up-fill me-2 text-primary"></i>Upload Video for Automated Road Analysis
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="uploadVideoForm" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-white">Video Source File (.mp4, .avi, .mov)</label>
+                            <label class="form-label small fw-semibold" style="color: var(--text-primary);">Video Source File (.mp4, .avi, .mov)</label>
                             <input type="file" id="uploadVideoInput" name="video" class="form-control" accept="video/*" required>
                             <small class="text-muted">High-definition roadway capture from dashcam, drone, or survey vehicle.</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-white">
+                            <label class="form-label small fw-semibold" style="color: var(--text-primary);">
                                 <i class="bi bi-geo-alt-fill text-primary me-1"></i>GPS Telemetry Track (.gpx or .csv) <span class="badge bg-secondary font-mono">Optional</span>
                             </label>
                             <input type="file" id="uploadGpsInput" name="gps" class="form-control" accept=".csv,.gpx">
@@ -223,7 +222,7 @@
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="setAsDefaultCheck" name="set_as_default" value="true" checked>
                             <label class="form-check-label small text-secondary" for="setAsDefaultCheck">
-                                <b class="text-white">Assign as active analysis target (`data/test_video.mp4`)</b><br>
+                                <b style="color: var(--text-primary);">Assign as active analysis target (`data/test_video.mp4`)</b><br>
                                 <span>Configures the integrated neural engine to target this uploaded footage.</span>
                             </label>
                         </div>
@@ -233,7 +232,7 @@
                         <div id="uploadAlert" class="alert small py-2" style="display: none;"></div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer border-top" style="background: #f8fafc;">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary fw-semibold" id="btnUploadSubmit" onclick="submitVideoUpload()">
                         <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload &amp; Initialize Pipeline
