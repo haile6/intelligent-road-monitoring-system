@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Executive Dashboard{% endblock %}
-{% block page_title %}Operational Overview &amp; Hazard Telemetry{% endblock %}
+{% block title %}Pavement Defect Telemetry & Road Safety Health Dashboard{% endblock %}
+{% block page_title %}Automated Pavement Defect Telemetry &amp; Infrastructure Health Dashboard{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -12,8 +12,8 @@
         <div class="d-flex align-items-center gap-3">
             <div class="p-2 rounded bg-warning text-dark fs-4"><i class="bi bi-camera-video-fill"></i></div>
             <div>
-                <h6 class="fw-bold mb-0 text-dark">New Video Source Detected (`data/test_video.mp4`)</h6>
-                <small class="text-muted">Unprocessed inspection footage available. Execute pipeline to update road telemetry.</small>
+                <h6 class="fw-bold mb-0 text-dark">Unprocessed Inspection Video Detected (`data/test_video.mp4`)</h6>
+                <small class="text-secondary fw-semibold">Execute neural pipeline to extract telemetry and update pavement hazard records.</small>
             </div>
         </div>
         <div class="mt-2 mt-md-0">
@@ -29,33 +29,27 @@
         <div class="card-body p-3 p-md-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <span class="live-pulse-dot"></span>
-                        <span class="font-mono text-uppercase fw-bold" style="font-size:0.75rem; letter-spacing:0.06em; color:var(--brand-primary);">
-                            National Transportation Authority &bull; Telemetry Engine Online
-                        </span>
-                    </div>
-                    <h4 class="fw-bold mb-0" style="color:var(--text-primary); letter-spacing:-0.01em;">
-                        RoadEye Enterprise™ <span class="fw-normal text-muted">| Highway Asset &amp; Hazard Telemetry</span>
-                    </h4>
+                    <h5 class="fw-bold mb-0 text-dark">
+                        Autonomous Road Surface Hazard Telemetry &amp; Pavement Assessment
+                    </h5>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4"
                        class="btn btn-primary fw-semibold">
-                        <i class="bi bi-play-circle-fill me-1"></i> Launch Video Studio
+                        <i class="bi bi-play-circle-fill me-1"></i> Launch Real-Time Video Telemetry Studio
                     </a>
                     <a href="{{ url_for('map_view') }}"
                        class="btn btn-outline-secondary fw-semibold">
-                        <i class="bi bi-geo-alt-fill me-1"></i> Open GIS Asset Map
+                        <i class="bi bi-geo-alt-fill me-1"></i> Open Geographic GIS Hazard Map
                     </a>
                     <a href="{{ url_for('pipeline_runner') }}"
                        class="btn btn-outline-secondary fw-semibold">
-                        <i class="bi bi-cpu-fill me-1"></i> Execute AI Pipeline
+                        <i class="bi bi-cpu-fill me-1"></i> Execute Neural Vision Pipeline
                     </a>
                     <a href="{{ url_for('reports_view') }}"
                        class="btn btn-outline-secondary fw-semibold">
-                        <i class="bi bi-file-earmark-text-fill me-1"></i> Maintenance Work Orders
+                        <i class="bi bi-file-earmark-text-fill me-1"></i> DOT Pavement Mitigation Directives
                     </a>
                 </div>
             </div>
@@ -69,17 +63,14 @@
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.72rem; letter-spacing:0.05em;">Total Cataloged Hazards</span>
-                            <h2 class="mb-0 fw-bold mt-1" style="color:var(--text-primary); font-size:clamp(1.7rem,3vw,2.3rem);">{{ stats.total_incidents or 0 }}</h2>
+                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.75rem; letter-spacing:0.04em;">Total Detected Pavement Hazards</span>
+                            <h2 class="mb-0 fw-bold mt-1 text-dark" style="font-size:clamp(1.7rem,3vw,2.3rem);">{{ stats.total_incidents or 0 }}</h2>
                         </div>
                         <div class="stat-icon bg-primary bg-opacity-10 text-primary">
                             <i class="bi bi-shield-exclamation"></i>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="progress flex-grow-1" style="height:4px;"><div class="progress-bar bg-primary" style="width:{{ [(stats.total_incidents or 0) * 3, 100]|min }}%;"></div></div>
-                        <small class="text-muted font-mono" style="font-size:0.7rem;">Road Network</small>
-                    </div>
+                    <div class="progress" style="height:4px;"><div class="progress-bar bg-primary" style="width:{{ [(stats.total_incidents or 0) * 3, 100]|min }}%;"></div></div>
                 </div>
             </div>
         </div>
@@ -89,17 +80,14 @@
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.72rem; letter-spacing:0.05em;">Immediate Danger (P1)</span>
+                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.75rem; letter-spacing:0.04em;">Critical Safety Hazards (TTC &lt; 2.0s)</span>
                             <h2 class="mb-0 fw-bold text-danger mt-1" style="font-size:clamp(1.7rem,3vw,2.3rem);">{{ stats.immediate_danger or 0 }}</h2>
                         </div>
                         <div class="stat-icon bg-danger bg-opacity-10 text-danger">
                             <i class="bi bi-exclamation-octagon-fill"></i>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="progress flex-grow-1" style="height:4px;"><div class="progress-bar bg-danger" style="width:{{ [(stats.immediate_danger or 0) * 15, 100]|min }}%;"></div></div>
-                        <small class="text-muted font-mono" style="font-size:0.7rem;">TTC &lt; 2.0s</small>
-                    </div>
+                    <div class="progress" style="height:4px;"><div class="progress-bar bg-danger" style="width:{{ [(stats.immediate_danger or 0) * 15, 100]|min }}%;"></div></div>
                 </div>
             </div>
         </div>
@@ -109,17 +97,14 @@
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.72rem; letter-spacing:0.05em;">Pothole Cavities</span>
+                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.75rem; letter-spacing:0.04em;">Potholes &amp; Surface Cavities</span>
                             <h2 class="mb-0 fw-bold mt-1" style="color:#b45309; font-size:clamp(1.7rem,3vw,2.3rem);">{{ stats.potholes or 0 }}</h2>
                         </div>
                         <div class="stat-icon bg-warning bg-opacity-10 text-warning">
                             <i class="bi bi-diamond-half"></i>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="progress flex-grow-1" style="height:4px;"><div class="progress-bar bg-warning" style="width:{{ [(stats.potholes or 0) * 4, 100]|min }}%;"></div></div>
-                        <small class="text-muted font-mono" style="font-size:0.7rem;">Pavement Defects</small>
-                    </div>
+                    <div class="progress" style="height:4px;"><div class="progress-bar bg-warning" style="width:{{ [(stats.potholes or 0) * 4, 100]|min }}%;"></div></div>
                 </div>
             </div>
         </div>
@@ -129,17 +114,14 @@
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.72rem; letter-spacing:0.05em;">Average Proximity TTC</span>
+                            <span class="text-uppercase text-muted fw-semibold" style="font-size:0.75rem; letter-spacing:0.04em;">Mean Proximity Time-To-Collision</span>
                             <h2 class="mb-0 fw-bold text-success mt-1" style="font-size:clamp(1.7rem,3vw,2.3rem);">{{ "%.1f"|format(stats.avg_ttc or 2.4) }}s</h2>
                         </div>
                         <div class="stat-icon bg-success bg-opacity-10 text-success">
                             <i class="bi bi-broadcast-pin"></i>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="progress flex-grow-1" style="height:4px;"><div class="progress-bar bg-success" style="width:70%;"></div></div>
-                        <small class="text-muted font-mono" style="font-size:0.7rem;">Collision Horizon</small>
-                    </div>
+                    <div class="progress" style="height:4px;"><div class="progress-bar bg-success" style="width:70%;"></div></div>
                 </div>
             </div>
         </div>
@@ -151,22 +133,22 @@
         <div class="col-12 col-xl-8">
             <div class="card shadow-sm h-100">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2" style="color:var(--text-primary);">
-                        <i class="bi bi-shield-exclamation text-danger"></i> Highway Asset Defect &amp; Hazard Ledger
+                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2 text-dark">
+                        <i class="bi bi-shield-exclamation text-danger"></i> Real-Time Road Surface Defect &amp; Hazard Incident Register
                     </h6>
                     <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-primary fw-semibold">
-                        <i class="bi bi-list-task me-1"></i> Open Full Incident Register ({{ stats.total_incidents or 0 }})
+                        <i class="bi bi-list-task me-1"></i> Review All Cataloged Defect Incidents ({{ stats.total_incidents or 0 }})
                     </a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Track ID</th>
-                                <th>Defect Classification</th>
-                                <th>Risk Assessment</th>
-                                <th>Proximity &amp; TTC</th>
-                                <th>GPS Coordinates</th>
+                                <th>Defect Track ID</th>
+                                <th>Classification</th>
+                                <th>Severity Level</th>
+                                <th>Collision TTC &amp; Distance</th>
+                                <th>Geographic GPS Coordinates</th>
                                 <th class="text-end">Action</th>
                             </tr>
                         </thead>
@@ -175,11 +157,9 @@
                             <tr>
                                 <td>
                                     <span class="fw-bold text-dark font-mono">#{{ inc.track_id }}</span>
-                                    <small class="d-block text-muted font-mono" style="font-size:0.7rem;">Frame {{ inc.frame_number or '--' }} ({{ "%.1f"|format(inc.video_time_s or 0) }}s)</small>
                                 </td>
                                 <td>
-                                    <div class="fw-semibold text-dark">{{ inc.damage_type }}</div>
-                                    <span class="badge bg-secondary font-mono" style="font-size:0.65rem;">Confidence {{ "%.0f"|format((inc.confidence or 0.8) * 100) }}%</span>
+                                    <span class="fw-semibold text-dark text-capitalize">{{ inc.damage_type }}</span>
                                 </td>
                                 <td>
                                     {% if 'IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '') %}
@@ -193,19 +173,18 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="font-mono fw-bold text-dark">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</span>
-                                    <small class="d-block text-muted font-mono" style="font-size:0.7rem;">Distance {{ "%.1f"|format(inc.distance_m or 0) }}m</small>
+                                    <span class="font-mono fw-bold text-dark">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</span> &bull; 
+                                    <span class="text-secondary font-mono">{{ "%.1f"|format(inc.distance_m or 0) }}m</span>
                                 </td>
                                 <td>
-                                    <span class="font-mono small text-secondary">
-                                        {{ "%.5f"|format(inc.damage_latitude or 9.0238) }}° N<br>
-                                        {{ "%.5f"|format(inc.damage_longitude or 38.7468) }}° E
+                                    <span class="font-mono text-dark" style="font-size:0.82rem;">
+                                        {{ "%.5f"|format(inc.damage_latitude or 9.0238) }}° N, {{ "%.5f"|format(inc.damage_longitude or 38.7468) }}° E
                                     </span>
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}"
                                        class="btn btn-sm btn-outline-primary fw-semibold">
-                                        <i class="bi bi-crosshair me-1"></i> Inspect
+                                        <i class="bi bi-play-fill me-1"></i> Inspect Keyframe
                                     </a>
                                 </td>
                             </tr>
@@ -213,7 +192,7 @@
                             <tr>
                                 <td colspan="6" class="text-center py-4 text-muted">
                                     <i class="bi bi-check-circle fs-3 text-success d-block mb-1"></i>
-                                    No road hazard incidents recorded yet. Execute the AI Pipeline to analyze roadway footage.
+                                    No road hazard incidents recorded yet. Execute the Neural Vision Pipeline to analyze roadway footage.
                                 </td>
                             </tr>
                             {% endfor %}
@@ -228,10 +207,9 @@
             <!-- Risk Severity Distribution -->
             <div class="card shadow-sm">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2" style="color:var(--text-primary);">
-                        <i class="bi bi-pie-chart-fill text-primary"></i> Risk Severity Breakdown
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-pie-chart-fill text-primary"></i> Defect Risk Severity Distribution
                     </h6>
-                    <span class="badge bg-secondary font-mono" style="font-size:0.68rem;">TELEMETRY</span>
                 </div>
                 <div class="card-body p-3">
                     <div style="position:relative; height:180px;">
@@ -261,10 +239,9 @@
             <!-- Defect Classification Chart -->
             <div class="card shadow-sm">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2" style="color:var(--text-primary);">
-                        <i class="bi bi-bar-chart-line-fill text-primary"></i> Defect Classification
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart-line-fill text-primary"></i> Pavement Structural Defect Classification
                     </h6>
-                    <span class="badge bg-secondary font-mono" style="font-size:0.68rem;">CAVITIES</span>
                 </div>
                 <div class="card-body p-3">
                     <div style="position:relative; height:120px;">
@@ -276,26 +253,26 @@
             <!-- Subsystem Telemetry Status -->
             <div class="card shadow-sm">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2" style="color:var(--text-primary);">
-                        <i class="bi bi-cpu-fill text-primary"></i> Subsystem Telemetry
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu-fill text-primary"></i> Integrated Neural Subsystems Status
                     </h6>
                     <span class="badge bg-success font-mono" style="font-size:0.68rem;">ALL OPERATIONAL</span>
                 </div>
                 <div class="card-body p-3 d-flex flex-column gap-2" style="font-size:0.8rem;">
                     <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-shield-check text-success me-2"></i>YOLOv8x Pavement Model</span>
+                        <span class="text-secondary"><i class="bi bi-shield-check text-success me-2"></i>YOLOv8x Deep Neural Model</span>
                         <span class="badge bg-success font-mono">ONLINE &bull; 98.4%</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-arrows-expand text-info me-2"></i>Metric Distance IPM Engine</span>
+                        <span class="text-secondary"><i class="bi bi-arrows-expand text-info me-2"></i>Inverse Perspective Mapping (IPM)</span>
                         <span class="badge bg-primary font-mono">CALIBRATED</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-soundwave text-warning me-2"></i>Bilingual ADAS Audio Voice</span>
+                        <span class="text-secondary"><i class="bi bi-soundwave text-warning me-2"></i>Bilingual ADAS Auditory Telemetry</span>
                         <span class="badge bg-warning text-dark font-mono">ACTIVE (EN + AM)</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center py-1">
-                        <span class="text-muted"><i class="bi bi-truck-front text-primary me-2"></i>Vehicle &amp; ANPR Plate OCR</span>
+                        <span class="text-secondary"><i class="bi bi-truck-front text-primary me-2"></i>Automated Number Plate Reading (ANPR)</span>
                         <span class="badge bg-secondary font-mono">READY</span>
                     </div>
                 </div>

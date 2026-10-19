@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Road Monitoring System{% endblock %} - Management Panel</title>
+    <title>{% block title %}Intelligent Road Pavement Hazard & Surface Telemetry System{% endblock %}</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=5.2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=5.3">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -26,16 +26,14 @@
                     <i class="bi bi-shield-shaded fs-5"></i>
                 </div>
                 <div>
-                    <div class="d-flex align-items-center gap-2">
-                        <h6 class="mb-0 fw-bold tracking-wide text-white" style="font-size:0.95rem;">RoadEye Enterprise™</h6>
-                    </div>
-                    <small class="text-muted font-mono" style="font-size: 0.68rem; letter-spacing:0.02em;">National Infrastructure ITS</small>
+                    <h6 class="mb-0 fw-bold tracking-wide text-white" style="font-size:0.92rem;">RoadEye™ Telemetry</h6>
+                    <small class="text-white-50 font-mono" style="font-size: 0.65rem;">National Road Infrastructure</small>
                 </div>
             </div>
 
             <div class="px-3 pt-3 pb-2">
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.65rem; letter-spacing: 0.08em;">Role View Navigation</small>
+                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.65rem; letter-spacing: 0.08em;">Operational Navigation</small>
                     <span class="badge bg-secondary text-light px-2" id="sidebarRoleBadge" style="font-size: 0.65rem;">ALL ROLES</span>
                 </div>
             </div>
@@ -43,64 +41,60 @@
             <nav class="nav flex-column px-2 gap-1" id="sidebarNav">
                 <a href="{{ url_for('dashboard') }}" data-roles="manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'dashboard' %}active{% endif %}">
                     <i class="bi bi-grid-1x2-fill text-primary"></i>
-                    <span>Executive Dashboard</span>
-                    <span class="badge bg-info-subtle text-info ms-auto" style="font-size: 0.62rem;">KPIs</span>
+                    <span>Pavement Hazard Dashboard</span>
+                    <span class="badge bg-info-subtle text-info ms-auto" style="font-size: 0.62rem;">Live</span>
                 </a>
                 <a href="{{ url_for('video_studio') }}" data-roles="driver all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'studio' %}active{% endif %}">
                     <i class="bi bi-speedometer2 text-danger"></i>
-                    <span>Driver HUD & Studio</span>
-                    <span class="badge bg-danger ms-auto" style="font-size: 0.62rem;">TTC Live</span>
+                    <span>Video Telemetry &amp; ADAS Studio</span>
+                    <span class="badge bg-danger ms-auto" style="font-size: 0.62rem;">HUD</span>
                 </a>
                 <a href="{{ url_for('incidents_view') }}" data-roles="manager all" class="nav-link rounded px-3 py-2 d-flex align-items-center justify-content-between {% if active_page == 'incidents' %}active{% endif %}">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-tools text-warning"></i>
-                        <span>Incidents & Repairs</span>
+                        <span>Pavement Defect Register</span>
                     </div>
-                    <span class="badge bg-warning text-dark" style="font-size: 0.62rem;">Tickets</span>
+                    <span class="badge bg-warning text-dark" style="font-size: 0.62rem;">Ledger</span>
                 </a>
                 <a href="{{ url_for('map_view') }}" data-roles="manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'map' %}active{% endif %}">
                     <i class="bi bi-geo-alt-fill text-success"></i>
-                    <span>GIS Road Defect Map</span>
+                    <span>GIS Spatial Hazard Map</span>
                     <span class="badge bg-success-subtle text-success ms-auto" style="font-size: 0.62rem;">GIS</span>
                 </a>
                 <a href="{{ url_for('plates_gallery') }}" data-roles="manager all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'plates' %}active{% endif %}">
                     <i class="bi bi-car-front-fill text-info"></i>
-                    <span>Vehicles & Plate OCR</span>
+                    <span>Vehicle &amp; License Plate ANPR</span>
                     <span class="badge bg-secondary ms-auto" style="font-size: 0.62rem;">ANPR</span>
                 </a>
             </nav>
 
             <div class="px-3 pt-3 pb-2 mt-2">
-                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.65rem; letter-spacing: 0.08em;">Maintenance & Analysis</small>
+                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.65rem; letter-spacing: 0.08em;">Maintenance Directives &amp; Engine</small>
             </div>
 
             <nav class="nav flex-column px-2 gap-1">
                 <a href="{{ url_for('pipeline_runner') }}" data-roles="driver manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'pipeline' %}active{% endif %}">
                     <i class="bi bi-cpu-fill text-primary"></i>
-                    <span>AI Detection Engine</span>
+                    <span>Neural AI Detection Pipeline</span>
                 </a>
                 <a href="{{ url_for('reports_view') }}" data-roles="manager executive all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2 {% if active_page == 'reports' %}active{% endif %}">
                     <i class="bi bi-clipboard2-data-fill text-warning"></i>
-                    <span>Work Orders & Print</span>
+                    <span>DOT Maintenance Work Orders</span>
                 </a>
                 <a href="{{ url_for('api_export_csv') }}" data-roles="executive manager all" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-2">
                     <i class="bi bi-download text-success"></i>
-                    <span>Export CSV Dataset</span>
-                    <span class="badge bg-success-subtle text-success ms-auto" style="font-size: 0.62rem;">Data</span>
+                    <span>Export Telemetry Dataset (CSV)</span>
                 </a>
             </nav>
 
             <!-- Status Indicator at Bottom -->
-            <div class="mt-auto p-3 m-3 rounded-2 text-white-50" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.8rem;">
+            <div class="mt-auto p-3 m-3 rounded-2" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.78rem;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="live-pulse-dot"></span>
-                        <span class="text-white fw-bold font-mono" style="font-size: 0.72rem; letter-spacing: 0.04em;">NEURAL SUBSYSTEM</span>
-                    </div>
+                    <span class="text-white fw-bold font-mono" style="font-size: 0.72rem;">YOLOv8x NEURAL CORE</span>
                     <span class="badge bg-success font-mono" style="font-size: 0.65rem;">ACTIVE</span>
                 </div>
-                <div class="text-truncate text-muted" style="font-size: 0.72rem;"><i class="bi bi-radar text-primary me-1"></i>YOLOv8x + Perspective Distance</div>
-                <div class="text-truncate text-muted mt-1" style="font-size: 0.72rem;"><i class="bi bi-soundwave text-info me-1"></i>Dual ADAS Voice Telemetry</div>
+                <div class="text-white-50 small font-mono"><i class="bi bi-shield-check text-success me-1"></i>Pavement Defect Detection</div>
+                <div class="text-white-50 small font-mono mt-1"><i class="bi bi-soundwave text-info me-1"></i>Bilingual ADAS Audio Dispatch</div>
             </div>
         </aside>
 
@@ -109,7 +103,7 @@
             <!-- Top Navigation Bar -->
             <header class="navbar navbar-expand px-4 py-2 sticky-top">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="mb-0 fw-bold" style="color: var(--text-primary); font-size: 1.05rem;">{% block page_title %}Road Monitoring Management Panel{% endblock %}</h5>
+                    <h5 class="mb-0 fw-bold" style="color: var(--text-primary); font-size: 1.05rem;">{% block page_title %}Automated Road Surface Defect Detection &amp; Pavement Safety Telemetry{% endblock %}</h5>
                 </div>
                 <div class="ms-auto d-flex align-items-center gap-2">
                     <!-- Live Clock Indicator -->
@@ -119,47 +113,38 @@
                         <span id="liveClock" class="fw-semibold" style="color: var(--text-secondary);">00:00:00</span>
                     </div>
 
-                    <!-- Role Switcher Dropdown -->
+                    <!-- Role Switcher Dropdown (No Unnecessary Text) -->
                     <div class="dropdown me-1">
                         <button class="btn btn-sm btn-outline-dark dropdown-toggle d-flex align-items-center gap-2 fw-medium px-3" type="button" id="roleSelectorBtn" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-badge-fill text-primary" id="roleIcon"></i>
                             <span id="roleLabel">Role: Full System</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border" aria-labelledby="roleSelectorBtn" style="min-width: 280px; background: #ffffff;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border" aria-labelledby="roleSelectorBtn" style="min-width: 250px; background: #ffffff;">
                             <li class="px-3 py-2 border-bottom border-subtle">
-                                <span class="text-uppercase fw-bold font-mono" style="font-size: 0.68rem; letter-spacing: 0.05em; color: var(--text-muted);">Operational Role Persona</span>
+                                <span class="text-uppercase fw-bold font-mono" style="font-size: 0.68rem; letter-spacing: 0.05em; color: var(--text-muted);">Operational Persona</span>
                             </li>
                             <li>
-                                <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('driver')">
-                                    <span class="badge bg-danger rounded p-1 mt-1"><i class="bi bi-speedometer2"></i></span>
-                                    <div>
-                                        <div class="fw-bold" style="color: var(--text-primary); font-size: 0.85rem;">1. Field Operator / Driver</div>
-                                        <small class="text-muted d-block" style="font-size: 0.74rem;">In-vehicle HUD, TTC distance radar &amp; audio alerts</small>
-                                    </div>
+                                <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="setRole('driver')">
+                                    <span class="badge bg-danger rounded p-1"><i class="bi bi-speedometer2"></i></span>
+                                    <span class="fw-semibold text-dark" style="font-size: 0.85rem;">Field Vehicle Operator (Driver HUD)</span>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('manager')">
-                                    <span class="badge bg-warning text-dark rounded p-1 mt-1"><i class="bi bi-tools"></i></span>
-                                    <div>
-                                        <div class="fw-bold" style="color: var(--text-primary); font-size: 0.85rem;">2. Road Maintenance Engineer</div>
-                                        <small class="text-muted d-block" style="font-size: 0.74rem;">GIS defect maps, damage m² area &amp; crew dispatch</small>
-                                    </div>
+                                <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="setRole('manager')">
+                                    <span class="badge bg-warning text-dark rounded p-1"><i class="bi bi-tools"></i></span>
+                                    <span class="fw-semibold text-dark" style="font-size: 0.85rem;">Highway Maintenance Engineer (Repairs)</span>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="javascript:void(0)" onclick="setRole('executive')">
-                                    <span class="badge bg-primary text-white rounded p-1 mt-1"><i class="bi bi-building-check"></i></span>
-                                    <div>
-                                        <div class="fw-bold" style="color: var(--text-primary); font-size: 0.85rem;">3. Executive Governing Body</div>
-                                        <small class="text-muted d-block" style="font-size: 0.74rem;">Asset health index, budget KPIs &amp; audit reports</small>
-                                    </div>
+                                <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="setRole('executive')">
+                                    <span class="badge bg-primary text-white rounded p-1"><i class="bi bi-building-check"></i></span>
+                                    <span class="fw-semibold text-dark" style="font-size: 0.85rem;">Transportation Authority (Audits)</span>
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
                                 <a class="dropdown-item py-2 text-secondary small d-flex align-items-center gap-2" href="javascript:void(0)" onclick="setRole('all')">
-                                    <i class="bi bi-shield-lock-fill text-primary"></i> Full System View (Admin Mode)
+                                    <i class="bi bi-shield-lock-fill text-primary"></i> System Administrator (Full System View)
                                 </a>
                             </li>
                         </ul>
@@ -167,13 +152,13 @@
 
                     <!-- Descriptive Enterprise Action Buttons -->
                     <button class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
-                        <i class="bi bi-cloud-arrow-up-fill"></i> Upload Inspection Video
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Inspection Video
                     </button>
                     <a href="{{ url_for('pipeline_runner') }}" class="btn btn-sm btn-primary fw-semibold">
-                        <i class="bi bi-cpu-fill"></i> Execute AI Pipeline
+                        <i class="bi bi-cpu-fill me-1"></i> Execute AI Pipeline
                     </a>
                     <a href="{{ url_for('reports_view') }}" class="btn btn-sm btn-outline-secondary fw-semibold">
-                        <i class="bi bi-file-earmark-text-fill"></i> Maintenance Work Orders
+                        <i class="bi bi-file-earmark-text-fill me-1"></i> DOT Maintenance Directives
                     </a>
                 </div>
             </header>
@@ -183,14 +168,13 @@
                 {% block content %}{% endblock %}
             </main>
 
-            <!-- Footer -->
+            <!-- Footer (Clean & Descriptive) -->
             <footer class="py-3 px-4 text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center" style="background: #ffffff; border-top: 1px solid var(--border-subtle);">
                 <div class="d-flex align-items-center gap-2">
                     <span class="live-pulse-dot" style="width:6px;height:6px;"></span>
-                    <span class="fw-bold" style="color: var(--text-primary);">RoadEye Enterprise™</span>
-                    <span class="text-muted">&bull; National Road Infrastructure &amp; Pavement Telemetry System</span>
+                    <span class="fw-bold" style="color: var(--text-primary);">RoadEye™ Automated Pavement Hazard &amp; Road Surface Telemetry System</span>
                 </div>
-                <div class="mt-1 mt-md-0 font-mono text-muted" id="footerRoleText">Enterprise Console &bull; Security Level: Admin &bull; SQLite Telemetry Active</div>
+                <div class="mt-1 mt-md-0 font-mono text-muted" style="font-size:0.75rem;">Department of Transportation &bull; National Highway Infrastructure Directorate</div>
             </footer>
         </div>
     </div>

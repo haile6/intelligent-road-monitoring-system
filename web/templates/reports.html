@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Maintenance Reports & Work Orders{% endblock %}
-{% block page_title %}Maintenance Dispatch & Pavement Work Orders{% endblock %}
+{% block title %}Department of Transportation (DOT) Pavement Mitigation Directives{% endblock %}
+{% block page_title %}Official Department of Transportation (DOT) Pavement Directives &amp; Work Orders{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -31,18 +31,17 @@
     <div class="card mb-4 no-print">
         <div class="card-body py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
-                <h6 class="fw-bold mb-1" style="color:var(--text-primary);">Department of Transportation &bull; Official Maintenance Directive</h6>
-                <small class="text-muted font-mono">Formal pavement mitigation work order generated from automated neural telemetry.</small>
+                <h6 class="fw-bold mb-0 text-dark">Official Department of Transportation (DOT) Pavement Directive</h6>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <button onclick="window.print()" class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-semibold">
-                    <i class="bi bi-printer-fill"></i> Print / Generate Official PDF
+                    <i class="bi bi-printer-fill me-1"></i> Print Official Maintenance Directive (PDF)
                 </button>
                 <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success d-flex align-items-center gap-2 fw-semibold">
-                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> Export CSV Telemetry
+                    <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export Directive Dataset (CSV)
                 </a>
                 <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 fw-semibold" onclick="alert('Directive successfully transmitted to Field Maintenance Division.')">
-                    <i class="bi bi-send-check-fill"></i> Transmit Work Order
+                    <i class="bi bi-send-check-fill me-1"></i> Transmit Directive to Field Maintenance Division
                 </button>
             </div>
         </div>

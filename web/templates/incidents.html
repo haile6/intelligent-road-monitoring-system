@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Incidents Management{% endblock %}
-{% block page_title %}Road Damage Incidents & Repair Workflow{% endblock %}
+{% block title %}Pavement Defect & Highway Hazard Incident Register{% endblock %}
+{% block page_title %}Pavement Defect &amp; Road Surface Maintenance Incident Register{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -53,13 +53,13 @@
                 <!-- Actions -->
                 <div class="col-12 col-md-3 d-flex gap-2 justify-content-end">
                     <button type="submit" class="btn btn-sm btn-primary px-3 fw-semibold">
-                        <i class="bi bi-funnel-fill"></i> Apply Filter
+                        <i class="bi bi-funnel-fill me-1"></i> Apply Filter Query
                     </button>
                     <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-secondary fw-semibold">
-                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filter Criteria
                     </a>
                     <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success fw-semibold" title="Export incident dataset as CSV">
-                        <i class="bi bi-file-earmark-spreadsheet-fill"></i> Export CSV
+                        <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export Dataset (CSV)
                     </a>
                 </div>
             </form>
@@ -70,10 +70,10 @@
     <div class="card shadow-sm">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="mb-0 fw-bold d-flex align-items-center gap-2" style="color:var(--text-primary);">
-                <i class="bi bi-shield-exclamation text-danger"></i> Highway Asset Defect &amp; Hazard Ledger
+                <i class="bi bi-shield-exclamation text-danger"></i> Road Surface Defect &amp; Hazard Incident Register
             </h6>
             <span class="badge bg-secondary font-mono" style="font-size:0.75rem;">
-                {{ incidents|length }} CATALOGED HAZARDS
+                {{ incidents|length }} RECORDED INCIDENTS
             </span>
         </div>
         <div class="table-responsive">

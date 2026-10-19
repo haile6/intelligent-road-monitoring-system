@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}AI Engine{% endblock %}
-{% block page_title %}Complete Road Intelligence & Hazard Detection AI Engine{% endblock %}
+{% block title %}Neural AI Pavement Defect Detection Pipeline{% endblock %}
+{% block page_title %}Automated Neural Computer Vision &amp; Distance Estimation Pipeline{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -12,7 +12,7 @@
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <div>
                         <span class="badge bg-primary font-mono mb-1">NEURAL ENGINE CONTROL</span>
-                        <h5 class="mb-0 fw-bold" style="color:var(--text-primary);">Automated Inspection Pipeline</h5>
+                        <h5 class="mb-0 fw-bold text-dark">Deep Learning Vision &amp; Telemetry Pipeline</h5>
                     </div>
                     <i class="bi bi-cpu-fill text-primary fs-3"></i>
                 </div>
@@ -21,14 +21,14 @@
                     <div class="d-grid gap-2 mb-4">
                         <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2 py-3 fw-bold" 
                                 onclick="runUnifiedPipeline()">
-                            <i class="bi bi-play-circle-fill fs-5"></i> Execute Full Neural Pipeline
+                            <i class="bi bi-play-circle-fill fs-5"></i> Execute Neural Defect Detection Pipeline
                         </button>
                         <div class="d-flex gap-2">
-                            <a href="{{ url_for('video_studio') }}" class="btn btn-sm btn-outline-secondary flex-grow-1">
-                                <i class="bi bi-speedometer2"></i> Telemetry Studio
+                            <a href="{{ url_for('video_studio') }}" class="btn btn-sm btn-outline-secondary flex-grow-1 fw-semibold">
+                                <i class="bi bi-speedometer2 me-1"></i> Open Video Telemetry Studio
                             </a>
-                            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success flex-grow-1">
-                                <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success flex-grow-1 fw-semibold">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Telemetry Dataset (CSV)
                             </a>
                         </div>
                     </div>

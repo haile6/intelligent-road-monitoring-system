@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Vehicles & ANPR Plates{% endblock %}
-{% block page_title %}Vehicle Recognition & Automatic Number Plate Reading (ANPR){% endblock %}
+{% block title %}Automated Number Plate Recognition (ANPR) & Vehicle Census{% endblock %}
+{% block page_title %}Automated Number Plate Recognition (ANPR) &amp; Vehicle Registration Ledger{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -11,7 +11,7 @@
             <div class="card stat-card stat-primary p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-muted small fw-semibold text-uppercase">Total Scans</span>
+                        <span class="text-muted small fw-semibold text-uppercase">Total Vehicle Optical Scans</span>
                         <h3 class="fw-bold mb-0 mt-1" style="color: var(--text-primary);">{{ plates|length }}</h3>
                     </div>
                     <div class="stat-icon bg-primary bg-opacity-10 text-primary">
@@ -24,7 +24,7 @@
             <div class="card stat-card stat-success p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-success small fw-semibold text-uppercase">Recognized Plates</span>
+                        <span class="text-success small fw-semibold text-uppercase">Verified Registration Plates</span>
                         <h3 class="fw-bold mb-0 text-success mt-1">{{ ocr_read|length }}</h3>
                     </div>
                     <div class="stat-icon bg-success bg-opacity-10 text-success">
@@ -37,7 +37,7 @@
             <div class="card stat-card stat-primary p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-primary small fw-semibold text-uppercase">Unique Vehicles</span>
+                        <span class="text-primary small fw-semibold text-uppercase">Unique Motor Vehicles Cataloged</span>
                         <h3 class="fw-bold mb-0 mt-1" style="color: var(--text-primary);">{{ unique_vehicles|length }}</h3>
                     </div>
                     <div class="stat-icon bg-primary bg-opacity-10 text-primary">
@@ -50,7 +50,7 @@
             <div class="card stat-card stat-warning p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-muted small fw-semibold text-uppercase">ANPR Engine</span>
+                        <span class="text-muted small fw-semibold text-uppercase">Optical Character Recognition</span>
                         <h5 class="fw-bold mb-0 text-warning mt-2">EasyOCR + YOLO</h5>
                     </div>
                     <div class="stat-icon bg-warning bg-opacity-10 text-warning">

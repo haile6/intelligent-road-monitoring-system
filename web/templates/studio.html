@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Video Telemetry Studio{% endblock %}
-{% block page_title %}Video Telemetry & Visual Inspection Studio{% endblock %}
+{% block title %}Real-Time Road Video Telemetry & ADAS Auditory Studio{% endblock %}
+{% block page_title %}Real-Time Video Telemetry &amp; ADAS Auditory Collision Warning Studio{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -12,7 +12,7 @@
                 <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-camera-reels text-primary fs-5"></i>
-                        <span class="fw-bold" style="color:var(--text-primary);">Active Video Stream:</span>
+                        <span class="fw-bold text-dark">Active Inspection Video Source:</span>
                         <select class="form-select form-select-sm" style="width: auto;" onchange="location.href='/studio?file=' + this.value">
                             {% for v in video_files %}
                             <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
@@ -21,10 +21,10 @@
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-primary fw-semibold" onclick="toggleViewerMode('video')" id="btn-mode-video">
-                            <i class="bi bi-play-btn-fill me-1"></i>HTML5 Telemetry Stream
+                            <i class="bi bi-play-btn-fill me-1"></i> Synchronized Video Stream
                         </button>
                         <button class="btn btn-sm btn-outline-secondary fw-semibold" onclick="toggleViewerMode('frame')" id="btn-mode-frame">
-                            <i class="bi bi-layers-half me-1"></i>Precision Frame Scrubber
+                            <i class="bi bi-layers-half me-1"></i> Frame-by-Frame Inspector
                         </button>
                     </div>
                 </div>
@@ -37,12 +37,11 @@
                         </div>
                         <i class="bi bi-megaphone-fill text-primary fs-6"></i>
                         <span class="fw-bold text-primary small">ADAS Voice Telemetry Channel:</span>
-                        <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO STREAM SYNCHRONIZED</span>
-                        <span class="text-secondary small d-none d-md-inline font-mono">&bull; Real-time bilingual auditory warnings</span>
+                        <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO SYNCHRONIZED</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-outline-primary px-3 fw-semibold" id="btn-unmute-banner" onclick="unmuteAudio()">
-                            <i class="bi bi-volume-up-fill me-1"></i><span id="unmute-banner-text">Audio Active (Click to Test)</span>
+                            <i class="bi bi-volume-up-fill me-1"></i><span id="unmute-banner-text">Test ADAS Audio Alert</span>
                         </button>
                     </div>
                 </div>
@@ -208,20 +207,19 @@
         <div class="col-12 col-xl-3">
             <div class="card shadow-sm h-100">
                 <div class="card-header py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 fw-bold" style="color:var(--text-primary);">
-                            <i class="bi bi-crosshair me-2 text-primary"></i>Telemetry Keyframes
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0 fw-bold text-dark">
+                            <i class="bi bi-crosshair me-2 text-primary"></i>Synchronized Hazard Keyframes
                         </h6>
                         <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
                     </div>
-                    <small class="text-muted d-block mt-1 font-mono">Synchronized Event Timestamps</small>
                     
                     <!-- Quick Risk Filter Pills -->
-                    <div class="d-flex gap-1 mt-2">
-                        <button class="btn btn-sm btn-outline-dark active py-0 px-2 filter-btn" onclick="filterHazardCards('all', this)" style="font-size: 0.68rem;">All</button>
-                        <button class="btn btn-sm btn-outline-danger py-0 px-2 filter-btn" onclick="filterHazardCards('danger', this)" style="font-size: 0.68rem;">Danger</button>
-                        <button class="btn btn-sm btn-outline-warning py-0 px-2 filter-btn" onclick="filterHazardCards('warning', this)" style="font-size: 0.68rem;">Warning</button>
-                        <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.68rem;">Safe</button>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-dark active py-0 px-2 filter-btn" onclick="filterHazardCards('all', this)" style="font-size: 0.72rem;">All Events</button>
+                        <button class="btn btn-sm btn-outline-danger py-0 px-2 filter-btn" onclick="filterHazardCards('danger', this)" style="font-size: 0.72rem;">Critical P1</button>
+                        <button class="btn btn-sm btn-outline-warning py-0 px-2 filter-btn" onclick="filterHazardCards('warning', this)" style="font-size: 0.72rem;">Warning</button>
+                        <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.72rem;">Monitored</button>
                     </div>
                 </div>
                 <div class="card-body p-2 overflow-auto" id="hazard-sidebar-scroll" style="max-height: 560px;">
