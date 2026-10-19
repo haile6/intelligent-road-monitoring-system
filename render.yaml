@@ -1,0 +1,17 @@
+# Render Blueprint Deployment Configuration
+# Deploy Intelligent Road Monitoring System to Render Cloud (render.com)
+services:
+  - type: web
+    name: intelligent-road-monitoring
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn web.app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000

@@ -14,6 +14,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=5.3">
+    <!-- Progressive Web App (PWA) Mobile Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RoadEye">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -491,6 +499,13 @@
                 st.id = 'ripple-kf-style';
                 st.textContent = '@keyframes rippleBurst { to { transform:scale(1); opacity:0; } }';
                 document.head.appendChild(st);
+            // Register PWA Service Worker for Mobile App Installation
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                        .then(reg => console.log('[PWA] Service Worker active:', reg.scope))
+                        .catch(err => console.log('[PWA] Notice:', err));
+                });
             }
         });
     </script>

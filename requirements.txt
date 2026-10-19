@@ -1,9 +1,10 @@
-# Road Monitoring System Dependencies
-ultralytics
-opencv-python
-easyocr
-flask
-jinja2
-numpy
-torch
-torchvision
+# Road Monitoring System - Cloud & Local Production Dependencies
+flask>=3.0.0
+gunicorn>=21.2.0
+jinja2>=3.1.0
+werkzeug>=3.0.0
+numpy>=1.24.0
+opencv-python-headless>=4.8.0
+folium>=0.15.0
+imageio-ffmpeg>=0.4.9
+ultralytics>=8.0.0

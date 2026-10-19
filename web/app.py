@@ -35,6 +35,39 @@ app = Flask(
 # Background pipeline execution state
 pipeline_threads = {}
 
+# Ensure database is initialized on WSGI (Gunicorn / Render) startup
+try:
+    db_manager.init_db()
+except Exception as _e:
+    print(f"[*] Notice: Initial database setup: {_e}")
+
+
+# ============================================================
+# PWA & MOBILE APP ROUTES
+# ============================================================
+
+@app.route("/manifest.json")
+def pwa_manifest():
+    """Serve PWA Web App Manifest for mobile installation."""
+    return send_from_directory(
+        os.path.join(BASE_DIR, "web", "static"),
+        "manifest.json",
+        mimetype="application/manifest+json"
+    )
+
+
+@app.route("/sw.js")
+def pwa_service_worker():
+    """Serve PWA Service Worker for offline shell caching."""
+    resp = send_from_directory(
+        os.path.join(BASE_DIR, "web", "static"),
+        "sw.js",
+        mimetype="application/javascript"
+    )
+    resp.headers["Service-Worker-Allowed"] = "/"
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
 
 # ============================================================
 # WEB PAGES
