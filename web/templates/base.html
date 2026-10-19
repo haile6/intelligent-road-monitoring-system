@@ -547,6 +547,8 @@
                 st.id = 'ripple-kf-style';
                 st.textContent = '@keyframes rippleBurst { to { transform:scale(1); opacity:0; } }';
                 document.head.appendChild(st);
+            }
+
             // Register PWA Service Worker for Mobile App Installation
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
