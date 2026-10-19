@@ -67,23 +67,29 @@ def speed_text(info):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="ALL-IN-ONE Integrated Road Monitoring AI Engine")
-    parser.add_argument("--source", default=config.VIDEO_PATH, help="Path to video file or webcam device index (e.g. 0)")
+    parser.add_argument("--source", default=config.VIDEO_PATH, help="Path to video file, webcam device index (e.g. 0), or network stream (RTSP/HTTP)")
     parser.add_argument("--gps-port", default=None, help="Serial COM port for real NMEA GPS receiver (e.g. COM3)")
     parser.add_argument("--max-frames", type=int, default=None, help="Maximum number of frames to process (optional)")
     parser.add_argument("--stride", type=int, default=1, help="Process every Nth frame (default 1)")
+    parser.add_argument("--show", action="store_true", help="Display real-time visual HUD window with AI detections (press 'q' to quit)")
     args = parser.parse_args()
 
     print("=" * 70)
     print("     ALL-IN-ONE INTEGRATED ROAD MONITORING AI ENGINE")
     print("=" * 70)
 
-    # Phase 16: Check if source is a live webcam index or video file
+    # Check if source is a live webcam index, network IP stream (mobile/dashcam), or video file
     video_source = args.source
     is_webcam = False
-    if str(video_source).isdigit():
-        video_source = int(video_source)
+    source_str = str(video_source).strip()
+    if source_str.isdigit():
+        video_source = int(source_str)
         is_webcam = True
-        print(f"[*] Phase 16: Running on LIVE WEBCAM Device {video_source}")
+        print(f"[*] Live Telemetry Source: Local USB/Built-in Camera #{video_source}")
+    elif source_str.lower().startswith(("http://", "https://", "rtsp://", "rtmp://")):
+        video_source = source_str
+        is_webcam = True
+        print(f"[*] Live Telemetry Source: Mobile/IP Network Camera Stream ({video_source})")
     else:
         if not os.path.exists(video_source):
             raise SystemExit(f"Video not found: {video_source}\nEnsure video is uploaded to data/test_video.mp4")
@@ -130,11 +136,12 @@ def main():
         except Exception:
             records = []
 
-    # If GPS track is missing or shorter than video, automatically generate matching route
-    if not records or len(records) < int(duration):
+    # If GPS track is missing or shorter than video/stream, automatically generate matching route
+    sync_duration = int(duration) if (duration > 0 and not is_webcam) else 7200  # 2 hours for live stream
+    if not records or len(records) < sync_duration:
         import datetime as dt
         from gps.geo import destination_point
-        print(f"[*] Synchronizing GPS track to match video duration ({duration:.1f}s)...")
+        print(f"[*] Synchronizing GPS track to match stream duration ({sync_duration}s)...")
         start_t = dt.datetime.now()
         speed_kmh = float(config.DEFAULT_SPEED_KMH)
         base_lat, base_lon = 9.123456, 39.123456
@@ -142,7 +149,7 @@ def main():
         with open(config.GPS_PATH, "w", newline="") as f:
             f.write("# SYNCHRONIZED GPS TRACK FOR VIDEO\n")
             f.write("timestamp,latitude,longitude,speed_kmh\n")
-            for s in range(int(duration) + 5):
+            for s in range(sync_duration + 5):
                 lat, lon = destination_point(base_lat, base_lon, 45.0, s * (speed_kmh / 3.6))
                 t_str = (start_t + dt.timedelta(seconds=s)).isoformat(timespec="seconds")
                 f.write(f"{t_str},{lat:.6f},{lon:.6f},{speed_kmh:.1f}\n")
@@ -182,7 +189,7 @@ def main():
     plate_scan_records = []
     crops_dir = os.path.join(BASE_DIR, "outputs", "plate_crops")
     os.makedirs(crops_dir, exist_ok=True)
-    audio_gen = ADASAudioTrackGenerator(duration_s=duration if duration > 0 else 10.0)
+    audio_gen = ADASAudioTrackGenerator(duration_s=duration if (duration > 0 and not is_webcam) else 7200.0)
     frame_no = 0
     a = config.DISTANCE_SMOOTHING
 
@@ -484,7 +491,18 @@ def main():
         writer.write(frame)
         writer_p9.write(frame)
 
-        if frame_no % 100 == 0 or (total_frames > 0 and frame_no == total_frames):
+        # Real-time visual HUD display window
+        if args.show or is_webcam:
+            try:
+                cv2.imshow("RoadEye Intelligent Telemetry HUD (Press 'q' to quit)", frame)
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q') or key == 27:
+                    print("\n[*] Live telemetry stream stopped by operator.")
+                    break
+            except cv2.error:
+                pass
+
+        if frame_no % 100 == 0 or (total_frames > 0 and frame_no == total_frames) or (is_webcam and frame_no % 30 == 0):
             if total_frames > 0:
                 print(f"  Processed {frame_no}/{total_frames} frames ({frame_no/total_frames*100:.0f}%)")
             else:
@@ -493,6 +511,11 @@ def main():
     cap.release()
     writer.release()
     writer_p9.release()
+    if args.show or is_webcam:
+        try:
+            cv2.destroyAllWindows()
+        except Exception:
+            pass
 
     # Automatically ensure master video is converted to universal web H.264 (avc1) for browser playback
     try:

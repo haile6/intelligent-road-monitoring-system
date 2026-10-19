@@ -26,6 +26,9 @@
                         <button class="btn btn-sm btn-outline-secondary fw-semibold" onclick="toggleViewerMode('frame')" id="btn-mode-frame">
                             <i class="bi bi-layers-half me-1"></i> Frame-by-Frame Inspector
                         </button>
+                        <button class="btn btn-sm btn-outline-success fw-semibold" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
+                            <i class="bi bi-broadcast me-1"></i> Live &amp; Mobile Stream
+                        </button>
                     </div>
                 </div>
 
@@ -1237,5 +1240,105 @@
         renderTimelinePins();
     }
 </script>
+
+<!-- Live Stream & Mobile Device Operations Modal -->
+<div class="modal fade" id="liveCameraModal" tabindex="-1" aria-labelledby="liveCameraModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header border-bottom py-3" style="background: #f8fafc;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="p-2 bg-primary bg-opacity-10 text-primary rounded">
+                        <i class="bi bi-broadcast fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="liveCameraModalLabel">Live Video Feed &amp; Mobile Device Integration</h5>
+                        <p class="text-muted small mb-0">Hardware connectivity for USB cameras, mobile dashcams, and wireless tablet inspection</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <ul class="nav nav-pills nav-fill mb-3" id="liveModalTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="tab-phone-cam" data-bs-toggle="pill" data-bs-target="#content-phone-cam" type="button" role="tab">
+                            <i class="bi bi-phone me-1"></i> 1. Phone as Live Dashcam
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="tab-usb-cam" data-bs-toggle="pill" data-bs-target="#content-usb-cam" type="button" role="tab">
+                            <i class="bi bi-camera-video me-1"></i> 2. USB / Laptop Camera
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="tab-mobile-web" data-bs-toggle="pill" data-bs-target="#content-mobile-web" type="button" role="tab">
+                            <i class="bi bi-tablet-landscape me-1"></i> 3. Mobile Web Dashboard
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content pt-2" id="liveModalTabsContent">
+                    <!-- Tab 1: Phone as Camera -->
+                    <div class="tab-pane fade show active" id="content-phone-cam" role="tabpanel">
+                        <div class="border rounded p-3 mb-3 bg-light">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-wifi text-primary me-2"></i>Wireless Mobile Phone Camera Stream (IP Stream)</h6>
+                            <p class="small text-muted mb-2">Turn any Android phone or iPhone into an active vehicle dashcam transmitting real-time video to the neural detector over Wi-Fi or phone hotspot:</p>
+                            <ol class="small text-dark mb-3 ps-3">
+                                <li class="mb-1">Install <strong>IP Webcam</strong> (Android) or <strong>DroidCam / Live-Reporter</strong> (iOS/Android).</li>
+                                <li class="mb-1">Connect your phone and PC to the same Wi-Fi network, or enable your phone's Wi-Fi hotspot and connect your computer to it.</li>
+                                <li class="mb-1">In the app, start the camera server. The app displays an address like <code>http://192.168.43.1:8080/video</code> or <code>http://10.18.60.X:8080/video</code>.</li>
+                                <li class="mb-1">On your computer terminal, run the unified telemetry engine with your phone stream URL:</li>
+                            </ol>
+                            <div class="bg-dark text-light p-3 rounded font-mono small mb-2">
+                                <span class="text-muted"># Replace with your phone's IP address from the app</span><br>
+                                <span class="text-warning">python run_integrated.py --source "http://&lt;PHONE_IP&gt;:8080/video" --show</span>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                                <i class="bi bi-check-circle me-1"></i> Real-time potholes, cracks, distance, TTC &amp; audio warnings will run live from your phone camera!
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: USB Webcam -->
+                    <div class="tab-pane fade" id="content-usb-cam" role="tabpanel">
+                        <div class="border rounded p-3 mb-3 bg-light">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-usb-symbol text-primary me-2"></i>Direct USB Dashcam or Built-in Camera</h6>
+                            <p class="small text-muted mb-2">Direct hardware interface to standard USB video capture devices (UVC protocol):</p>
+                            <ol class="small text-dark mb-3 ps-3">
+                                <li class="mb-1">Plug your USB dashcam or webcam into your computer.</li>
+                                <li class="mb-1">Run device index <code>0</code> (built-in camera) or <code>1</code> (external USB camera) with the <code>--show</code> flag:</li>
+                            </ol>
+                            <div class="bg-dark text-light p-3 rounded font-mono small mb-2">
+                                <span class="text-warning">python run_integrated.py --source 0 --show</span>
+                            </div>
+                            <p class="small text-muted mb-0">Press <strong>Q</strong> in the video window at any time to finish and auto-save the telemetry session.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Mobile Web Access -->
+                    <div class="tab-pane fade" id="content-mobile-web" role="tabpanel">
+                        <div class="border rounded p-3 mb-3 bg-light">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-phone-flip text-primary me-2"></i>Access Web Panel on Mobile Phone Browser</h6>
+                            <p class="small text-muted mb-2">Access the full management panel, GIS map, and telemetry studio from your phone's browser:</p>
+                            <ol class="small text-dark mb-3 ps-3">
+                                <li class="mb-1">Ensure your phone and this computer are connected to the same Wi-Fi network or phone hotspot.</li>
+                                <li class="mb-1">Open Safari or Chrome on your mobile phone.</li>
+                                <li class="mb-1">Type the following network URL into your mobile address bar:</li>
+                            </ol>
+                            <div class="bg-dark text-light p-3 rounded font-mono small text-center mb-2">
+                                <strong class="fs-6 text-warning">http://10.18.60.191:8080</strong>
+                            </div>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle small">
+                                <i class="bi bi-phone me-1"></i> Fully responsive layout optimized for mobile screens and tablets.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top py-2 bg-light">
+                <button type="button" class="btn btn-sm btn-secondary fw-semibold" data-bs-dismiss="modal">Close Guide</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
