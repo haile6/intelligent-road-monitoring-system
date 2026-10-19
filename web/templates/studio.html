@@ -47,17 +47,19 @@
                     </div>
                 </div>
 
-                <div class="card-body p-0 bg-dark text-center position-relative">
+                <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden">
                     <!-- HTML5 Video Player Mode (Default) -->
-                    <div id="video-container" class="w-100" style="display: block; min-height: 480px;">
+                    <div id="video-container" class="w-100 position-relative" style="display: block; min-height: 480px;">
                         <video id="main-video" controls autoplay playsinline class="w-100" style="max-height: 540px; background: #000;">
                             <source src="/media/video/{{ selected_video }}" type="video/mp4">
+                            <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
+                            <track id="hazard-subtitles-track-am" kind="subtitles" srclang="am" label="አማርኛ (Amharic)" src="/api/subtitles.vtt?lang=am">
                             Your browser does not support HTML5 video streaming with this codec. Use the Precision Frame Scrubber.
                         </video>
                     </div>
 
                     <!-- Precision OpenCV Frame Inspector Mode (Fallback) -->
-                    <div id="frame-container" class="w-100 p-2 d-flex flex-column align-items-center justify-content-center" style="display: none; min-height: 480px; background: #111;">
+                    <div id="frame-container" class="w-100 p-2 d-flex flex-column align-items-center justify-content-center position-relative" style="display: none; min-height: 480px; background: #111;">
                         <img id="frame-image" src="/api/video/frame?file={{ selected_video }}&time=0" 
                              class="img-fluid rounded border border-secondary border-opacity-50" 
                              style="max-height: 520px; object-fit: contain;" alt="Video Frame">
@@ -65,27 +67,84 @@
                             <span class="visually-hidden">Loading frame...</span>
                         </div>
                     </div>
+
+                    <!-- Live Glassmorphism HUD Subtitle & ADAS Warning Overlay -->
+                    <div id="hud-subtitle-container" class="position-absolute start-50 translate-middle-x" style="bottom: 40px; z-index: 15; width: 92%; max-width: 840px; pointer-events: none; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <div id="hud-subtitle-card" class="card border-0 shadow-lg px-3 py-2 rounded-4 text-white" style="background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 30px rgba(0,0,0,0.65);">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span id="hud-risk-badge" class="badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1">
+                                        <i class="bi bi-shield-check" id="hud-risk-icon"></i>
+                                        <span id="hud-risk-text">ROAD CLEAR</span>
+                                    </span>
+                                    <span id="hud-hazard-title" class="fw-bold fs-6 text-white text-uppercase font-mono">LANE MONITORED • ALL CLEAR</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 font-mono small text-white-50">
+                                    <div id="hud-dist-item"><i class="bi bi-arrows-expand text-info me-1"></i><span id="label-dist">Dist</span>: <strong id="hud-dist-val" class="text-white">--</strong></div>
+                                    <div id="hud-ttc-item"><i class="bi bi-stopwatch text-warning me-1"></i><span id="label-ttc">TTC</span>: <strong id="hud-ttc-val" class="text-white">--</strong></div>
+                                    <div id="hud-path-item"><i class="bi bi-sign-merge-right text-primary me-1"></i><span id="label-corridor">Corridor</span>: <strong id="hud-path-val" class="text-white">CLEAR</strong></div>
+                                    <div id="hud-speed-item"><i class="bi bi-speedometer text-secondary me-1"></i><span id="label-speed">Speed</span>: <strong id="hud-speed-val" class="text-white">30 km/h</strong></div>
+                                </div>
+                            </div>
+                            <!-- Live ADAS Voice Spoken Alert ticker -->
+                            <div id="hud-speech-bar" class="mt-1 pt-1 border-top border-white border-opacity-10 d-flex align-items-center justify-content-between text-info small" style="display: none !important;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="sound-wave-anim d-flex align-items-center gap-1">
+                                        <span class="bar bg-info"></span><span class="bar bg-info"></span><span class="bar bg-info"></span>
+                                    </div>
+                                    <i class="bi bi-megaphone-fill me-1"></i>
+                                    <span id="hud-speech-text" class="fw-semibold">"Alert: Road hazard ahead"</span>
+                                </div>
+                                <span id="hud-speech-badge" class="badge bg-danger-subtle text-danger" style="font-size: 0.65rem;">ADAS VOICE DISPATCH</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Inspection Controls Toolbar -->
                 <div class="card-footer bg-white py-3">
                     <div class="row align-items-center g-3">
-                        <div class="col-12 col-md-7 d-flex flex-wrap align-items-center gap-2">
+                        <div class="col-12 col-md-8 d-flex flex-wrap align-items-center gap-2">
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)"><i class="bi bi-chevron-double-left"></i> -10</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-1)"><i class="bi bi-chevron-left"></i> -1</button>
                             <button class="btn btn-sm btn-success px-3" onclick="togglePlay()" id="btn-play"><i class="bi bi-play-fill"></i> Play</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)"><i class="bi bi-chevron-right"></i> +1</button>
                             <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)">+10 <i class="bi bi-chevron-double-right"></i></button>
 
+                            <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
+                            <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
+                                <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles">
+                                    <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC: ON</span>
+                                </button>
+                                <button class="btn btn-sm btn-primary shadow-sm fw-semibold" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech">
+                                    <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice: ON</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="testVoiceAlert()" title="Test ADAS voice chime and speech">
+                                    <i class="bi bi-volume-up"></i>
+                                </button>
+                            </div>
+
+                            <!-- Language Switcher Dropdown (English 🇬🇧 / አማርኛ 🇪🇹) -->
+                            <div class="dropdown d-inline-block ms-1 border-start ps-2">
+                                <button class="btn btn-sm btn-outline-dark dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language / ቋንቋ ይምረጡ">
+                                    <span id="current-lang-icon">🇬🇧</span>
+                                    <span id="current-lang-label">English</span>
+                                </button>
+                                <ul class="dropdown-menu shadow border-0" aria-labelledby="langDropdown">
+                                    <li><a class="dropdown-item active" id="lang-opt-en" href="javascript:void(0)" onclick="setLanguage('en')"><span class="me-2">🇬🇧</span> English</a></li>
+                                    <li><a class="dropdown-item" id="lang-opt-am" href="javascript:void(0)" onclick="setLanguage('am')"><span class="me-2">🇪🇹</span> አማርኛ (Amharic)</a></li>
+                                </ul>
+                            </div>
+
                             <!-- Volume & Mute Controls -->
-                            <div class="d-flex align-items-center gap-1 ms-2 border-start ps-2">
+                            <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
                                 <button class="btn btn-sm btn-outline-secondary" id="btn-mute" onclick="toggleMute()" title="Toggle Sound">
                                     <i class="bi bi-volume-up-fill" id="mute-icon"></i>
                                 </button>
-                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 75px;" oninput="setVolume(this.value)" title="Volume">
+                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 65px;" oninput="setVolume(this.value)" title="Volume">
                             </div>
                         </div>
-                        <div class="col-12 col-md-5 d-flex align-items-center justify-content-md-end gap-3">
+                        <div class="col-12 col-md-4 d-flex align-items-center justify-content-md-end gap-3">
                             <span class="text-secondary small">Timeline:</span>
                             <span class="badge bg-light text-dark border font-mono fs-6" id="time-display">00:00.00</span>
                             <span class="badge bg-secondary font-mono" id="frame-display">Frame: 0</span>
@@ -143,6 +202,61 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+    /* Automotive ADAS HUD Subtitle Styling */
+    #hud-subtitle-container {
+        pointer-events: none;
+        user-select: none;
+    }
+    .hud-glow-danger {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.75), inset 0 0 15px rgba(239, 68, 68, 0.25) !important;
+        animation: hudPulseDanger 1.1s infinite alternate ease-in-out;
+    }
+    .hud-glow-warning {
+        border-color: #f59e0b !important;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.65), inset 0 0 10px rgba(245, 158, 11, 0.2) !important;
+    }
+    .hud-glow-safe {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.45) !important;
+    }
+    @keyframes hudPulseDanger {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.02); }
+    }
+    .sound-wave-anim .bar {
+        display: inline-block;
+        width: 3px;
+        height: 12px;
+        border-radius: 2px;
+        animation: soundwave 0.6s ease-in-out infinite alternate;
+    }
+    .sound-wave-anim .bar:nth-child(2) { animation-delay: 0.18s; }
+    .sound-wave-anim .bar:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes soundwave {
+        0% { height: 4px; }
+        100% { height: 16px; }
+    }
+    .active-hazard-card {
+        border-color: #0d6efd !important;
+        background-color: #f0f7ff !important;
+        box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35) !important;
+        transform: translateX(4px);
+        transition: all 0.2s ease;
+    }
+    /* HTML5 Native Video Closed Captions styling */
+    video::cue {
+        background-color: rgba(15, 23, 42, 0.90);
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+        font-size: 15px;
+        border-radius: 6px;
+        padding: 4px 10px;
+        line-height: 1.4;
+    }
+</style>
+
 <script>
     const selectedVideo = "{{ selected_video }}";
     let currentTime = 0;
@@ -150,6 +264,97 @@
     let playInterval = null;
     let currentMode = 'video';
 
+    // Subtitle, Language & ADAS Voice Alert Configuration
+    let currentLang = localStorage.getItem('studio_lang') || 'en';
+    let subtitlesEnabled = true;
+    let voiceAlertsEnabled = true;
+    const spokenAlertsSet = new Set();
+    let subtitleCues = [];
+
+    // I18N Comprehensive Translation Dictionary
+    const I18N = {
+        en: {
+            roadClear: "ROAD CLEAR",
+            laneMonitored: "LANE MONITORED • ALL CLEAR",
+            immediateDanger: "IMMEDIATE DANGER",
+            warning: "WARNING",
+            safeMonitor: "SAFE / MONITOR",
+            dist: "Dist",
+            ttc: "TTC",
+            corridor: "Corridor",
+            speed: "Speed",
+            inPath: "CRITICAL CORRIDOR",
+            offPath: "OFF-PATH",
+            safe: "Safe",
+            ccOn: "CC: ON",
+            ccOff: "CC: OFF",
+            voiceOn: "Voice: ON",
+            voiceOff: "Voice: OFF",
+            testAlert: "Immediate danger! Pothole detected in path, 8 meters!",
+            voiceBadge: "ADAS VOICE DISPATCH",
+            audioAttached: "AUDIO STREAM ATTACHED",
+            audioMuted: "AUDIO MUTED"
+        },
+        am: {
+            roadClear: "መንገዱ ክፍት ነው",
+            laneMonitored: "መንገዱ ክትትል ስር ነው • አደጋ የለም",
+            immediateDanger: "አስቸኳይ አደጋ",
+            warning: "ማስጠንቀቂያ",
+            safeMonitor: "ደህንነቱ የተጠበቀ",
+            dist: "ርቀት",
+            ttc: "የግጭት ጊዜ",
+            corridor: "መስመር",
+            speed: "ፍጥነት",
+            inPath: "በመንገዱ መስመር ላይ!",
+            offPath: "ከመስመር ውጭ",
+            safe: "አስተማማኝ",
+            ccOn: "ትርጉም: በርቷል",
+            ccOff: "ትርጉም: ጠፍቷል",
+            voiceOn: "ድምጽ: በርቷል",
+            voiceOff: "ድምጽ: ጠፍቷል",
+            testAlert: "አስቸኳይ አደጋ! በመንገዱ ላይ ጉድጓድ ተገኝቷል፣ 8 ሜትር!",
+            voiceBadge: "የአደጋ ድምጽ ማሳወቂያ",
+            audioAttached: "የድምጽ ማስጠንቀቂያ ተያይዟል",
+            audioMuted: "ድምጽ ጠፍቷል"
+        }
+    };
+
+    // Preloaded fallback incidents from server database with bilingual data
+    const fallbackIncidents = [
+        {% for inc in incidents %}
+        {
+            id: {{ inc.id }},
+            track_id: "{{ inc.track_id or '' }}",
+            time_s: {{ inc.video_time_s or 0 }},
+            start_s: Math.max(0, {{ inc.video_time_s or 0 }} - 0.25),
+            end_s: {{ (inc.video_time_s or 0) + 1.4 }},
+            risk_level: "{{ (inc.max_risk_level or 'SAFE')|upper }}",
+            risk_level_am: "{{ 'አስቸኳይ አደጋ' if ('IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '')) else ('ማስጠንቀቂያ' if 'WARNING' in (inc.max_risk_level or '') else 'ደህንነቱ የተጠበቀ') }}",
+            damage_type: "{{ (inc.damage_type or 'Hazard')|replace('_', ' ')|title }}",
+            damage_type_am: "{{ 'ጉድጓድ' if 'pothole' in (inc.damage_type or '').lower() else ('የአዞ ቅርፊት ስንጥቅ' if 'crack' in (inc.damage_type or '').lower() else 'የመንገድ አደጋ') }}",
+            distance_m: {{ inc.distance_m or 'null' }},
+            ttc_s: {{ inc.ttc_seconds or 'null' }},
+            in_path: {{ 1 if inc.ever_in_path else 0 }},
+            in_path_am: "{{ 'በመንገዱ መስመር ላይ' if inc.ever_in_path else 'ከመስመር ውጭ' }}",
+            speed_kmh: {{ inc.speed_kmh or 30.0 }},
+            spoken_text: "{{ 'Danger! Pothole in direct path!' if ('IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '')) else ('Warning! Road damage ahead.' if 'WARNING' in (inc.max_risk_level or '') else 'Caution, road damage detected.') }}",
+            spoken_text_am: "{{ 'አስቸኳይ አደጋ! በመንገዱ ላይ ጉድጓድ ተገኝቷል!' if ('IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '')) else ('ማስጠንቀቂያ! በመንገድ ላይ ስንጥቅ ተገኝቷል።' if 'WARNING' in (inc.max_risk_level or '') else 'ጥንቃቄ፣ የመንገድ አደጋ ተገኝቷል።') }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    subtitleCues = fallbackIncidents;
+
+    // Asynchronously fetch JSON cues
+    fetch('/api/subtitles')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.cues && data.cues.length > 0) {
+                subtitleCues = data.cues;
+            }
+        })
+        .catch(err => console.log('Subtitles loaded from server fallback.'));
+
+    // DOM References
     const frameImg = document.getElementById('frame-image');
     const timeDisplay = document.getElementById('time-display');
     const frameDisplay = document.getElementById('frame-display');
@@ -161,20 +366,334 @@
     const unmuteBannerBtn = document.getElementById('btn-unmute-banner');
     const unmuteBannerText = document.getElementById('unmute-banner-text');
 
+    // HUD Subtitle Elements
+    const hudContainer = document.getElementById('hud-subtitle-container');
+    const hudCard = document.getElementById('hud-subtitle-card');
+    const hudRiskBadge = document.getElementById('hud-risk-badge');
+    const hudRiskIcon = document.getElementById('hud-risk-icon');
+    const hudRiskText = document.getElementById('hud-risk-text');
+    const hudHazardTitle = document.getElementById('hud-hazard-title');
+    const hudDistVal = document.getElementById('hud-dist-val');
+    const hudTtcVal = document.getElementById('hud-ttc-val');
+    const hudPathVal = document.getElementById('hud-path-val');
+    const hudSpeedVal = document.getElementById('hud-speed-val');
+    const hudSpeechBar = document.getElementById('hud-speech-bar');
+    const hudSpeechText = document.getElementById('hud-speech-text');
+    const hudSpeechBadge = document.getElementById('hud-speech-badge');
+
+    // Label Titles for I18N
+    const labelDist = document.getElementById('label-dist');
+    const labelTtc = document.getElementById('label-ttc');
+    const labelCorridor = document.getElementById('label-corridor');
+    const labelSpeed = document.getElementById('label-speed');
+
+    // ============================================================
+    // WEB AUDIO API ADAS CHIME SYNTHESIZER
+    // ============================================================
+    let audioCtx = null;
+    function getAudioContext() {
+        if (!audioCtx) {
+            const AudioClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioClass) audioCtx = new AudioClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function playAdasChime(isDanger = false) {
+        if (!voiceAlertsEnabled) return;
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+
+            if (isDanger) {
+                // High-urgency collision chime (880Hz -> 1046Hz)
+                osc1.frequency.setValueAtTime(880, now);
+                osc1.frequency.exponentialRampToValueAtTime(1046, now + 0.08);
+                osc2.frequency.setValueAtTime(1318, now);
+                osc2.frequency.exponentialRampToValueAtTime(1568, now + 0.08);
+            } else {
+                // Advisory alert chime (659Hz -> 784Hz)
+                osc1.frequency.setValueAtTime(659, now);
+                osc1.frequency.exponentialRampToValueAtTime(784, now + 0.12);
+                osc2.frequency.setValueAtTime(987, now);
+                osc2.frequency.exponentialRampToValueAtTime(1174, now + 0.12);
+            }
+
+            gainNode.gain.setValueAtTime(0.001, now);
+            gainNode.gain.linearRampToValueAtTime(0.35, now + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 0.3);
+            osc2.stop(now + 0.3);
+        } catch (e) {
+            console.warn('Audio chime notice:', e);
+        }
+    }
+
+    // ============================================================
+    // WEB SPEECH SYNTHESIS ADAS VOICE ALERT SYSTEM (EN & AMHARIC)
+    // ============================================================
+    function speakAdasAlert(text, isDanger = false) {
+        if (!voiceAlertsEnabled) return;
+        if (!('speechSynthesis' in window)) return;
+        try {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.rate = isDanger ? 1.15 : 1.05;
+            utter.pitch = isDanger ? 1.1 : 1.0;
+            utter.volume = 1.0;
+
+            if (currentLang === 'am') {
+                utter.lang = 'am-ET';
+            } else {
+                utter.lang = 'en-US';
+            }
+
+            // Flash the live speech indicator
+            if (hudSpeechBar && hudSpeechText) {
+                hudSpeechText.textContent = `"${text}"`;
+                if (hudSpeechBadge) {
+                    hudSpeechBadge.textContent = I18N[currentLang].voiceBadge;
+                }
+                hudSpeechBar.style.setProperty('display', 'flex', 'important');
+                clearTimeout(window._speechTimeout);
+                window._speechTimeout = setTimeout(() => {
+                    if (hudSpeechBar) hudSpeechBar.style.setProperty('display', 'none', 'important');
+                }, 2800);
+            }
+
+            window.speechSynthesis.speak(utter);
+        } catch (e) {
+            console.warn('TTS voice notice:', e);
+        }
+    }
+
+    // ============================================================
+    // REAL-TIME SUBTITLE & TELEMETRY SYNCHRONIZER (BILINGUAL)
+    // ============================================================
+    function syncSubtitles(time) {
+        if (!hudContainer) return;
+
+        // If subtitles are disabled by user toggle
+        if (!subtitlesEnabled) {
+            hudContainer.style.opacity = '0';
+            return;
+        } else {
+            hudContainer.style.opacity = '1';
+        }
+
+        const t = I18N[currentLang] || I18N.en;
+        const isAm = currentLang === 'am';
+
+        // Update labels
+        if (labelDist) labelDist.textContent = t.dist;
+        if (labelTtc) labelTtc.textContent = t.ttc;
+        if (labelCorridor) labelCorridor.textContent = t.corridor;
+        if (labelSpeed) labelSpeed.textContent = t.speed;
+
+        // Find active cue matching the current video timestamp
+        const activeCue = subtitleCues.find(c => time >= c.start_s && time <= c.end_s);
+
+        // Highlight matching timeline keyframe in sidebar
+        const sidebarCards = document.querySelectorAll('.hover-shadow[onclick^="seekToTime"]');
+        sidebarCards.forEach(card => card.classList.remove('active-hazard-card'));
+
+        if (activeCue) {
+            const risk = (activeCue.risk_level || 'SAFE').toUpperCase();
+            const isDanger = risk.includes('IMMEDIATE') || risk.includes('DANGER');
+            const isWarning = risk.includes('WARNING');
+
+            // Reset glow classes
+            hudCard.className = 'card border-0 shadow-lg px-3 py-2 rounded-4 text-white';
+
+            if (isDanger) {
+                hudCard.classList.add('hud-glow-danger');
+                hudRiskBadge.className = 'badge bg-danger px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+                hudRiskIcon.className = 'bi bi-exclamation-octagon-fill';
+                hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.immediateDanger) : 'IMMEDIATE DANGER';
+            } else if (isWarning) {
+                hudCard.classList.add('hud-glow-warning');
+                hudRiskBadge.className = 'badge bg-warning text-dark px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+                hudRiskIcon.className = 'bi bi-exclamation-triangle-fill';
+                hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.warning) : 'WARNING';
+            } else {
+                hudCard.classList.add('hud-glow-safe');
+                hudRiskBadge.className = 'badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+                hudRiskIcon.className = 'bi bi-shield-check';
+                hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.safeMonitor) : 'SAFE / MONITOR';
+            }
+
+            // Subtitle Hazard Title
+            const damageName = isAm ? (activeCue.damage_type_am || activeCue.damage_type) : activeCue.damage_type;
+            const pathTag = activeCue.in_path ? (isAm ? ' [በመስመሩ ላይ!]' : ' [IN PATH]') : '';
+            hudHazardTitle.innerHTML = `<span class="${isDanger ? 'text-danger' : (isWarning ? 'text-warning' : 'text-white')}">${damageName.toUpperCase()} #${activeCue.track_id}${pathTag}</span>`;
+
+            // Telemetry stats
+            hudDistVal.textContent = activeCue.distance_m ? `~${Math.round(activeCue.distance_m)}${isAm ? 'ሜ' : 'm'}` : '--';
+            hudTtcVal.innerHTML = activeCue.ttc_s ? `<span class="${isDanger ? 'text-danger fw-bold' : 'text-warning'}">${activeCue.ttc_s.toFixed(1)}${isAm ? 'ሰ' : 's'}</span>` : `<span class="text-success">${t.safe}</span>`;
+            hudPathVal.innerHTML = activeCue.in_path ? `<span class="text-danger fw-bold">${t.inPath}</span>` : `<span class="text-success">${t.offPath}</span>`;
+            hudSpeedVal.textContent = activeCue.speed_kmh ? `${Math.round(activeCue.speed_kmh)} ${isAm ? 'ኪ.ሜ/ሰ' : 'km/h'}` : (isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h');
+
+            // ADAS Voice Trigger (speak once per hazard)
+            if (voiceAlertsEnabled && !spokenAlertsSet.has(activeCue.id)) {
+                spokenAlertsSet.add(activeCue.id);
+                playAdasChime(isDanger);
+                const spoken = isAm ? (activeCue.spoken_text_am || `አስቸኳይ አደጋ! በመንገዱ ላይ ጉድጓድ ተገኝቷል!`) : (activeCue.spoken_text || `Danger! Pothole in path, ${Math.round(activeCue.distance_m || 8)} meters!`);
+                speakAdasAlert(spoken, isDanger);
+            }
+
+            // Highlight sidebar card
+            sidebarCards.forEach(card => {
+                const onclickStr = card.getAttribute('onclick') || '';
+                if (onclickStr.includes(activeCue.time_s.toFixed(2)) || onclickStr.includes(activeCue.time_s.toString())) {
+                    card.classList.add('active-hazard-card');
+                }
+            });
+
+        } else {
+            // Ambient HUD: Road Clear
+            hudCard.className = 'card border-0 shadow-lg px-3 py-2 rounded-4 text-white';
+            hudRiskBadge.className = 'badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+            hudRiskIcon.className = 'bi bi-shield-check';
+            hudRiskText.textContent = t.roadClear;
+            hudHazardTitle.textContent = t.laneMonitored;
+            hudDistVal.textContent = '--';
+            hudTtcVal.innerHTML = `<span class="text-success">${t.safe}</span>`;
+            hudPathVal.innerHTML = `<span class="text-white">${isAm ? 'ክፍት' : 'CLEAR'}</span>`;
+            hudSpeedVal.textContent = isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h';
+            if (hudSpeechBar) hudSpeechBar.style.setProperty('display', 'none', 'important');
+        }
+    }
+
+    // ============================================================
+    // LANGUAGE SWITCHER (ENGLISH <-> AMHARIC)
+    // ============================================================
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('studio_lang', lang);
+
+        const isAm = lang === 'am';
+        const langIcon = document.getElementById('current-lang-icon');
+        const langLabel = document.getElementById('current-lang-label');
+        if (langIcon) langIcon.textContent = isAm ? '🇪🇹' : '🇬🇧';
+        if (langLabel) langLabel.textContent = isAm ? 'አማርኛ' : 'English';
+
+        const optEn = document.getElementById('lang-opt-en');
+        const optAm = document.getElementById('lang-opt-am');
+        if (optEn) optEn.classList.toggle('active', !isAm);
+        if (optAm) optAm.classList.toggle('active', isAm);
+
+        // Update button labels
+        const ccBtnText = document.getElementById('subtitles-btn-text');
+        if (ccBtnText) ccBtnText.textContent = subtitlesEnabled ? I18N[lang].ccOn : I18N[lang].ccOff;
+        const voiceBtnText = document.getElementById('voice-btn-text');
+        if (voiceBtnText) voiceBtnText.textContent = voiceAlertsEnabled ? I18N[lang].voiceOn : I18N[lang].voiceOff;
+
+        // Switch active WebVTT native caption track if available
+        if (mainVideo && mainVideo.textTracks) {
+            for (let i = 0; i < mainVideo.textTracks.length; i++) {
+                const tr = mainVideo.textTracks[i];
+                if (tr.language === (isAm ? 'am' : 'en')) {
+                    tr.mode = subtitlesEnabled ? 'showing' : 'hidden';
+                } else {
+                    tr.mode = 'hidden';
+                }
+            }
+        }
+
+        // Re-sync subtitles immediately
+        syncSubtitles(currentTime);
+    }
+
+    // Toggle Subtitles (CC)
+    function toggleSubtitles() {
+        subtitlesEnabled = !subtitlesEnabled;
+        const btn = document.getElementById('btn-toggle-subtitles');
+        const text = document.getElementById('subtitles-btn-text');
+
+        if (mainVideo && mainVideo.textTracks) {
+            for (let i = 0; i < mainVideo.textTracks.length; i++) {
+                const tr = mainVideo.textTracks[i];
+                const matchLang = (currentLang === 'am') ? (tr.language === 'am') : (tr.language === 'en');
+                tr.mode = (subtitlesEnabled && matchLang) ? 'showing' : 'hidden';
+            }
+        }
+
+        if (subtitlesEnabled) {
+            btn.className = 'btn btn-sm btn-info text-white shadow-sm fw-semibold';
+            text.textContent = I18N[currentLang].ccOn;
+            if (hudContainer) hudContainer.style.opacity = '1';
+        } else {
+            btn.className = 'btn btn-sm btn-outline-secondary shadow-sm';
+            text.textContent = I18N[currentLang].ccOff;
+            if (hudContainer) hudContainer.style.opacity = '0';
+        }
+    }
+
+    // Toggle Voice Alerts (ADAS TTS)
+    function toggleVoiceAlerts() {
+        voiceAlertsEnabled = !voiceAlertsEnabled;
+        const btn = document.getElementById('btn-toggle-voice');
+        const text = document.getElementById('voice-btn-text');
+        const badge = document.getElementById('audio-status-badge');
+
+        if (voiceAlertsEnabled) {
+            btn.className = 'btn btn-sm btn-primary shadow-sm fw-semibold';
+            text.textContent = I18N[currentLang].voiceOn;
+            if (badge) {
+                badge.className = 'badge bg-success font-mono';
+                badge.textContent = I18N[currentLang].audioAttached;
+            }
+            playAdasChime(false);
+            speakAdasAlert(currentLang === 'am' ? 'የድምጽ ማስጠንቀቂያ በርቷል።' : 'ADAS Voice Alerts activated.', false);
+        } else {
+            btn.className = 'btn btn-sm btn-outline-secondary shadow-sm';
+            text.textContent = I18N[currentLang].voiceOff;
+            if (badge) {
+                badge.className = 'badge bg-secondary font-mono';
+                badge.textContent = I18N[currentLang].audioMuted;
+            }
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+    }
+
+    // Test Voice Alert
+    function testVoiceAlert() {
+        voiceAlertsEnabled = true;
+        document.getElementById('btn-toggle-voice').className = 'btn btn-sm btn-primary shadow-sm fw-semibold';
+        document.getElementById('voice-btn-text').textContent = I18N[currentLang].voiceOn;
+        playAdasChime(true);
+        speakAdasAlert(I18N[currentLang].testAlert, true);
+    }
+
+    // ============================================================
+    // VIDEO PLAYER INITIALIZATION
+    // ============================================================
     if (mainVideo) {
-        // Set maximum volume and attempt unmuted playback
         mainVideo.volume = 1.0;
 
-        // Try playing unmuted. If browser autoplay policy blocks unmuted audio on load,
-        // mute temporarily for autoplay and update the banner button so user can unmute in 1 click.
         const playPromise = mainVideo.play();
         if (playPromise !== undefined) {
             playPromise.then(() => {
-                // Succeeded unmuted or user previously interacted
                 updateAudioUI();
             }).catch(error => {
-                // Autoplay with sound prevented by browser policy: mute and continue autoplay
-                console.log('Autoplay unmuted blocked by browser policy. Starting muted until interaction.');
                 mainVideo.muted = true;
                 mainVideo.play();
                 updateAudioUI();
@@ -187,35 +706,44 @@
                 timeSlider.value = currentTime;
                 timeDisplay.textContent = formatTime(currentTime);
                 frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
+                syncSubtitles(currentTime);
             }
         });
+
         mainVideo.addEventListener('loadedmetadata', () => {
             if (mainVideo.duration) {
                 timeSlider.max = mainVideo.duration;
             }
+            if (mainVideo.textTracks && mainVideo.textTracks[0]) {
+                mainVideo.textTracks[0].mode = 'showing';
+            }
         });
+
         mainVideo.addEventListener('play', () => {
             playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
             playBtn.classList.replace('btn-success', 'btn-warning');
             isPlaying = true;
             updateAudioUI();
+            getAudioContext();
         });
+
         mainVideo.addEventListener('pause', () => {
             playBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
             playBtn.classList.replace('btn-warning', 'btn-success');
             isPlaying = false;
         });
+
         mainVideo.addEventListener('volumechange', () => {
             updateAudioUI();
         });
 
-        // Unmute on first user click anywhere on video
         mainVideo.addEventListener('click', () => {
             if (mainVideo.muted) {
                 mainVideo.muted = false;
                 mainVideo.volume = 1.0;
                 updateAudioUI();
             }
+            getAudioContext();
         });
     }
 
@@ -224,10 +752,10 @@
         mainVideo.muted = false;
         mainVideo.volume = 1.0;
         volumeSlider.value = 1.0;
-        if (mainVideo.paused) {
-            mainVideo.play();
-        }
+        if (mainVideo.paused) mainVideo.play();
+        getAudioContext();
         updateAudioUI();
+        testVoiceAlert();
     }
 
     function toggleMute() {
@@ -243,9 +771,7 @@
     function setVolume(val) {
         if (!mainVideo) return;
         mainVideo.volume = parseFloat(val);
-        if (mainVideo.volume > 0) {
-            mainVideo.muted = false;
-        }
+        if (mainVideo.volume > 0) mainVideo.muted = false;
         updateAudioUI();
     }
 
@@ -300,6 +826,7 @@
         timeSlider.value = currentTime;
         timeDisplay.textContent = formatTime(currentTime);
         frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
+        syncSubtitles(currentTime);
 
         if (currentMode === 'video' && mainVideo) {
             mainVideo.currentTime = currentTime;
@@ -309,10 +836,10 @@
     }
 
     function seekToTime(time) {
+        spokenAlertsSet.clear(); // Reset spoken alert cache on seek
         updateFrame(time);
         if (currentMode === 'video' && mainVideo) {
             mainVideo.currentTime = time;
-            // Always ensure audio is active on seek
             mainVideo.muted = false;
             mainVideo.volume = 1.0;
             mainVideo.play().catch(e => console.log('Playback:', e));
@@ -321,6 +848,7 @@
     }
 
     function onSliderChange(val) {
+        spokenAlertsSet.clear();
         updateFrame(parseFloat(val));
     }
 
@@ -330,9 +858,9 @@
     }
 
     function togglePlay() {
+        getAudioContext();
         if (currentMode === 'video' && mainVideo) {
             if (mainVideo.paused) {
-                // Unmute automatically when user clicks Play
                 mainVideo.muted = false;
                 mainVideo.volume = 1.0;
                 mainVideo.play();
@@ -343,7 +871,6 @@
             return;
         }
 
-        // Frame mode fallback
         if (isPlaying) {
             clearInterval(playInterval);
             isPlaying = false;
@@ -364,9 +891,11 @@
         }
     }
 
-    // Set default initial frame
+    // Set initial frame and active language preference
     const urlParams = new URLSearchParams(window.location.search);
     const initialTime = parseFloat(urlParams.get('time')) || 0.0;
     updateFrame(initialTime);
+    setLanguage(currentLang);
 </script>
 {% endblock %}
+

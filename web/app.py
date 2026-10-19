@@ -287,6 +287,144 @@ def api_gps_track():
     return jsonify({"success": True, "points": points})
 
 
+# Amharic (አማርኛ) Road Hazard Translations
+AMHARIC_TERMS = {
+    "pothole": "ጉድጓድ",
+    "alligator_crack": "የአዞ ቅርፊት ስንጥቅ",
+    "hazard": "የመንገድ አደጋ",
+    "immediate_danger": "አስቸኳይ አደጋ",
+    "warning": "ማስጠንቀቂያ",
+    "caution": "ጥንቃቄ",
+    "safe": "ደህንነቱ የተጠበቀ / ክትትል",
+    "in_path": "በመንገዱ መስመር ላይ",
+    "off_path": "ከመስመር ውጭ"
+}
+
+@app.route("/api/subtitles.vtt")
+def api_subtitles_vtt():
+    """Generate standard WebVTT subtitles synchronized with road hazard events (supports English & Amharic)."""
+    lang = request.args.get("lang", "en").lower()
+    is_am = lang in ["am", "amharic", "amh"]
+
+    incidents = db_manager.get_all_incidents()
+    valid_incidents = [i for i in incidents if i.get("video_time_s") is not None]
+    valid_incidents.sort(key=lambda x: float(x["video_time_s"]))
+
+    def fmt_vtt_time(sec):
+        h = int(sec // 3600)
+        m = int((sec % 3600) // 60)
+        s = sec % 60
+        return f"{h:02d}:{m:02d}:{s:06.3f}"
+
+    header_title = "የመንገድ አደጋ ክትትል የትርጉም ጽሑፍ (Amharic)" if is_am else "Road Monitoring System Telemetry Subtitles"
+    vtt_lines = [f"WEBVTT - {header_title}\n"]
+    cue_idx = 1
+    for inc in valid_incidents:
+        t_start = max(0.0, float(inc["video_time_s"]) - 0.2)
+        t_end = t_start + 1.4
+        risk_raw = (inc.get("max_risk_level") or "SAFE").upper()
+        dtype_key = (inc.get("damage_type") or "hazard").lower().replace(" ", "_")
+        track_id = inc.get("track_id") or ""
+        in_path = bool(inc.get("ever_in_path"))
+        dist_m = inc.get("distance_m")
+        ttc_s = inc.get("ttc_seconds")
+
+        is_danger = "IMMEDIATE" in risk_raw or "DANGER" in risk_raw
+        is_warning = "WARNING" in risk_raw
+
+        if is_am:
+            risk_label = "አስቸኳይ አደጋ" if is_danger else ("ማስጠንቀቂያ" if is_warning else "ደህንነቱ የተጠበቀ")
+            prefix = "[አደጋ]" if is_danger else ("[ማስጠንቀቂያ]" if is_warning else "[መረጃ]")
+            dtype_label = AMHARIC_TERMS.get(dtype_key, "የመንገድ አደጋ")
+            path_label = "በመንገዱ መስመር ላይ" if in_path else "ከመስመር ውጭ"
+            dist_str = f"ርቀት: {dist_m:.0f}ሜ" if dist_m else ""
+            ttc_str = f"የግጭት ጊዜ: {ttc_s:.1f}ሰከንድ" if ttc_s else ""
+        else:
+            risk_label = risk_raw
+            prefix = "[DANGER]" if is_danger else ("[WARNING]" if is_warning else "[INFO]")
+            dtype_label = (inc.get("damage_type") or "Hazard").upper()
+            path_label = "IN PATH" if in_path else "OFF-PATH"
+            dist_str = f"Dist: {dist_m:.0f}m" if dist_m else "Dist: N/A"
+            ttc_str = f"TTC: {ttc_s:.1f}s" if ttc_s else ""
+
+        summary = f"{prefix} {risk_label}: {dtype_label} #{track_id} ({path_label})"
+        if dist_str:
+            summary += f" | {dist_str}"
+        if ttc_str:
+            summary += f" | {ttc_str}"
+
+        vtt_lines.append(f"{cue_idx}")
+        vtt_lines.append(f"{fmt_vtt_time(t_start)} --> {fmt_vtt_time(t_end)}")
+        vtt_lines.append(summary)
+        vtt_lines.append("")
+        cue_idx += 1
+
+    return Response(
+        "\n".join(vtt_lines),
+        mimetype="text/vtt",
+        headers={"Content-Type": "text/vtt; charset=utf-8"}
+    )
+
+
+@app.route("/api/subtitles")
+def api_subtitles_json():
+    """Return synchronized subtitle cues and ADAS voice prompt metadata in English & Amharic."""
+    incidents = db_manager.get_all_incidents()
+    valid_incidents = [i for i in incidents if i.get("video_time_s") is not None]
+    valid_incidents.sort(key=lambda x: float(x["video_time_s"]))
+
+    cues = []
+    for inc in valid_incidents:
+        t = float(inc["video_time_s"])
+        risk = (inc.get("max_risk_level") or "SAFE").upper()
+        raw_type = (inc.get("damage_type") or "hazard").lower().replace(" ", "_")
+        dtype_en = (inc.get("damage_type") or "hazard").replace("_", " ")
+        dtype_am = AMHARIC_TERMS.get(raw_type, "የመንገድ አደጋ")
+
+        track_id = inc.get("track_id") or ""
+        dist = round(float(inc.get("distance_m")), 1) if inc.get("distance_m") else None
+        ttc = round(float(inc.get("ttc_seconds")), 1) if inc.get("ttc_seconds") else None
+        in_path = bool(inc.get("ever_in_path"))
+        speed = round(float(inc.get("speed_kmh")), 1) if inc.get("speed_kmh") else None
+
+        is_danger = "IMMEDIATE" in risk or "DANGER" in risk
+        is_warning = "WARNING" in risk
+
+        # Spoken alert in English
+        if is_danger:
+            spoken_en = f"Danger! {dtype_en} in direct path! {int(dist) if dist else ''} meters."
+            spoken_am = f"አስቸኳይ አደጋ! በመንገዱ መስመር ላይ {dtype_am} ተገኝቷል፣ {int(dist) if dist else ''} ሜትር!"
+            risk_am = "አስቸኳይ አደጋ"
+        elif is_warning:
+            spoken_en = f"Warning! Approaching {dtype_en}{' in path' if in_path else ''}."
+            spoken_am = f"ማስጠንቀቂያ! {dtype_am}{' በመንገዱ መስመር ላይ' if in_path else ''} ተገኝቷል።"
+            risk_am = "ማስጠንቀቂያ"
+        else:
+            spoken_en = f"Caution, {dtype_en} detected."
+            spoken_am = f"ጥንቃቄ፣ {dtype_am} ተገኝቷል።"
+            risk_am = "ደህንነቱ የተጠበቀ"
+
+        cues.append({
+            "id": inc.get("id"),
+            "track_id": track_id,
+            "time_s": t,
+            "start_s": max(0.0, t - 0.25),
+            "end_s": t + 1.4,
+            "risk_level": risk,
+            "risk_level_am": risk_am,
+            "damage_type": dtype_en.title(),
+            "damage_type_am": dtype_am,
+            "distance_m": dist,
+            "ttc_s": ttc,
+            "in_path": in_path,
+            "in_path_am": "በመንገዱ መስመር ላይ" if in_path else "ከመስመር ውጭ",
+            "speed_kmh": speed,
+            "spoken_text": spoken_en,
+            "spoken_text_am": spoken_am
+        })
+    return jsonify({"success": True, "count": len(cues), "cues": cues})
+
+
 @app.route("/api/video/frame")
 def api_video_frame():
     """Extract a frame from a video file by timestamp or frame number and return JPEG."""
@@ -472,26 +610,6 @@ def api_export_csv():
         mimetype="text/csv",
         as_attachment=True,
         download_name=filename
-    )
-
-
-@app.route("/api/download/project")
-def api_download_project():
-    """Download the complete project ZIP archive."""
-    zip_path = os.path.join(BASE_DIR, "outputs", "road_monitoring_system_complete.zip")
-    if not os.path.exists(zip_path):
-        fallback_path = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "road_monitoring_system_complete.zip"))
-        if os.path.exists(fallback_path):
-            zip_path = fallback_path
-        else:
-            import package_project
-            zip_path = package_project.create_project_zip(zip_path)
-
-    return send_file(
-        zip_path,
-        mimetype="application/zip",
-        as_attachment=True,
-        download_name="road_monitoring_system_complete.zip"
     )
 
 

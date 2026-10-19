@@ -86,11 +86,6 @@
                     <span>Export CSV</span>
                     <span class="badge bg-info text-dark ms-auto" style="font-size: 0.65rem;">Gov</span>
                 </a>
-                <a href="{{ url_for('api_download_project') }}" data-roles="executive manager all" class="nav-link text-white-50 rounded px-3 py-2 d-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-zip-fill text-warning"></i>
-                    <span>Download Project</span>
-                    <span class="badge bg-warning text-dark ms-auto" style="font-size: 0.65rem;">ZIP</span>
-                </a>
             </nav>
 
             <!-- Status Indicator at Bottom -->
@@ -166,9 +161,6 @@
                     </a>
                     <a href="{{ url_for('reports_view') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
                         <i class="bi bi-printer"></i> Work Order
-                    </a>
-                    <a href="{{ url_for('api_download_project') }}" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1" title="Download Complete Project (Code, Models, DB, Videos)">
-                        <i class="bi bi-file-earmark-zip-fill"></i> Download Project ZIP
                     </a>
                 </div>
             </header>
