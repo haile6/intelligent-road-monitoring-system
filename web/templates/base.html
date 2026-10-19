@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=5.3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=5.4">
     <!-- Progressive Web App (PWA) Mobile Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0284c7">
@@ -21,6 +21,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="RoadEye">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
     {% block extra_head %}{% endblock %}
 </head>
@@ -197,12 +200,12 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form id="uploadVideoForm" enctype="multipart/form-data">
+                <form id="uploadVideoForm" enctype="multipart/form-data" method="POST" action="/api/video/upload">
+                    <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label small fw-semibold" style="color: var(--text-primary);">Video Source File (.mp4, .avi, .mov)</label>
                             <input type="file" id="uploadVideoInput" name="video" class="form-control" accept="video/*" required>
-                            <small class="text-muted">High-definition roadway capture from dashcam, drone, or survey vehicle.</small>
+                            <small class="text-muted d-block mt-1" id="videoFileFeedback">High-definition roadway capture from dashcam, drone, or survey vehicle.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold" style="color: var(--text-primary);">
@@ -218,126 +221,204 @@
                                 <span>Configures the integrated neural engine to target this uploaded footage.</span>
                             </label>
                         </div>
-                        <div id="uploadProgress" class="progress mb-3" style="display: none; height: 18px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary fw-semibold" role="progressbar" style="width: 0%; font-size: 0.72rem;">0%</div>
+                        <div id="uploadProgress" class="progress mb-3" style="display: none; height: 22px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary fw-semibold" role="progressbar" style="width: 0%; font-size: 0.75rem;">0%</div>
                         </div>
                         <div id="uploadAlert" class="alert small py-2" style="display: none;"></div>
-                    </form>
-                </div>
-                <div class="modal-footer border-top d-flex justify-content-between" style="background: #f8fafc;">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="btnUploadOnly" onclick="submitVideoUpload(false)">
-                            <i class="bi bi-cloud-arrow-up me-1"></i> Upload Only
-                        </button>
-                        <button type="button" class="btn btn-sm btn-primary fw-semibold" id="btnUploadRun" onclick="submitVideoUpload(true)">
-                            <i class="bi bi-play-circle-fill me-1"></i> Upload &amp; Run AI Pipeline
-                        </button>
                     </div>
-                </div>
+                    <div class="modal-footer border-top d-flex justify-content-between" style="background: #f8fafc;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="btnUploadOnly">
+                                <i class="bi bi-cloud-arrow-up me-1"></i> Upload Only
+                            </button>
+                            <button type="submit" class="btn btn-sm btn-primary fw-semibold" id="btnUploadRun">
+                                <i class="bi bi-play-circle-fill me-1"></i> Upload &amp; Run AI Pipeline
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <!-- Independent Resilient Upload Script -->
+    <script>
+        // File selection visual confirmation
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('uploadVideoInput');
+            const feedback = document.getElementById('videoFileFeedback');
+            if (fileInput && feedback) {
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files && fileInput.files[0]) {
+                        const file = fileInput.files[0];
+                        const mb = (file.size / (1024 * 1024)).toFixed(1);
+                        feedback.innerHTML = '<span class="badge bg-success text-white me-1">Selected: ' + file.name + ' (' + mb + ' MB)</span> Ready to analyze.';
+                    }
+                });
+            }
+
+            const btnRun = document.getElementById('btnUploadRun');
+            const btnOnly = document.getElementById('btnUploadOnly');
+            const uploadForm = document.getElementById('uploadVideoForm');
+
+            if (btnOnly) {
+                btnOnly.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    submitVideoUpload(false);
+                });
+            }
+
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitVideoUpload(true);
+                });
+            }
+        });
+
+        function submitVideoUpload(autoRunPipeline) {
+            if (autoRunPipeline === undefined) autoRunPipeline = true;
+            try {
+                const fileInput = document.getElementById('uploadVideoInput');
+                if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                    alert('Please select a roadway video file to upload.');
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('video', file);
+                
+                const checkTarget = document.getElementById('setAsDefaultCheck');
+                formData.append('set_as_default', (checkTarget && checkTarget.checked) ? 'true' : 'false');
+
+                const gpsInput = document.getElementById('uploadGpsInput');
+                if (gpsInput && gpsInput.files && gpsInput.files.length > 0) {
+                    formData.append('gps', gpsInput.files[0]);
+                }
+
+                const progressCont = document.getElementById('uploadProgress');
+                const progressBar = progressCont ? progressCont.querySelector('.progress-bar') : null;
+                const alertBox = document.getElementById('uploadAlert');
+                const btnRun = document.getElementById('btnUploadRun');
+                const btnOnly = document.getElementById('btnUploadOnly');
+
+                if (progressCont) progressCont.style.display = 'block';
+                if (progressBar) {
+                    progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-primary fw-semibold';
+                    progressBar.style.width = '3%';
+                    progressBar.textContent = 'Initiating upload...';
+                }
+                if (alertBox) alertBox.style.display = 'none';
+
+                if (btnRun) {
+                    btnRun.disabled = true;
+                    btnRun.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+                }
+                if (btnOnly) {
+                    btnOnly.disabled = true;
+                }
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/video/upload', true);
+
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable && progressBar) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = Math.max(percent, 5) + '%';
+                        const mbLoaded = (e.loaded / (1024 * 1024)).toFixed(1);
+                        const mbTotal = (e.total / (1024 * 1024)).toFixed(1);
+                        progressBar.textContent = 'Uploading: ' + percent + '% (' + mbLoaded + ' / ' + mbTotal + ' MB)';
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (btnRun) {
+                        btnRun.disabled = false;
+                        btnRun.innerHTML = '<i class="bi bi-play-circle-fill me-1"></i> Upload &amp; Run AI Pipeline';
+                    }
+                    if (btnOnly) {
+                        btnOnly.disabled = false;
+                    }
+
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (xhr.status === 200 && res.success) {
+                            if (progressBar) {
+                                progressBar.className = 'progress-bar bg-success fw-semibold';
+                                progressBar.style.width = '100%';
+                                progressBar.textContent = 'Upload Verified 100%';
+                            }
+                            if (alertBox) {
+                                alertBox.className = 'alert alert-success small py-2';
+                                alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + res.message + (autoRunPipeline ? ' Launching AI Pipeline...' : '');
+                                alertBox.style.display = 'block';
+                            }
+
+                            setTimeout(function() {
+                                if (autoRunPipeline) {
+                                    window.location.href = '/pipeline?autorun=1';
+                                } else {
+                                    window.location.reload();
+                                }
+                            }, 1200);
+                        } else {
+                            if (progressBar) {
+                                progressBar.className = 'progress-bar bg-danger fw-semibold';
+                                progressBar.textContent = 'Upload Failed';
+                            }
+                            if (alertBox) {
+                                alertBox.className = 'alert alert-danger small py-2';
+                                alertBox.textContent = res.error || ('Upload failed (Status ' + xhr.status + ')');
+                                alertBox.style.display = 'block';
+                            }
+                        }
+                    } catch (err) {
+                        if (progressBar) {
+                            progressBar.className = 'progress-bar bg-danger fw-semibold';
+                            progressBar.textContent = 'Error';
+                        }
+                        if (alertBox) {
+                            alertBox.className = 'alert alert-danger small py-2';
+                            if (xhr.status === 413) {
+                                alertBox.textContent = 'The video is too large (maximum allowed size is 500 MB). Please trim or compress the video before uploading.';
+                            } else {
+                                alertBox.textContent = 'Server response (' + xhr.status + '): Please check connection and try again.';
+                            }
+                            alertBox.style.display = 'block';
+                        }
+                    }
+                };
+
+                xhr.onerror = function() {
+                    if (btnRun) {
+                        btnRun.disabled = false;
+                        btnRun.innerHTML = '<i class="bi bi-play-circle-fill me-1"></i> Upload &amp; Run AI Pipeline';
+                    }
+                    if (btnOnly) btnOnly.disabled = false;
+                    if (progressBar) {
+                        progressBar.className = 'progress-bar bg-danger fw-semibold';
+                        progressBar.textContent = 'Network Error';
+                    }
+                    if (alertBox) {
+                        alertBox.className = 'alert alert-danger small py-2';
+                        alertBox.textContent = 'Network connection dropped during upload. Please retry.';
+                        alertBox.style.display = 'block';
+                    }
+                };
+
+                xhr.send(formData);
+            } catch (fatalErr) {
+                console.error('[Upload Exception]', fatalErr);
+                alert('Upload trigger error: ' + fatalErr.message);
+            }
+        }
+    </script>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function submitVideoUpload(autoRunPipeline = true) {
-            const fileInput = document.getElementById('uploadVideoInput');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Please select a roadway video file to upload.');
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const formData = new FormData();
-            formData.append('video', file);
-            formData.append('set_as_default', document.getElementById('setAsDefaultCheck').checked ? 'true' : 'false');
-
-            const gpsInput = document.getElementById('uploadGpsInput');
-            if (gpsInput && gpsInput.files && gpsInput.files.length > 0) {
-                formData.append('gps', gpsInput.files[0]);
-            }
-
-            const progressCont = document.getElementById('uploadProgress');
-            const progressBar = progressCont.querySelector('.progress-bar');
-            const alertBox = document.getElementById('uploadAlert');
-            const btnRun = document.getElementById('btnUploadRun');
-            const btnOnly = document.getElementById('btnUploadOnly');
-
-            progressCont.style.display = 'block';
-            progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-primary fw-semibold';
-            progressBar.style.width = '0%';
-            progressBar.textContent = 'Preparing upload...';
-            alertBox.style.display = 'none';
-            if (btnRun) btnRun.disabled = true;
-            if (btnOnly) btnOnly.disabled = true;
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/api/video/upload', true);
-
-            xhr.upload.onprogress = function(e) {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percent + '%';
-                    const mbLoaded = (e.loaded / (1024 * 1024)).toFixed(1);
-                    const mbTotal = (e.total / (1024 * 1024)).toFixed(1);
-                    progressBar.textContent = `Uploading: ${percent}% (${mbLoaded} / ${mbTotal} MB)`;
-                }
-            };
-
-            xhr.onload = function() {
-                if (btnRun) btnRun.disabled = false;
-                if (btnOnly) btnOnly.disabled = false;
-
-                try {
-                    const res = JSON.parse(xhr.responseText);
-                    if (xhr.status === 200 && res.success) {
-                        progressBar.className = 'progress-bar bg-success fw-semibold';
-                        progressBar.textContent = 'Upload Verified 100%';
-                        alertBox.className = 'alert alert-success small py-2';
-                        alertBox.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> ${res.message} ${autoRunPipeline ? 'Launching AI Pipeline...' : ''}`;
-                        alertBox.style.display = 'block';
-
-                        setTimeout(() => {
-                            if (autoRunPipeline) {
-                                window.location.href = '/pipeline?autorun=1';
-                            } else {
-                                window.location.reload();
-                            }
-                        }, 1200);
-                    } else {
-                        progressBar.className = 'progress-bar bg-danger fw-semibold';
-                        progressBar.textContent = 'Upload Failed';
-                        alertBox.className = 'alert alert-danger small py-2';
-                        alertBox.textContent = res.error || `Upload failed (Status ${xhr.status})`;
-                        alertBox.style.display = 'block';
-                    }
-                } catch (err) {
-                    progressBar.className = 'progress-bar bg-danger fw-semibold';
-                    progressBar.textContent = 'Error';
-                    alertBox.className = 'alert alert-danger small py-2';
-                    if (xhr.status === 413) {
-                        alertBox.textContent = 'The video is too large (maximum allowed size is 500 MB). Please trim or compress the video before uploading.';
-                    } else {
-                        alertBox.textContent = `Server error (${xhr.status}): Please check video format and connection.`;
-                    }
-                    alertBox.style.display = 'block';
-                }
-            };
-
-            xhr.onerror = function() {
-                if (btnRun) btnRun.disabled = false;
-                if (btnOnly) btnOnly.disabled = false;
-                progressBar.className = 'progress-bar bg-danger fw-semibold';
-                progressBar.textContent = 'Network Error';
-                alertBox.className = 'alert alert-danger small py-2';
-                alertBox.textContent = 'Network connection dropped during upload. Please retry.';
-                alertBox.style.display = 'block';
-            };
-
-            xhr.send(formData);
-        }
 
         // ================= ROLE-BASED ACCESS & VIEW CONTROLLER =================
         function setRole(role, redirectIfSpecial = false) {
@@ -376,7 +457,7 @@
                     iconClass: 'bi bi-tools text-warning',
                     badge: 'ROAD MANAGER',
                     badgeClass: 'badge bg-warning text-dark px-2',
-                    footer: 'Role: Road Manager &bull; GIS Map, Severity mÂ² & Repair Crews'
+                    footer: 'Role: Road Manager &bull; GIS Map, Severity m² & Repair Crews'
                 },
                 'executive': {
                     name: 'Executive Body',
@@ -447,7 +528,7 @@
                 }
             });
 
-            // â”€â”€ Live animated clock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Live animated clock
             function updateClock() {
                 const el = document.getElementById('liveClock');
                 if (!el) return;
@@ -460,7 +541,7 @@
             updateClock();
             setInterval(updateClock, 1000);
 
-            // â”€â”€ Animated counter numbers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Animated counter numbers
             function animateCounter(el) {
                 const target = parseFloat(el.textContent.replace(/[^0-9.]/g,'')) || 0;
                 const suffix = el.textContent.replace(/[0-9. ]/g,'');
@@ -482,7 +563,7 @@
                 setTimeout(() => animateCounter(el), 250);
             });
 
-            // â”€â”€ Entrance fade-in for cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Entrance fade-in for cards
             const cards = document.querySelectorAll('.card, .role-launcher-card');
             cards.forEach((card, i) => {
                 card.style.opacity = '0';
@@ -494,7 +575,7 @@
                 }, 80 + i * 55);
             });
 
-            // â”€â”€ Toast notification system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Toast notification system
             window.showToast = function(msg, type = 'info', duration = 3500) {
                 let container = document.getElementById('toast-container');
                 if (!container) {
@@ -527,7 +608,7 @@
                 }, duration);
             };
 
-            // â”€â”€ Button ripple effect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Button ripple effect
             document.addEventListener('click', e => {
                 const btn = e.target.closest('.btn');
                 if (!btn) return;

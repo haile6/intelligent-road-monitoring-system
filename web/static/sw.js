@@ -1,8 +1,7 @@
-// RoadEye™ Progressive Web App (PWA) Service Worker
-const CACHE_NAME = 'roadeye-pwa-v1';
+// RoadEye™ Progressive Web App (PWA) Service Worker v3
+const CACHE_NAME = 'roadeye-pwa-v3';
 const PRECACHE_ASSETS = [
-  '/',
-  '/static/css/custom.css?v=5.3',
+  '/static/css/custom.css?v=5.4',
   '/static/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png'
@@ -29,7 +28,15 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  // Network first with cache fallback
+  // HTML navigation requests should always bypass cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Network first with cache fallback for static assets
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
@@ -40,3 +47,4 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
