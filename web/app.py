@@ -475,6 +475,26 @@ def api_export_csv():
     )
 
 
+@app.route("/api/download/project")
+def api_download_project():
+    """Download the complete project ZIP archive."""
+    zip_path = os.path.join(BASE_DIR, "outputs", "road_monitoring_system_complete.zip")
+    if not os.path.exists(zip_path):
+        fallback_path = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "road_monitoring_system_complete.zip"))
+        if os.path.exists(fallback_path):
+            zip_path = fallback_path
+        else:
+            import package_project
+            zip_path = package_project.create_project_zip(zip_path)
+
+    return send_file(
+        zip_path,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name="road_monitoring_system_complete.zip"
+    )
+
+
 @app.route("/api/video/upload", methods=["POST"])
 def api_video_upload():
     """Upload a new video file to data/ directory."""
