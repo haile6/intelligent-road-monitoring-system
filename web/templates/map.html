@@ -112,116 +112,118 @@
     const incidents = {{ incidents|tojson }};
     const gpsPoints = {{ gps_points|tojson }};
 
-    // Determine initial center
-    let centerLat = 9.1235;
-    let centerLon = 39.1235;
-    if (gpsPoints.length > 0) {
-        centerLat = gpsPoints[0].lat;
-        centerLon = gpsPoints[0].lon;
-    } else if (incidents.length > 0 && incidents[0].damage_latitude) {
-        centerLat = incidents[0].damage_latitude;
-        centerLon = incidents[0].damage_longitude;
-    }
-
-    const map = L.map('map').setView([centerLat, centerLon], 17);
-
-    // OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Draw GPS vehicle track polyline
-    const pathCoords = gpsPoints.map(p => [p.lat, p.lon]);
-    if (pathCoords.length > 0) {
-        const polyline = L.polyline(pathCoords, {
-            color: '#2563eb',
-            weight: 5,
-            opacity: 0.8,
-            dashArray: '10, 5'
-        }).addTo(map);
-        map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
-    }
-
+    let map = null;
     const markersMap = {};
 
-    // Helper for risk colors
-    function getRiskColor(risk) {
-        if (!risk) return '#22c55e';
-        const r = risk.toUpperCase();
-        if (r.includes('IMMEDIATE') || r.includes('DANGER')) return '#ef4444';
-        if (r.includes('WARNING')) return '#f97316';
-        if (r.includes('CAUTION')) return '#eab308';
-        return '#22c55e';
-    }
-
-    // Add Markers for Incidents
-    incidents.forEach(inc => {
-        const lat = inc.damage_latitude || inc.latitude;
-        const lon = inc.damage_longitude || inc.longitude;
-        if (!lat || !lon) return;
-
-        const color = getRiskColor(inc.max_risk_level);
-        const radius = (inc.max_risk_level && (inc.max_risk_level.includes('DANGER') || inc.max_risk_level.includes('IMMEDIATE'))) ? 10 : 8;
-
-        const marker = L.circleMarker([lat, lon], {
-            radius: radius,
-            fillColor: color,
-            color: '#ffffff',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.9
-        }).addTo(map);
-
-        const popupContent = `
-            <div style="min-width: 220px; font-family: 'Inter', sans-serif;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <b style="font-size:14px; text-transform:capitalize;">${inc.damage_type} #${inc.track_id}</b>
-                    <span style="background:${color}; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">
-                        ${inc.max_risk_level}
-                    </span>
-                </div>
-                <div style="font-size:12px; color:#475569; line-height:1.5;">
-                    <div><b>Distance:</b> ${inc.distance_m || '--'} m</div>
-                    <div><b>Time to Collision:</b> <span style="color:#ef4444; font-weight:bold;">${inc.ttc_seconds ? inc.ttc_seconds + ' s' : 'Safe'}</span></div>
-                    <div><b>Vehicle Speed:</b> ${inc.speed_kmh || '--'} km/h</div>
-                    <div><b>Status:</b> ${inc.status}</div>
-                    <div style="font-size:11px; color:#64748b; margin-top:4px;"><b>Coords:</b> ${lat.toFixed(6)}, ${lon.toFixed(6)}</div>
-                </div>
-                <div style="margin-top:8px; display:flex; gap:6px;">
-                    <a href="/studio?file=outputs/final_integrated_video.mp4&time=${inc.video_time_s}" 
-                       class="btn btn-sm btn-primary" style="font-size:11px; padding:3px 8px; text-decoration:none; color:#fff; background:#0d6efd; border-radius:4px;">
-                        Inspect Video
-                    </a>
-                </div>
-            </div>
-        `;
-        marker.bindPopup(popupContent);
-        markersMap[inc.track_id] = marker;
-    });
-
-    // Custom Legend Control
-    const legend = L.control({ position: 'bottomright' });
-    legend.onAdd = function (map) {
-        const div = L.DomUtil.create('div', 'legend-box');
-        div.innerHTML = `
-            <div style="font-weight:bold; margin-bottom:6px;">Risk Legend</div>
-            <div class="legend-item"><span class="legend-color" style="background:#ef4444;"></span> Immediate Danger</div>
-            <div class="legend-item"><span class="legend-color" style="background:#f97316;"></span> Warning</div>
-            <div class="legend-item"><span class="legend-color" style="background:#eab308;"></span> Caution</div>
-            <div class="legend-item"><span class="legend-color" style="background:#22c55e;"></span> Safe / Monitor</div>
-            <div class="legend-item mt-1"><span style="width:14px; height:3px; background:#2563eb; display:inline-block;"></span> Vehicle GPS Path</div>
-        `;
-        return div;
-    };
-    legend.addTo(map);
-
-    function focusMarker(lat, lon, trackId) {
-        if (!lat || !lon) return;
+    window.focusMarker = function(lat, lon, trackId) {
+        if (!lat || !lon || !map) return;
         map.setView([lat, lon], 19);
         if (markersMap[trackId]) {
             markersMap[trackId].openPopup();
         }
-    }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof L === 'undefined') {
+            console.warn('Leaflet library not loaded.');
+            return;
+        }
+
+        try {
+            // Determine initial center
+            let centerLat = 9.1235;
+            let centerLon = 39.1235;
+            if (gpsPoints.length > 0) {
+                centerLat = gpsPoints[0].lat;
+                centerLon = gpsPoints[0].lon;
+            } else if (incidents.length > 0 && incidents[0].damage_latitude) {
+                centerLat = incidents[0].damage_latitude;
+                centerLon = incidents[0].damage_longitude;
+            }
+
+            map = L.map('map').setView([centerLat, centerLon], 17);
+
+            // OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Draw GPS vehicle track polyline
+            const pathCoords = gpsPoints.map(p => [p.lat, p.lon]);
+            if (pathCoords.length > 0) {
+                const polyline = L.polyline(pathCoords, {
+                    color: '#2563eb',
+                    weight: 5,
+                    opacity: 0.8,
+                    dashArray: '10, 5'
+                }).addTo(map);
+                map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+            }
+
+            // Add Markers for Incidents
+            incidents.forEach(inc => {
+                const lat = inc.damage_latitude || inc.latitude;
+                const lon = inc.damage_longitude || inc.longitude;
+                if (!lat || !lon) return;
+
+                const color = getRiskColor(inc.max_risk_level);
+                const radius = (inc.max_risk_level && (inc.max_risk_level.includes('DANGER') || inc.max_risk_level.includes('IMMEDIATE'))) ? 10 : 8;
+
+                const marker = L.circleMarker([lat, lon], {
+                    radius: radius,
+                    fillColor: color,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }).addTo(map);
+
+                const popupContent = `
+                    <div style="min-width: 220px; font-family: 'Inter', sans-serif;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <b style="font-size:14px; text-transform:capitalize;">${inc.damage_type} #${inc.track_id}</b>
+                            <span style="background:${color}; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">
+                                ${inc.max_risk_level}
+                            </span>
+                        </div>
+                        <div style="font-size:12px; color:#475569; line-height:1.5;">
+                            <div><b>Distance:</b> ${inc.distance_m || '--'} m</div>
+                            <div><b>Time to Collision:</b> <span style="color:#ef4444; font-weight:bold;">${inc.ttc_seconds ? inc.ttc_seconds + ' s' : 'Safe'}</span></div>
+                            <div><b>Vehicle Speed:</b> ${inc.speed_kmh || '--'} km/h</div>
+                            <div><b>Status:</b> ${inc.status}</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:4px;"><b>Coords:</b> ${lat.toFixed(6)}, ${lon.toFixed(6)}</div>
+                        </div>
+                        <div style="margin-top:8px; display:flex; gap:6px;">
+                            <a href="/studio?file=outputs/final_integrated_video.mp4&time=${inc.video_time_s}" 
+                               class="btn btn-sm btn-primary" style="font-size:11px; padding:3px 8px; text-decoration:none; color:#fff; background:#0d6efd; border-radius:4px;">
+                                Inspect Video
+                            </a>
+                        </div>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                markersMap[inc.track_id] = marker;
+            });
+
+            // Custom Legend Control
+            const legend = L.control({ position: 'bottomright' });
+            legend.onAdd = function (mapInstance) {
+                const div = L.DomUtil.create('div', 'legend-box');
+                div.innerHTML = `
+                    <div style="font-weight:bold; margin-bottom:6px;">Risk Legend</div>
+                    <div class="legend-item"><span class="legend-color" style="background:#ef4444;"></span> Immediate Danger</div>
+                    <div class="legend-item"><span class="legend-color" style="background:#f97316;"></span> Warning</div>
+                    <div class="legend-item"><span class="legend-color" style="background:#eab308;"></span> Caution</div>
+                    <div class="legend-item"><span class="legend-color" style="background:#22c55e;"></span> Safe / Monitor</div>
+                    <div class="legend-item mt-1"><span style="width:14px; height:3px; background:#2563eb; display:inline-block;"></span> Vehicle GPS Path</div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
+        } catch (e) {
+            console.warn('Map initialization notice:', e);
+        }
+    });
 </script>
 {% endblock %}

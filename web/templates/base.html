@@ -373,6 +373,22 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedRole = localStorage.getItem('roadEyeRole') || 'all';
             applyRoleUI(savedRole);
+
+            // Resilient dropdown handler if Bootstrap bundle is delayed or blocked
+            document.addEventListener('click', (e) => {
+                const toggle = e.target.closest('[data-bs-toggle="dropdown"]');
+                if (toggle) {
+                    const dropdownMenu = toggle.nextElementSibling || toggle.parentElement.querySelector('.dropdown-menu');
+                    if (dropdownMenu && (typeof bootstrap === 'undefined' || !bootstrap.Dropdown)) {
+                        e.preventDefault();
+                        dropdownMenu.classList.toggle('show');
+                    }
+                } else if (!e.target.closest('.dropdown-menu')) {
+                    if (typeof bootstrap === 'undefined' || !bootstrap.Dropdown) {
+                        document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+                    }
+                }
+            });
         });
     </script>
     {% block scripts %}{% endblock %}

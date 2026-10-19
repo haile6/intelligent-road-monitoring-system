@@ -50,36 +50,40 @@
                 <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden">
                     <!-- HTML5 Video Player Mode (Default) -->
                     <div id="video-container" class="w-100 position-relative" style="display: block; min-height: 480px;">
-                        <video id="main-video" controls autoplay playsinline class="w-100" style="max-height: 540px; background: #000;">
+                        <video id="main-video" controls autoplay playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
                             <source src="/media/video/{{ selected_video }}" type="video/mp4">
                             <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
                             <track id="hazard-subtitles-track-am" kind="subtitles" srclang="am" label="አማርኛ (Amharic)" src="/api/subtitles.vtt?lang=am">
                             Your browser does not support HTML5 video streaming with this codec. Use the Precision Frame Scrubber.
                         </video>
+                        <!-- Interactive Play/Pause Click Overlay Feedback -->
+                        <div id="video-click-ripple" class="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center rounded-circle bg-dark bg-opacity-75 text-white" style="width: 72px; height: 72px; display: none !important; pointer-events: none; z-index: 12; transition: opacity 0.3s;">
+                            <i class="bi bi-play-fill fs-1" id="video-click-icon"></i>
+                        </div>
                     </div>
 
                     <!-- Precision OpenCV Frame Inspector Mode (Fallback) -->
                     <div id="frame-container" class="w-100 p-2 d-flex flex-column align-items-center justify-content-center position-relative" style="display: none; min-height: 480px; background: #111;">
                         <img id="frame-image" src="/api/video/frame?file={{ selected_video }}&time=0" 
-                             class="img-fluid rounded border border-secondary border-opacity-50" 
-                             style="max-height: 520px; object-fit: contain;" alt="Video Frame">
+                             class="img-fluid rounded border border-secondary border-opacity-50 cursor-pointer" 
+                             style="max-height: 520px; object-fit: contain; cursor: pointer;" alt="Video Frame" title="Click to Step Frame Forward (+1)">
                         <div id="frame-loading" class="spinner-border text-primary position-absolute" style="display: none;" role="status">
                             <span class="visually-hidden">Loading frame...</span>
                         </div>
                     </div>
 
-                    <!-- Live Glassmorphism HUD Subtitle & ADAS Warning Overlay -->
-                    <div id="hud-subtitle-container" class="position-absolute start-50 translate-middle-x" style="bottom: 40px; z-index: 15; width: 92%; max-width: 840px; pointer-events: none; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
-                        <div id="hud-subtitle-card" class="card border-0 shadow-lg px-3 py-2 rounded-4 text-white" style="background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 30px rgba(0,0,0,0.65);">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="d-flex align-items-center gap-2">
+                    <!-- Live Glassmorphism HUD Subtitle & ADAS Warning Overlay (Isolated from clicks) -->
+                    <div id="hud-subtitle-container" class="position-absolute start-50 translate-middle-x" style="bottom: 58px; z-index: 15; width: 92%; max-width: 840px; pointer-events: none !important; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <div id="hud-subtitle-card" class="card border-0 shadow-lg px-3 py-2 rounded-4 text-white" style="pointer-events: none !important; user-select: none !important; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 30px rgba(0,0,0,0.65);">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2" style="pointer-events: none !important;">
+                                <div class="d-flex align-items-center gap-2" style="pointer-events: none !important;">
                                     <span id="hud-risk-badge" class="badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1">
                                         <i class="bi bi-shield-check" id="hud-risk-icon"></i>
                                         <span id="hud-risk-text">ROAD CLEAR</span>
                                     </span>
                                     <span id="hud-hazard-title" class="fw-bold fs-6 text-white text-uppercase font-mono">LANE MONITORED • ALL CLEAR</span>
                                 </div>
-                                <div class="d-flex align-items-center gap-3 font-mono small text-white-50">
+                                <div class="d-flex align-items-center gap-3 font-mono small text-white-50" style="pointer-events: none !important;">
                                     <div id="hud-dist-item"><i class="bi bi-arrows-expand text-info me-1"></i><span id="label-dist">Dist</span>: <strong id="hud-dist-val" class="text-white">--</strong></div>
                                     <div id="hud-ttc-item"><i class="bi bi-stopwatch text-warning me-1"></i><span id="label-ttc">TTC</span>: <strong id="hud-ttc-val" class="text-white">--</strong></div>
                                     <div id="hud-path-item"><i class="bi bi-sign-merge-right text-primary me-1"></i><span id="label-corridor">Corridor</span>: <strong id="hud-path-val" class="text-white">CLEAR</strong></div>
@@ -87,8 +91,8 @@
                                 </div>
                             </div>
                             <!-- Live ADAS Voice Spoken Alert ticker -->
-                            <div id="hud-speech-bar" class="mt-1 pt-1 border-top border-white border-opacity-10 d-flex align-items-center justify-content-between text-info small" style="display: none !important;">
-                                <div class="d-flex align-items-center gap-2">
+                            <div id="hud-speech-bar" class="mt-1 pt-1 border-top border-white border-opacity-10 d-flex align-items-center justify-content-between text-info small" style="display: none !important; pointer-events: none !important;">
+                                <div class="d-flex align-items-center gap-2" style="pointer-events: none !important;">
                                     <div class="sound-wave-anim d-flex align-items-center gap-1">
                                         <span class="bar bg-info"></span><span class="bar bg-info"></span><span class="bar bg-info"></span>
                                     </div>
@@ -105,18 +109,18 @@
                 <div class="card-footer bg-white py-3">
                     <div class="row align-items-center g-3">
                         <div class="col-12 col-md-8 d-flex flex-wrap align-items-center gap-2">
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)"><i class="bi bi-chevron-double-left"></i> -10</button>
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-1)"><i class="bi bi-chevron-left"></i> -1</button>
-                            <button class="btn btn-sm btn-success px-3" onclick="togglePlay()" id="btn-play"><i class="bi bi-play-fill"></i> Play</button>
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)"><i class="bi bi-chevron-right"></i> +1</button>
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)">+10 <i class="bi bi-chevron-double-right"></i></button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i> -1</button>
+                            <button class="btn btn-sm btn-success px-3 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)"><i class="bi bi-play-fill"></i> Play</button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i> +1</button>
+                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
 
                             <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
                             <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
-                                <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles">
+                                <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
                                     <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC: ON</span>
                                 </button>
-                                <button class="btn btn-sm btn-primary shadow-sm fw-semibold" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech">
+                                <button class="btn btn-sm btn-primary shadow-sm fw-semibold" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
                                     <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice: ON</span>
                                 </button>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="testVoiceAlert()" title="Test ADAS voice chime and speech">
@@ -138,10 +142,10 @@
 
                             <!-- Volume & Mute Controls -->
                             <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
-                                <button class="btn btn-sm btn-outline-secondary" id="btn-mute" onclick="toggleMute()" title="Toggle Sound">
+                                <button class="btn btn-sm btn-outline-secondary" id="btn-mute" onclick="toggleMute()" title="Toggle Mute (Key: M)">
                                     <i class="bi bi-volume-up-fill" id="mute-icon"></i>
                                 </button>
-                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 65px;" oninput="setVolume(this.value)" title="Volume">
+                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 65px; cursor: pointer;" oninput="setVolume(this.value)" title="Volume">
                             </div>
                         </div>
                         <div class="col-12 col-md-4 d-flex align-items-center justify-content-md-end gap-3">
@@ -152,8 +156,19 @@
                     </div>
 
                     <!-- Scrubber Slider -->
-                    <div class="mt-3">
-                        <input type="range" class="form-range" id="time-slider" min="0" max="10" step="0.05" value="0" oninput="onSliderChange(this.value)">
+                    <div class="mt-3 position-relative">
+                        <input type="range" class="form-range cursor-pointer" id="time-slider" min="0" max="10" step="0.05" value="0" style="cursor: pointer;" title="Drag or click to scrub timeline">
+                    </div>
+
+                    <!-- Keyboard Quick Shortcuts Bar -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 pt-2 border-top text-secondary" style="font-size: 0.72rem;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-keyboard text-primary"></i>
+                            <span><b>Keyboard Controls:</b> <kbd class="bg-light text-dark border">Space</kbd> Play/Pause &bull; <kbd class="bg-light text-dark border">←</kbd> / <kbd class="bg-light text-dark border">→</kbd> Frame Step &bull; <kbd class="bg-light text-dark border">M</kbd> Mute &bull; <kbd class="bg-light text-dark border">C</kbd> Subtitles &bull; <kbd class="bg-light text-dark border">V</kbd> Voice Alert</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-light text-secondary border font-mono"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,10 +186,10 @@
                 <div class="card-body p-2 overflow-auto" style="max-height: 600px;">
                     <div class="d-flex flex-column gap-2">
                         {% for inc in incidents %}
-                        <div class="card p-2 border hover-shadow cursor-pointer" onclick="seekToTime({{ inc.video_time_s }})">
+                        <div class="card p-2 border hover-shadow cursor-pointer" onclick="seekToTime({{ inc.video_time_s or 0 }})" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="fw-bold text-dark small">
-                                    <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s) }}s
+                                    <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
                                 </span>
                                 {% if 'IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level %}
                                     <span class="badge bg-danger" style="font-size: 0.65rem;">IMMEDIATE DANGER</span>
@@ -490,95 +505,100 @@
     // ============================================================
     function syncSubtitles(time) {
         if (!hudContainer) return;
-
-        // If subtitles are disabled by user toggle
-        if (!subtitlesEnabled) {
-            hudContainer.style.opacity = '0';
-            return;
-        } else {
-            hudContainer.style.opacity = '1';
-        }
-
-        const t = I18N[currentLang] || I18N.en;
-        const isAm = currentLang === 'am';
-
-        // Update labels
-        if (labelDist) labelDist.textContent = t.dist;
-        if (labelTtc) labelTtc.textContent = t.ttc;
-        if (labelCorridor) labelCorridor.textContent = t.corridor;
-        if (labelSpeed) labelSpeed.textContent = t.speed;
-
-        // Find active cue matching the current video timestamp
-        const activeCue = subtitleCues.find(c => time >= c.start_s && time <= c.end_s);
-
-        // Highlight matching timeline keyframe in sidebar
-        const sidebarCards = document.querySelectorAll('.hover-shadow[onclick^="seekToTime"]');
-        sidebarCards.forEach(card => card.classList.remove('active-hazard-card'));
-
-        if (activeCue) {
-            const risk = (activeCue.risk_level || 'SAFE').toUpperCase();
-            const isDanger = risk.includes('IMMEDIATE') || risk.includes('DANGER');
-            const isWarning = risk.includes('WARNING');
-
-            // Reset glow classes
-            hudCard.className = 'card border-0 shadow-lg px-3 py-2 rounded-4 text-white';
-
-            if (isDanger) {
-                hudCard.classList.add('hud-glow-danger');
-                hudRiskBadge.className = 'badge bg-danger px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
-                hudRiskIcon.className = 'bi bi-exclamation-octagon-fill';
-                hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.immediateDanger) : 'IMMEDIATE DANGER';
-            } else if (isWarning) {
-                hudCard.classList.add('hud-glow-warning');
-                hudRiskBadge.className = 'badge bg-warning text-dark px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
-                hudRiskIcon.className = 'bi bi-exclamation-triangle-fill';
-                hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.warning) : 'WARNING';
+        try {
+            // If subtitles are disabled by user toggle
+            if (!subtitlesEnabled) {
+                hudContainer.style.opacity = '0';
+                return;
             } else {
-                hudCard.classList.add('hud-glow-safe');
+                hudContainer.style.opacity = '1';
+            }
+
+            const t = I18N[currentLang] || I18N.en;
+            const isAm = currentLang === 'am';
+
+            // Update labels
+            if (labelDist) labelDist.textContent = t.dist;
+            if (labelTtc) labelTtc.textContent = t.ttc;
+            if (labelCorridor) labelCorridor.textContent = t.corridor;
+            if (labelSpeed) labelSpeed.textContent = t.speed;
+
+            // Find active cue matching the current video timestamp
+            const activeCue = subtitleCues.find(c => time >= (c.start_s || 0) && time <= (c.end_s || 0));
+
+            // Highlight matching timeline keyframe in sidebar
+            const sidebarCards = document.querySelectorAll('.hover-shadow[onclick^="seekToTime"]');
+            sidebarCards.forEach(card => card.classList.remove('active-hazard-card'));
+
+            if (activeCue) {
+                const risk = (activeCue.risk_level || 'SAFE').toUpperCase();
+                const isDanger = risk.includes('IMMEDIATE') || risk.includes('DANGER');
+                const isWarning = risk.includes('WARNING');
+
+                // Reset glow classes
+                hudCard.className = 'card border-0 shadow-lg px-3 py-2 rounded-4 text-white';
+
+                if (isDanger) {
+                    hudCard.classList.add('hud-glow-danger');
+                    hudRiskBadge.className = 'badge bg-danger px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+                    hudRiskIcon.className = 'bi bi-exclamation-octagon-fill';
+                    hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.immediateDanger) : 'IMMEDIATE DANGER';
+                } else if (isWarning) {
+                    hudCard.classList.add('hud-glow-warning');
+                    hudRiskBadge.className = 'badge bg-warning text-dark px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+                    hudRiskIcon.className = 'bi bi-exclamation-triangle-fill';
+                    hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.warning) : 'WARNING';
+                } else {
+                    hudCard.classList.add('hud-glow-safe');
+                    hudRiskBadge.className = 'badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
+                    hudRiskIcon.className = 'bi bi-shield-check';
+                    hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.safeMonitor) : 'SAFE / MONITOR';
+                }
+
+                // Subtitle Hazard Title
+                const rawDamage = activeCue.damage_type_am ? (isAm ? activeCue.damage_type_am : activeCue.damage_type) : (activeCue.damage_type || 'HAZARD');
+                const damageName = String(rawDamage).toUpperCase();
+                const pathTag = activeCue.in_path ? (isAm ? ' [በመስመሩ ላይ!]' : ' [IN PATH]') : '';
+                hudHazardTitle.innerHTML = `<span class="${isDanger ? 'text-danger' : (isWarning ? 'text-warning' : 'text-white')}">${damageName} #${activeCue.track_id || ''}${pathTag}</span>`;
+
+                // Telemetry stats
+                hudDistVal.textContent = activeCue.distance_m ? `~${Math.round(activeCue.distance_m)}${isAm ? 'ሜ' : 'm'}` : '--';
+                hudTtcVal.innerHTML = activeCue.ttc_s ? `<span class="${isDanger ? 'text-danger fw-bold' : 'text-warning'}">${Number(activeCue.ttc_s).toFixed(1)}${isAm ? 'ሰ' : 's'}</span>` : `<span class="text-success">${t.safe}</span>`;
+                hudPathVal.innerHTML = activeCue.in_path ? `<span class="text-danger fw-bold">${t.inPath}</span>` : `<span class="text-success">${t.offPath}</span>`;
+                hudSpeedVal.textContent = activeCue.speed_kmh ? `${Math.round(activeCue.speed_kmh)} ${isAm ? 'ኪ.ሜ/ሰ' : 'km/h'}` : (isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h');
+
+                // ADAS Voice Trigger (speak once per hazard)
+                if (voiceAlertsEnabled && !spokenAlertsSet.has(activeCue.id)) {
+                    spokenAlertsSet.add(activeCue.id);
+                    playAdasChime(isDanger);
+                    const spoken = isAm ? (activeCue.spoken_text_am || `አስቸኳይ አደጋ! በመንገዱ ላይ ጉድጓድ ተገኝቷል!`) : (activeCue.spoken_text || `Danger! Pothole in path, ${Math.round(activeCue.distance_m || 8)} meters!`);
+                    speakAdasAlert(spoken, isDanger);
+                }
+
+                // Highlight sidebar card
+                const cueTime = Number(activeCue.time_s || 0);
+                sidebarCards.forEach(card => {
+                    const onclickStr = card.getAttribute('onclick') || '';
+                    if (onclickStr.includes(cueTime.toFixed(2)) || onclickStr.includes(cueTime.toString())) {
+                        card.classList.add('active-hazard-card');
+                    }
+                });
+
+            } else {
+                // Ambient HUD: Road Clear
+                hudCard.className = 'card border-0 shadow-lg px-3 py-2 rounded-4 text-white';
                 hudRiskBadge.className = 'badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
                 hudRiskIcon.className = 'bi bi-shield-check';
-                hudRiskText.textContent = isAm ? (activeCue.risk_level_am || t.safeMonitor) : 'SAFE / MONITOR';
+                hudRiskText.textContent = t.roadClear;
+                hudHazardTitle.textContent = t.laneMonitored;
+                hudDistVal.textContent = '--';
+                hudTtcVal.innerHTML = `<span class="text-success">${t.safe}</span>`;
+                hudPathVal.innerHTML = `<span class="text-white">${isAm ? 'ክፍት' : 'CLEAR'}</span>`;
+                hudSpeedVal.textContent = isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h';
+                if (hudSpeechBar) hudSpeechBar.style.setProperty('display', 'none', 'important');
             }
-
-            // Subtitle Hazard Title
-            const damageName = isAm ? (activeCue.damage_type_am || activeCue.damage_type) : activeCue.damage_type;
-            const pathTag = activeCue.in_path ? (isAm ? ' [በመስመሩ ላይ!]' : ' [IN PATH]') : '';
-            hudHazardTitle.innerHTML = `<span class="${isDanger ? 'text-danger' : (isWarning ? 'text-warning' : 'text-white')}">${damageName.toUpperCase()} #${activeCue.track_id}${pathTag}</span>`;
-
-            // Telemetry stats
-            hudDistVal.textContent = activeCue.distance_m ? `~${Math.round(activeCue.distance_m)}${isAm ? 'ሜ' : 'm'}` : '--';
-            hudTtcVal.innerHTML = activeCue.ttc_s ? `<span class="${isDanger ? 'text-danger fw-bold' : 'text-warning'}">${activeCue.ttc_s.toFixed(1)}${isAm ? 'ሰ' : 's'}</span>` : `<span class="text-success">${t.safe}</span>`;
-            hudPathVal.innerHTML = activeCue.in_path ? `<span class="text-danger fw-bold">${t.inPath}</span>` : `<span class="text-success">${t.offPath}</span>`;
-            hudSpeedVal.textContent = activeCue.speed_kmh ? `${Math.round(activeCue.speed_kmh)} ${isAm ? 'ኪ.ሜ/ሰ' : 'km/h'}` : (isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h');
-
-            // ADAS Voice Trigger (speak once per hazard)
-            if (voiceAlertsEnabled && !spokenAlertsSet.has(activeCue.id)) {
-                spokenAlertsSet.add(activeCue.id);
-                playAdasChime(isDanger);
-                const spoken = isAm ? (activeCue.spoken_text_am || `አስቸኳይ አደጋ! በመንገዱ ላይ ጉድጓድ ተገኝቷል!`) : (activeCue.spoken_text || `Danger! Pothole in path, ${Math.round(activeCue.distance_m || 8)} meters!`);
-                speakAdasAlert(spoken, isDanger);
-            }
-
-            // Highlight sidebar card
-            sidebarCards.forEach(card => {
-                const onclickStr = card.getAttribute('onclick') || '';
-                if (onclickStr.includes(activeCue.time_s.toFixed(2)) || onclickStr.includes(activeCue.time_s.toString())) {
-                    card.classList.add('active-hazard-card');
-                }
-            });
-
-        } else {
-            // Ambient HUD: Road Clear
-            hudCard.className = 'card border-0 shadow-lg px-3 py-2 rounded-4 text-white';
-            hudRiskBadge.className = 'badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1';
-            hudRiskIcon.className = 'bi bi-shield-check';
-            hudRiskText.textContent = t.roadClear;
-            hudHazardTitle.textContent = t.laneMonitored;
-            hudDistVal.textContent = '--';
-            hudTtcVal.innerHTML = `<span class="text-success">${t.safe}</span>`;
-            hudPathVal.innerHTML = `<span class="text-white">${isAm ? 'ክፍት' : 'CLEAR'}</span>`;
-            hudSpeedVal.textContent = isAm ? '30 ኪ.ሜ/ሰ' : '30 km/h';
-            if (hudSpeechBar) hudSpeechBar.style.setProperty('display', 'none', 'important');
+        } catch (err) {
+            console.warn('Subtitle sync warning:', err);
         }
     }
 
@@ -684,26 +704,89 @@
     }
 
     // ============================================================
-    // VIDEO PLAYER INITIALIZATION
+    // INTERACTIVE VIDEO PLAYER CONTROLLER & KEYBOARD NAVIGATION
     // ============================================================
+    let isDraggingSlider = false;
+
+    // Visual ripple feedback when clicking video
+    function triggerVideoRipple(iconClass) {
+        const ripple = document.getElementById('video-click-ripple');
+        const icon = document.getElementById('video-click-icon');
+        if (ripple && icon) {
+            icon.className = `bi ${iconClass} fs-1`;
+            ripple.style.setProperty('display', 'flex', 'important');
+            ripple.style.opacity = '1';
+            clearTimeout(window._rippleTimeout);
+            window._rippleTimeout = setTimeout(() => {
+                ripple.style.opacity = '0';
+                setTimeout(() => {
+                    ripple.style.setProperty('display', 'none', 'important');
+                }, 200);
+            }, 350);
+        }
+    }
+
+    function updatePlayButtonUI(playing) {
+        if (!playBtn) return;
+        if (playing) {
+            playBtn.innerHTML = '<i class="bi bi-pause-fill me-1"></i> Pause';
+            playBtn.classList.remove('btn-success');
+            playBtn.classList.add('btn-warning');
+        } else {
+            playBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Play';
+            playBtn.classList.remove('btn-warning');
+            playBtn.classList.add('btn-success');
+        }
+    }
+
+    // Interactive Slider Events (smooth dragging without fight with timeupdate)
+    if (timeSlider) {
+        timeSlider.addEventListener('mousedown', () => { isDraggingSlider = true; });
+        timeSlider.addEventListener('touchstart', () => { isDraggingSlider = true; }, { passive: true });
+        window.addEventListener('mouseup', () => { isDraggingSlider = false; });
+        window.addEventListener('touchend', () => { isDraggingSlider = false; });
+
+        timeSlider.addEventListener('input', (e) => {
+            onSliderChange(e.target.value);
+        });
+    }
+
     if (mainVideo) {
         mainVideo.volume = 1.0;
 
-        const playPromise = mainVideo.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                updateAudioUI();
-            }).catch(error => {
-                mainVideo.muted = true;
-                mainVideo.play();
-                updateAudioUI();
-            });
-        }
+        // Click directly on video to toggle Play / Pause
+        mainVideo.addEventListener('click', (e) => {
+            e.preventDefault();
+            togglePlay();
+        });
+
+        // Sync button states on HTML5 native play/pause/ended events
+        mainVideo.addEventListener('play', () => {
+            isPlaying = true;
+            updatePlayButtonUI(true);
+            updateAudioUI();
+            getAudioContext();
+            triggerVideoRipple('bi-play-fill');
+        });
+
+        mainVideo.addEventListener('pause', () => {
+            isPlaying = false;
+            updatePlayButtonUI(false);
+            triggerVideoRipple('bi-pause-fill');
+        });
+
+        mainVideo.addEventListener('ended', () => {
+            isPlaying = false;
+            updatePlayButtonUI(false);
+            triggerVideoRipple('bi-arrow-counterclockwise');
+        });
 
         mainVideo.addEventListener('timeupdate', () => {
             if (currentMode === 'video') {
                 currentTime = mainVideo.currentTime;
-                timeSlider.value = currentTime;
+                if (!isDraggingSlider && timeSlider) {
+                    timeSlider.value = currentTime;
+                }
                 timeDisplay.textContent = formatTime(currentTime);
                 frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
                 syncSubtitles(currentTime);
@@ -715,44 +798,92 @@
                 timeSlider.max = mainVideo.duration;
             }
             if (mainVideo.textTracks && mainVideo.textTracks[0]) {
-                mainVideo.textTracks[0].mode = 'showing';
+                mainVideo.textTracks[0].mode = subtitlesEnabled ? 'showing' : 'hidden';
             }
-        });
-
-        mainVideo.addEventListener('play', () => {
-            playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
-            playBtn.classList.replace('btn-success', 'btn-warning');
-            isPlaying = true;
-            updateAudioUI();
-            getAudioContext();
-        });
-
-        mainVideo.addEventListener('pause', () => {
-            playBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
-            playBtn.classList.replace('btn-warning', 'btn-success');
-            isPlaying = false;
         });
 
         mainVideo.addEventListener('volumechange', () => {
             updateAudioUI();
         });
 
-        mainVideo.addEventListener('click', () => {
-            if (mainVideo.muted) {
-                mainVideo.muted = false;
-                mainVideo.volume = 1.0;
+        // Error fallback: If video cannot decode, automatically switch to Frame Scrubber
+        mainVideo.addEventListener('error', (e) => {
+            console.warn('HTML5 Video player reported codec or network error, switching to Frame Scrubber:', e);
+            toggleViewerMode('frame');
+        });
+
+        // Polite initial play attempt (catch blocked autoplay)
+        const playPromise = mainVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                updatePlayButtonUI(true);
                 updateAudioUI();
-            }
-            getAudioContext();
+            }).catch(() => {
+                // Autoplay with sound rejected by browser policy: mute and play quietly
+                mainVideo.muted = true;
+                mainVideo.play().then(() => {
+                    isPlaying = true;
+                    updatePlayButtonUI(true);
+                    updateAudioUI();
+                }).catch(() => {
+                    // Autoplay paused
+                    isPlaying = false;
+                    updatePlayButtonUI(false);
+                });
+            });
+        }
+    }
+
+    // Frame image click interactivity
+    if (frameImg) {
+        frameImg.addEventListener('click', () => {
+            stepFrame(1);
         });
     }
+
+    // Global Interactive Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+
+        if (e.code === 'Space' || e.key === ' ') {
+            e.preventDefault();
+            togglePlay();
+        } else if (e.code === 'ArrowLeft') {
+            e.preventDefault();
+            stepFrame(e.shiftKey ? -10 : -1);
+        } else if (e.code === 'ArrowRight') {
+            e.preventDefault();
+            stepFrame(e.shiftKey ? 10 : 1);
+        } else if (e.code === 'KeyM' || e.key === 'm' || e.key === 'M') {
+            e.preventDefault();
+            toggleMute();
+        } else if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C') {
+            e.preventDefault();
+            toggleSubtitles();
+        } else if (e.code === 'KeyV' || e.key === 'v' || e.key === 'V') {
+            e.preventDefault();
+            toggleVoiceAlerts();
+        } else if (e.code === 'KeyF' || e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            if (mainVideo) {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else if (mainVideo.requestFullscreen) {
+                    mainVideo.requestFullscreen();
+                }
+            }
+        }
+    });
 
     function unmuteAudio() {
         if (!mainVideo) return;
         mainVideo.muted = false;
         mainVideo.volume = 1.0;
-        volumeSlider.value = 1.0;
-        if (mainVideo.paused) mainVideo.play();
+        if (volumeSlider) volumeSlider.value = 1.0;
+        if (mainVideo.paused) {
+            mainVideo.play().catch(e => console.log('Unmute play deferred:', e));
+        }
         getAudioContext();
         updateAudioUI();
         testVoiceAlert();
@@ -763,7 +894,7 @@
         mainVideo.muted = !mainVideo.muted;
         if (!mainVideo.muted && mainVideo.volume === 0) {
             mainVideo.volume = 1.0;
-            volumeSlider.value = 1.0;
+            if (volumeSlider) volumeSlider.value = 1.0;
         }
         updateAudioUI();
     }
@@ -779,13 +910,17 @@
         if (!mainVideo) return;
         const isMuted = mainVideo.muted || mainVideo.volume === 0;
         if (isMuted) {
-            muteIcon.className = 'bi bi-volume-mute-fill text-danger';
-            unmuteBannerBtn.className = 'btn btn-sm btn-danger px-3 shadow-sm fw-semibold animate-pulse';
-            unmuteBannerText.innerHTML = '🔇 Sound is MUTED (Click to Unmute)';
+            if (muteIcon) muteIcon.className = 'bi bi-volume-mute-fill text-danger';
+            if (unmuteBannerBtn) {
+                unmuteBannerBtn.className = 'btn btn-sm btn-danger px-3 shadow-sm fw-semibold animate-pulse';
+                unmuteBannerText.innerHTML = '🔇 Sound is MUTED (Click to Unmute)';
+            }
         } else {
-            muteIcon.className = 'bi bi-volume-up-fill text-success';
-            unmuteBannerBtn.className = 'btn btn-sm btn-success px-3 shadow-sm fw-semibold';
-            unmuteBannerText.innerHTML = '🔊 Sound is ACTIVE (100% Volume)';
+            if (muteIcon) muteIcon.className = 'bi bi-volume-up-fill text-success';
+            if (unmuteBannerBtn) {
+                unmuteBannerBtn.className = 'btn btn-sm btn-success px-3 shadow-sm fw-semibold';
+                unmuteBannerText.innerHTML = '🔊 Sound is ACTIVE (100% Volume)';
+            }
         }
     }
 
@@ -797,19 +932,22 @@
         const btnFrame = document.getElementById('btn-mode-frame');
 
         if (mode === 'video') {
-            videoCont.style.display = 'block';
-            frameCont.style.display = 'none';
-            btnVideo.classList.replace('btn-outline-secondary', 'btn-primary');
-            btnFrame.classList.replace('btn-primary', 'btn-outline-secondary');
+            if (videoCont) videoCont.style.display = 'block';
+            if (frameCont) frameCont.style.display = 'none';
+            if (btnVideo) btnVideo.classList.replace('btn-outline-secondary', 'btn-primary');
+            if (btnFrame) btnFrame.classList.replace('btn-primary', 'btn-outline-secondary');
             if (mainVideo) {
                 mainVideo.currentTime = currentTime;
-                mainVideo.play().catch(e => console.log('Autoplay deferred:', e));
+                mainVideo.play().then(() => {
+                    isPlaying = true;
+                    updatePlayButtonUI(true);
+                }).catch(e => console.log('Autoplay deferred:', e));
             }
         } else {
-            videoCont.style.display = 'none';
-            frameCont.style.display = 'flex';
-            btnFrame.classList.replace('btn-outline-secondary', 'btn-primary');
-            btnVideo.classList.replace('btn-primary', 'btn-outline-secondary');
+            if (videoCont) videoCont.style.display = 'none';
+            if (frameCont) frameCont.style.display = 'flex';
+            if (btnFrame) btnFrame.classList.replace('btn-outline-secondary', 'btn-primary');
+            if (btnVideo) btnVideo.classList.replace('btn-primary', 'btn-outline-secondary');
             if (mainVideo) mainVideo.pause();
             updateFrame(currentTime);
         }
@@ -822,10 +960,14 @@
     }
 
     function updateFrame(time) {
-        currentTime = Math.max(0, time);
-        timeSlider.value = currentTime;
-        timeDisplay.textContent = formatTime(currentTime);
-        frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
+        const maxDuration = (mainVideo && mainVideo.duration) ? mainVideo.duration : 10.0;
+        currentTime = Math.max(0, Math.min(time, maxDuration));
+        
+        if (timeSlider && !isDraggingSlider) {
+            timeSlider.value = currentTime;
+        }
+        if (timeDisplay) timeDisplay.textContent = formatTime(currentTime);
+        if (frameDisplay) frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
         syncSubtitles(currentTime);
 
         if (currentMode === 'video' && mainVideo) {
@@ -837,13 +979,24 @@
 
     function seekToTime(time) {
         spokenAlertsSet.clear(); // Reset spoken alert cache on seek
-        updateFrame(time);
+        const targetTime = Number(time || 0);
+        updateFrame(targetTime);
+
         if (currentMode === 'video' && mainVideo) {
-            mainVideo.currentTime = time;
-            mainVideo.muted = false;
-            mainVideo.volume = 1.0;
-            mainVideo.play().catch(e => console.log('Playback:', e));
-            updateAudioUI();
+            mainVideo.currentTime = targetTime;
+            getAudioContext();
+            mainVideo.play().then(() => {
+                isPlaying = true;
+                updatePlayButtonUI(true);
+                updateAudioUI();
+            }).catch(() => {
+                mainVideo.muted = true;
+                mainVideo.play().then(() => {
+                    isPlaying = true;
+                    updatePlayButtonUI(true);
+                    updateAudioUI();
+                }).catch(e => console.warn('Seek play error:', e));
+            });
         }
     }
 
@@ -853,36 +1006,66 @@
     }
 
     function stepFrame(step) {
-        const newTime = currentTime + (step / 24.0);
+        const maxDuration = (mainVideo && mainVideo.duration) ? mainVideo.duration : 10.0;
+        let newTime = currentTime + (step / 24.0);
+        if (newTime < 0) newTime = 0;
+        if (newTime > maxDuration) newTime = maxDuration;
         updateFrame(newTime);
     }
 
     function togglePlay() {
         getAudioContext();
+
+        // If at the end of the video, seamlessly restart from 00:00
+        const maxDuration = (mainVideo && mainVideo.duration) ? mainVideo.duration : 10.0;
+        if (currentTime >= maxDuration - 0.1 || (mainVideo && mainVideo.ended)) {
+            currentTime = 0;
+            if (mainVideo) mainVideo.currentTime = 0;
+            if (timeSlider) timeSlider.value = 0;
+            spokenAlertsSet.clear();
+        }
+
         if (currentMode === 'video' && mainVideo) {
             if (mainVideo.paused) {
-                mainVideo.muted = false;
-                mainVideo.volume = 1.0;
-                mainVideo.play();
-                updateAudioUI();
+                const playPromise = mainVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        updatePlayButtonUI(true);
+                        updateAudioUI();
+                    }).catch(err => {
+                        console.warn('Audio play policy caught; retrying with muted audio:', err);
+                        mainVideo.muted = true;
+                        mainVideo.play().then(() => {
+                            isPlaying = true;
+                            updatePlayButtonUI(true);
+                            updateAudioUI();
+                        }).catch(e2 => {
+                            console.error('Video play error, falling back to Frame mode:', e2);
+                            toggleViewerMode('frame');
+                            togglePlay();
+                        });
+                    });
+                }
             } else {
                 mainVideo.pause();
+                isPlaying = false;
+                updatePlayButtonUI(false);
             }
             return;
         }
 
+        // Frame Scrubber Animation Player Mode
         if (isPlaying) {
             clearInterval(playInterval);
             isPlaying = false;
-            playBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
-            playBtn.classList.replace('btn-warning', 'btn-success');
+            updatePlayButtonUI(false);
         } else {
             isPlaying = true;
-            playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
-            playBtn.classList.replace('btn-success', 'btn-warning');
+            updatePlayButtonUI(true);
             playInterval = setInterval(() => {
                 currentTime += 0.2;
-                if (mainVideo && mainVideo.duration && currentTime >= mainVideo.duration) {
+                if (currentTime >= maxDuration) {
                     togglePlay();
                     return;
                 }
@@ -891,11 +1074,21 @@
         }
     }
 
-    // Set initial frame and active language preference
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialTime = parseFloat(urlParams.get('time')) || 0.0;
-    updateFrame(initialTime);
-    setLanguage(currentLang);
+    // Initialize initial state safely
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialTime = parseFloat(urlParams.get('time')) || 0.0;
+        updateFrame(initialTime);
+        setLanguage(currentLang);
+    });
+
+    // Immediate fallback execution if DOMContentLoaded already fired
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialTime = parseFloat(urlParams.get('time')) || 0.0;
+        updateFrame(initialTime);
+        setLanguage(currentLang);
+    }
 </script>
 {% endblock %}
 

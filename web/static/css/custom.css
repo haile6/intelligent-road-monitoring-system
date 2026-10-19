@@ -32,7 +32,8 @@ code, pre, .font-mono {
 
 .sidebar .nav-link:hover {
     color: #fff !important;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    opacity: 1 !important;
 }
 
 .card {
@@ -165,3 +166,36 @@ code, pre, .font-mono {
 .plate-card:hover {
     transform: scale(1.02);
 }
+
+/* Interactive Utility Classes */
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.hover-shadow {
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px);
+}
+
+.role-launcher-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-launcher-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Isolate HUD Overlay from intercepting mouse clicks */
+#hud-subtitle-container,
+#hud-subtitle-card,
+#hud-subtitle-card * {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+

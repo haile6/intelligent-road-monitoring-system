@@ -404,67 +404,84 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-    // 1. Risk Severity Chart
-    const ctxRisk = document.getElementById('riskChart').getContext('2d');
-    new Chart(ctxRisk, {
-        type: 'doughnut',
-        data: {
-            labels: ['Immediate Danger', 'Warning', 'Caution', 'Safe / Monitor'],
-            datasets: [{
-                data: [
-                    {{ stats.immediate_danger }},
-                    {{ stats.warning_count }},
-                    {{ stats.caution_count }},
-                    {{ stats.safe_count }}
-                ],
-                backgroundColor: [
-                    '#ef4444',
-                    '#f97316',
-                    '#eab308',
-                    '#22c55e'
-                ],
-                borderWidth: 2,
-                borderColor: '#ffffff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { boxWidth: 12, padding: 15, font: { family: 'Inter', size: 12 } }
-                }
-            },
-            cutout: '68%'
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not loaded, skipping chart initialization.');
+            return;
         }
-    });
 
-    // 2. Damage Types Chart
-    const ctxDamage = document.getElementById('damageTypeChart').getContext('2d');
-    new Chart(ctxDamage, {
-        type: 'bar',
-        data: {
-            labels: ['Potholes', 'Alligator Cracks'],
-            datasets: [{
-                label: 'Detections',
-                data: [{{ stats.potholes }}, {{ stats.cracks }}],
-                backgroundColor: ['#dc2626', '#d97706'],
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 }
-                }
+        try {
+            // 1. Risk Severity Chart
+            const elRisk = document.getElementById('riskChart');
+            if (elRisk) {
+                const ctxRisk = elRisk.getContext('2d');
+                new Chart(ctxRisk, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Immediate Danger', 'Warning', 'Caution', 'Safe / Monitor'],
+                        datasets: [{
+                            data: [
+                                {{ stats.immediate_danger }},
+                                {{ stats.warning_count }},
+                                {{ stats.caution_count }},
+                                {{ stats.safe_count }}
+                            ],
+                            backgroundColor: [
+                                '#ef4444',
+                                '#f97316',
+                                '#eab308',
+                                '#22c55e'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 12, padding: 15, font: { family: 'Inter', size: 12 } }
+                            }
+                        },
+                        cutout: '68%'
+                    }
+                });
             }
+
+            // 2. Damage Types Chart
+            const elDamage = document.getElementById('damageTypeChart');
+            if (elDamage) {
+                const ctxDamage = elDamage.getContext('2d');
+                new Chart(ctxDamage, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Potholes', 'Alligator Cracks'],
+                        datasets: [{
+                            label: 'Detections',
+                            data: [{{ stats.potholes }}, {{ stats.cracks }}],
+                            backgroundColor: ['#dc2626', '#d97706'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn('Chart render error:', e);
         }
     });
 </script>
