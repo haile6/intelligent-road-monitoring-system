@@ -68,7 +68,7 @@
 
                     <!-- HTML5 Video Player Mode (Default) -->
                     <div id="video-container" class="w-100 position-relative" style="display: block; min-height: 480px;">
-                        <video id="main-video" controls autoplay playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
+                        <video id="main-video" controls preload="metadata" playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
                             <source src="/media/video/{{ selected_video }}" type="video/mp4">
                             <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
                             <track id="hazard-subtitles-track-am" kind="subtitles" srclang="am" label="አማርኛ (Amharic)" src="/api/subtitles.vtt?lang=am">
@@ -343,8 +343,9 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-        <!-- Telemetry & Jump-to-Hazard Sidebar -->
+        <!-- Telemetry & Jump-to-Hazard Sidebar (Side-by-Side with Video on Desktop) -->
         <div class="col-12 col-xl-3">
             <div class="card shadow-sm h-100">
                 <div class="card-header py-3">
@@ -353,8 +354,8 @@
                             <i class="bi bi-crosshair me-2 text-primary"></i>Synchronized Hazard Keyframes
                         </h6>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold" id="btn-toggle-autoscroll" onclick="toggleAutoScroll()" title="Toggle automatic scrolling to active hazard keyframe" style="font-size: 0.72rem;">
-                                <i class="bi bi-arrow-down-up me-1"></i><span id="autoscroll-btn-label">Auto-Scroll: ON</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="btn-toggle-autoscroll" onclick="toggleAutoScroll()" title="Toggle automatic scrolling to active hazard keyframe" style="font-size: 0.72rem;">
+                                <i class="bi bi-arrow-down-up me-1"></i><span id="autoscroll-btn-label">Auto-Scroll: OFF</span>
                             </button>
                             <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
                         </div>
@@ -813,7 +814,8 @@
     // ============================================================
     // SIDEBAR AUTO-SCROLL CONTROLLER (NEVER SCROLLS PARENT PAGE)
     // ============================================================
-    let autoScrollEnabled = localStorage.getItem('studio_autoscroll') !== 'false';
+    // Disabled by default (false) so it NEVER scrolls on its own unless user turns it on
+    let autoScrollEnabled = localStorage.getItem('studio_autoscroll') === 'true';
     let userIsScrollingSidebar = false;
     let userScrollTimer = null;
     let lastAutoScrolledCard = null;
@@ -1635,6 +1637,7 @@
 
     // Initialize initial state safely
     document.addEventListener('DOMContentLoaded', () => {
+        window.scrollTo(0, 0);
         const urlParams = new URLSearchParams(window.location.search);
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
@@ -1646,6 +1649,7 @@
 
     // Immediate fallback execution if DOMContentLoaded already fired
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        window.scrollTo(0, 0);
         const urlParams = new URLSearchParams(window.location.search);
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
