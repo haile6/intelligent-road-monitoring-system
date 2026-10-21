@@ -417,7 +417,7 @@ def get_system_health_status():
     video_ok = os.path.exists(test_video) and os.path.getsize(test_video) > 1000
 
     # 2. Model files
-    road_model = os.path.exists(os.path.join(models_dir, "best_road_damage.pt"))
+    road_model = os.path.exists(os.path.join(models_dir, "road_damage_best.pt")) or os.path.exists(os.path.join(models_dir, "best_road_damage.pt"))
     vehicle_model = True  # ultralytics downloads automatically or exists
     models_ok = road_model
 
