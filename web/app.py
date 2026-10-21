@@ -316,16 +316,16 @@ def calibration_view():
     model_dir = os.path.join(BASE_DIR, "models")
     models_info = [
         {
-            "name": "Road Surface Defect Neural Model",
-            "filename": "best_road_damage.pt",
-            "architecture": "YOLOv8x-Custom (PyTorch)",
-            "classes": ["pothole", "alligator_crack"],
-            "status": "Operational" if os.path.exists(os.path.join(model_dir, "best_road_damage.pt")) else "Weights Pending",
+            "name": "Road Surface Defect Neural Model (Custom Model)",
+            "filename": "road_damage_best.pt",
+            "architecture": "YOLO11s Custom (PyTorch)",
+            "classes": ["alligator_crack", "pothole"],
+            "status": "Operational" if os.path.exists(os.path.join(model_dir, "road_damage_best.pt")) else "Weights Pending",
             "confidence_threshold": getattr(config, "CONFIDENCE_THRESHOLD", 0.25),
             "input_resolution": "1280x720 @ 30 FPS",
-            "map50": 0.884,
-            "precision": 0.892,
-            "recall": 0.841
+            "map50": 0.435,
+            "precision": 0.633,
+            "recall": 0.408
         },
         {
             "name": "Multi-Vehicle Tracking Model",
