@@ -67,7 +67,7 @@
                     </div>
 
                     <!-- HTML5 Video Player Mode (Default) -->
-                    <div id="video-container" class="w-100 position-relative" style="display: block; min-height: 480px;">
+                    <div id="video-container" class="w-100 position-relative" style="display: block !important; min-height: 480px;">
                         <video id="main-video" controls preload="metadata" playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
                             <source src="/media/video/{{ selected_video }}" type="video/mp4">
                             <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
@@ -353,12 +353,7 @@
                         <h6 class="mb-0 fw-bold text-dark">
                             <i class="bi bi-crosshair me-2 text-primary"></i>Synchronized Hazard Keyframes
                         </h6>
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="btn-toggle-autoscroll" onclick="toggleAutoScroll()" title="Toggle automatic scrolling to active hazard keyframe" style="font-size: 0.72rem;">
-                                <i class="bi bi-arrow-down-up me-1"></i><span id="autoscroll-btn-label">Auto-Scroll: OFF</span>
-                            </button>
-                            <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
-                        </div>
+                        <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
                     </div>
                     
                     <!-- Quick Risk Filter Pills -->
@@ -368,11 +363,6 @@
                         <button class="btn btn-sm btn-outline-warning py-0 px-2 filter-btn" onclick="filterHazardCards('warning', this)" style="font-size: 0.72rem;">Warning</button>
                         <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.72rem;">Monitored</button>
                     </div>
-                </div>
-                <!-- User Scroll Pause Banner -->
-                <div id="autoscroll-resume-banner" class="alert alert-primary py-1 px-3 m-2 small d-none align-items-center justify-content-between border-0 shadow-sm rounded-3" style="font-size: 0.72rem; background: #e0f2fe; color: #0369a1;">
-                    <span><i class="bi bi-pause-circle me-1"></i>Auto-scroll paused while scrolling</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none fw-bold text-primary" onclick="resumeAutoScroll()">Resume</button>
                 </div>
                 <div class="card-body p-2 overflow-auto" id="hazard-sidebar-scroll" style="max-height: 560px;">
                     <div class="d-flex flex-column gap-2" id="hazard-cards-list">
@@ -812,101 +802,30 @@
     }
 
     // ============================================================
-    // SIDEBAR AUTO-SCROLL CONTROLLER (NEVER SCROLLS PARENT PAGE)
+    // SIDEBAR AUTO-SCROLL CONTROLLER
     // ============================================================
-    // Disabled by default (false) so it NEVER scrolls on its own unless user turns it on
-    let autoScrollEnabled = localStorage.getItem('studio_autoscroll') === 'true';
-    let userIsScrollingSidebar = false;
-    let userScrollTimer = null;
-    let lastAutoScrolledCard = null;
+    // Completely disabled: Zero auto-scrolling so user has 100% manual control
+    let autoScrollEnabled = false;
 
     function toggleAutoScroll() {
-        autoScrollEnabled = !autoScrollEnabled;
-        localStorage.setItem('studio_autoscroll', autoScrollEnabled ? 'true' : 'false');
-        updateAutoScrollUI();
+        autoScrollEnabled = false;
     }
 
     function updateAutoScrollUI() {
-        const btn = document.getElementById('btn-toggle-autoscroll');
-        const label = document.getElementById('autoscroll-btn-label');
-        if (btn && label) {
-            if (autoScrollEnabled) {
-                btn.className = 'btn btn-sm btn-outline-primary py-0 px-2 fw-semibold';
-                label.textContent = 'Auto-Scroll: ON';
-            } else {
-                btn.className = 'btn btn-sm btn-outline-secondary py-0 px-2 text-muted';
-                label.textContent = 'Auto-Scroll: OFF';
-            }
-        }
-        const banner = document.getElementById('autoscroll-resume-banner');
-        if (banner && !autoScrollEnabled) {
-            banner.classList.add('d-none');
-            banner.classList.remove('d-flex');
-        }
+        // No-op
     }
 
     function resumeAutoScroll() {
-        userIsScrollingSidebar = false;
-        clearTimeout(userScrollTimer);
-        const banner = document.getElementById('autoscroll-resume-banner');
-        if (banner) {
-            banner.classList.add('d-none');
-            banner.classList.remove('d-flex');
-        }
-        const activeCard = document.querySelector('.hazard-card.active-hazard-card');
-        if (activeCard) {
-            scrollCardIntoSidebarView(activeCard, true);
-        }
+        // No-op
     }
 
     function scrollCardIntoSidebarView(card, force = false) {
-        if ((!autoScrollEnabled || userIsScrollingSidebar) && !force) return;
-        if (!card) return;
-        const container = document.getElementById('hazard-sidebar-scroll');
-        if (!container) return;
-
-        if (lastAutoScrolledCard === card && !force) return;
-        lastAutoScrolledCard = card;
-
-        const cardTop = card.offsetTop - container.offsetTop;
-        const cardBottom = cardTop + card.offsetHeight;
-        const containerTop = container.scrollTop;
-        const containerBottom = containerTop + container.clientHeight;
-
-        // Scroll ONLY the container if card is not comfortably visible
-        if (cardTop < containerTop + 15 || cardBottom > containerBottom - 15 || force) {
-            container.scrollTo({
-                top: Math.max(0, cardTop - (container.clientHeight / 2) + (card.offsetHeight / 2)),
-                behavior: 'smooth'
-            });
-        }
+        // ZERO AUTOMATIC SCROLLING: Keep list and page completely static
+        return;
     }
 
     function initSidebarScrollListeners() {
-        const container = document.getElementById('hazard-sidebar-scroll');
-        const banner = document.getElementById('autoscroll-resume-banner');
-        if (!container) return;
-
-        const onUserManualScroll = () => {
-            if (!autoScrollEnabled) return;
-            userIsScrollingSidebar = true;
-            if (banner) {
-                banner.classList.remove('d-none');
-                banner.classList.add('d-flex');
-            }
-            clearTimeout(userScrollTimer);
-            userScrollTimer = setTimeout(() => {
-                userIsScrollingSidebar = false;
-                if (banner) {
-                    banner.classList.add('d-none');
-                    banner.classList.remove('d-flex');
-                }
-            }, 3500);
-        };
-
-        container.addEventListener('wheel', onUserManualScroll, { passive: true });
-        container.addEventListener('touchmove', onUserManualScroll, { passive: true });
-        container.addEventListener('mousedown', onUserManualScroll);
+        // No-op: Automatic scrolling completely disabled
     }
 
     // ============================================================
@@ -1205,33 +1124,14 @@
             updateAudioUI();
         });
 
-        // Error fallback: If video cannot decode, automatically switch to Frame Scrubber
+        // Keep video player in video mode, never hide on error
         mainVideo.addEventListener('error', (e) => {
-            console.warn('HTML5 Video player reported codec or network error, switching to Frame Scrubber:', e);
-            toggleViewerMode('frame');
+            console.warn('HTML5 Video notice:', e);
         });
 
-        // Polite initial play attempt (catch blocked autoplay)
-        const playPromise = mainVideo.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                updatePlayButtonUI(true);
-                updateAudioUI();
-            }).catch(() => {
-                // Autoplay with sound rejected by browser policy: mute and play quietly
-                mainVideo.muted = true;
-                mainVideo.play().then(() => {
-                    isPlaying = true;
-                    updatePlayButtonUI(true);
-                    updateAudioUI();
-                }).catch(() => {
-                    // Autoplay paused
-                    isPlaying = false;
-                    updatePlayButtonUI(false);
-                });
-            });
-        }
+        // Initial state: paused, waiting for user interaction
+        isPlaying = false;
+        updatePlayButtonUI(false);
     }
 
     // Frame image click interactivity
@@ -1341,7 +1241,8 @@
             if (btnFrame) btnFrame.className = 'btn btn-sm btn-outline-secondary fw-semibold';
             if (mainVideo) mainVideo.pause();
             startLiveDeviceCamera();
-        } else if (mode === 'video') {
+        } else {
+            // Keep recorded video visible always! Never hide video.
             stopLiveDeviceCamera();
             if (liveCont) liveCont.style.display = 'none';
             if (videoCont) videoCont.style.display = 'block';
@@ -1349,23 +1250,6 @@
             if (btnVideo) btnVideo.className = 'btn btn-sm btn-primary fw-semibold';
             if (btnLive) btnLive.className = 'btn btn-sm btn-outline-danger fw-semibold';
             if (btnFrame) btnFrame.className = 'btn btn-sm btn-outline-secondary fw-semibold';
-            if (mainVideo) {
-                mainVideo.currentTime = currentTime;
-                mainVideo.play().then(() => {
-                    isPlaying = true;
-                    updatePlayButtonUI(true);
-                }).catch(e => console.log('Autoplay deferred:', e));
-            }
-        } else {
-            stopLiveDeviceCamera();
-            if (liveCont) liveCont.style.display = 'none';
-            if (videoCont) videoCont.style.display = 'none';
-            if (frameCont) frameCont.style.display = 'flex';
-            if (btnFrame) btnFrame.className = 'btn btn-sm btn-primary fw-semibold';
-            if (btnVideo) btnVideo.className = 'btn btn-sm btn-outline-secondary fw-semibold';
-            if (btnLive) btnLive.className = 'btn btn-sm btn-outline-danger fw-semibold';
-            if (mainVideo) mainVideo.pause();
-            updateFrame(currentTime);
         }
     }
 
@@ -1602,9 +1486,9 @@
                             updatePlayButtonUI(true);
                             updateAudioUI();
                         }).catch(e2 => {
-                            console.error('Video play error, falling back to Frame mode:', e2);
-                            toggleViewerMode('frame');
-                            togglePlay();
+                            console.warn('Video playback deferred by browser policy:', e2);
+                            isPlaying = false;
+                            updatePlayButtonUI(false);
                         });
                     });
                 }
@@ -1637,26 +1521,20 @@
 
     // Initialize initial state safely
     document.addEventListener('DOMContentLoaded', () => {
-        window.scrollTo(0, 0);
         const urlParams = new URLSearchParams(window.location.search);
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
         setLanguage(currentLang);
         renderTimelinePins();
-        initSidebarScrollListeners();
-        updateAutoScrollUI();
     });
 
     // Immediate fallback execution if DOMContentLoaded already fired
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        window.scrollTo(0, 0);
         const urlParams = new URLSearchParams(window.location.search);
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
         setLanguage(currentLang);
         renderTimelinePins();
-        initSidebarScrollListeners();
-        updateAutoScrollUI();
     }
 </script>
 
