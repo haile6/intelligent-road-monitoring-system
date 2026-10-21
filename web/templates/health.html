@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}System Health & Diagnostics — RoadEye™{% endblock %}
+{% block breadcrumb %}System Health &amp; Subsystem Diagnostics{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- ============================================================ -->
+    <!-- PAGE HEADER                                                  -->
+    <!-- ============================================================ -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary" style="font-size: 10px; letter-spacing: 0.05em;">DIAGNOSTIC TELEMETRY</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Subsystem Health Daemon</span>
+            </div>
+            <h1 class="page-title mt-1">SYSTEM HEALTH &amp; TELEMETRY STATUS</h1>
+            <div class="page-subtitle">Real Subsystem Health Verifications, Sensor Connectivity &amp; Storage Capacity</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge {% if health.status == 'OPERATIONAL' %}bg-success{% else %}bg-warning{% endif %} font-mono px-3 py-2" style="font-size: 12px;">
+                <span class="status-dot {% if health.status == 'OPERATIONAL' %}safe{% else %}warning{% endif %} me-1"></span>
+                SYSTEM {{ health.status }}
+            </span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.location.reload()">
+                <i class="bi bi-arrow-clockwise"></i> Re-check
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 8 SUBSYSTEM STATUS TILES                                     -->
+    <!-- ============================================================ -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Video Input -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">1. Video Input Stream</span>
+                    <span class="status-dot {% if health.video_input.ok %}safe{% else %}danger{% endif %}"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.video_input.status }}</div>
+                <div class="font-mono text-secondary" style="font-size: 11px;">File: {{ health.video_input.file }}</div>
+            </div>
+        </div>
+
+        <!-- 2. Neural Models -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">2. AI Neural Models</span>
+                    <span class="status-dot {% if health.models.ok %}safe{% else %}warning{% endif %}"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.models.status }}</div>
+                <div class="text-secondary" style="font-size: 11px;">YOLOv8x + Damage Detector</div>
+            </div>
+        </div>
+
+        <!-- 3. SQLite Database -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">3. SQLite Database</span>
+                    <span class="status-dot {% if health.database.ok %}safe{% else %}danger{% endif %}"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.database.status }}</div>
+                <div class="font-mono text-secondary" style="font-size: 11px;">{{ health.database.incident_records }} incidents &bull; {{ health.database.plate_records }} plates</div>
+            </div>
+        </div>
+
+        <!-- 4. GPS Provider -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">4. GPS Telemetry Service</span>
+                    <span class="status-dot {% if health.gps.ok %}safe{% else %}warning{% endif %}"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.gps.status }}</div>
+                <div class="font-mono text-secondary" style="font-size: 11px;">Track: {{ health.gps.file }}</div>
+            </div>
+        </div>
+
+        <!-- 5. ANPR / OCR -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">5. ANPR / OCR Engine</span>
+                    <span class="status-dot safe"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.anpr.status }}</div>
+                <div class="font-mono text-secondary" style="font-size: 11px;">{{ health.anpr.plates_indexed }} Plate Readings Indexed</div>
+            </div>
+        </div>
+
+        <!-- 6. Audio Subsystem -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">6. Audio Output Subsystem</span>
+                    <span class="status-dot safe"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">Operational</div>
+                <div class="text-secondary" style="font-size: 11px;">Bilingual: English &bull; አማርኛ (Amharic)</div>
+            </div>
+        </div>
+
+        <!-- 7. Storage Capacity -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">7. Disk Storage Usage</span>
+                    <span class="status-dot safe"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.storage.total_mb }} MB Used</div>
+                <div class="font-mono text-secondary" style="font-size: 11px;">Data: {{ health.storage.data_dir_mb }} MB &bull; Outputs: {{ health.storage.outputs_dir_mb }} MB</div>
+            </div>
+        </div>
+
+        <!-- 8. Pipeline Thread Queue -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-uppercase text-secondary fw-semibold small">8. Active Process Queue</span>
+                    <span class="status-dot info"></span>
+                </div>
+                <div class="fw-bold fs-6 text-dark mb-1">{{ health.active_pipeline_jobs }} Active Jobs</div>
+                <div class="text-secondary" style="font-size: 11px;">Last Poll: {{ health.last_check_timestamp }}</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

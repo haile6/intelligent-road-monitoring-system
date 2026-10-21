@@ -3,9 +3,18 @@ Database manager for Road Monitoring System Web Management Panel.
 Handles SQLite persistence for damage incidents, vehicle/plate detections, and pipeline jobs.
 """
 import os
+import sys
 import sqlite3
 import csv
 from datetime import datetime
+
+# Priority weight scorer for responsible-body analysis
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from risk.priority_weight import compute_priority_weight
+except ImportError:
+    def compute_priority_weight(*args, **kwargs):
+        return {"weight": 0, "priority_label": "Monitor", "breakdown": {}, "explanation": ""}
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database", "road_monitoring.db")
@@ -29,6 +38,7 @@ def init_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS incidents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        video_name TEXT DEFAULT '',
         track_id INTEGER,
         damage_type TEXT,
         confidence REAL,
@@ -56,15 +66,31 @@ def init_db():
         assigned_crew TEXT DEFAULT 'Road Works Crew Alpha',
         repair_priority TEXT DEFAULT 'Medium',
         notes TEXT DEFAULT '',
+        priority_weight INTEGER DEFAULT 0,
+        weight_breakdown TEXT DEFAULT '',
+        weight_explanation TEXT DEFAULT '',
         created_at TEXT,
         updated_at TEXT
     )
     """)
 
+    # Schema migration: add new columns if missing from existing tables
+    cursor.execute("PRAGMA table_info(incidents)")
+    inc_cols = [r[1] for r in cursor.fetchall()]
+    if "video_name" not in inc_cols:
+        cursor.execute("ALTER TABLE incidents ADD COLUMN video_name TEXT DEFAULT ''")
+    if "priority_weight" not in inc_cols:
+        cursor.execute("ALTER TABLE incidents ADD COLUMN priority_weight INTEGER DEFAULT 0")
+    if "weight_breakdown" not in inc_cols:
+        cursor.execute("ALTER TABLE incidents ADD COLUMN weight_breakdown TEXT DEFAULT ''")
+    if "weight_explanation" not in inc_cols:
+        cursor.execute("ALTER TABLE incidents ADD COLUMN weight_explanation TEXT DEFAULT ''")
+
     # Vehicle / License Plate table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS plate_readings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        video_name TEXT DEFAULT '',
         frame INTEGER,
         video_time_s REAL,
         vehicle_id INTEGER,
@@ -78,6 +104,11 @@ def init_db():
         created_at TEXT
     )
     """)
+
+    cursor.execute("PRAGMA table_info(plate_readings)")
+    plate_cols = [r[1] for r in cursor.fetchall()]
+    if "video_name" not in plate_cols:
+        cursor.execute("ALTER TABLE plate_readings ADD COLUMN video_name TEXT DEFAULT ''")
 
     # Pipeline Runs table
     cursor.execute("""
@@ -131,14 +162,22 @@ def sync_from_csv_if_empty():
         import_plates_from_csv(PLATE_CSV)
 
 
-def import_incidents_from_csv(csv_path, clear_existing=False):
+def import_incidents_from_csv(csv_path, video_name=None, clear_existing=False):
     if not os.path.exists(csv_path):
         return 0
+
+    if not video_name:
+        video_name = os.path.basename(csv_path).replace(".csv", "").replace("damage_events_", "")
+        if not video_name or video_name in ["integrated_damage_events", "phase9_damage_events"]:
+            video_name = "test_video.mp4"
 
     conn = get_db_connection()
     cursor = conn.cursor()
     if clear_existing:
-        cursor.execute("DELETE FROM incidents")
+        if video_name:
+            cursor.execute("DELETE FROM incidents WHERE video_name = ?", (video_name,))
+        else:
+            cursor.execute("DELETE FROM incidents")
     imported_count = 0
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -146,10 +185,13 @@ def import_incidents_from_csv(csv_path, clear_existing=False):
         reader = csv.DictReader(f)
         for row in reader:
             track_id = int(row.get("track_id", 0)) if row.get("track_id") else None
-            # Check if already exists by track_id and frame
+            # Check if already exists by video_name, track_id and frame
             frame_num = int(row.get("frame_number", 0)) if row.get("frame_number") else None
             
-            cursor.execute("SELECT id FROM incidents WHERE track_id = ? AND frame_number = ?", (track_id, frame_num))
+            cursor.execute(
+                "SELECT id FROM incidents WHERE (video_name = ? OR (video_name = '' AND ? = 'test_video.mp4')) AND track_id = ? AND frame_number = ?",
+                (video_name, video_name, track_id, frame_num)
+            )
             existing = cursor.fetchone()
             if existing:
                 continue
@@ -165,25 +207,38 @@ def import_incidents_from_csv(csv_path, clear_existing=False):
             else:
                 priority = "Low"
 
+            # Compute priority weight score for responsible-body reporting
+            conf_val = float(row.get("confidence", 0)) if row.get("confidence") else None
+            spd_val  = float(row.get("speed_kmh", 0))  if row.get("speed_kmh")  else None
+            pw = compute_priority_weight(
+                risk_level  = max_risk,
+                severity    = row.get("severity") or "",
+                speed_kmh   = spd_val,
+                confidence  = conf_val,
+                damage_type = row.get("damage_type") or "",
+            )
+
             cursor.execute("""
             INSERT INTO incidents (
-                track_id, damage_type, confidence, frame_number, video_time_s,
+                video_name, track_id, damage_type, confidence, frame_number, video_time_s,
                 timestamp, latitude, longitude, speed_kmh, speed_mps, speed_source,
                 speed_is_default, distance_m, ttc_seconds, min_ttc_in_path_s, severity,
                 max_risk_level, risk_reasons, damage_latitude, damage_longitude,
                 ever_in_path, est_min_distance_m, gps_status, status, assigned_crew,
-                repair_priority, notes, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                repair_priority, notes, priority_weight, weight_breakdown,
+                weight_explanation, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
+                video_name,
                 track_id,
                 row.get("damage_type"),
-                float(row.get("confidence", 0)) if row.get("confidence") else None,
+                conf_val,
                 frame_num,
                 float(row.get("video_time_s", 0)) if row.get("video_time_s") else None,
                 row.get("timestamp"),
                 float(row.get("latitude", 0)) if row.get("latitude") else None,
                 float(row.get("longitude", 0)) if row.get("longitude") else None,
-                float(row.get("speed_kmh", 0)) if row.get("speed_kmh") else None,
+                spd_val,
                 float(row.get("speed_mps", 0)) if row.get("speed_mps") else None,
                 row.get("speed_source"),
                 1 if str(row.get("speed_is_default", "")).lower() == "true" else 0,
@@ -201,7 +256,10 @@ def import_incidents_from_csv(csv_path, clear_existing=False):
                 "Reported",
                 "Road Works Crew Alpha",
                 priority,
-                f"Auto-imported from Phase 9 analysis. {row.get('risk_reasons', '')}".strip(),
+                "Auto-imported from Phase 9 analysis. {}".format(row.get("risk_reasons", "")).strip(),
+                pw["weight"],
+                str(pw["breakdown"]),
+                pw["explanation"],
                 now_str,
                 now_str
             ))
@@ -261,9 +319,14 @@ def format_plate_text(raw_text, vehicle_id=None):
     return "UNREADABLE / LOW CONF", vehicle_id, None
 
 
-def import_plates_from_csv(csv_path, clear_existing=False):
+def import_plates_from_csv(csv_path, video_name=None, clear_existing=False):
     if not os.path.exists(csv_path):
         return 0
+
+    if not video_name:
+        video_name = os.path.basename(csv_path).replace(".csv", "").replace("plate_readings_", "")
+        if not video_name or video_name in ["phase8_plate_readings"]:
+            video_name = "test_video.mp4"
 
     crops_dir = os.path.join(BASE_DIR, "outputs", "plate_crops")
     crop_files = set(os.listdir(crops_dir)) if os.path.exists(crops_dir) else set()
@@ -271,7 +334,10 @@ def import_plates_from_csv(csv_path, clear_existing=False):
     conn = get_db_connection()
     cursor = conn.cursor()
     if clear_existing:
-        cursor.execute("DELETE FROM plate_readings")
+        if video_name:
+            cursor.execute("DELETE FROM plate_readings WHERE video_name = ?", (video_name,))
+        else:
+            cursor.execute("DELETE FROM plate_readings")
     imported_count = 0
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -334,10 +400,11 @@ def import_plates_from_csv(csv_path, clear_existing=False):
 
             cursor.execute("""
             INSERT INTO plate_readings (
-                frame, video_time_s, vehicle_id, plate_text, ocr_confidence,
+                video_name, frame, video_time_s, vehicle_id, plate_text, ocr_confidence,
                 plate_x1, plate_y1, plate_x2, plate_y2, crop_filename, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
+                video_name,
                 frame,
                 time_s,
                 vid,
@@ -357,11 +424,15 @@ def import_plates_from_csv(csv_path, clear_existing=False):
     return imported_count
 
 
-def get_all_incidents(status=None, risk_level=None, damage_type=None, search=None):
+def get_all_incidents(status=None, risk_level=None, damage_type=None, search=None, video_name=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     query = "SELECT * FROM incidents WHERE 1=1"
     params = []
+
+    if video_name and video_name != "All":
+        query += " AND (video_name = ? OR (video_name = '' AND ? = 'test_video.mp4'))"
+        params.extend([video_name, video_name])
 
     if status and status != "All":
         query += " AND status = ?"
@@ -384,6 +455,18 @@ def get_all_incidents(status=None, risk_level=None, damage_type=None, search=Non
     cursor.execute(query, params)
     rows = [dict(r) for r in cursor.fetchall()]
     conn.close()
+    return rows
+
+
+def get_all_analyzed_videos():
+    """Return list of distinct video names that have incident detections."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT video_name FROM incidents WHERE video_name != '' AND video_name IS NOT NULL ORDER BY video_name ASC")
+    rows = [r[0] for r in cursor.fetchall()]
+    conn.close()
+    if "test_video.mp4" not in rows and os.path.exists(os.path.join(BASE_DIR, "data", "test_video.mp4")):
+        rows.insert(0, "test_video.mp4")
     return rows
 
 
@@ -471,20 +554,37 @@ def get_dashboard_stats():
     avg_ttc_row = cursor.fetchone()[0]
     avg_ttc = round(avg_ttc_row, 1) if avg_ttc_row else 2.4
 
+    cursor.execute("SELECT COUNT(DISTINCT track_id) FROM incidents WHERE track_id IS NOT NULL")
+    unique_hazards_row = cursor.fetchone()[0]
+    unique_hazards = unique_hazards_row if unique_hazards_row and unique_hazards_row > 0 else total_incidents
+
+    cursor.execute("SELECT COUNT(DISTINCT vehicle_id) FROM plate_readings WHERE vehicle_id IS NOT NULL")
+    unique_vehicles_row = cursor.fetchone()[0]
+    unique_vehicles = unique_vehicles_row if unique_vehicles_row and unique_vehicles_row > 0 else 0
+
+    cursor.execute("SELECT COUNT(*) FROM plate_readings WHERE plate_text IS NOT NULL AND plate_text != 'UNREADABLE / LOW CONF' AND plate_text != ''")
+    successful_plates = cursor.fetchone()[0]
+
+    warning_caution = warning_count + caution_count
+
     conn.close()
 
     return {
         "total_incidents": total_incidents,
         "total_hazards": total_incidents,
+        "unique_hazards": unique_hazards,
         "immediate_danger": immediate_danger,
         "warning_count": warning_count,
         "caution_count": caution_count,
+        "warning_caution": warning_caution,
         "safe_count": safe_count,
         "potholes": potholes,
         "cracks": cracks,
         "repaired_count": repaired_count,
         "pending_count": pending_count,
         "total_plates": total_plates,
+        "unique_vehicles": unique_vehicles,
+        "successful_plates": successful_plates,
         "avg_speed": avg_speed,
         "avg_ttc": avg_ttc
     }

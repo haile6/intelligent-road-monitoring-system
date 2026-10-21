@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Department of Transportation (DOT) Pavement Mitigation Directives{% endblock %}
-{% block page_title %}Official Department of Transportation (DOT) Pavement Directives &amp; Work Orders{% endblock %}
+{% block title %}Maintenance Work Orders & Road Condition — RoadEye™{% endblock %}
+{% block breadcrumb %}Maintenance Work Orders{% endblock %}
 
 {% block extra_head %}
 <style>
     @media print {
-        .sidebar, .navbar, .btn, footer, .no-print {
+        .sidebar, .app-header, .btn, footer, .no-print {
             display: none !important;
         }
         .main-content {
@@ -14,160 +14,301 @@
             margin: 0 !important;
         }
         .card {
-            border: 1px solid #000 !important;
+            border: 1px solid #BAC7D5 !important;
             box-shadow: none !important;
         }
-        body {
-            background-color: #fff !important;
-            color: #000 !important;
-        }
+    }
+    .workflow-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 3px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
-    <!-- Action Bar (Hidden during printing) -->
-    <div class="card mb-4 no-print">
-        <div class="card-body py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h6 class="fw-bold mb-0 text-dark">Official Department of Transportation (DOT) Pavement Directive</h6>
+
+    <!-- ============================================================ -->
+    <!-- PAGE HEADER                                                  -->
+    <!-- ============================================================ -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-secondary text-dark border" style="font-size: 10px; letter-spacing: 0.05em;">SYSTEM RECOMMENDATIONS</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor Maintenance Planning</span>
             </div>
-            <div class="d-flex flex-wrap gap-2">
-                <button onclick="window.print()" class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-semibold">
-                    <i class="bi bi-printer-fill me-1"></i> Print Official Maintenance Directive (PDF)
-                </button>
-                <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-success d-flex align-items-center gap-2 fw-semibold">
-                    <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export Directive Dataset (CSV)
-                </a>
-                <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 fw-semibold" onclick="alert('Directive successfully transmitted to Field Maintenance Division.')">
-                    <i class="bi bi-send-check-fill me-1"></i> Transmit Directive to Field Maintenance Division
-                </button>
+            <h1 class="page-title mt-1">MAINTENANCE WORK ORDERS &amp; DIRECTIVES</h1>
+            <div class="page-subtitle">Infrastructure Repair Prioritization, Maintenance Workflow &amp; Inspection Orders</div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="d-flex flex-wrap align-items-center gap-2 no-print">
+            <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-printer"></i>
+                <span>Print Dossier (PDF)</span>
+            </button>
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-download"></i>
+                <span>Export Dataset (CSV)</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Official Advisory Callout Notice -->
+    <div class="alert alert-secondary border py-2 px-3 mb-4 d-flex align-items-center justify-content-between" style="border-color: var(--borders) !important; background-color: #F8FAFC !important;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-info-circle text-primary"></i>
+            <span class="small text-secondary">
+                <strong class="text-dark">System-Generated Recommendation:</strong> These maintenance directives are generated from computer vision telemetry and require authorized engineering review before field crew dispatch.
+            </span>
+        </div>
+        <span class="badge bg-primary font-mono" style="font-size: 10px;">AUTHORITY REVIEW ACTIVE</span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SUMMARY KPI ROW                                              -->
+    <!-- ============================================================ -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="kpi-card kpi-total">
+                <div class="kpi-label">
+                    <span>Total Directives</span>
+                    <i class="bi bi-clipboard2-check kpi-icon"></i>
+                </div>
+                <div class="kpi-value">{{ incidents|length }}</div>
+                <div class="kpi-subtitle">Logged pavement deficiencies</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card kpi-danger">
+                <div class="kpi-label">
+                    <span>Urgent (Needs Review)</span>
+                    <i class="bi bi-exclamation-octagon text-danger kpi-icon"></i>
+                </div>
+                <div class="kpi-value text-danger">{{ critical_incidents|length }}</div>
+                <div class="kpi-subtitle">Priority 1 immediate hazards</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card kpi-warning">
+                <div class="kpi-label">
+                    <span>Scheduled / Assigned</span>
+                    <i class="bi bi-tools text-warning kpi-icon"></i>
+                </div>
+                <div class="kpi-value" style="color: var(--warning);">{{ stats.pending_count or (incidents|length - (stats.repaired_count or 0)) }}</div>
+                <div class="kpi-subtitle">Field repair crews assigned</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card kpi-plates">
+                <div class="kpi-label">
+                    <span>Repaired / Closed</span>
+                    <i class="bi bi-check-circle text-success kpi-icon"></i>
+                </div>
+                <div class="kpi-value text-success">{{ stats.repaired_count or 0 }}</div>
+                <div class="kpi-subtitle">Verified post-repair completions</div>
             </div>
         </div>
     </div>
 
-    <!-- Official Work Order Sheet -->
-    <div class="card shadow-sm p-4 bg-white" id="printable-report">
-        <!-- Report Header -->
-        <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <div class="bg-primary text-white p-2 rounded"><i class="bi bi-cone-striped fs-4"></i></div>
-                    <h4 class="fw-bold text-dark mb-0">DEPARTMENT OF TRANSPORTATION &amp; INFRASTRUCTURE</h4>
-                </div>
-                <div class="text-secondary small">
-                    <b>PAVEMENT INTEGRITY &amp; HAZARD MITIGATION WORK DIRECTIVE</b><br>
-                    Generated on: {{ report_date }} &bull; Telemetry Authority: RoadEye Enterprise™ v4.0
-                </div>
-            </div>
-            <div class="text-end">
-                <span class="badge bg-danger fs-6 px-3 py-2 mb-1">PRIORITY 1 DISPATCH</span>
-                <div class="text-muted small font-mono">ORDER REF: RM-2026-OCT-{{ stats.total_incidents }}</div>
-            </div>
+    <!-- ============================================================ -->
+    <!-- WORK ORDERS DIRECTIVE TABLE                                  -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">Prioritized Maintenance Work Orders</h6>
+            <span class="metadata-text">Lifecycle: Detected &rarr; Needs Review &rarr; Verified &rarr; Assigned &rarr; In Progress &rarr; Completed</span>
         </div>
-
-        <!-- Executive Statistics Matrix -->
-        <div class="row g-3 mb-4">
-            <div class="col-3">
-                <div class="p-3 border rounded bg-light">
-                    <span class="text-secondary small fw-semibold">TOTAL HAZARDS</span>
-                    <h3 class="fw-bold text-dark mb-0">{{ stats.total_incidents }}</h3>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="p-3 border rounded bg-danger bg-opacity-10 border-danger-subtle">
-                    <span class="text-danger small fw-semibold">IMMEDIATE DANGER</span>
-                    <h3 class="fw-bold text-danger mb-0">{{ stats.immediate_danger }}</h3>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="p-3 border rounded bg-warning bg-opacity-10 border-warning-subtle">
-                    <span class="text-warning-emphasis small fw-semibold">WARNING / CAUTION</span>
-                    <h3 class="fw-bold text-warning-emphasis mb-0">{{ stats.warning_count + stats.caution_count }}</h3>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="p-3 border rounded bg-light">
-                    <span class="text-secondary small fw-semibold">MONITORED SPEED</span>
-                    <h3 class="fw-bold text-dark mb-0">{{ stats.avg_speed }} km/h</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Critical Action Items Section -->
-        <div class="mb-4">
-            <h5 class="fw-bold text-danger mb-3 border-bottom pb-2">
-                <i class="bi bi-exclamation-octagon-fill me-2"></i>Urgent Maintenance Required (Immediate Danger & Warning)
-            </h5>
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Hazard ID</th>
-                            <th>Damage Type</th>
-                            <th>GPS Coordinates</th>
-                            <th>Distance / TTC</th>
-                            <th>Risk Assessment</th>
-                            <th>Assigned Crew</th>
-                            <th>Action Required</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for inc in critical_incidents %}
-                        <tr>
-                            <td class="fw-bold font-mono">#{{ inc.track_id }}</td>
-                            <td>
-                                <b class="text-uppercase">{{ inc.damage_type }}</b>
-                                <div class="text-muted small">Conf: {{ "%.0f"|format(inc.confidence * 100) }}%</div>
-                            </td>
-                            <td class="font-mono small">
-                                {% if inc.damage_latitude and inc.damage_longitude %}
-                                    {{ "%.5f"|format(inc.damage_latitude) }}, {{ "%.5f"|format(inc.damage_longitude) }}
-                                {% else %}
-                                    {{ "%.5f"|format(inc.latitude or 0) }}, {{ "%.5f"|format(inc.longitude or 0) }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div>Dist: <b>{{ inc.distance_m }}m</b></div>
-                                <div class="text-danger fw-bold font-mono small">TTC: {{ inc.ttc_seconds }}s</div>
-                            </td>
-                            <td>
-                                <span class="badge {% if 'IMMEDIATE' in inc.max_risk_level %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                                    {{ inc.max_risk_level }}
-                                </span>
-                                <div class="small text-muted mt-1">{{ inc.risk_reasons }}</div>
-                            </td>
-                            <td class="small">{{ inc.assigned_crew }}</td>
-                            <td class="small">
+        <div class="table-container border-0">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Work Order Ref</th>
+                        <th>Road Corridor</th>
+                        <th>Defect Classification</th>
+                        <th>GPS Location</th>
+                        <th>Priority</th>
+                        <th>Recommended Action</th>
+                        <th>Assigned Crew</th>
+                        <th>Workflow Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inc in incidents %}
+                    {% set is_danger = 'IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '') %}
+                    <tr>
+                        <!-- Ref -->
+                        <td class="font-mono fw-bold">
+                            WO-2026-{{ "%04d"|format(inc.track_id or inc.id) }}
+                        </td>
+                        <!-- Corridor -->
+                        <td>
+                            <span class="fw-semibold text-dark">Ring Road Km 12+400</span>
+                            <small class="text-secondary d-block font-mono">Lane 1 (In-Path)</small>
+                        </td>
+                        <!-- Defect -->
+                        <td>
+                            <span class="text-capitalize fw-bold">{{ inc.damage_type }}</span>
+                            <span class="metadata-text d-block">Conf: {{ "%.0f"|format((inc.confidence or 0.85)*100) }}%</span>
+                        </td>
+                        <!-- GPS -->
+                        <td class="font-mono" style="font-size: 11.5px;">
+                            {{ "%.5f"|format(inc.damage_latitude or inc.latitude or 9.0238) }}° N<br>
+                            {{ "%.5f"|format(inc.damage_longitude or inc.longitude or 38.7468) }}° E
+                        </td>
+                        <!-- Priority -->
+                        <td>
+                            {% if is_danger %}
+                            <span class="badge badge-risk-danger">P1 - Urgent</span>
+                            {% elif 'WARNING' in (inc.max_risk_level or '') %}
+                            <span class="badge badge-risk-warning">P2 - High</span>
+                            {% else %}
+                            <span class="badge badge-risk-caution">P3 - Routine</span>
+                            {% endif %}
+                        </td>
+                        <!-- Recommended Action -->
+                        <td>
+                            <span class="small">
                                 {% if inc.damage_type == 'pothole' %}
-                                    Cold/Hot Mix Asphalt fill & compaction
+                                Cold-mix asphalt patch &amp; compactor seal
                                 {% else %}
-                                    Crack seal bitumen injection
+                                Crack seal &amp; micro-surfacing
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </span>
+                        </td>
+                        <!-- Assigned Crew -->
+                        <td>
+                            <span class="small font-mono text-dark">{{ inc.assigned_crew or 'Corridor Maintenance Crew Alpha' }}</span>
+                        </td>
+                        <!-- Workflow Status -->
+                        <td>
+                            {% set st = inc.status or 'Reported' %}
+                            <span class="badge {% if st == 'Repaired' %}bg-success{% elif st == 'In Progress' %}bg-warning{% elif st == 'In Review' %}bg-info{% else %}bg-secondary{% endif %}">
+                                {{ st }}
+                            </span>
+                        </td>
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px;" onclick="openWorkOrderDrawer({{ inc|tojson|forceescape }})">
+                                Directives
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </div>
 
-        <!-- Sign-Off Section -->
-        <div class="row mt-5 pt-4 border-top">
-            <div class="col-6">
-                <div class="border-top border-dark pt-2" style="width: 250px;">
-                    <div class="fw-semibold">Inspecting Field Engineer</div>
-                    <div class="text-muted small">Signature & Date</div>
+</div>
+
+<!-- Work Order Edit & Dispatch Modal -->
+<div class="modal fade" id="woModal" tabindex="-1" aria-labelledby="woModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="woModalLabel">
+                    <i class="bi bi-tools text-primary me-2"></i>Maintenance Order Directives
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="woIncId">
+                <div class="p-3 bg-light rounded border mb-3">
+                    <div class="fw-bold font-mono text-dark" id="woRefTitle">WO-2026-0001</div>
+                    <div class="metadata-text" id="woRefSub">Corridor: Ring Road &bull; Defect: Pothole</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Workflow Status Stage</label>
+                    <select class="form-select form-select-sm" id="woStatusSelect">
+                        <option value="Reported">1. Detected (Telemetry Auto-Logged)</option>
+                        <option value="In Review">2. Needs Review (Engineering Triage)</option>
+                        <option value="Scheduled for Repair">3. Verified (Work Order Approved)</option>
+                        <option value="In Progress">4. Assigned &amp; In Progress (Crew Active)</option>
+                        <option value="Repaired">5. Completed (Repaired &amp; Closed)</option>
+                        <option value="Dismissed">6. Dismissed (Non-Critical)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Designated Maintenance Crew</label>
+                    <input type="text" class="form-control form-control-sm" id="woCrewInput">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Priority Level</label>
+                    <select class="form-select form-select-sm" id="woPrioritySelect">
+                        <option value="Critical">Critical (P1 - 24hr Target)</option>
+                        <option value="High">High (P2 - 72hr Target)</option>
+                        <option value="Medium">Medium (P3 - Routine)</option>
+                        <option value="Low">Low (P4 - Monitoring)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Inspection &amp; Completion Notes</label>
+                    <textarea class="form-control form-control-sm" id="woNotesInput" rows="3" placeholder="Enter materials used, patch thickness, or inspection report..."></textarea>
                 </div>
             </div>
-            <div class="col-6 text-end">
-                <div class="border-top border-dark pt-2 ms-auto" style="width: 250px;">
-                    <div class="fw-semibold">Highway Maintenance Supervisor</div>
-                    <div class="text-muted small">Approval & Crew Dispatch</div>
-                </div>
+            <div class="modal-footer border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="saveWorkOrder()">
+                    Save Directive
+                </button>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openWorkOrderDrawer(inc) {
+    document.getElementById('woIncId').value = inc.id;
+    document.getElementById('woRefTitle').textContent = 'WO-2026-' + String(inc.track_id || inc.id).padStart(4, '0');
+    document.getElementById('woRefSub').textContent = 'Corridor: Ring Road &bull; Defect: ' + (inc.damage_type || 'Pavement Distress');
+    document.getElementById('woStatusSelect').value = inc.status || 'Reported';
+    document.getElementById('woCrewInput').value = inc.assigned_crew || 'Corridor Maintenance Crew Alpha';
+    document.getElementById('woPrioritySelect').value = inc.repair_priority || 'Medium';
+    document.getElementById('woNotesInput').value = inc.notes || '';
+
+    const modal = new bootstrap.Modal(document.getElementById('woModal'));
+    modal.show();
+}
+
+function saveWorkOrder() {
+    const incId = document.getElementById('woIncId').value;
+    const status = document.getElementById('woStatusSelect').value;
+    const crew = document.getElementById('woCrewInput').value;
+    const priority = document.getElementById('woPrioritySelect').value;
+    const notes = document.getElementById('woNotesInput').value;
+
+    fetch('/api/incidents/' + incId + '/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            status: status,
+            assigned_crew: crew,
+            repair_priority: priority,
+            notes: notes
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Update error: ' + (data.error || 'Failed to update'));
+        }
+    })
+    .catch(err => alert('Network error: ' + err.message));
+}
+</script>
 {% endblock %}

@@ -38,7 +38,7 @@ from risk.ttc_calculator import calculate_ttc, format_ttc, calculate_lead_vehicl
 from risk.risk_analyzer import assess_risk, scene_risk
 from visualization.overlay import (
     draw_tracks, draw_vehicles, draw_path,
-    draw_horizon, draw_banner
+    draw_horizon, draw_banner, draw_subtitle_bar
 )
 from database import db_manager
 from alerts.audio_warning import play_warning_sound, ADASAudioTrackGenerator
@@ -507,6 +507,33 @@ def main():
         banner_lines.append(risk_line)
         draw_banner(frame, banner_lines)
 
+        # Automotive ADAS Driver Alert System Banner (Dual Amharic + English)
+        hud_alert_text = None
+        if scene_level == "IMMEDIATE_DANGER":
+            if lead_car_danger is not None:
+                hud_alert_text = f"አደገኛ ግጭት! ፍሬን ይያዙ! | COLLISION WARNING: BRAKE NOW (TTC {lead_car_danger.ttc_s:.1f}s)"
+            elif nearest is not None and nearest.distance_m is not None:
+                hud_alert_text = f"አደገኛ ጉድጓድ! ፍጥነት ይቀንሱ! | CRITICAL POTHOLE: ~{nearest.distance_m:.0f}m ({format_ttc(nearest.ttc_s, nearest.ttc_status)})"
+            else:
+                hud_alert_text = "አደገኛ አደጋ! ፍጥነት ይቀንሱ! | IMMEDIATE DANGER: REDUCE SPEED"
+        elif scene_level == "WARNING":
+            if lead_car_danger is not None:
+                hud_alert_text = f"ጥንቃቄ: መኪና ከፊት ቀርቧል | WARNING: LEAD VEHICLE CLOSING (TTC {lead_car_danger.ttc_s:.1f}s)"
+            elif nearest is not None and nearest.distance_m is not None:
+                hud_alert_text = f"ጥንቃቄ: የጉድጓድ አደጋ ከፊት | WARNING: ROAD HAZARD ~{nearest.distance_m:.0f}m"
+            else:
+                hud_alert_text = "ጥንቃቄ: ፍጥነትዎን ይቀንሱ | WARNING: SLOW DOWN"
+        elif scene_level == "CAUTION":
+            if nearest is not None and nearest.distance_m is not None:
+                hud_alert_text = f"ጥንቃቄ: የተበላሸ መንገድ | CAUTION: DEFECT DETECTED ~{nearest.distance_m:.0f}m"
+            else:
+                hud_alert_text = "ጥንቃቄ: የተበላሸ አስፋልት | CAUTION: UNEVEN ROAD SURFACE"
+        elif visible or vehicle_visible:
+            hud_alert_text = f"ደህንነቱ የተጠበቀ | SYSTEM ACTIVE: MONITORING {len(vehicle_visible)} VEHICLES"
+
+        if hud_alert_text:
+            frame = draw_subtitle_bar(frame, hud_alert_text, risk_level=scene_level)
+
         # Write to outputs
         writer.write(frame)
         writer_p9.write(frame)
@@ -557,9 +584,22 @@ def main():
         print(f"[*] Notice: Web H.264 video optimization skipped: {e}")
 
     # 6b. Merge Synchronized ADAS Voice Warnings & Chimes into Video Audio Track
+    video_basename = os.path.basename(str(video_source)) if not is_webcam else "webcam_live.mp4"
+    video_stem = os.path.splitext(video_basename)[0]
+    session_video_path = os.path.join(BASE_DIR, "outputs", f"annotated_{video_stem}.mp4")
+
+    try:
+        import shutil
+        if os.path.exists(master_path):
+            shutil.copy2(master_path, session_video_path)
+    except Exception as e:
+        print(f"[*] Per-video backup notice: {e}")
+
     try:
         print("[*] Merging synchronized voice alerts and ADAS chimes into video audio track...")
         audio_gen.merge_into_video(master_path)
+        if os.path.exists(session_video_path) and os.path.abspath(session_video_path) != os.path.abspath(master_path):
+            audio_gen.merge_into_video(session_video_path)
         if os.path.exists(phase9_video_path):
             audio_gen.merge_into_video(phase9_video_path)
         print(f"[*] Voice & ADAS audio track successfully merged into video ({audio_gen.events_logged} events synthesized).")
@@ -569,6 +609,7 @@ def main():
     # 7. Save Unified CSV
     master_csv_path = os.path.join(BASE_DIR, "outputs", "integrated_damage_events.csv")
     phase9_csv_path = os.path.join(BASE_DIR, "outputs", "phase9_damage_events.csv")
+    session_csv_path = os.path.join(BASE_DIR, "outputs", f"events_{video_stem}.csv")
 
     confirmed_tracks = [t for t in damage_tracker.all_tracks if t.confirmed]
 
@@ -581,7 +622,7 @@ def main():
         "gps_status"
     ]
 
-    for p in [master_csv_path, phase9_csv_path]:
+    for p in [master_csv_path, phase9_csv_path, session_csv_path]:
         with open(p, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(fieldnames)
@@ -617,9 +658,9 @@ def main():
                     t.gps_status or "",
                 ])
 
-    # 8. Re-synchronize SQLite database with fresh integrated results
-    print("\n[*] Synchronizing SQLite database with new analysis...")
-    db_manager.import_incidents_from_csv(master_csv_path, clear_existing=True)
+    # 8. Re-synchronize SQLite database with fresh integrated results (scoped to current video so others are preserved)
+    print("\n[*] Synchronizing SQLite database with new analysis (preserving previous videos)...")
+    db_manager.import_incidents_from_csv(master_csv_path, video_name=video_basename, clear_existing=True)
 
     # 8b. Save ANPR License Plate Readings CSV & Sync Database
     plate_csv_path = os.path.join(BASE_DIR, "outputs", "phase8_plate_readings.csv")
@@ -633,7 +674,7 @@ def main():
             w.writeheader()
             w.writerows(plate_scan_records)
         print(f"[*] Saved {len(plate_scan_records)} ANPR plate detection records to {plate_csv_path}")
-        imported_plates = db_manager.import_plates_from_csv(plate_csv_path, clear_existing=True)
+        imported_plates = db_manager.import_plates_from_csv(plate_csv_path, video_name=video_basename, clear_existing=True)
         print(f"[*] Synchronized {imported_plates} plate readings into SQLite database.")
 
     # 9. Phase 14: Generate Standalone Folium Road-Damage Map
@@ -644,9 +685,10 @@ def main():
 
     print("\n" + "=" * 70)
     print("ALL-IN-ONE INTEGRATED ANALYSIS COMPLETE!")
-    print(f"Master Video: {master_video_path}")
-    print(f"Master CSV:   {master_csv_path}")
-    print(f"Folium Map:   outputs/road_damage_map.html")
+    print(f"Master Video:  {master_video_path}")
+    print(f"Session Video: {session_video_path}")
+    print(f"Master CSV:    {master_csv_path}")
+    print(f"Folium Map:    outputs/road_damage_map.html")
     print(f"Total Confirmed Hazards: {len(confirmed_tracks)}")
     print(f"Total Tracked Vehicles:  {vehicle_total}")
     print(f"Total Identified Plates: {len(vehicle_plates)}")

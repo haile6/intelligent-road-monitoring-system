@@ -18,6 +18,30 @@
                 </div>
                 <div class="card-body p-4">
                     <!-- Descriptive Action Controls -->
+                    <div class="mb-3">
+                        <label for="targetVideoSelect" class="form-label small fw-bold text-dark d-flex align-items-center justify-content-between mb-1">
+                            <span><i class="bi bi-camera-video-fill me-1 text-primary"></i> Target Video Source:</span>
+                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 0.7rem;">{{ available_input_videos|length }} Available</span>
+                        </label>
+                        <select id="targetVideoSelect" class="form-select form-select-sm fw-semibold border-primary-subtle">
+                            {% for v in available_input_videos %}
+                            <option value="data/{{ v }}" {% if v == 'ethiopian_road_driving_test.mp4' %}selected{% elif v == 'all_features_test_video.mp4' and 'ethiopian_road_driving_test.mp4' not in available_input_videos %}selected{% endif %}>
+                                {% if v == 'ethiopian_road_driving_test.mp4' %}
+                                    🇪🇹 {{ v }} (Ethiopian Context: Addis Ababa Potholes, Minibus Taxi, Ring Road &amp; ADAS Alerts)
+                                {% elif v == 'all_features_test_video.mp4' %}
+                                    🌟 {{ v }} (Complete All-in-One: Vehicles + Plates + Potholes + Alerts)
+                                {% elif v == 'highway_traffic_plates.mp4' %}
+                                    🚗 {{ v }} (Highway Traffic, Vehicles &amp; Plates)
+                                {% elif v == 'test_video.mp4' %}
+                                    ⚠️ {{ v }} (Road Hazards &amp; Defect Analysis)
+                                {% else %}
+                                    📹 {{ v }}
+                                {% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
                     <div class="d-grid gap-2 mb-4">
                         <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2 py-3 fw-bold" 
                                 onclick="runUnifiedPipeline()">
@@ -166,27 +190,36 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
+        const videoParam = urlParams.get('video');
         if (urlParams.get('autorun') === '1') {
             setTimeout(() => {
-                runUnifiedPipeline();
+                runUnifiedPipeline(videoParam);
             }, 600);
         }
     });
 
-    async function runUnifiedPipeline() {
+    async function runUnifiedPipeline(videoPath) {
+        if (!videoPath) {
+            const sel = document.getElementById('targetVideoSelect');
+            if (sel && sel.value) videoPath = sel.value;
+        }
         const terminal = document.getElementById('terminalOutput');
         const statusBadge = document.getElementById('jobStatusBadge');
         const completionBanner = document.getElementById('completionBanner');
         if (completionBanner) completionBanner.style.setProperty('display', 'none', 'important');
 
-        terminal.textContent = `[System] Launching All-in-One Integrated Road Monitoring Engine...\n`;
+        terminal.textContent = `[System] Launching All-in-One Integrated Road Monitoring Engine` + (videoPath ? ` on ${videoPath}...\n` : `...\n`);
         statusBadge.innerHTML = '<span class="badge bg-warning text-dark"><i class="spinner-border spinner-border-sm me-1"></i> RUNNING</span>';
 
         try {
+            const postBody = { script: 'run_integrated.py' };
+            if (videoPath) {
+                postBody.video = videoPath;
+            }
             const res = await fetch('/api/pipeline/run', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ script: 'run_integrated.py' })
+                body: JSON.stringify(postBody)
             });
             const data = await res.json();
             if (data.success) {
