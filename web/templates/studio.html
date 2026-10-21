@@ -352,7 +352,12 @@
                         <h6 class="mb-0 fw-bold text-dark">
                             <i class="bi bi-crosshair me-2 text-primary"></i>Synchronized Hazard Keyframes
                         </h6>
-                        <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold" id="btn-toggle-autoscroll" onclick="toggleAutoScroll()" title="Toggle automatic scrolling to active hazard keyframe" style="font-size: 0.72rem;">
+                                <i class="bi bi-arrow-down-up me-1"></i><span id="autoscroll-btn-label">Auto-Scroll: ON</span>
+                            </button>
+                            <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
+                        </div>
                     </div>
                     
                     <!-- Quick Risk Filter Pills -->
@@ -363,11 +368,16 @@
                         <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.72rem;">Monitored</button>
                     </div>
                 </div>
+                <!-- User Scroll Pause Banner -->
+                <div id="autoscroll-resume-banner" class="alert alert-primary py-1 px-3 m-2 small d-none align-items-center justify-content-between border-0 shadow-sm rounded-3" style="font-size: 0.72rem; background: #e0f2fe; color: #0369a1;">
+                    <span><i class="bi bi-pause-circle me-1"></i>Auto-scroll paused while scrolling</span>
+                    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none fw-bold text-primary" onclick="resumeAutoScroll()">Resume</button>
+                </div>
                 <div class="card-body p-2 overflow-auto" id="hazard-sidebar-scroll" style="max-height: 560px;">
                     <div class="d-flex flex-column gap-2" id="hazard-cards-list">
                         {% for inc in incidents %}
                         {% set risk_cat = 'danger' if ('IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level) else ('warning' if 'WARNING' in inc.max_risk_level else 'safe') %}
-                        <div class="card p-2 border hover-shadow cursor-pointer hazard-card" data-risk="{{ risk_cat }}" onclick="seekToTime({{ inc.video_time_s or 0 }})" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
+                        <div class="card p-2 border hover-shadow cursor-pointer hazard-card" data-risk="{{ risk_cat }}" onclick="seekToTime({{ inc.video_time_s or 0 }}, true)" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="fw-bold text-dark small">
                                     <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
@@ -713,7 +723,7 @@
             const activeCue = subtitleCues.find(c => time >= (c.start_s || 0) && time <= (c.end_s || 0));
 
             // Highlight matching timeline keyframe in sidebar
-            const sidebarCards = document.querySelectorAll('.hover-shadow[onclick^="seekToTime"]');
+            const sidebarCards = document.querySelectorAll('.hazard-card');
             sidebarCards.forEach(card => card.classList.remove('active-hazard-card'));
 
             if (activeCue) {
@@ -761,13 +771,13 @@
                     speakAdasAlert(spoken, isDanger);
                 }
 
-                // Highlight sidebar card & smooth auto-scroll into view
+                // Highlight sidebar card & smooth auto-scroll into view (CONTAINER ONLY, NEVER PAGE)
                 const cueTime = Number(activeCue.time_s || 0);
                 sidebarCards.forEach(card => {
                     const onclickStr = card.getAttribute('onclick') || '';
                     if (onclickStr.includes(cueTime.toFixed(2)) || onclickStr.includes(cueTime.toString())) {
                         card.classList.add('active-hazard-card');
-                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        scrollCardIntoSidebarView(card);
                     }
                 });
 
@@ -801,6 +811,103 @@
     }
 
     // ============================================================
+    // SIDEBAR AUTO-SCROLL CONTROLLER (NEVER SCROLLS PARENT PAGE)
+    // ============================================================
+    let autoScrollEnabled = localStorage.getItem('studio_autoscroll') !== 'false';
+    let userIsScrollingSidebar = false;
+    let userScrollTimer = null;
+    let lastAutoScrolledCard = null;
+
+    function toggleAutoScroll() {
+        autoScrollEnabled = !autoScrollEnabled;
+        localStorage.setItem('studio_autoscroll', autoScrollEnabled ? 'true' : 'false');
+        updateAutoScrollUI();
+    }
+
+    function updateAutoScrollUI() {
+        const btn = document.getElementById('btn-toggle-autoscroll');
+        const label = document.getElementById('autoscroll-btn-label');
+        if (btn && label) {
+            if (autoScrollEnabled) {
+                btn.className = 'btn btn-sm btn-outline-primary py-0 px-2 fw-semibold';
+                label.textContent = 'Auto-Scroll: ON';
+            } else {
+                btn.className = 'btn btn-sm btn-outline-secondary py-0 px-2 text-muted';
+                label.textContent = 'Auto-Scroll: OFF';
+            }
+        }
+        const banner = document.getElementById('autoscroll-resume-banner');
+        if (banner && !autoScrollEnabled) {
+            banner.classList.add('d-none');
+            banner.classList.remove('d-flex');
+        }
+    }
+
+    function resumeAutoScroll() {
+        userIsScrollingSidebar = false;
+        clearTimeout(userScrollTimer);
+        const banner = document.getElementById('autoscroll-resume-banner');
+        if (banner) {
+            banner.classList.add('d-none');
+            banner.classList.remove('d-flex');
+        }
+        const activeCard = document.querySelector('.hazard-card.active-hazard-card');
+        if (activeCard) {
+            scrollCardIntoSidebarView(activeCard, true);
+        }
+    }
+
+    function scrollCardIntoSidebarView(card, force = false) {
+        if ((!autoScrollEnabled || userIsScrollingSidebar) && !force) return;
+        if (!card) return;
+        const container = document.getElementById('hazard-sidebar-scroll');
+        if (!container) return;
+
+        if (lastAutoScrolledCard === card && !force) return;
+        lastAutoScrolledCard = card;
+
+        const cardTop = card.offsetTop - container.offsetTop;
+        const cardBottom = cardTop + card.offsetHeight;
+        const containerTop = container.scrollTop;
+        const containerBottom = containerTop + container.clientHeight;
+
+        // Scroll ONLY the container if card is not comfortably visible
+        if (cardTop < containerTop + 15 || cardBottom > containerBottom - 15 || force) {
+            container.scrollTo({
+                top: Math.max(0, cardTop - (container.clientHeight / 2) + (card.offsetHeight / 2)),
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    function initSidebarScrollListeners() {
+        const container = document.getElementById('hazard-sidebar-scroll');
+        const banner = document.getElementById('autoscroll-resume-banner');
+        if (!container) return;
+
+        const onUserManualScroll = () => {
+            if (!autoScrollEnabled) return;
+            userIsScrollingSidebar = true;
+            if (banner) {
+                banner.classList.remove('d-none');
+                banner.classList.add('d-flex');
+            }
+            clearTimeout(userScrollTimer);
+            userScrollTimer = setTimeout(() => {
+                userIsScrollingSidebar = false;
+                if (banner) {
+                    banner.classList.add('d-none');
+                    banner.classList.remove('d-flex');
+                }
+            }, 3500);
+        };
+
+        container.addEventListener('wheel', onUserManualScroll, { passive: true });
+        container.addEventListener('touchmove', onUserManualScroll, { passive: true });
+        container.addEventListener('mousedown', onUserManualScroll);
+    }
+
+    // ============================================================
     // INTERACTIVE TIMELINE HAZARD PINS RENDERER
     // ============================================================
     function renderTimelinePins() {
@@ -828,7 +935,7 @@
             pin.title = `[${t.toFixed(2)}s] ${label}: ${damage} (Click to Seek)`;
             pin.addEventListener('click', (e) => {
                 e.stopPropagation();
-                seekToTime(t);
+                seekToTime(t, true);
             });
             track.appendChild(pin);
         });
@@ -1039,8 +1146,12 @@
     if (mainVideo) {
         mainVideo.volume = 1.0;
 
-        // Click directly on video to toggle Play / Pause
+        // Click directly on video to toggle Play / Pause (ignoring bottom native control bar)
         mainVideo.addEventListener('click', (e) => {
+            const rect = mainVideo.getBoundingClientRect();
+            if (e.clientY > rect.bottom - 48) {
+                return; // Allow native controls to be clicked without interruption
+            }
             e.preventDefault();
             togglePlay();
         });
@@ -1417,7 +1528,15 @@
         }
     }
 
-    function seekToTime(time) {
+    function seekToTime(time, fromUserClick = false) {
+        if (fromUserClick) {
+            // Temporarily pause auto-scrolling so clicking a card never jerks the list or window
+            userIsScrollingSidebar = true;
+            clearTimeout(userScrollTimer);
+            userScrollTimer = setTimeout(() => {
+                userIsScrollingSidebar = false;
+            }, 3000);
+        }
         spokenAlertsSet.clear(); // Reset spoken alert cache on seek
         const targetTime = Number(time || 0);
         updateFrame(targetTime);
@@ -1521,6 +1640,8 @@
         updateFrame(initialTime);
         setLanguage(currentLang);
         renderTimelinePins();
+        initSidebarScrollListeners();
+        updateAutoScrollUI();
     });
 
     // Immediate fallback execution if DOMContentLoaded already fired
@@ -1530,6 +1651,8 @@
         updateFrame(initialTime);
         setLanguage(currentLang);
         renderTimelinePins();
+        initSidebarScrollListeners();
+        updateAutoScrollUI();
     }
 </script>
 
