@@ -67,6 +67,27 @@ def main():
     print("=" * 65)
     print("Press CTRL+C to stop the server.\n")
 
+    # Automatically launch Google Chrome / default browser to the Studio
+    import threading
+    import webbrowser
+    def auto_open_browser():
+        time.sleep(1.2)
+        studio_url = f"http://127.0.0.1:{target_port}/studio"
+        try:
+            for path in [
+                "C:/Program Files/Google/Chrome/Application/chrome.exe",
+                "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+                os.path.expanduser("~\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe")
+            ]:
+                if os.path.exists(path):
+                    webbrowser.get(f'"{path}" %s').open(studio_url)
+                    return
+        except Exception:
+            pass
+        webbrowser.open(studio_url)
+
+    threading.Thread(target=auto_open_browser, daemon=True).start()
+
     app.run(host=args.host, port=target_port, debug=args.debug)
 
 if __name__ == "__main__":
