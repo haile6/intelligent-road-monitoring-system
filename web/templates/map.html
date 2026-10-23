@@ -264,7 +264,7 @@ function initMap() {
 
     // Plot GPS Track Polyline
     if (gpsPoints && gpsPoints.length > 1) {
-        const polyCoords = gpsPoints.map(p => [parseFloat(p.latitude), parseFloat(p.longitude)]);
+        const polyCoords = gpsPoints.map(p => [parseFloat(p.latitude || p.lat), parseFloat(p.longitude || p.lon)]);
         L.polyline(polyCoords, {
             color: '#2563A6',
             weight: 3.5,

@@ -601,11 +601,17 @@ def get_gps_track_points():
                 parts = line.split(",")
                 if len(parts) >= 3:
                     try:
+                        lat_val = float(parts[1].strip())
+                        lon_val = float(parts[2].strip())
+                        spd_val = float(parts[3].strip()) if len(parts) > 3 else 0.0
                         points.append({
                             "timestamp": parts[0].strip(),
-                            "lat": float(parts[1].strip()),
-                            "lon": float(parts[2].strip()),
-                            "speed": float(parts[3].strip()) if len(parts) > 3 else 0.0
+                            "lat": lat_val,
+                            "lon": lon_val,
+                            "latitude": lat_val,
+                            "longitude": lon_val,
+                            "speed": spd_val,
+                            "speed_kmh": spd_val
                         })
                     except ValueError:
                         continue

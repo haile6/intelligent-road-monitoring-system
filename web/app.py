@@ -683,6 +683,8 @@ def api_subtitles_json():
             spoken_am = f"ጥንቃቄ፣ {dtype_am} ተገኝቷል።"
             risk_am = "ደህንነቱ የተጠበቀ"
 
+        h_lat = inc.get("damage_latitude") or inc.get("latitude")
+        h_lon = inc.get("damage_longitude") or inc.get("longitude")
         cues.append({
             "id": inc.get("id"),
             "track_id": track_id,
@@ -698,6 +700,10 @@ def api_subtitles_json():
             "in_path": in_path,
             "in_path_am": "በመንገዱ መስመር ላይ" if in_path else "ከመስመር ውጭ",
             "speed_kmh": speed,
+            "damage_latitude": float(h_lat) if h_lat is not None else None,
+            "damage_longitude": float(h_lon) if h_lon is not None else None,
+            "latitude": float(inc.get("latitude")) if inc.get("latitude") is not None else None,
+            "longitude": float(inc.get("longitude")) if inc.get("longitude") is not None else None,
             "spoken_text": spoken_en,
             "spoken_text_am": spoken_am
         })
