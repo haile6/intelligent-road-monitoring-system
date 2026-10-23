@@ -1,0 +1,14 @@
+# RoadEye Custom Road Damage Dataset Configuration
+# Standard Ultralytics YOLOv8/YOLO11 Dataset Format
+
+# Absolute path or relative path to project root
+path: ./data/custom_dataset
+
+# Dataset partitions (relative to 'path')
+train: images/train
+val: images/val
+
+# Class definitions (Zero-indexed IDs matching your annotation txt files)
+names:
+  0: alligator_crack
+  1: pothole
