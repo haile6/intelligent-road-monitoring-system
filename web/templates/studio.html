@@ -1468,9 +1468,52 @@
     let liveAiInterval = null;
     let liveDetectionBusy = false;
 
+    let liveGeoWatchId = null;
+    let liveCurrentLat = null;
+    let liveCurrentLon = null;
+    let liveCurrentSpeed = 30.0;
+    let liveCurrentHeading = 45.0;
+
+    function startLiveGeoLocation() {
+        if ('geolocation' in navigator) {
+            liveGeoWatchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    liveCurrentLat = pos.coords.latitude;
+                    liveCurrentLon = pos.coords.longitude;
+                    liveCurrentSpeed = pos.coords.speed ? (pos.coords.speed * 3.6) : 30.0;
+                    liveCurrentHeading = pos.coords.heading || 45.0;
+                    window.currentVehicleLat = liveCurrentLat;
+                    window.currentVehicleLon = liveCurrentLon;
+
+                    const latEl = document.getElementById('map-live-lat');
+                    const lonEl = document.getElementById('map-live-lon');
+                    const headEl = document.getElementById('map-live-heading');
+                    if (latEl) latEl.textContent = liveCurrentLat.toFixed(6);
+                    if (lonEl) lonEl.textContent = liveCurrentLon.toFixed(6);
+                    if (headEl) headEl.textContent = `${liveCurrentSpeed.toFixed(1)} km/h • Live GPS`;
+
+                    if (studioMap && vehicleMarker) {
+                        vehicleMarker.setLatLng([liveCurrentLat, liveCurrentLon]);
+                        if (autoPanMap) studioMap.panTo([liveCurrentLat, liveCurrentLon]);
+                    }
+                },
+                (err) => console.log('Live Geolocation note:', err.message),
+                { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
+            );
+        }
+    }
+
+    function stopLiveGeoLocation() {
+        if (liveGeoWatchId !== null && 'geolocation' in navigator) {
+            navigator.geolocation.clearWatch(liveGeoWatchId);
+            liveGeoWatchId = null;
+        }
+    }
+
     async function startLiveDeviceCamera() {
         try {
             stopLiveDeviceCamera();
+            startLiveGeoLocation();
             const constraints = {
                 video: {
                     facingMode: { ideal: liveFacingMode },
@@ -1499,6 +1542,7 @@
     }
 
     function stopLiveDeviceCamera() {
+        stopLiveGeoLocation();
         if (liveAiInterval) {
             clearInterval(liveAiInterval);
             liveAiInterval = null;
@@ -1545,7 +1589,13 @@
                 const res = await fetch('/api/detect_live_frame', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: b64 })
+                    body: JSON.stringify({
+                        image: b64,
+                        lat: liveCurrentLat,
+                        lon: liveCurrentLon,
+                        heading: liveCurrentHeading,
+                        speed_kmh: liveCurrentSpeed
+                    })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -1587,6 +1637,84 @@
             ctx.fillStyle = '#ffffff';
             ctx.fillText(text, rx1 + 5, Math.max(14, ry1 - 5));
         });
+
+        // Live GIS Map Dynamic Plotting for Live Detections
+        const damageDet = (data.detections || []).find(d => d.type === 'damage');
+        const statusPill = document.getElementById('map-status-pill');
+        const statusText = document.getElementById('map-status-text');
+        const mapHazardBadge = document.getElementById('map-hazard-badge');
+        const mapHazardText = document.getElementById('map-hazard-text');
+
+        if (damageDet) {
+            let hLat = damageDet.damage_latitude;
+            let hLon = damageDet.damage_longitude;
+            const curLat = liveCurrentLat || window.currentVehicleLat || 9.123456;
+            const curLon = liveCurrentLon || window.currentVehicleLon || 39.123456;
+
+            if (!hLat || !hLon) {
+                const proj = projectForward(curLat, curLon, liveCurrentHeading || 45.0, Math.max(damageDet.distance_m || 8.0, 4.0));
+                hLat = proj[0];
+                hLon = proj[1];
+            }
+
+            const hazardHtml = `
+                <div class="active-hazard-marker-container">
+                    <div class="active-hazard-tag">
+                        ⚠️ LIVE ${damageDet.class_name.toUpperCase()} (${damageDet.distance_m}m)<br>
+                        <span style="font-size: 9.5px; opacity: 0.95; font-family: monospace;">📍 ${hLat.toFixed(6)}, ${hLon.toFixed(6)}</span>
+                    </div>
+                    <div class="active-hazard-dot"></div>
+                </div>
+            `;
+            const hazardIcon = L.divIcon({
+                className: 'active-hazard-custom-icon',
+                html: hazardHtml,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            if (studioMap) {
+                if (!activeHazardMarker) {
+                    activeHazardMarker = L.marker([hLat, hLon], { icon: hazardIcon, zIndexOffset: 2000 }).addTo(studioMap);
+                } else {
+                    activeHazardMarker.setLatLng([hLat, hLon]);
+                    activeHazardMarker.setIcon(hazardIcon);
+                }
+
+                if (!hazardConnectingLine) {
+                    hazardConnectingLine = L.polyline([[curLat, curLon], [hLat, hLon]], {
+                        color: '#ef4444',
+                        weight: 3,
+                        dashArray: '5, 5',
+                        opacity: 0.95
+                    }).addTo(studioMap);
+                } else {
+                    hazardConnectingLine.setLatLngs([[curLat, curLon], [hLat, hLon]]);
+                }
+
+                if (autoPanMap) {
+                    studioMap.panTo([(curLat + hLat) / 2, (curLon + hLon) / 2], { animate: true, duration: 0.2 });
+                }
+            }
+
+            if (mapHazardBadge && mapHazardText) {
+                mapHazardBadge.style.display = 'inline-flex';
+                mapHazardText.textContent = `Live ${damageDet.class_name.toUpperCase()}: ${hLat.toFixed(6)}, ${hLon.toFixed(6)}`;
+            }
+
+            if (statusPill) {
+                statusPill.style.background = 'rgba(220, 38, 38, 0.92)';
+                statusPill.style.boxShadow = '0 0 16px rgba(220, 38, 38, 0.6)';
+            }
+            if (statusText) {
+                statusText.innerHTML = `🚨 <b>LIVE ${damageDet.class_name.toUpperCase()} DETECTED</b> &bull; Lat ${hLat.toFixed(6)}, Lon ${hLon.toFixed(6)} &bull; ${damageDet.distance_m}m ahead`;
+            }
+
+            const hudGpsVal = document.getElementById('hud-gps-val');
+            if (hudGpsVal) {
+                hudGpsVal.innerHTML = `<span class="text-danger fw-bold">📍 ${hLat.toFixed(6)}° N, ${hLon.toFixed(6)}° E</span>`;
+            }
+        }
 
         // Trigger voice alert on hazardous road defect
         if (data.highest_risk === 'IMMEDIATE_DANGER' || data.highest_risk === 'WARNING') {

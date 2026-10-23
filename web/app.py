@@ -819,6 +819,11 @@ def api_detect_live_frame():
         detections = []
         highest_risk = "SAFE"
 
+        client_lat = request.json.get("lat") if request.is_json else None
+        client_lon = request.json.get("lon") if request.is_json else None
+        client_heading = float(request.json.get("heading") or 45.0) if request.is_json else 45.0
+        client_speed = float(request.json.get("speed_kmh") or 30.0) if request.is_json else 30.0
+
         # Road damage detection
         try:
             from detection.road_damage_detector import RoadDamageDetector
@@ -837,13 +842,26 @@ def api_detect_live_frame():
                 elif highest_risk == "SAFE":
                     highest_risk = "CAUTION"
 
+                h_lat = None
+                h_lon = None
+                if client_lat is not None and client_lon is not None:
+                    try:
+                        from gps.geo import destination_point
+                        p_lat, p_lon = destination_point(float(client_lat), float(client_lon), client_heading, dist_m)
+                        h_lat = round(p_lat, 6)
+                        h_lon = round(p_lon, 6)
+                    except Exception:
+                        pass
+
                 detections.append({
                     "type": "damage",
                     "class_name": d["class_name"],
                     "confidence": round(float(d["confidence"]), 2),
                     "bbox": [int(b) for b in bx],
                     "distance_m": dist_m,
-                    "risk_level": risk
+                    "risk_level": risk,
+                    "damage_latitude": h_lat,
+                    "damage_longitude": h_lon
                 })
         except Exception as _e:
             pass
