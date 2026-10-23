@@ -3,6 +3,43 @@
 {% block title %}Real-Time Road Video Telemetry & ADAS Auditory Studio{% endblock %}
 {% block page_title %}Real-Time Video Telemetry &amp; ADAS Auditory Collision Warning Studio{% endblock %}
 
+{% block extra_head %}
+<!-- Leaflet GIS Mapping CSS & JS for Live Synchronized Map -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<style>
+    .vehicle-pulse-marker {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        background: #0284c7;
+        border: 2.5px solid #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(2, 132, 199, 0.8);
+    }
+    .vehicle-pulse-marker::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: -6px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #38bdf8;
+        animation: pulseWave 1.8s ease-out infinite;
+    }
+    @keyframes pulseWave {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(1.6); opacity: 0; }
+    }
+    #studio-leaflet-map .leaflet-popup-content-wrapper {
+        border-radius: 6px;
+        padding: 2px;
+        font-family: inherit;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid px-0">
     <div class="row g-3">
@@ -227,6 +264,53 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-light text-secondary border font-mono"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SYNCHRONIZED GIS ROAD MAP (DASHCAM ON TOP, LIVE MAP ON BOTTOM) -->
+            <!-- ============================================================ -->
+            <div class="card shadow-sm mb-3" id="sync-map-card">
+                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: #f8fafc;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
+                        <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
+                        <span class="fw-bold text-dark small">Synchronized Road Corridor Map (Ethiopia Highway Track):</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
+                            <i class="bi bi-crosshair text-primary"></i> <span id="map-live-lat">9.123456</span>, <span id="map-live-lon">39.123456</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
+                            <i class="bi bi-compass text-info"></i> <strong id="map-live-heading">45° NE</strong>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary py-0 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
+                            <i class="bi bi-crosshair2 me-1 text-primary"></i> Recenter
+                        </button>
+                        <div class="form-check form-switch mb-0 ms-1 small">
+                            <input class="form-check-input" type="checkbox" id="sync-map-autopan" checked>
+                            <label class="form-check-label text-secondary small" for="sync-map-autopan">Auto-Pan</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0 position-relative">
+                    <div id="studio-leaflet-map" style="height: 380px; width: 100%; z-index: 1;"></div>
+                    <!-- Live Sync Floating Pill -->
+                    <div class="position-absolute bottom-0 start-0 m-3 px-3 py-1 rounded-pill shadow-sm d-flex align-items-center gap-2 text-white" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 1000; font-size: 11.5px; pointer-events: none;">
+                        <span class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
+                        <span class="font-mono">LIVE GPS CORRIDOR &bull; POSITION SYNCHRONIZED</span>
+                    </div>
+                </div>
+                <div class="card-footer py-2 px-3 bg-light d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary">
+                    <div class="d-flex align-items-center gap-3">
+                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #0284c7;"></span><b>Vehicle Position</b> (Live)</span>
+                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #dc2626;"></span><b>Critical Pothole</b></span>
+                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #f59e0b;"></span><b>Alligator Crack</b></span>
+                        <span><span class="d-inline-block me-1" style="width: 14px; height: 3px; background: #2563eb; vertical-align: middle;"></span><b>GPS Corridor</b></span>
+                    </div>
+                    <div>
+                        <span class="font-mono"><i class="bi bi-info-circle me-1 text-primary"></i>Click any hazard marker to jump video directly to timestamp</span>
                     </div>
                 </div>
             </div>
@@ -1107,6 +1191,7 @@
                 timeDisplay.textContent = formatTime(currentTime);
                 frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
                 syncSubtitles(currentTime);
+                if (typeof syncMapWithTime === 'function') syncMapWithTime(currentTime);
             }
         });
 
@@ -1406,6 +1491,7 @@
         if (timeDisplay) timeDisplay.textContent = formatTime(currentTime);
         if (frameDisplay) frameDisplay.textContent = `Frame: ~${Math.round(currentTime * 24)}`;
         syncSubtitles(currentTime);
+        if (typeof syncMapWithTime === 'function') syncMapWithTime(currentTime);
 
         if (currentMode === 'video' && mainVideo) {
             mainVideo.currentTime = currentTime;
@@ -1519,6 +1605,156 @@
         }
     }
 
+    // ============================================================
+    // SYNCHRONIZED GIS ROAD MAP CONTROLLER (SPLIT VIEW)
+    // ============================================================
+    let studioMap = null;
+    let vehicleMarker = null;
+    let studioMarkerLayer = null;
+    const gpsTrackPoints = {{ (gps_points or [])|tojson }};
+    const mapIncidents = {{ (incidents or [])|tojson }};
+    let autoPanMap = true;
+    let hazardMarkers = [];
+
+    function initStudioMap() {
+        const mapContainer = document.getElementById('studio-leaflet-map');
+        if (!mapContainer || studioMap) return;
+
+        const defaultLat = 9.0238;
+        const defaultLon = 38.7468;
+        let startLat = defaultLat;
+        let startLon = defaultLon;
+
+        if (gpsTrackPoints && gpsTrackPoints.length > 0) {
+            startLat = parseFloat(gpsTrackPoints[0].latitude) || defaultLat;
+            startLon = parseFloat(gpsTrackPoints[0].longitude) || defaultLon;
+        } else if (mapIncidents && mapIncidents.length > 0) {
+            startLat = parseFloat(mapIncidents[0].damage_latitude || mapIncidents[0].latitude || defaultLat);
+            startLon = parseFloat(mapIncidents[0].damage_longitude || mapIncidents[0].longitude || defaultLon);
+        }
+
+        studioMap = L.map('studio-leaflet-map', {
+            zoomControl: true,
+            scrollWheelZoom: false
+        }).setView([startLat, startLon], 16);
+
+        // OpenStreetMap CartoDB Voyager tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(studioMap);
+
+        // Route polyline corridor
+        if (gpsTrackPoints && gpsTrackPoints.length > 1) {
+            const polyCoords = gpsTrackPoints.map(p => [parseFloat(p.latitude), parseFloat(p.longitude)]);
+            L.polyline(polyCoords, {
+                color: '#2563eb',
+                weight: 4,
+                opacity: 0.85,
+                lineJoin: 'round'
+            }).addTo(studioMap);
+        }
+
+        studioMarkerLayer = L.layerGroup().addTo(studioMap);
+
+        // Hazard markers (potholes & cracks)
+        mapIncidents.forEach(inc => {
+            const hLat = parseFloat(inc.damage_latitude || inc.latitude);
+            const hLon = parseFloat(inc.damage_longitude || inc.longitude);
+            if (!hLat || !hLon) return;
+
+            const isPothole = (inc.damage_type || '').toLowerCase().includes('pothole');
+            const risk = (inc.max_risk_level || '').toUpperCase();
+            const color = (risk.includes('IMMEDIATE') || risk.includes('DANGER') || isPothole) ? '#dc2626' : '#f59e0b';
+
+            const marker = L.circleMarker([hLat, hLon], {
+                radius: 7,
+                fillColor: color,
+                color: '#ffffff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.95
+            });
+
+            marker.bindPopup(`
+                <div style="min-width: 170px; font-size: 12px;">
+                    <div style="font-weight: 700; color: ${color}; text-transform: uppercase;">${inc.damage_type || 'Road Defect'}</div>
+                    <div>Severity: <b>${inc.severity || 'Medium'}</b></div>
+                    <div>Risk: <b>${inc.max_risk_level || 'Caution'}</b></div>
+                    <div>Time: <b>${formatTime(inc.time_s || 0)}</b></div>
+                    <div style="margin-top: 6px;">
+                        <button class="btn btn-xs btn-primary py-0 px-2 fw-semibold" style="font-size: 11px;" onclick="seekToTime(${inc.time_s || 0}, true)">
+                            ▶ Jump to Keyframe
+                        </button>
+                    </div>
+                </div>
+            `);
+            studioMarkerLayer.addLayer(marker);
+            hazardMarkers.push({ marker: marker, time_s: inc.time_s || 0, color: color });
+        });
+
+        // Pulsing vehicle marker
+        const vehicleIcon = L.divIcon({
+            className: 'vehicle-pulse-marker',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+        });
+        vehicleMarker = L.marker([startLat, startLon], { icon: vehicleIcon, zIndexOffset: 1000 }).addTo(studioMap);
+
+        const panSwitch = document.getElementById('sync-map-autopan');
+        if (panSwitch) {
+            panSwitch.addEventListener('change', (e) => {
+                autoPanMap = e.target.checked;
+            });
+        }
+
+        setTimeout(() => {
+            if (studioMap) studioMap.invalidateSize();
+        }, 400);
+
+        syncMapWithTime(currentTime || 0);
+    }
+
+    function recenterStudioMap() {
+        if (studioMap && vehicleMarker) {
+            studioMap.setView(vehicleMarker.getLatLng(), 17, { animate: true });
+        }
+    }
+
+    function syncMapWithTime(sec) {
+        if (!studioMap || !vehicleMarker) return;
+
+        let curLat = null;
+        let curLon = null;
+
+        if (gpsTrackPoints && gpsTrackPoints.length > 0) {
+            const idx = Math.min(Math.floor(sec), gpsTrackPoints.length - 1);
+            const pt = gpsTrackPoints[idx];
+            if (pt) {
+                curLat = parseFloat(pt.latitude);
+                curLon = parseFloat(pt.longitude);
+                if (pt.speed_kmh) {
+                    const spd = parseFloat(pt.speed_kmh).toFixed(1);
+                    const headEl = document.getElementById('map-live-heading');
+                    if (headEl) headEl.textContent = `${spd} km/h • 45° NE`;
+                }
+            }
+        }
+
+        if (curLat && curLon) {
+            vehicleMarker.setLatLng([curLat, curLon]);
+            const latEl = document.getElementById('map-live-lat');
+            const lonEl = document.getElementById('map-live-lon');
+            if (latEl) latEl.textContent = curLat.toFixed(6);
+            if (lonEl) lonEl.textContent = curLon.toFixed(6);
+
+            if (autoPanMap) {
+                studioMap.panTo([curLat, curLon], { animate: true, duration: 0.2 });
+            }
+        }
+    }
+
     // Initialize initial state safely
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -1526,6 +1762,7 @@
         updateFrame(initialTime);
         setLanguage(currentLang);
         renderTimelinePins();
+        initStudioMap();
     });
 
     // Immediate fallback execution if DOMContentLoaded already fired
@@ -1535,6 +1772,7 @@
         updateFrame(initialTime);
         setLanguage(currentLang);
         renderTimelinePins();
+        initStudioMap();
     }
 </script>
 

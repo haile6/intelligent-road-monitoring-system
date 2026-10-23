@@ -202,11 +202,13 @@ def video_studio():
     if not incidents and video_filter:
         incidents = db_manager.get_all_incidents()
 
+    gps_points = db_manager.get_gps_track_points()
     return render_template(
         "studio.html",
         video_files=video_files,
         selected_video=selected_video,
         incidents=incidents,
+        gps_points=gps_points,
         active_page="studio"
     )
 
