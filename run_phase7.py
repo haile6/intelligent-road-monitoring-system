@@ -4,7 +4,10 @@ import csv
 import os
 
 import cv2
-import easyocr
+try:
+    import easyocr
+except ImportError:
+    easyocr = None
 from ultralytics import YOLO
 
 from detection.vehicle_detector import VehicleDetector
@@ -98,11 +101,19 @@ def main():
     print("Loading license plate detector...")
     plate_detector = YOLO(PLATE_MODEL_PATH)
 
-    print(
-        "Loading EasyOCR. The first run may take longer "
-        "while recognition files are prepared..."
-    )
-    reader = easyocr.Reader(["en"], gpu=False)
+    reader = None
+    if easyocr is not None:
+        print(
+            "Loading EasyOCR. The first run may take longer "
+            "while recognition files are prepared..."
+        )
+        try:
+            reader = easyocr.Reader(["en"], gpu=False)
+        except Exception as e:
+            print(f"[!] Warning: Could not initialize EasyOCR reader: {e}")
+            reader = None
+    else:
+        print("[!] Note: EasyOCR is not installed. Running plate detection without character recognition.")
 
     cap = cv2.VideoCapture(video_path)
 
@@ -258,21 +269,25 @@ def main():
                             interpolation=cv2.INTER_CUBIC,
                         )
 
-                        ocr_results = reader.readtext(
-                            crop,
-                            detail=1,
-                            paragraph=False,
-                        )
-
-                        readings = [
-                            (
-                                text.strip(),
-                                float(score),
-                            )
-                            for _, text, score
-                            in ocr_results
-                            if text.strip()
-                        ]
+                        readings = []
+                        if reader is not None:
+                            try:
+                                ocr_results = reader.readtext(
+                                    crop,
+                                    detail=1,
+                                    paragraph=False,
+                                )
+                                readings = [
+                                    (
+                                        text.strip(),
+                                        float(score),
+                                    )
+                                    for _, text, score
+                                    in ocr_results
+                                    if text.strip()
+                                ]
+                            except Exception:
+                                readings = []
 
                         if readings:
                             plate_text = " ".join(

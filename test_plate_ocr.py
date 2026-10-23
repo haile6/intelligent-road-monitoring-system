@@ -2,7 +2,10 @@
 import os
 import cv2
 import csv
-import easyocr
+try:
+    import easyocr
+except ImportError:
+    easyocr = None
 from ultralytics import YOLO
 
 VIDEO_PATH = r"data\new_test_video.mp4"
@@ -25,8 +28,16 @@ if not os.path.exists(PLATE_MODEL_PATH):
 print("Loading plate detector...")
 detector = YOLO(PLATE_MODEL_PATH)
 
-print("Loading EasyOCR (first run may download its recognition model)...")
-reader = easyocr.Reader(["en"], gpu=False)
+reader = None
+if easyocr is not None:
+    print("Loading EasyOCR (first run may download its recognition model)...")
+    try:
+        reader = easyocr.Reader(["en"], gpu=False)
+    except Exception as e:
+        print(f"[!] Warning: Could not initialize EasyOCR reader: {e}")
+        reader = None
+else:
+    print("[!] Note: easyocr not installed (pip install easyocr). Proceeding without OCR text extraction.")
 
 cap = cv2.VideoCapture(VIDEO_PATH)
 if not cap.isOpened():
@@ -84,11 +95,16 @@ try:
                 interpolation=cv2.INTER_CUBIC
             )
 
-            ocr_results = reader.readtext(
-                crop,
-                detail=1,
-                paragraph=False,
-            )
+            ocr_results = []
+            if reader is not None:
+                try:
+                    ocr_results = reader.readtext(
+                        crop,
+                        detail=1,
+                        paragraph=False,
+                    )
+                except Exception:
+                    ocr_results = []
 
             # Keep OCR text and confidence; don't assume the
             # characters are correct or enforce a guessed plate format.

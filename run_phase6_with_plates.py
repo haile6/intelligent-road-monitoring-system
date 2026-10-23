@@ -3,7 +3,10 @@ import os
 import csv
 
 import cv2
-import easyocr
+try:
+    import easyocr
+except ImportError:
+    easyocr = None
 from ultralytics import YOLO
 
 from detection.vehicle_detector import VehicleDetector
@@ -74,8 +77,16 @@ def main():
     print("Loading license plate detector...")
     plate_detector = YOLO(PLATE_MODEL_PATH)
 
-    print("Loading EasyOCR...")
-    reader = easyocr.Reader(["en"], gpu=False)
+    reader = None
+    if easyocr is not None:
+        print("Loading EasyOCR...")
+        try:
+            reader = easyocr.Reader(["en"], gpu=False)
+        except Exception as e:
+            print(f"[!] Warning: Could not initialize EasyOCR reader: {e}")
+            reader = None
+    else:
+        print("[!] Note: EasyOCR is not installed. Running plate detection without character recognition.")
 
     cap = cv2.VideoCapture(INPUT_VIDEO)
 
@@ -202,21 +213,25 @@ def main():
                             interpolation=cv2.INTER_CUBIC,
                         )
 
-                        readings = reader.readtext(
-                            crop,
-                            detail=1,
-                            paragraph=False,
-                            allowlist=(
-                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                "0123456789"
-                            ),
-                        )
-
-                        readings = [
-                            (text.strip(), float(score))
-                            for _, text, score in readings
-                            if text.strip()
-                        ]
+                        readings = []
+                        if reader is not None:
+                            try:
+                                raw_readings = reader.readtext(
+                                    crop,
+                                    detail=1,
+                                    paragraph=False,
+                                    allowlist=(
+                                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "0123456789"
+                                    ),
+                                )
+                                readings = [
+                                    (text.strip(), float(score))
+                                    for _, text, score in raw_readings
+                                    if text.strip()
+                                ]
+                            except Exception:
+                                readings = []
 
                         if readings:
                             plate_text = " ".join(

@@ -70,6 +70,7 @@ def main():
     # Automatically launch Google Chrome / default browser to the Studio
     import threading
     import webbrowser
+    import time
     def auto_open_browser():
         time.sleep(1.2)
         studio_url = f"http://127.0.0.1:{target_port}/studio"

@@ -9,7 +9,7 @@ import time
 
 def create_project_zip(output_zip_path=None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    downloads_dir = os.path.abspath(os.path.join(base_dir, "..", "..")) # C:\Users\Student\Downloads
+    downloads_dir = os.path.abspath(os.path.join(base_dir, ".."))  # Parent Downloads folder
     
     if output_zip_path is None:
         output_zip_path = os.path.join(downloads_dir, "road_monitoring_system_complete.zip")
