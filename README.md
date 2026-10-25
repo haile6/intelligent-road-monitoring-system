@@ -1,4 +1,4 @@
-# RoadEye Enterprise: Intelligent Road Monitoring & Collision Avoidance Platform
+# RoadEye Enterprise: Intelligent Road Surveillance, Pavement Hazard Management & Collision Avoidance Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C.svg)](https://pytorch.org/)
@@ -7,90 +7,114 @@
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000.svg)](https://flask.palletsprojects.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57.svg)](https://www.sqlite.org/)
 [![Leaflet](https://img.shields.io/badge/Leaflet-GIS%20Mapping-199900.svg)](https://leafletjs.com/)
-[![Status](https://img.shields.io/badge/Submission-Ready-brightgreen.svg)]()
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Author & Lead Developer**: **Haile Sintayehu** ([@haile6](https://github.com/haile6))  
-> **Contact**: `hailesintayehu113@gmail.com`  
+> **Principal Investigator & Lead Developer**: **Haile Sintayehu** ([@haile6](https://github.com/haile6))  
+> **Institutional Contact**: `hailesintayehu113@gmail.com`  
 > **Repository**: [haile6/intelligent-road-monitoring-system](https://github.com/haile6/intelligent-road-monitoring-system)  
-> **Architecture**: Multi-Task Vision-Language Telemetry & Spatial GIS Infrastructure Platform  
+> **Domain**: Deep Learning Perception, Monocular Spatial Kinematics, Automatic Number Plate Recognition (ANPR), and Intelligent Transportation Systems (ITS)
 
 ---
 
 ## 📌 Executive Summary & Abstract
 
-Traditional roadway surveillance relies on manual, periodic, and hazardous road surveys, resulting in delayed maintenance, accelerated structural degradation, and preventable traffic fatalities. 
+Traditional roadway asset management relies upon manual, periodic visual surveys that are resource-intensive, safety-hazardous, and structurally reactive. Consequently, pavement defects deteriorate into catastrophic failures, and delayed driver perception leads to severe traffic collisions.
 
-**RoadEye Enterprise** is a comprehensive, production-grade computer vision and Intelligent Transportation System (ITS) platform. It processes standard dashcam footage, live mobile phone camera feeds, and USB video devices synchronized with GPS telemetry to deliver two mission-critical capabilities:
-1. **Automated Municipal Road Infrastructure Management**: Geotagging, classification, and maintenance tracking for potholes, alligator cracks, and road hazards.
-2. **Real-Time Advanced Driver Assistance System (ADAS)**: Perspective distance estimation, vehicle tracking, Automatic Number Plate Recognition (ANPR), trajectory corridor collision prediction, and dual-language (Amharic & English) auditory collision warnings.
+**RoadEye Enterprise** is a unified, end-to-end computer vision and spatial telemetry platform engineered for municipal infrastructure asset preservation and vehicular collision mitigation. Operating over standard monocular dashcam video, real-time smartphone browser feeds (WebRTC), and physical hardware GPS receivers, the platform simultaneously delivers two mission-critical capabilities:
+
+1. **Automated Municipal Road Infrastructure Management**: High-throughput detection, spatial geotagging, severity grading, and dispatch lifecycle management for asphalt road defects (potholes and alligator fatigue cracking).
+2. **Real-Time Advanced Driver Assistance System (ADAS)**: Monocular road-plane perspective distance estimation, Multi-Object Tracking (MOT), host vehicle trajectory corridor analysis, dynamic Time-To-Collision (TTC) computation, Automatic Number Plate Recognition (ANPR), and dual-language (Amharic & English) auditory collision warnings.
 
 ---
 
-## 🌟 Key System Capabilities
+## 🌟 Core System Subsystems
 
-| Feature Subsystem | Technical Implementation | Practical Impact |
+| Subsystem | Technical Implementation | Practical & Operational Impact |
 | :--- | :--- | :--- |
-| **Neural Pavement Defect Perception** | Custom-trained YOLOv8/11 neural models on asphalt datasets. | High-confidence detection of potholes and alligator cracks under diverse lighting and weather. |
-| **Multi-Object Tracking (MOT)** | ByteTrack / IoU temporal tracking with confirmation counters. | Eliminates duplicate defect reporting across video frames. |
-| **Multi-Vehicle Perception & ANPR** | YOLO11s detector + YOLOv8 license plate locator + EasyOCR engine. | Identifies passenger cars, trucks, buses, motorcycles, and extracts registration plates. |
-| **Monocular Distance Estimation** | Road-plane perspective projection geometry ($H, \theta, f_y$). | Measures physical distance ($Z$ in meters) without requiring expensive LiDAR hardware. |
-| **Trajectory Corridor Analysis** | Dynamic vehicle lane polygon intersection. | Filters out off-path hazards; flags objects on a direct collision path with the host vehicle. |
-| **Kinematic Collision Engine (TTC)** | $\text{TTC} = d / v_{\text{approach}}$ evaluated against braking envelopes. | Classifies threat levels: **Safe**, **Caution**, **Warning**, and **Immediate Danger**. |
-| **Real-Time Live Video & Dashcam** | WebRTC in-browser capture, USB webcam, and RTSP/HTTP IP streams. | Works in real vehicles using mounted smartphones, USB dashcams, or IP cameras. |
-| **Spatial GIS Synchronization** | Sub-second GPS LERP interpolation + Great Circle forward projection. | Projects exact geographic coordinates ($\text{Lat}, \text{Lon}$) for every detected defect. |
-| **Synchronized Telemetry Studio** | Split-view dashboard: Dashcam video (top) + Live Leaflet map (bottom). | Live vehicle position marker, pulsing hazard beacon, laser trajectory line, and coordinate telemetry. |
-| **Dual-Language ADAS Alerts** | Web Audio API tone synthesis + Web Speech API (English & Amharic). | Instant spoken collision warnings: *"Danger! Pothole in path, 8 meters!"* / *"አስቸኳይ አደጋ! በመንገዱ ላይ ጉድጓድ ተገኝቷል!"* |
-| **Municipal Web Management Panel** | Full-stack Flask + SQLite + Leaflet OpenStreetMap suite. | KPI executive dashboard, work order management, incident ledger, and printable inspection reports. |
+| **Pavement Defect Perception** | Custom-trained YOLOv8/11 deep neural network on regional Ethiopian road imagery. | Rapid, robust detection of potholes and alligator fatigue cracks across varying ambient illumination and asphalt conditions. |
+| **Multi-Object Tracking (MOT)** | ByteTrack / IoU temporal association with minimum hit confirmation counters. | Eliminates duplicate incident reporting across continuous video frames while computing trajectory vectors. |
+| **Vehicle Perception & ANPR** | Two-stage deep pipeline: YOLO11s multi-class vehicle detector + YOLOv8 plate locator + EasyOCR engine. | Tracks surrounding traffic (cars, trucks, buses, motorcycles) and extracts license registration plates into structured optical evidence. |
+| **Monocular Distance Estimation** | Road-plane perspective projection geometry utilizing camera elevation ($H$), tilt ($\theta$), and focal length ($f_y$). | Accurately estimates metric distance ($Z$ in meters) without requiring expensive LiDAR or stereo camera sensor suites. |
+| **Dynamic Corridor Analysis** | Host vehicle lane polygon projection and geometric intersection. | Distinguishes between lateral non-hazardous roadside defects and obstacles located directly in the driving corridor. |
+| **Kinematic Collision Engine** | Continuous Time-To-Collision ($\text{TTC} = d / v_{\text{approach}}$) evaluated against empirical braking curves. | Dynamically categorizes collision threats into four standardized tiers: **Safe**, **Caution**, **Warning**, and **Immediate Danger**. |
+| **Dual-Language ADAS Alerts** | Web Audio API sound synthesis and Web Speech API text-to-speech engine. | Delivers immediate, spoken audio warnings in both **Amharic** (*"አስቸኳይ አደጋ!"*) and **English** (*"Danger! Pothole in path!"*). |
+| **Forward Geodesic Projection** | Sub-second GPS linear interpolation (LERP) coupled with Great Circle destination geodesics. | Pinpoints the exact geographic coordinates ($\text{Lat}, \text{Lon}$) of detected road hazards in advance of vehicle arrival. |
+| **Synchronized Telemetry Studio** | Low-latency split-screen operations dashboard (Video Feed + Synchronized Leaflet GIS Map). | Live vehicle corridor animation, hazard beacon projection, dynamic laser trajectory vector, and instant telemetry readout. |
+| **Municipal Web Management Panel** | Full-stack Flask REST architecture, SQLite persistence layer, and responsive interface. | Executive KPI metrics, maintenance work order dispatch, visual ANPR registry, and printable field inspection reports. |
 
 ---
 
-## 🏗️ System Architecture
+## 🛣️ Debre Berhan Road Damage Dataset (Potholes & Alligator Cracks)
+
+To guarantee high model fidelity on authentic regional road conditions, this platform incorporates an original, ground-truth pavement distress dataset collected and annotated specifically for this project:
+
+* **Geographic Origin**: **Debre Berhan City (ደብረ ብርሃን)**, Amhara Region, Ethiopia.
+* **Collection Methodology**: **Manual field collection** capturing high-resolution pavement imagery and video feeds across urban asphalt arteries, ring roads, and secondary transit corridors under natural Ethiopian daylight, varying shadows, and authentic road surface distress.
+* **Annotation Platform**: Manually annotated, verified, and quality-controlled using **CVAT (Computer Vision Annotation Tool)**.
+* **Annotation Format**: Standard Ultralytics YOLOv8 / YOLO11 normalized bounding box format (`<class_id> <x_center> <y_center> <width> <height>`).
+* **Distress Class Definitions**:
+  - **Class `0` — `alligator_crack`**: Interconnected structural fatigue fissures in asphalt surfacing resembling reptilian scales, indicative of sub-base structural failure.
+  - **Class `1` — `pothole`**: Bowl-shaped depressions and structural cavities caused by water penetration and traffic wear, presenting acute vehicular collision hazards.
+
+### Dataset Partitioning & Statistics
+
+| Dataset Partition | Image Count | Label Count | Percentage | Directory Path |
+| :--- | :---: | :---: | :---: | :--- |
+| **Training Set** | 507 | 507 | 70.0% | [`data/custom_dataset/images/train/`](file:///c:/Users/haile/Downloads/intelligent-road-monitoring-system-main/data/custom_dataset/images/train) |
+| **Validation Set** | 109 | 109 | 15.0% | [`data/custom_dataset/images/val/`](file:///c:/Users/haile/Downloads/intelligent-road-monitoring-system-main/data/custom_dataset/images/val) |
+| **Test Set** | 109 | 109 | 15.0% | [`data/custom_dataset/images/test/`](file:///c:/Users/haile/Downloads/intelligent-road-monitoring-system-main/data/custom_dataset/images/test) |
+| **Total Benchmark** | **725** | **725** | **100.0%** | [`data/custom_dataset/`](file:///c:/Users/haile/Downloads/intelligent-road-monitoring-system-main/data/custom_dataset) |
+
+---
+
+## 🏗️ Architectural Topology
 
 ```mermaid
 flowchart TD
-    subgraph Tier1["1. Ingestion & Sensor Interface"]
-        V1["Recorded Video (MP4 / H.264)"]
-        V2["Live Phone Camera (WebRTC)"]
-        V3["USB Dashcam / IP Stream (RTSP)"]
-        G1["GPS Log (GPX / CSV)"]
-        G2["Live Hardware GPS (NMEA Serial COM)"]
+    subgraph Tier1["1. Sensor Interface & Data Ingestion"]
+        V1["Dashcam Footage (MP4 / H.264)"]
+        V2["Live Smartphone WebRTC (Browser)"]
+        V3["USB Dashcam / RTSP IP Stream"]
+        G1["Recorded GPS Track (GPX / CSV)"]
+        G2["Hardware NMEA Serial GPS (COM Port)"]
         G3["Mobile Geolocation (HTML5 GPS)"]
     end
 
     subgraph Tier2["2. Deep Learning Perception Subsystem"]
-        D1["Road Damage Model\n(road_damage_best.pt)"]
-        D2["Vehicle Detector\n(yolo11s.pt / yolov8n.pt)"]
-        D3["Plate Detector & ANPR\n(license_plate_detector.pt)"]
+        D1["Custom Road Damage Model\n(models/road_damage_best.pt)"]
+        D2["Multi-Vehicle Detector\n(models/yolo11s.pt)"]
+        D3["ANPR Plate Locator & EasyOCR\n(models/license_plate_detector.pt)"]
         T1["Damage ByteTracker\n(Temporal Confirmation)"]
         T2["Vehicle Tracker\n(MOT ID Persistence)"]
     end
 
-    subgraph Tier3["3. Geometric & Kinematic Analysis Engine"]
-        E1["Monocular Distance Estimator\n(Perspective Projection)"]
+    subgraph Tier3["3. Geometric & Kinematic Analytics Engine"]
+        E1["Monocular Distance Estimator\n(Perspective Road Plane Projection)"]
         E2["Driving Corridor Analyzer\n(Lane Polygon Intersection)"]
         E3["Kinematic Speed Provider\n(Haversine & Velocity Vectors)"]
     end
 
-    subgraph Tier4["4. Spatial GIS & Forward Geodesic Projection"]
+    subgraph Tier4["4. Spatial GIS & Geodesic Projection"]
         S1["Video-to-GPS Timestamp Synchronization"]
         S2["Sub-Second LERP Coordinate Interpolation"]
-        S3["Great Circle Hazard Projection\n(Vehicle Pos + Heading + Distance)"]
+        S3["Great Circle Destination Geodesics\n(Forward Hazard Coordinate Calculation)"]
     end
 
     subgraph Tier5["5. ADAS Risk & Collision Alert Engine"]
         R1["Time-to-Collision (TTC) Calculator"]
-        R2["Multi-Factor Priority Scoring\n(Risk = Severity × Proximity × Path)"]
-        R3["ADAS Auditory Warnings\n(Amharic & English Voice Engine)"]
+        R2["Multi-Factor Hazard Scoring\n(Risk = Severity × Proximity × InPath)"]
+        R3["Dual-Language Collision Alerts\n(Amharic & English Voice Synthesis)"]
     end
 
-    subgraph Tier6["6. Persistence & Municipal Web Application"]
-        DB[("SQLite Database\n(road_monitoring.db)")]
+    subgraph Tier6["6. Relational Persistence & Web Operations"]
+        DB[("SQLite Database\n(database/road_monitoring.db)")]
         UI1["Executive KPI Dashboard (/)"]
         UI2["Synchronized Telemetry Studio (/studio)"]
         UI3["Interactive GIS Road Map (/map)"]
         UI4["Municipal Incident Ledger (/incidents)"]
         UI5["ANPR Vehicle Optical Gallery (/plates)"]
-        UI6["Field Work Order Reports (/reports)"]
+        UI6["Field Maintenance Work Orders (/reports)"]
+        UI7["Jupyter Research Environment (integrated2.ipynb)"]
     end
 
     V1 & V2 & V3 --> D1 & D2 & D3
@@ -102,160 +126,50 @@ flowchart TD
     E1 & E2 & E3 --> R1 --> R2
     R2 --> R3
     S3 & R2 --> DB
-    DB --> UI1 & UI2 & UI3 & UI4 & UI5 & UI6
+    DB --> UI1 & UI2 & UI3 & UI4 & UI5 & UI6 & UI7
 ```
 
 ---
 
-## 📹 Real-Time Live Video & In-Vehicle Dashcam Deployment
-
-RoadEye Enterprise supports **real-world live video streams** through three deployment modes:
-
-### Mode 1: Browser-Based Live Smartphone Dashcam (Recommended for In-Car Use)
-*Zero terminal commands required. Turns any iPhone or Android phone into an intelligent dashcam.*
-
-1. Connect your smartphone and laptop/server to the same Wi-Fi network or phone mobile hotspot.
-2. Open your smartphone's browser (Safari or Chrome) and navigate to the local network URL displayed in the server terminal:
-   ```text
-   http://<YOUR_COMPUTER_LAN_IP>:8080/studio
-   # Example: http://192.168.137.131:8080/studio
-   ```
-3. Mount the phone onto your car's windshield dashboard mount facing the road.
-4. Tap the red button on the toolbar: **`Live Phone / Web Camera`**.
-5. Grant Camera & Location permissions:
-   - **Camera**: Automatically selects the phone's **rear-facing environment camera** (`facingMode: 'environment'`).
-   - **GPS**: Activates device geolocation (`navigator.geolocation`) in **high-accuracy mode** to capture real-time latitude, longitude, and driving speed.
-6. **Live Execution**:
-   - Frames are streamed to the neural detector.
-   - Bounding boxes and estimated distances are rendered live over the camera feed.
-   - When a pothole appears ahead, the system computes its geographic destination coordinates, adds a pulsing red marker and dashed trajectory line to the live map below, and sounds the ADAS voice alert through the phone speakers.
-
----
-
-### Mode 2: High-Performance CLI with USB Dashcam or Built-in Webcam
-*Designed for laptops or onboard edge computers (NVIDIA Jetson, Intel NUC) mounted inside inspection vehicles.*
-
-Plug your USB dashcam into your computer and execute:
-```bash
-# Use built-in laptop camera or primary webcam (device index 0)
-python run_integrated.py --source 0 --show
-
-# Use external USB dashcam (device index 1)
-python run_integrated.py --source 1 --show
-```
-- Performs full YOLOv8 defect detection, vehicle tracking, perspective distance calculation, and auditory beeps at native camera frame rates.
-- Press **`Q`** at any time to gracefully terminate the stream, write the master annotated video to `outputs/final_integrated_video.mp4`, and record all incidents in SQLite.
-
----
-
-### Mode 3: Wireless Smartphone IP Stream (RTSP / HTTP)
-*Broadcasts video over local Wi-Fi from standard camera streaming apps.*
-
-1. Install **IP Webcam** (Android) or **DroidCam** (iOS / Android) on your smartphone.
-2. Mount the phone on the windshield and start the streaming server in the app.
-3. The app displays an address such as `http://192.168.43.1:8080/video`.
-4. Run the integrated pipeline pointing directly to the wireless video URL:
-```bash
-python run_integrated.py --source "http://192.168.43.1:8080/video" --show
-```
-
----
-
-### Hardware GPS Receiver Interface (`gps/real_gps_reader.py`)
-For enterprise municipal fleets, the platform connects to physical USB/Serial GPS receivers (e.g., **u-blox NEO-M8N**, **GlobalSat BU-353**, **Garmin GPS**):
-- Automatically reads serial NMEA 0183 sentences (`$GPRMC` and `$GNRMC`).
-- Parses true ground speed, heading azimuth, latitude, and longitude at 1.0–10.0 Hz.
-- Operates offline in rural environments with no cellular data required.
-
----
-
-## 🔬 Mathematical Foundations & Algorithms
+## 🔬 Mathematical Formulations
 
 ### 1. Monocular Perspective Distance Estimation
-Without requiring costly LiDAR or stereo cameras, physical ground-plane distance $Z$ (meters) is computed from 2D pixel coordinates $(u, v)$ on the image plane:
-- Camera Mounting Height: $H$ (meters above ground level)
-- Camera Optical Pitch Angle: $\theta$ (radians below the horizon)
-- Vertical Field of View: $\text{FOV}_v$
-- Image Height: $h_{\text{img}}$ pixels
+Without requiring active sensors (LiDAR/RADAR), metric ground-plane distance $Z$ (meters) is derived from camera mounting height $H$, pitch depression angle $\theta$, vertical field of view $\text{FOV}_v$, and pixel image height $h_{\text{img}}$:
 
-The focal length in pixels is:
-$$f_y = \frac{h_{\text{img}}}{2 \cdot \tan\left(\frac{\text{FOV}_v}{2}\right)}$$
+$$\text{Focal Length } (f_y) = \frac{h_{\text{img}}}{2 \cdot \tan\left(\frac{\text{FOV}_v}{2}\right)}$$
 
-The horizon row $y_{\text{horizon}}$ is:
-$$y_{\text{horizon}} = \frac{h_{\text{img}}}{2} - f_y \cdot \tan(\theta)$$
+$$\text{Horizon Line } (y_{\text{horizon}}) = \frac{h_{\text{img}}}{2} - f_y \cdot \tan(\theta)$$
 
-For any detected bounding box with bottom edge $y_{\text{contact}}$:
-$$Z = \frac{H}{\tan\left(\theta + \arctan\left(\frac{y_{\text{contact}} - h_{\text{img}}/2}{f_y}\right)\right)}$$
+For any detected bounding box contacting the roadway at pixel row $y_{\text{contact}}$:
+
+$$Z = \frac{H}{\tan\left(\theta + \arctan\left(\frac{y_{\text{contact}} - \frac{h_{\text{img}}}{2}}{f_y}\right)\right)}$$
 
 ---
 
-### 2. Time-To-Collision (TTC) Dynamic Kinematics
-For any obstacle detected within the vehicle's driving corridor:
-$$\text{TTC} = \frac{d_{\text{obstacle}}}{v_{\text{approach}}}$$
-Where $d_{\text{obstacle}}$ is the estimated distance (m) and $v_{\text{approach}}$ is the closing velocity (m/s).
+### 2. Kinematic Time-To-Collision (TTC) Formulations
+For any obstacle detected within the projected trajectory corridor of the host vehicle:
 
-Classification thresholds:
-$$\text{Risk Level} = \begin{cases} 
-\textbf{Immediate Danger} & \text{if } \text{TTC} \le 1.8\text{ s} \quad (\text{Red Banner + ADAS Voice Alert}) \\ 
-\textbf{Warning} & \text{if } 1.8\text{ s} < \text{TTC} \le 3.5\text{ s} \quad (\text{Orange Banner}) \\ 
-\textbf{Caution} & \text{if } 3.5\text{ s} < \text{TTC} \le 6.0\text{ s} \quad (\text{Yellow Banner}) \\ 
-\textbf{Safe / Clear} & \text{if } \text{TTC} > 6.0\text{ s} \quad (\text{Green Banner}) 
+$$\text{TTC} = \frac{d_{\text{obstacle}}}{v_{\text{approach}}}$$
+
+Where $d_{\text{obstacle}}$ denotes estimated forward metric distance ($m$) and $v_{\text{approach}}$ represents vehicle approach velocity ($m/s$). Dynamic hazard tiers are evaluated as follows:
+
+$$\text{Risk Tier} = \begin{cases} 
+\textbf{Immediate Danger} & \text{if } \text{TTC} \le 1.8\text{ s} \quad (\text{Red HUD Banner + Auditory Speech Alert}) \\ 
+\textbf{Warning} & \text{if } 1.8\text{ s} < \text{TTC} \le 3.5\text{ s} \quad (\text{Orange Warning Banner}) \\ 
+\textbf{Caution} & \text{if } 3.5\text{ s} < \text{TTC} \le 6.0\text{ s} \quad (\text{Yellow Caution Banner}) \\ 
+\textbf{Safe / Clear} & \text{if } \text{TTC} > 6.0\text{ s} \quad (\text{Green Informational Status}) 
 \end{cases}$$
 
 ---
 
-### 3. Spatial GIS Synchronization (The Real-World Highway Case)
+### 3. Spatial GIS Forward Geodesic Projection
+When an obstacle is detected $d$ meters ahead along compass azimuth $\beta$ from current vehicle coordinates $(\phi_1, \lambda_1)$, its absolute geographic position $(\phi_2, \lambda_2)$ is calculated over the Earth's spherical radius ($R \approx 6,371,000\text{ m}$) using angular distance $\delta = d / R$:
 
-Consider an inspection vehicle traveling along an Ethiopian highway:
-```text
-[ Vehicle with Dashcam & GPS ] ========= 12 meters =========> [ Pothole on Road ]
- (Current Vehicle GPS: Lat A, Lon A)                           (Projected: Lat B, Lon B)
-```
+$$\phi_2 = \arcsin\left(\sin(\phi_1)\cos(\delta) + \cos(\phi_1)\sin(\delta)\cos(\beta)\right)$$
 
-The system executes a 4-step spatial transformation:
-1. **Timestamp Synchronization**: Aligns high-frequency video frames (24–30 FPS, $\Delta t \approx 0.033\text{s}$) with GPS records (1.0 Hz, $\Delta t = 1.0\text{s}$).
-2. **Sub-Second Linear Interpolation (LERP)**:  
-   For a detection occurring at $t = 10.4\text{s}$ between GPS fixes $t_1 = 10.0\text{s}$ and $t_2 = 11.0\text{s}$:
-   $$f = \frac{10.4 - 10.0}{11.0 - 10.0} = 0.4$$
-   $$\text{Lat}_{\text{vehicle}} = \text{Lat}_1 + f \cdot (\text{Lat}_2 - \text{Lat}_1)$$
-   $$\text{Lon}_{\text{vehicle}} = \text{Lon}_1 + f \cdot (\text{Lon}_2 - \text{Lon}_1)$$
-3. **Compass Bearing Vector**:  
-   Computes vehicle travel direction azimuth $\beta$ ($0^\circ = \text{North}, 90^\circ = \text{East}, 180^\circ = \text{South}, 270^\circ = \text{West}$).
-4. **Great Circle Destination Formula (`damage_location`)**:  
-   Projects the pothole's physical coordinates using the angular distance $\delta = d / R$ (where $R \approx 6,371,000\text{ m}$):
-   $$\phi_2 = \arcsin\left(\sin(\phi_1)\cos(\delta) + \cos(\phi_1)\sin(\delta)\cos(\beta)\right)$$
-   $$\lambda_2 = \lambda_1 + \arctan2\left(\sin(\beta)\sin(\delta)\cos(\phi_1),\, \cos(\delta) - \sin(\phi_1)\sin(\phi_2)\right)$$
+$$\lambda_2 = \lambda_1 + \arctan2\left(\sin(\beta)\sin(\delta)\cos(\phi_1),\, \cos(\delta) - \sin(\phi_1)\sin(\phi_2)\right)$$
 
----
-
-## 🖥️ Telemetry Studio: Synchronized Split-View & Map Interface
-
-The **Telemetry Studio** (`/studio`) features an integrated split-view designed for in-vehicle and control-room monitoring:
-
-```text
-+-------------------------------------------------------------------------+
-| [VIDEO PLAYER: Dashcam Footage / Live WebRTC Stream]                   |
-|                                                                         |
-|  [ HUD GLASSMORPHISM OVERLAY ]                                          |
-|  [IMMEDIATE DANGER] POTHOLE #56 [IN PATH]                               |
-|  Dist: ~2.9m | TTC: 0.3s | Corridor: CRITICAL | Speed: 30 km/h           |
-|  📍 Hazard Location: 9.125009° N, 39.125029° E                          |
-+-------------------------------------------------------------------------+
-| [LIVE SYNCHRONIZED OPENSTREETMAP CORRIDOR]                             |
-|                                                                         |
-|  (Vehicle Pin) • • • • - - - - [Laser Dashed Line] - - - - > [⚠️ POTHOLE]
-|  Lat: 9.124991, Lon: 39.125010                Lat: 9.125009, Lon: 39.125029
-|                                                                         |
-|  [🚨 POTHOLE DETECTED AHEAD • Lat 9.125009, Lon 39.125029 • 2.9m]      |
-+-------------------------------------------------------------------------+
-```
-
-### Visual Highlights During Playback:
-- **Vehicle Position Marker**: A glowing blue marker smoothly animates along the roadway corridor in real time.
-- **Active Pothole Marker**: When a hazard appears, a pulsing red target with animated radar rings pops up directly at the pothole's geographic coordinates.
-- **Dashed Laser Line**: Connects the vehicle marker to the pothole ahead to visualize the approach trajectory.
-- **Map Toolbar Indicator**: Displays `POTHOLE: 9.125009, 39.125029 (2.9m)`.
-- **Intelligent Auto-Pan**: Centers the view between the vehicle and the hazard so the driver or operator never loses sight of the road defect.
+This forward projection guarantees that road defects are pinpointed at their exact physical location on municipal GIS maps, independent of the inspection vehicle's stopping position.
 
 ---
 
@@ -263,126 +177,115 @@ The **Telemetry Studio** (`/studio`) features an integrated split-view designed 
 
 ```text
 intelligent-road-monitoring-system/
-├── config.py                 # Centralized configuration (FOV, thresholds, camera tilt)
-├── run_web.py                # Main launcher for Web Management Platform & REST APIs
-├── run_integrated.py         # Unified one-pass perception, tracking & collision pipeline
+├── config.py                 # Centralized configuration (FOV, camera elevation, thresholds)
+├── run_web.py                # Web Management Panel launcher with dynamic port discovery
+├── run_integrated.py         # Unified one-pass perception, tracking, GIS, and risk pipeline
+├── integrated2.ipynb         # Interactive Jupyter research and model training notebook
 │
-├── run_phase1.py             # Phase 1: Pure YOLO Road Damage Detection
+├── run_phase1.py             # Phase 1: Standalone YOLO Road Damage Detection
 ├── run_phase2.py             # Phase 2: Damage Multi-Object Tracking & Confirmation
-├── run_phase3.py             # Phase 3: Multi-Vehicle Detection & Tracking
-├── run_phase4.py             # Phase 4: Driving Corridor & Trajectory Analysis
-├── run_phase5.py             # Phase 5: Monocular Distance Estimation
-├── run_phase6.py             # Phase 6: GPS Telemetry Synchronization & Geotagging
-├── run_phase6_with_plates.py # Phase 6B: License Plate Detection (ANPR)
-├── run_phase7.py             # Phase 7: Kinematic Speed Provider & Plate Association
-├── run_phase7_speed.py       # Phase 7B: Alternate Speed Pipeline
+├── run_phase3.py             # Phase 3: Multi-Vehicle Detection & MOT Tracking
+├── run_phase4.py             # Phase 4: Dynamic Driving Corridor & Trajectory Analysis
+├── run_phase5.py             # Phase 5: Monocular Perspective Distance Estimation
+├── run_phase6.py             # Phase 6: Sub-Second GPS Geotagging & Synchronization
+├── run_phase6_with_plates.py # Phase 6B: License Plate Detection (ANPR Subsystem)
+├── run_phase7.py             # Phase 7: GPS Speed Provider & Plate Association
+├── run_phase7_speed.py       # Phase 7B: Alternative Speed Estimation Module
 ├── run_phase8.py             # Phase 8: Dynamic Time-To-Collision (TTC) Engine
-├── run_phase9.py             # Phase 9: Unified Multi-Tier Risk Classification
+├── run_phase9.py             # Phase 9: Unified Multi-Tier Hazard Classification
 │
-├── check_distance.py         # Interactive calibration tool for camera distance validation
-├── gpx_to_csv.py             # Telemetry parser converting GPX traces into synchronized CSV
-├── package_project.py        # Automated clean packaging script for project submission
+├── check_distance.py         # Interactive calibration utility for camera elevation & tilt
+├── gpx_to_csv.py             # GPS converter converting GPX telemetry traces to synchronized CSV
+├── package_project.py        # Automated submission packaging script
 │
 ├── detection/                # Deep Learning Perception Subsystem
-│   ├── __init__.py           # Formal package exports
-│   ├── road_damage_detector.py # Custom YOLOv8/11 road damage inference wrapper
-│   ├── vehicle_detector.py   # Multi-class vehicle inference wrapper
-│   └── tracker.py            # IoU-based temporal tracking & confirmation engine
+│   ├── __init__.py
+│   ├── road_damage_detector.py # Custom YOLOv8/11 pavement damage inference wrapper
+│   ├── vehicle_detector.py     # Multi-class vehicular inference wrapper
+│   └── tracker.py              # IoU & ByteTrack temporal tracking and hit counters
 │
-├── risk/                     # Spatial Risk & Collision Analytics
-│   ├── __init__.py           # Formal package exports
-│   ├── distance_estimator.py # Monocular road-plane perspective projection
-│   ├── path_analyzer.py      # Driving corridor polygon intersection
-│   ├── ttc_calculator.py     # Kinematic Time-To-Collision computing
-│   ├── risk_analyzer.py      # Multi-factor hazard classification
-│   ├── priority_weight.py    # Infrastructure maintenance priority scoring
-│   └── severity_estimator.py # Pavement degradation severity heuristic
+├── risk/                     # Spatial Analytics & ADAS Kinematics
+│   ├── __init__.py
+│   ├── distance_estimator.py   # Perspective ground-plane distance estimation
+│   ├── path_analyzer.py        # Host lane polygon intersection
+│   ├── ttc_calculator.py       # Dynamic Time-to-Collision evaluation
+│   ├── risk_analyzer.py        # Multi-factor hazard classification
+│   ├── priority_weight.py      # Municipal repair priority scoring algorithm
+│   └── severity_estimator.py   # Pavement surface degradation metric
 │
-├── gps/                      # Geodesic & Telemetry Synchronization
-│   ├── __init__.py           # Formal package exports
-│   ├── gps_reader.py         # CSV & NMEA telemetry reader with caching
-│   ├── gps_sync.py           # Sub-second video-to-GPS timestamp interpolation
-│   ├── speed_provider.py     # Speed calculation from GPS deltas
-│   ├── geo.py                # Haversine distance & Great Circle bearing calculations
-│   ├── real_gps_reader.py    # Serial COM port interface for hardware GPS receivers
-│   └── folium_map.py         # Standalone HTML Leaflet map generator
+├── gps/                      # Spatial GIS & Telemetry Synchronization
+│   ├── __init__.py
+│   ├── gps_reader.py           # Synchronized CSV/NMEA telemetry reader
+│   ├── gps_sync.py             # Sub-second video-to-GPS interpolation
+│   ├── speed_provider.py       # Kinematic speed calculation from geodesic deltas
+│   ├── geo.py                  # Haversine distance and Great Circle bearing algorithms
+│   ├── real_gps_reader.py      # Serial COM interface for physical NMEA GPS receivers
+│   └── folium_map.py           # Standalone Leaflet HTML road inspection generator
 │
 ├── database/                 # Relational Data Persistence Layer
-│   ├── __init__.py           # Formal package exports
-│   ├── db_manager.py         # SQLite connection manager, schema migrations, REST queries
-│   └── road_monitoring.db   # Auto-created relational database
+│   ├── __init__.py
+│   ├── db_manager.py           # SQLite connection pool, schema migrations, and ORM helpers
+│   └── road_monitoring.db     # SQLite database storing incidents, plates, and audit trails
 │
-├── alerts/                   # Auditory ADAS Warning Subsystem
-│   ├── __init__.py           # Formal package exports
-│   ├── audio_warning.py      # Multi-tone ADAS sound generator & audio muxer
-│   └── voice_clips/          # Synthesized spoken audio warnings
+├── alerts/                   # Auditory Warning Subsystem
+│   ├── __init__.py
+│   ├── audio_warning.py        # Synthesized audio tone generator & audio muxer
+│   └── voice_clips/            # Spoken English and Amharic collision alert audio
 │
-├── visualization/            # Telemetry Rendering & Video Overlays
-│   ├── __init__.py           # Formal package exports
-│   └── overlay.py            # High-FPS HUD telemetry, corridor polygons, and banners
+├── visualization/            # Overlay Rendering & Head-Up Displays (HUD)
+│   ├── __init__.py
+│   └── overlay.py              # High-FPS telemetry HUD, collision banners, and lane corridors
 │
-├── models/                   # Pretrained Deep Learning Weights
-│   ├── road_damage_best.pt   # Custom-trained YOLO road damage model (Potholes, Cracks)
-│   ├── yolo11s.pt            # YOLO11s multi-vehicle detection model
-│   └── license_plate_detector.pt # YOLOv8 ANPR license plate bounding box model
+├── models/                   # Deep Neural Network Weights
+│   ├── road_damage_best.pt     # Custom-trained YOLO model (Potholes & Alligator Cracks)
+│   ├── yolo11s.pt              # YOLO11s multi-class vehicle detector
+│   └── license_plate_detector.pt # YOLOv8 ANPR license plate detection model
 │
-├── web/                      # Enterprise Web Management Platform
-│   ├── __init__.py           # Formal package exports
-│   ├── app.py                # Flask application, REST endpoints, and live frame handlers
-│   ├── static/               # CSS, JS, audio, PWA manifest
-│   └── templates/            # Modern, responsive Jinja2 HTML5 templates
-│       ├── base.html         # Master layout with sidebar navigation & telemetry status
-│       ├── dashboard.html    # Executive KPI cards & Chart.js breakdown
-│       ├── studio.html       # Video telemetry studio with split-view map & live camera
-│       ├── map.html          # Interactive Leaflet GIS road map with hazard markers
-│       ├── incidents.html    # Incident ledger with maintenance dispatch workflows
-│       ├── plates.html       # ANPR license plate optical evidence gallery
-│       ├── pipeline.html     # Browser-based AI pipeline runner with live log streaming
-│       ├── reports.html      # Printable municipal work orders & CSV data export
-│       ├── calibration.html  # Interactive camera pitch, FOV, and height tuner
-│       ├── health.html       # Real-time system hardware, GPU, and model diagnostics
-│       ├── audit.html        # Immutable system event & security audit log
-│       └── settings.html     # Platform configuration & alert sensitivity preferences
+├── data/                     # Data Repository
+│   ├── custom_dataset/         # Debre Berhan CVAT dataset (725 images & labels, dataset.yaml)
+│   ├── road_damage_alligator_pothole/ # Original structured benchmark partition
+│   ├── gps_track.csv           # Synchronized test drive telemetry track
+│   └── *.mp4                   # Highway and urban test videos
 │
-├── data/                     # Input Video & GPS Telemetry Data
-├── outputs/                  # Generated Master Videos, CSV Reports & Plate Crops
-├── requirements.txt          # Python environment dependencies
-└── Procfile                  # Production deployment WSGI entry point
+├── outputs/                  # Export Artifacts, Annotated Videos, and Evidence Crops
+├── web/                      # Enterprise Flask Operations Suite (Templates, Static, APIs)
+├── requirements.txt          # Python dependency specifications
+└── Procfile                  # Production WSGI application specification
 ```
 
 ---
 
-## 💻 Web Management Platform: Page Breakdown
+## 💻 Web Operations Platform: Endpoint Architecture
 
-| Page | URL Path | Key Functionality |
+| View / Function | Endpoint | Operational Capability |
 | :--- | :--- | :--- |
-| **Executive Dashboard** | `/` | Real-time KPI summaries (Total Hazards, Critical Incidents, Monitored Vehicles), Chart.js hazard breakdown, and recent alert feed. |
-| **Telemetry Studio** | `/studio` | Dual-view video player synchronized with hazard timeline, frame scrubber, live mobile camera mode, and split-view GIS map. |
-| **GIS Road Map** | `/map` | OpenStreetMap/Leaflet visualization displaying the vehicle's GPS track corridor with color-coded pins for potholes and alligator cracks. |
-| **Incidents & Repairs** | `/incidents` | Complete municipal maintenance workflow: filter by severity, update status (`Reported` $\to$ `Scheduled` $\to$ `Repaired`), assign crews, and log notes. |
-| **ANPR Vehicles Gallery**| `/plates` | Visual optical evidence gallery showing high-resolution vehicle crops, plate crops, confidence ratings, and timestamps. |
-| **AI Pipeline Runner** | `/pipeline` | Execute Phase 1 through Phase 9 or the Unified Pipeline directly from the web browser with real-time SSE console output. |
-| **Work Orders & Reports**| `/reports` | Printable, formatted municipal work order sheets ready for field repair crews, plus one-click CSV dataset export. |
-| **Sensor Calibration** | `/calibration` | Fine-tune camera parameters ($H$, $\theta$, $\text{FOV}_v$), preview ground-plane projections, and save profiles. |
-| **System Diagnostics** | `/health` | Live diagnostic badges for YOLO models, GPU/CUDA acceleration, memory utilization, and database integrity. |
-| **Audit Ledger** | `/audit` | Chronological record of user interactions, repair status transitions, pipeline runs, and configuration adjustments. |
+| **Executive Dashboard** | `/` | Real-time aggregate KPI metrics (Hazard Volumes, Critical Alerts, Monitored Vehicles, Priority Repairs), Chart.js visual breakdowns, and active alert feeds. |
+| **Telemetry Studio** | `/studio` | Dual-view synchronized video playback, frame-accurate scrubber, mobile WebRTC camera streaming, and real-time Leaflet GIS corridor map. |
+| **Interactive GIS Map** | `/map` | Spatial OpenStreetMap visualization displaying vehicle travel routes with color-coded geographic markers for detected pavement distress. |
+| **Incident Ledger** | `/incidents` | Complete municipal work order management: status transitions (`Reported` $\to$ `Scheduled` $\to$ `Repaired`), crew assignments, and priority filters. |
+| **ANPR Plate Gallery** | `/plates` | High-resolution visual optical evidence gallery showing vehicle crops, license plate crops, OCR confidence scores, and timestamps. |
+| **AI Pipeline Runner** | `/pipeline` | Interactive browser-based runner executing individual pipeline phases or the full integrated system with live Server-Sent Events (SSE) console streaming. |
+| **Work Order Reports** | `/reports` | Printable, formatted municipal inspection sheets tailored for field dispatch crews, complete with one-click CSV data export. |
+| **Sensor Calibration** | `/calibration` | Interactive calibration interface for camera pitch angle ($\theta$), mounting elevation ($H$), and field of view ($\text{FOV}_v$). |
+| **System Diagnostics** | `/health` | Real-time diagnostic monitor tracking neural model readiness, GPU/CUDA acceleration, memory utilization, and database integrity. |
+| **Audit Ledger** | `/audit` | Immutable chronological event log auditing user operations, status modifications, and system configuration adjustments. |
 
 ---
 
-## 🚀 Quickstart & Installation
+## 🚀 Installation & Setup Guide
 
-### 1. Prerequisites
-- **Operating System**: Windows 10/11, Ubuntu 20.04+, or macOS
-- **Python**: Version `3.10` or higher
-- **Hardware**: Runs on standard CPU; NVIDIA GPU with CUDA recommended for high-frame-rate inference.
+### 1. System Requirements
+* **Operating System**: Microsoft Windows 10/11, Ubuntu 20.04+, or macOS
+* **Python Runtime**: Version `3.10` or `3.11` (64-bit)
+* **Compute Device**: Standard x86_64 CPU; NVIDIA CUDA-compatible GPU recommended for real-time video inference.
 
-### 2. Clone and Setup Environment
+### 2. Environment Initialization
 ```bash
 # Clone the repository
 git clone https://github.com/haile6/intelligent-road-monitoring-system.git
 cd intelligent-road-monitoring-system
 
-# Create and activate a virtual environment
+# Create and activate Python virtual environment
 # Windows (PowerShell):
 python -m venv venv
 .\venv\Scripts\Activate.ps1
@@ -390,111 +293,111 @@ python -m venv venv
 # Linux / macOS:
 python3 -m venv venv
 source venv/bin/activate
-```
 
-### 3. Install Dependencies
-```bash
-pip install --upgrade pip
+# Upgrade packaging tools and install requirements
+pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 ```
 
-### 4. Verify Neural Model Weights
-Ensure model weights are present in the `models/` directory:
-- `models/road_damage_best.pt` (Custom Road Damage Detector)
-- `models/yolo11s.pt` (Vehicle Detector)
-- `models/license_plate_detector.pt` (ANPR License Plate Detector)
+### 3. Model Weights Verification
+Confirm the presence of all neural weights inside the `models/` folder:
+* `models/road_damage_best.pt` — Custom road defect neural model (Potholes & Alligator Cracks)
+* `models/yolo11s.pt` — Multi-vehicle detection model
+* `models/license_plate_detector.pt` — License plate locator model
 
 ---
 
-## ⚡ Execution Guide
+## ⚡ Execution Modalities
 
-### Option A: Launch the Web Management Platform (Recommended)
+### Mode 1: Launch the Web Operations Platform (Recommended)
 ```bash
 python run_web.py
 ```
-- Automatically initializes the SQLite database.
-- Detects available network ports and LAN IP for mobile streaming.
-- Opens your browser to **Telemetry Studio**: **`http://127.0.0.1:8080/studio`**.
+* Initializes the SQLite database schema and imports existing incident ledgers.
+* Automatically identifies open network ports (default: `8080`) and detects local LAN IP.
+* Access locally via **`http://127.0.0.1:8080`** or remotely on smartphones via **`http://<LAN_IP>:8080/studio`**.
 
-### Option B: Run the Unified All-in-One CLI Pipeline
-Process video footage in a single pass with all detection, tracking, distance, GPS, and risk modules active:
+### Mode 2: Unified Command-Line (CLI) Pipeline
+Execute the complete end-to-end processing pipeline over recorded video or real-time devices:
 ```bash
-# Run on default test video
+# Process default test highway footage
 python run_integrated.py
 
-# Run on a custom video file with visual display
-python run_integrated.py --source data/my_drive.mp4 --show
+# Process custom video file with real-time HUD rendering
+python run_integrated.py --source data/ethiopian_road_driving_test.mp4 --show
 
-# Run on live USB webcam / laptop camera (device 0)
+# Process live USB dashcam or built-in webcam (Device 0)
 python run_integrated.py --source 0 --show
 
-# Run on wireless mobile phone IP camera stream
-python run_integrated.py --source "http://192.168.1.50:8080/video" --show
+# Stream directly from smartphone IP camera (RTSP / HTTP)
+python run_integrated.py --source "http://192.168.1.100:8080/video" --show
 ```
 
-### Option C: Run Step-by-Step Individual Phases
-Each phase can be tested independently for modular verification:
+### Mode 3: Interactive Jupyter Research Environment
+For model exploration, training, and algorithmic experimentation:
 ```bash
-python run_phase1.py   # Phase 1: Road Damage Detection (YOLO)
-python run_phase2.py   # Phase 2: Damage Multi-Object Tracking & Confirmation
-python run_phase3.py   # Phase 3: Multi-Vehicle Detection & Tracking
-python run_phase4.py   # Phase 4: Path Corridor & Lane Analysis
-python run_phase5.py   # Phase 5: Monocular Distance Estimation
-python run_phase6.py   # Phase 6: GPS Geotagging & Route Synchronization
-python run_phase7.py   # Phase 7: GPS Speed Provider & Plate Association
-python run_phase8.py   # Phase 8: Dynamic Time-To-Collision (TTC) Engine
-python run_phase9.py   # Phase 9: Unified Multi-Tier Risk Classification
+jupyter notebook integrated2.ipynb
 ```
+* Conducts dataset inspection over the Debre Berhan benchmark.
+* Demonstrates YOLOv8 transfer learning, defect classification, and spatial metric distance estimation.
 
 ---
 
 ## 🗄️ Relational Database Schema (`road_monitoring.db`)
 
-The SQLite database is structured into 5 normalized tables:
+The SQLite persistence layer maintains structured operational records across multiple normalized tables:
 
-### `incidents` (Municipal Road Hazards)
-| Column | Type | Description |
+### Table 1: `incidents` (Pavement Defects & Collision Incidents)
+| Column Name | Data Type | Description |
 | :--- | :--- | :--- |
-| `id` | INTEGER PRIMARY KEY | Unique record identifier |
-| `track_id` | INTEGER | Persistent tracker ID across video frames |
-| `damage_type` | TEXT | Hazard category (`pothole`, `alligator_crack`) |
-| `confidence` | REAL | Peak neural detection confidence (0.00 – 1.00) |
-| `severity` | TEXT | Structural severity (`Low`, `Medium`, `Severe`) |
-| `max_risk_level` | TEXT | Dynamic risk (`SAFE`, `CAUTION`, `WARNING`, `IMMEDIATE_DANGER`) |
-| `distance_m` | REAL | Estimated distance at point of confirmation (meters) |
-| `ttc_seconds` | REAL | Time-To-Collision in seconds |
-| `ever_in_path` | INTEGER | Flag (0 or 1) indicating vehicle collision trajectory |
-| `latitude` / `longitude` | REAL | Geotagged vehicle coordinates at detection time |
-| `damage_latitude` / `damage_longitude` | REAL | Estimated geographic coordinates of the defect |
-| `speed_kmh` | REAL | Vehicle velocity at encounter |
-| `status` | TEXT | Workflow status (`Reported`, `Scheduled`, `Repaired`) |
-| `assigned_crew` | TEXT | Assigned municipal maintenance crew |
-| `repair_priority` | TEXT | Maintenance priority (`Low`, `Medium`, `High`, `Critical`) |
+| `id` | `INTEGER PRIMARY KEY` | Auto-incrementing primary incident identifier |
+| `track_id` | `INTEGER` | Persistent temporal tracking identifier across frames |
+| `damage_type` | `TEXT` | Classified defect category (`pothole`, `alligator_crack`) |
+| `confidence` | `REAL` | Peak neural detection confidence (0.00 – 1.00) |
+| `severity` | `TEXT` | Surface degradation classification (`Low`, `Medium`, `Severe`) |
+| `max_risk_level` | `TEXT` | Evaluated kinematic risk tier (`SAFE`, `CAUTION`, `WARNING`, `IMMEDIATE_DANGER`) |
+| `distance_m` | `REAL` | Perspective distance at initial confirmation ($m$) |
+| `ttc_seconds` | `REAL` | Minimum computed Time-To-Collision ($s$) |
+| `ever_in_path` | `INTEGER` | Boolean flag (1/0) indicating trajectory corridor intersection |
+| `latitude` / `longitude` | `REAL` | Geotagged vehicle coordinates at detection timestamp |
+| `damage_latitude` / `damage_longitude` | `REAL` | Projected geographic destination coordinates of the hazard |
+| `speed_kmh` | `REAL` | Vehicle velocity at encounter ($km/h$) |
+| `status` | `TEXT` | Maintenance workflow lifecycle (`Reported`, `Scheduled`, `Repaired`) |
+| `assigned_crew` | `TEXT` | Dispatched municipal road maintenance team |
+| `repair_priority` | `TEXT` | Weighted municipal intervention priority (`Low`, `Medium`, `High`, `Critical`) |
+
+### Table 2: `plate_readings` (ANPR Vehicle & Plate Detections)
+| Column Name | Data Type | Description |
+| :--- | :--- | :--- |
+| `id` | `INTEGER PRIMARY KEY` | Unique registration reading identifier |
+| `vehicle_id` | `INTEGER` | Multi-Object Tracker identifier of the vehicle |
+| `plate_text` | `TEXT` | Cleaned alphanumeric license registration string |
+| `ocr_confidence` | `REAL` | Optical character recognition confidence score |
+| `frame` / `video_time_s` | `INTEGER` / `REAL` | Frame index and temporal video timestamp |
+| `crop_filename` | `TEXT` | Relative path to high-resolution cropped plate image |
 
 ---
 
 ## 📦 Project Submission Packaging
 
-To generate a clean, production-grade ZIP archive ready for academic or institutional submission:
+To compile a clean, production-grade archive compliant with academic and institutional submission standards:
 ```bash
 python package_project.py
 ```
-This utility automatically:
-- Scans all project code, templates, and neural models.
-- Strips out `__pycache__`, virtual environments (`venv/`), `.git/`, and temporary video caches.
-- Compresses the archive into `road_monitoring_system_complete.zip` (204.49 MB) ready for submission.
+This utility automatically excludes virtual environments (`venv/`), temporary compilation caches (`__pycache__`), git metadata (`.git/`), and intermediate frame buffers, producing a clean submission ZIP file (`road_monitoring_system_complete.zip`).
 
 ---
 
-## 👥 Authors & Academic Attribution
+## 👥 Authorship & Academic Attribution
 
-- **Lead Developer & Principal Researcher**: **Haile Sintayehu**
-- **GitHub**: [@haile6](https://github.com/haile6)
-- **Email**: `hailesintayehu113@gmail.com`
-- **Project**: Intelligent Road Surveillance, Pavement Hazard Management & Collision Avoidance Platform
+* **Principal Investigator & Lead Developer**: **Haile Sintayehu**
+* **GitHub Profile**: [@haile6](https://github.com/haile6)
+* **Institutional Contact**: `hailesintayehu113@gmail.com`
+* **Project Repository**: [haile6/intelligent-road-monitoring-system](https://github.com/haile6/intelligent-road-monitoring-system)
+* **Primary Research Focus**: Computer Vision for Intelligent Transportation Systems, Road Surface Asset Preservation & Autonomous Driver Assistance Systems.
 
 ---
 
-## 📄 License
+## 📄 License & Terms
 
-This project is licensed under the **MIT License**. You are free to inspect, modify, and distribute this platform for academic, research, and municipal transportation applications.
+This software platform is distributed under the **MIT License**. Permission is granted to utilize, modify, and distribute the source code for academic, research, and municipal transit engineering applications with appropriate attribution.

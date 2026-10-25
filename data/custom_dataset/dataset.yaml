@@ -1,14 +1,17 @@
-# RoadEye Custom Road Damage Dataset Configuration
-# Standard Ultralytics YOLOv8/YOLO11 Dataset Format
+# Debre Berhan Road Damage Dataset Configuration
+# Location: Debre Berhan City, Ethiopia (Manually collected)
+# Annotation Tool: CVAT (Computer Vision Annotation Tool)
+# Format: Standard Ultralytics YOLOv8 / YOLO11 PyTorch Format
 
-# Absolute path or relative path to project root
+# Base path relative to project root
 path: ./data/custom_dataset
 
 # Dataset partitions (relative to 'path')
 train: images/train
 val: images/val
+test: images/test
 
-# Class definitions (Zero-indexed IDs matching your annotation txt files)
+# Class definitions (Zero-indexed IDs matching annotation txt files)
 names:
   0: alligator_crack
   1: pothole

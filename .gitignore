@@ -25,6 +25,9 @@ data/*.avi
 data/*.mov
 data/*.mkv
 
+# Duplicate benchmark extraction
+data/road_damage_alligator_pothole/
+
 # Generated maps
 outputs/*.html
 !web/templates/*.html
