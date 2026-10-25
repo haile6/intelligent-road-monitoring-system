@@ -39,6 +39,13 @@
 
 <br/>
 
+<div align="center">
+  <img src="docs/screenshots/02_telemetry_studio.png" alt="RoadEye Synchronized Telemetry Studio Demo" width="95%" />
+  <p><em>Figure 1: Live Synchronized Telemetry Studio — In-vehicle dashcam perception with real-time HUD danger alert (top) coupled with live Leaflet OpenStreetMap corridor, pulsing hazard coordinates, and laser trajectory line (bottom).</em></p>
+</div>
+
+<br/>
+
 ---
 
 ## 🌟 Core Capabilities
@@ -243,6 +250,61 @@ The platform includes a responsive, full-stack Flask operations suite powered by
 | ⚙️ **Sensor Calibration** | `/calibration` | Interactive calibration tool for camera elevation ($H$), pitch tilt ($\theta$), and field of view ($\text{FOV}_v$). |
 | 🩺 **System Diagnostics**| `/health` | Diagnostic monitor tracking YOLO model availability, GPU/CUDA acceleration, memory usage, and database integrity. |
 | 🛡️ **Audit Ledger** | `/audit` | Chronological audit trail logging user interactions, status modifications, and system configuration adjustments. |
+
+<br/>
+
+### 📸 Visual Interface Tour
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+#### 📊 Executive KPI Dashboard (`/`)
+![Executive KPI Dashboard](docs/screenshots/01_executive_dashboard.png)
+*Real-time aggregate KPI statistics, Chart.js distress breakdowns, and active municipal alert streams.*
+
+</td>
+<td width="50%" valign="top">
+
+#### 🎬 Synchronized Telemetry Studio (`/studio`)
+![Synchronized Telemetry Studio](docs/screenshots/02_telemetry_studio.png)
+*Dual-view dashcam video playback synchronized with real-time Leaflet GIS map, hazard beacons, and laser trajectories.*
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### 🗺️ Interactive GIS Pavement Map (`/map`)
+![Interactive GIS Road Map](docs/screenshots/03_gis_road_map.png)
+*Fullscreen OpenStreetMap road corridor display with color-coded geographic pins for all detected potholes and fatigue cracks.*
+
+</td>
+<td width="50%" valign="top">
+
+#### 📋 Municipal Incident Ledger (`/incidents`)
+![Municipal Incident Ledger](docs/screenshots/04_incident_ledger.png)
+*Complete maintenance lifecycle: severity filtering, repair priority weighting, crew assignment, and status updates.*
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### 🚗 ANPR Vehicle & Plate Gallery (`/plates`)
+![ANPR Plate Evidence Gallery](docs/screenshots/05_anpr_plates_gallery.png)
+*Optical evidence registry featuring high-resolution vehicle crops, plate crops, EasyOCR confidence scores, and timestamps.*
+
+</td>
+<td width="50%" valign="top">
+
+#### 📑 Field Work Orders & Reports (`/reports`)
+![Field Work Orders & Inspection Reports](docs/screenshots/06_work_orders_reports.png)
+*Printable municipal field inspection sheets tailored for repair crews, with one-click full-dataset CSV export.*
+
+</td>
+</tr>
+</table>
 
 <br/>
 
