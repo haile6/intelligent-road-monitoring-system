@@ -18,7 +18,7 @@ import config
 
 def calculate_ttc(distance_m, speed_mps):
     """Returns {"ttc_s": number or None, "status": "ok" | "stopped" | "no_distance"}."""
-    if distance_m is None:
+    if distance_m is None or distance_m < 0:
         return {"ttc_s": None, "status": "no_distance"}
     if speed_mps is None or speed_mps < config.MIN_MOVING_SPEED_KMH / 3.6:
         return {"ttc_s": None, "status": "stopped"}          # also protects against dividing by zero

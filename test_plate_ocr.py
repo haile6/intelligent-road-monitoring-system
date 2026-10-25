@@ -8,7 +8,12 @@ except ImportError:
     easyocr = None
 from ultralytics import YOLO
 
-VIDEO_PATH = r"data\new_test_video.mp4"
+candidate_videos = [
+    r"data\highway_traffic_plates.mp4",
+    r"data\test_video.mp4",
+    r"data\new_test_video.mp4",
+]
+VIDEO_PATH = next((v for v in candidate_videos if os.path.exists(v)), r"data\test_video.mp4")
 PLATE_MODEL_PATH = r"models\license_plate_detector.pt"
 OUTPUT_DIR = r"outputs\plate_ocr_test"
 OUTPUT_VIDEO = os.path.join(OUTPUT_DIR, "plate_ocr_annotated.mp4")

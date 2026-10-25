@@ -13,6 +13,10 @@ def haversine_m(lat1, lon1, lat2, lon2):
     return 2 * EARTH_RADIUS_M * math.asin(math.sqrt(a))
 
 
+haversine_distance = haversine_m
+
+
+
 def bearing_deg(lat1, lon1, lat2, lon2):
     """Direction from point 1 to point 2: 0 = north, 90 = east, 180 = south, 270 = west."""
     p1, p2 = math.radians(lat1), math.radians(lat2)

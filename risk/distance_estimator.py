@@ -67,6 +67,8 @@ class PerspectiveDistanceEstimator(DistanceEstimator):
         return distance
 
     def estimate(self, bbox, frame=None):
+        if not bbox or len(bbox) < 4:
+            return {"distance_m": None, "method": self.method}
         bottom_row = bbox[3]                                 # where the damage touches the road
         return {"distance_m": self.distance_at_row(bottom_row), "method": self.method}
 

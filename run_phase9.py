@@ -16,6 +16,7 @@ Outputs (folder outputs):
 import csv
 import os
 import cv2
+import argparse
 
 import config
 from detection.road_damage_detector import RoadDamageDetector
@@ -50,9 +51,15 @@ def speed_text(info):
     return f"Speed: {info['speed_kmh']:.0f} km/h  (GPS)", WHITE
 
 
-def main(detector=None, vehicle_detector=None):
-    if not os.path.exists(config.VIDEO_PATH):
-        raise SystemExit(f"Video not found: {config.VIDEO_PATH}\nFix VIDEO_PATH in config.py")
+def main(video_path=None, gps_path=None, show=False, output_video=None, output_csv=None,
+         detector=None, vehicle_detector=None):
+    video_path = video_path or config.VIDEO_PATH
+    gps_path = gps_path or getattr(config, "GPS_PATH", os.path.join(config.BASE_DIR, "data", "gps_track.csv"))
+    output_video = output_video or config.OUTPUT_VIDEO_PHASE9
+    output_csv = output_csv or config.DAMAGE_CSV_PHASE9
+
+    if not os.path.exists(video_path):
+        raise SystemExit(f"Video not found: {video_path}\nFix VIDEO_PATH in config.py or pass --video")
     if detector is None:
         if not os.path.exists(config.MODEL_PATH):
             raise SystemExit(f"Model not found: {config.MODEL_PATH}")
@@ -62,7 +69,7 @@ def main(detector=None, vehicle_detector=None):
         vehicle_detector = VehicleDetector()
     use_vehicles = config.PHASE4_USE_VEHICLES and vehicle_detector is not None
 
-    cap = cv2.VideoCapture(config.VIDEO_PATH)
+    cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise SystemExit("Could not open the video.")
     fps = cap.get(cv2.CAP_PROP_FPS) or 30
@@ -73,13 +80,13 @@ def main(detector=None, vehicle_detector=None):
 
     # ---- GPS (optional in this phase) ----
     gps = None
-    if os.path.exists(config.GPS_PATH):
-        records = load_gps_csv(config.GPS_PATH)
+    if gps_path and os.path.exists(gps_path):
+        records = load_gps_csv(gps_path)
         gps = GpsSync(records)
         print(f"\nGPS: {describe(records)}")
         print(f"GPS position available for {gps.coverage(duration):.0%} of the video")
     else:
-        print(f"\nNOTE: no GPS file at {config.GPS_PATH}")
+        print(f"\nNOTE: no GPS file at {gps_path}")
         print(f"      Every speed will be the DEFAULT test value ({config.DEFAULT_SPEED_KMH} km/h).")
     if config.FORCE_DEFAULT_SPEED:
         print(f"NOTE: FORCE_DEFAULT_SPEED is on: GPS speed is ignored.")
@@ -89,8 +96,8 @@ def main(detector=None, vehicle_detector=None):
     path = PathAnalyzer(width, height)
     distance = make_estimator(width, height)
 
-    os.makedirs(os.path.dirname(config.OUTPUT_VIDEO_PHASE9), exist_ok=True)
-    writer = cv2.VideoWriter(config.OUTPUT_VIDEO_PHASE9,
+    os.makedirs(os.path.dirname(output_video), exist_ok=True)
+    writer = cv2.VideoWriter(output_video,
                              cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
 
     damage_tracker = DamageTracker()
@@ -246,7 +253,7 @@ def main(detector=None, vehicle_detector=None):
 
     # ---- save the events ----
     events = damage_tracker.confirmed_tracks()
-    with open(config.DAMAGE_CSV_PHASE9, "w", newline="") as f:
+    with open(output_csv, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["track_id", "damage_type", "confidence", "frame_number", "video_time_s",
                     "timestamp", "latitude", "longitude",
@@ -287,9 +294,46 @@ def main(detector=None, vehicle_detector=None):
     if default_events:
         print(f"  WARNING: {default_events} of {len(events)} events use the DEFAULT speed "
               f"({config.DEFAULT_SPEED_KMH} km/h). Time-to-impact for them is only a test value.")
-    print(f"  Saved video:  {config.OUTPUT_VIDEO_PHASE9}")
-    print(f"  Saved events: {config.DAMAGE_CSV_PHASE9}")
+    print(f"  Saved video:  {output_video}")
+    print(f"  Saved events: {output_csv}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Phase 9: Unified Multi-Tier Risk Analysis & Collision Prediction"
+    )
+    parser.add_argument(
+        "--video", "--source", dest="video",
+        default=config.VIDEO_PATH,
+        help="Path to input video file or camera index (default: config.VIDEO_PATH)"
+    )
+    parser.add_argument(
+        "--gps",
+        default=getattr(config, "GPS_PATH", os.path.join(config.BASE_DIR, "data", "gps_track.csv")),
+        help="Path to synchronized GPS CSV telemetry file"
+    )
+    parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Display live preview window while processing"
+    )
+    parser.add_argument(
+        "--output-video",
+        default=config.OUTPUT_VIDEO_PHASE9,
+        help="Output path for annotated video"
+    )
+    parser.add_argument(
+        "--output-csv",
+        default=config.DAMAGE_CSV_PHASE9,
+        help="Output path for damage events CSV"
+    )
+    args = parser.parse_args()
+
+    main(
+        video_path=args.video,
+        gps_path=args.gps,
+        show=args.show,
+        output_video=args.output_video,
+        output_csv=args.output_csv
+    )
+
