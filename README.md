@@ -40,8 +40,8 @@
 <br/>
 
 <div align="center">
-  <img src="docs/screenshots/02_telemetry_studio.png" alt="RoadEye Synchronized Telemetry Studio Demo" width="95%" />
-  <p><em>Figure 1: Live Synchronized Telemetry Studio — In-vehicle dashcam perception with real-time HUD danger alert (top) coupled with live Leaflet OpenStreetMap corridor, pulsing hazard coordinates, and laser trajectory line (bottom).</em></p>
+  <img src="docs/demo.gif" alt="RoadEye Real-Time ADAS & Telemetry Video Demo" width="95%" />
+  <p><em>Figure 1: Live In-Vehicle ADAS Perception & Collision Avoidance Demo — Real-time driving corridor projection, multi-target vehicle kinematics, closing Time-To-Collision (TTC) estimation, Ethiopian license plate recognition (ANPR), and dual-language (Amharic & English) HUD warnings.</em></p>
 </div>
 
 <br/>
