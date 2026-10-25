@@ -126,6 +126,28 @@ To ensure high detection fidelity on authentic regional road networks, RoadEye i
 
 <br/>
 
+### 🧠 Deep Neural Perception Model (YOLO11s Benchmark)
+
+The defect detection engine was trained from **YOLO11s** (`yolo11s.pt`) using the dedicated Kaggle training environment ([integrated-project.ipynb](file:///c:/Users/haile/Downloads/intelligent-road-monitoring-system-main/integrated-project.ipynb)) on an NVIDIA Tesla T4 GPU (15 GB VRAM):
+
+* **Base Architecture**: YOLO11s (100 layers, 9,413,574 parameters, 21.4 GFLOPs)
+* **Training Protocol**: 100 epochs, batch size 16, input resolution 640×640, patience 30, seed 42
+* **Data Augmentations**: Horizontal flipping (`fliplr=0.5`), slight rotation (`degrees=5`), lighting variations (`hsv_v=0.4`), and mosaic augmentation (deactivated for final 10 epochs)
+* **Inference Latency**: **7.0 ms / frame** on Tesla T4 (enabling >140 FPS throughput)
+
+#### 📈 Empirical Test Set Performance (109 Evaluation Images, 148 Ground-Truth Instances)
+
+| Metric | All Classes Combined | Alligator Crack (`0`) | Pothole (`1`) |
+| :--- | :---: | :---: | :---: |
+| **Precision ($P$)** | **66.0%** (`0.660`) | **79.3%** (`0.793`) | **52.7%** (`0.527`) |
+| **Recall ($R$)** | **50.4%** (`0.504`) | **60.5%** (`0.605`) | **40.3%** (`0.403`) |
+| **mAP @ 0.50 ($\text{IoU}=0.50$)** | **52.7%** (`0.527`) | **66.2%** (`0.662`) | **39.3%** (`0.393`) |
+| **mAP @ 0.50:0.95** | **20.7%** (`0.207`) | **27.9%** (`0.279`) | **13.5%** (`0.135`) |
+
+Deployed weights: [`models/road_damage_best.pt`](file:///c:/Users/haile/Downloads/intelligent-road-monitoring-system-main/models/road_damage_best.pt) (19.2 MB stripped production weights).
+
+<br/>
+
 ---
 
 ## 🏗️ System Architecture
