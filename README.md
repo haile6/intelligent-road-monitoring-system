@@ -146,19 +146,31 @@ $$Z = \frac{H}{\tan\left(\theta + \arctan\left(\frac{y_{\text{contact}} - \frac{
 
 ---
 
-### 2. Kinematic Time-To-Collision (TTC) Formulations
-For any obstacle detected within the projected trajectory corridor of the host vehicle:
+### 2. Kinematic Time-To-Collision (TTC) Dynamic Kinematics
+
+For any obstacle detected within the vehicle's dynamic driving corridor, the Time-To-Collision ($\text{TTC}$) determines the temporal margin before potential vehicular impact:
 
 $$\text{TTC} = \frac{d_{\text{obstacle}}}{v_{\text{approach}}}$$
 
-Where $d_{\text{obstacle}}$ denotes estimated forward metric distance ($m$) and $v_{\text{approach}}$ represents vehicle approach velocity ($m/s$). Dynamic hazard tiers are evaluated as follows:
+Where:
+* $d_{\text{obstacle}}$: Estimated forward ground-plane metric distance ($m$) derived from perspective projection.
+* $v_{\text{approach}}$: Closing velocity ($m/s$). For stationary road hazards (potholes and cracks), $v_{\text{approach}} = v_{\text{host}}$. For dynamic lead vehicles, $v_{\text{approach}} = \max(v_{\text{host}} - v_{\text{lead}}, 0)$.
 
-$$\text{Risk Tier} = \begin{cases} 
-\textbf{Immediate Danger} & \text{if } \text{TTC} \le 1.8\text{ s} \quad (\text{Red HUD Banner + Auditory Speech Alert}) \\ 
-\textbf{Warning} & \text{if } 1.8\text{ s} < \text{TTC} \le 3.5\text{ s} \quad (\text{Orange Warning Banner}) \\ 
-\textbf{Caution} & \text{if } 3.5\text{ s} < \text{TTC} \le 6.0\text{ s} \quad (\text{Yellow Caution Banner}) \\ 
-\textbf{Safe / Clear} & \text{if } \text{TTC} > 6.0\text{ s} \quad (\text{Green Informational Status}) 
+#### Dynamic Classification Thresholds & Action Matrix:
+
+$$\text{Risk Level} = \begin{cases} 
+\textbf{Immediate Danger} & \text{if } \text{TTC} \le 1.8\text{ s} \\ 
+\textbf{Warning} & \text{if } 1.8\text{ s} < \text{TTC} \le 3.5\text{ s} \\ 
+\textbf{Caution} & \text{if } 3.5\text{ s} < \text{TTC} \le 6.0\text{ s} \\ 
+\textbf{Safe / Clear} & \text{if } \text{TTC} > 6.0\text{ s} 
 \end{cases}$$
+
+| Risk Tier | TTC Threshold | Visual HUD Banner | Auditory Warning Action | Operational Driver Response |
+| :--- | :---: | :---: | :---: | :--- |
+| 🔴 **Immediate Danger** | $\le 1.8\text{ s}$ | High-Contrast Red Banner | Spoken Alert (Amharic & English) + Alert Tone | Immediate emergency braking / evasive lane maneuver |
+| 🟠 **Warning** | $1.8\text{ s} < \text{TTC} \le 3.5\text{ s}$ | Amber / Orange Warning | Audible Chime Pulse | Prepare deceleration and align vehicle wheels |
+| 🟡 **Caution** | $3.5\text{ s} < \text{TTC} \le 6.0\text{ s}$ | Yellow Informational Banner | Visual Indicator Only | Maintain heightened awareness; monitor corridor |
+| 🟢 **Safe / Clear** | $> 6.0\text{ s}$ | Green Status Overlay | None (Silent Monitoring) | Normal cruising speed; path unobstructed |
 
 ---
 
