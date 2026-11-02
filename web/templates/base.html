@@ -105,6 +105,11 @@
                         <i class="bi bi-clock-history"></i>
                         <span>Maintenance History</span>
                     </a>
+                    <a href="{{ url_for('contractors_view') }}" class="nav-link {% if active_page == 'contractors' %}active{% endif %}">
+                        <i class="bi bi-building-check"></i>
+                        <span>Contractors &amp; Warranty Registry</span>
+                        <span class="badge bg-warning text-dark ms-auto" style="font-size: 9px; padding: 2px 5px;">ERA / DLP</span>
+                    </a>
                     <a href="{{ url_for('map_view') }}?view=hotspots" class="nav-link {% if active_page == 'map' and request.args.get('view') == 'hotspots' %}active{% endif %}">
                         <i class="bi bi-geo-alt"></i>
                         <span>Geographic Hotspots</span>

@@ -6,6 +6,7 @@ Usage:
     python run_web.py --port 8080 --host 0.0.0.0
 """
 import os
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 import sys
 import argparse
 

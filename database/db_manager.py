@@ -134,11 +134,38 @@ def init_db():
     )
     """)
 
+    # Road Contractors & Warranty Registry table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS road_contractors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        road_name TEXT NOT NULL,
+        segment_code TEXT DEFAULT '',
+        contractor_name TEXT NOT NULL,
+        consultant_name TEXT DEFAULT '',
+        start_lat REAL NOT NULL,
+        start_lon REAL NOT NULL,
+        end_lat REAL NOT NULL,
+        end_lon REAL NOT NULL,
+        length_km REAL DEFAULT 0.0,
+        handover_date TEXT,
+        warranty_years INTEGER DEFAULT 3,
+        warranty_expiry_date TEXT,
+        warranty_status TEXT DEFAULT 'Active',
+        pavement_type TEXT DEFAULT 'Asphalt Concrete',
+        contract_value_etb REAL DEFAULT 0.0,
+        contact_email TEXT DEFAULT '',
+        contact_phone TEXT DEFAULT '',
+        notes TEXT DEFAULT '',
+        created_at TEXT
+    )
+    """)
+
     conn.commit()
     conn.close()
 
-    # Auto import existing data if empty
+    # Auto import existing data and seed contractors
     sync_from_csv_if_empty()
+    seed_contractors_if_empty()
 
 
 def sync_from_csv_if_empty():
@@ -661,3 +688,321 @@ def get_recent_pipeline_runs(limit=10):
     rows = [dict(r) for r in cursor.fetchall()]
     conn.close()
     return rows
+
+
+# ============================================================
+# ROAD CONTRACTORS & WARRANTY REGISTRY
+# ============================================================
+
+def seed_contractors_if_empty():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM road_contractors")
+    count = cursor.fetchone()[0]
+
+    if count == 0:
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        seed_data = [
+            (
+                "ሸኖ – ደብረ ብርሃን (ክፍል 1)",
+                "ET-A2-S01",
+                "CRBC (China Road and Bridge Corporation)",
+                "Core Consulting Engineers",
+                9.5500, 39.4000,
+                9.6000, 39.4800,
+                15.4,
+                "2023-01-10",
+                3,
+                "2026-01-10",
+                "Active",
+                "Asphalt Concrete (Superpave 50mm)",
+                450000000.0,
+                "liaison@crbc-ethiopia.com",
+                "+251 11 661 2345",
+                "በዋስትና ስር ያለ (እስከ Jan 2026) — 100% የኮንትራክተሩ ነፃ የጥገና ኃላፊነት",
+                now_str
+            ),
+            (
+                "ደብረ ብርሃን ከተማ ዋና መንገድ",
+                "ET-DB-M01",
+                "Sur Construction",
+                "Beza Consulting Engineers",
+                9.6700, 39.5200,
+                9.6900, 39.5400,
+                4.2,
+                "2021-10-01",
+                2,
+                "2023-10-01",
+                "Expired",
+                "Asphalt Concrete Standard 60mm",
+                185000000.0,
+                "contracts@surconstruction.com",
+                "+251 11 551 7890",
+                "የዋስትና ጊዜው አልቋል — የማዘጋጃ ቤቱ መደበኛ የጥገና በጀት ይመደባል",
+                now_str
+            ),
+            (
+                "አዲስ አበባ – ሰንዳፋ መስመር",
+                "ET-A2-SND",
+                "Sunshine Construction",
+                "Transport Construction Design Share Co.",
+                9.1200, 38.9800,
+                9.2000, 39.0500,
+                17.8,
+                "2024-03-20",
+                3,
+                "2027-03-20",
+                "Active",
+                "Heavy-Duty Polymer Modified Asphalt",
+                620000000.0,
+                "infrastructure@sunshineinvestmentgroup.net",
+                "+251 11 552 4400",
+                "አዲስ የተመረቀ — አሁን ዋስትና ላይ ያለ (እስከ Mar 2027)",
+                now_str
+            ),
+            (
+                "መገናኛ – ኮተቤ – ለገጣፎ ኮሪደር",
+                "ET-AA-KTB",
+                "Yotek Construction",
+                "Addis Ababa City Roads Authority (AACRA)",
+                9.0100, 38.7600,
+                9.1199, 38.9799,
+                18.2,
+                "2022-05-15",
+                2,
+                "2024-05-15",
+                "Expired",
+                "Dense Bituminous Macadam",
+                310000000.0,
+                "contact@yotekcon.com",
+                "+251 11 662 8820",
+                "የኮተቤ - ለገጣፎ አክሲስ (የ 178 ነባር የዳታቤዝ አደጋዎች መገኛ ቀጠና)",
+                now_str
+            )
+        ]
+
+        cursor.executemany("""
+        INSERT INTO road_contractors (
+            road_name, segment_code, contractor_name, consultant_name,
+            start_lat, start_lon, end_lat, end_lon, length_km,
+            handover_date, warranty_years, warranty_expiry_date,
+            warranty_status, pavement_type, contract_value_etb,
+            contact_email, contact_phone, notes, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, seed_data)
+        conn.commit()
+    conn.close()
+
+
+def get_all_contractors():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM road_contractors ORDER BY id ASC")
+    rows = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+
+    # Recalculate dynamic warranty status based on today's date
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    for r in rows:
+        expiry = r.get("warranty_expiry_date") or ""
+        if expiry:
+            r["is_under_warranty"] = (expiry >= today_str)
+            r["warranty_badge"] = "Active Warranty (100% Contractor Liability)" if r["is_under_warranty"] else "Expired (Municipal Maintenance)"
+        else:
+            r["is_under_warranty"] = False
+            r["warranty_badge"] = "Unknown"
+    return rows
+
+
+def get_contractor_by_id(cid):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM road_contractors WHERE id = ?", (cid,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        d = dict(row)
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        expiry = d.get("warranty_expiry_date") or ""
+        d["is_under_warranty"] = (expiry >= today_str)
+        return d
+    return None
+
+
+def match_incident_to_contractor(lat, lon):
+    """
+    Finds which contractor's road segment is closest or contains (lat, lon).
+    Returns (contractor_dict, distance_km) or (None, None).
+    """
+    if lat is None or lon is None:
+        return None, None
+    contractors = get_all_contractors()
+    if not contractors:
+        return None, None
+
+    import math
+    def point_to_segment_dist_km(plat, plon, slat, slon, elat, elon):
+        # Approximate flat distance using equirectangular projection
+        lat_mid = math.radians((plat + (slat + elat) / 2.0) / 2.0)
+        kx = 111.32 * math.cos(lat_mid)
+        ky = 110.574
+        px, py = plon * kx, plat * ky
+        ax, ay = slon * kx, slat * ky
+        bx, by = elon * kx, elat * ky
+        dx, dy = bx - ax, by - ay
+        if dx == 0 and dy == 0:
+            return math.hypot(px - ax, py - ay)
+        t = max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+        proj_x = ax + t * dx
+        proj_y = ay + t * dy
+        return math.hypot(px - proj_x, py - proj_y)
+
+    best_c = None
+    min_dist = float("inf")
+    for c in contractors:
+        d = point_to_segment_dist_km(
+            lat, lon,
+            c["start_lat"], c["start_lon"],
+            c["end_lat"], c["end_lon"]
+        )
+        if d < min_dist:
+            min_dist = d
+            best_c = c
+
+    # Match if within 25 km corridor tolerance
+    if min_dist < 25.0:
+        return best_c, min_dist
+    return None, min_dist
+
+
+def get_contractor_analytics():
+    """
+    Aggregates incident records per contractor road segment,
+    calculates defect rates, warranty liability, and quality ratings.
+    """
+    contractors = get_all_contractors()
+    incidents = get_all_incidents()
+
+    # Pre-map incidents to contractors
+    contractor_incidents = {c["id"]: [] for c in contractors}
+    unassigned = []
+
+    for inc in incidents:
+        lat = inc.get("damage_latitude") or inc.get("latitude")
+        lon = inc.get("damage_longitude") or inc.get("longitude")
+        matched, dist = match_incident_to_contractor(lat, lon)
+        if matched:
+            contractor_incidents[matched["id"]].append(inc)
+        else:
+            unassigned.append(inc)
+
+    total_roads_km = sum(c.get("length_km", 0.0) for c in contractors)
+    active_warranty_count = sum(1 for c in contractors if c.get("is_under_warranty"))
+    total_defects_in_warranty = 0
+    estimated_contractor_cost_etb = 0
+
+    enriched = []
+    for c in contractors:
+        c_incs = contractor_incidents[c["id"]]
+        potholes = sum(1 for x in c_incs if x.get("damage_type") == "pothole")
+        cracks = sum(1 for x in c_incs if x.get("damage_type") == "alligator_crack")
+        high_risk = sum(1 for x in c_incs if x.get("max_risk_level") in ("Immediate Danger", "Warning"))
+        length = max(c.get("length_km", 1.0), 1.0)
+        total_d = len(c_incs)
+        defect_rate_per_10km = round((total_d / length) * 10.0, 1)
+
+        # Performance Quality Score (100 is pristine road)
+        # Minus 3 points per defect per 10km
+        score = max(45, min(99, int(98 - (defect_rate_per_10km * 3.5))))
+        if score >= 90:
+            grade = "A"
+            grade_color = "success"
+        elif score >= 80:
+            grade = "B"
+            grade_color = "info"
+        elif score >= 70:
+            grade = "C"
+            grade_color = "warning"
+        else:
+            grade = "D"
+            grade_color = "danger"
+
+        # Repair cost estimation (average ETB 28,000 per pothole repair, ETB 15,000 per crack sealing)
+        repair_cost_etb = (potholes * 28000) + (cracks * 15000)
+
+        is_under = c.get("is_under_warranty", False)
+        if is_under:
+            total_defects_in_warranty += total_d
+            estimated_contractor_cost_etb += repair_cost_etb
+
+        enriched.append({
+            **c,
+            "incident_count": total_d,
+            "potholes_count": potholes,
+            "cracks_count": cracks,
+            "high_risk_count": high_risk,
+            "defect_rate_per_10km": defect_rate_per_10km,
+            "quality_score": score,
+            "quality_grade": grade,
+            "grade_color": grade_color,
+            "repair_cost_etb": repair_cost_etb,
+            "liability_party": "Contractor (Free Repair under Warranty)" if is_under else "Municipality (City Budget)"
+        })
+
+    return {
+        "contractors": enriched,
+        "total_contractors": len(contractors),
+        "total_roads_km": round(total_roads_km, 1),
+        "active_warranties": active_warranty_count,
+        "total_defects_in_warranty": total_defects_in_warranty,
+        "estimated_contractor_savings_etb": estimated_contractor_cost_etb,
+        "unassigned_incidents": len(unassigned)
+    }
+
+
+def add_contractor(data):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cursor.execute("""
+    INSERT INTO road_contractors (
+        road_name, segment_code, contractor_name, consultant_name,
+        start_lat, start_lon, end_lat, end_lon, length_km,
+        handover_date, warranty_years, warranty_expiry_date,
+        warranty_status, pavement_type, contract_value_etb,
+        contact_email, contact_phone, notes, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        data.get("road_name", ""),
+        data.get("segment_code", ""),
+        data.get("contractor_name", ""),
+        data.get("consultant_name", ""),
+        float(data.get("start_lat", 0.0)),
+        float(data.get("start_lon", 0.0)),
+        float(data.get("end_lat", 0.0)),
+        float(data.get("end_lon", 0.0)),
+        float(data.get("length_km", 0.0)),
+        data.get("handover_date", ""),
+        int(data.get("warranty_years", 3)),
+        data.get("warranty_expiry_date", ""),
+        data.get("warranty_status", "Active"),
+        data.get("pavement_type", "Asphalt Concrete"),
+        float(data.get("contract_value_etb", 0.0)),
+        data.get("contact_email", ""),
+        data.get("contact_phone", ""),
+        data.get("notes", ""),
+        now_str
+    ))
+    cid = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return cid
+
+
+def delete_contractor(cid):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM road_contractors WHERE id = ?", (cid,))
+    conn.commit()
+    conn.close()
+

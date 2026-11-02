@@ -311,6 +311,54 @@ def reports_view():
     )
 
 
+@app.route("/contractors")
+def contractors_view():
+    """Road Contractors & Warranty Accountability Registry."""
+    analytics = db_manager.get_contractor_analytics()
+    contractors = analytics["contractors"]
+    return render_template(
+        "contractors.html",
+        contractors=contractors,
+        analytics=analytics,
+        active_page="contractors"
+    )
+
+
+@app.route("/api/contractors", methods=["GET", "POST"])
+def api_contractors():
+    """API for fetching or creating road contractor segments."""
+    if request.method == "POST":
+        data = request.get_json() or request.form.to_dict()
+        cid = db_manager.add_contractor(data)
+        return jsonify({"success": True, "id": cid, "message": "Contractor segment registered successfully."})
+    analytics = db_manager.get_contractor_analytics()
+    return jsonify({"success": True, "data": analytics})
+
+
+@app.route("/api/contractors/<int:cid>", methods=["DELETE"])
+def api_delete_contractor(cid):
+    """Delete a road contractor segment."""
+    db_manager.delete_contractor(cid)
+    return jsonify({"success": True, "message": f"Contractor segment #{cid} deleted."})
+
+
+@app.route("/api/contractors/<int:cid>/claim-notice")
+def api_contractor_claim_notice(cid):
+    """Generate official printable warranty claim notice for a contractor."""
+    contractor = db_manager.get_contractor_by_id(cid)
+    if not contractor:
+        return jsonify({"success": False, "error": "Contractor not found"}), 404
+    analytics = db_manager.get_contractor_analytics()
+    enriched = next((c for c in analytics["contractors"] if c["id"] == cid), contractor)
+    return jsonify({
+        "success": True,
+        "contractor": enriched,
+        "generated_at": datetime.now().strftime("%B %d, %Y"),
+        "reference_no": f"ERA-DLP-2026-{cid:04d}",
+        "legal_basis": "ERA Standard Technical Specifications / FIDIC Defects Liability Clause 11",
+        "authority": "Ethiopian Roads Administration & Municipal Infrastructure Division"
+    })
+
 
 @app.route("/calibration")
 def calibration_view():

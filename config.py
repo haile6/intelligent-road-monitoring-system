@@ -3,6 +3,7 @@
 Settings for the Road Monitoring System.
 """
 import os
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 

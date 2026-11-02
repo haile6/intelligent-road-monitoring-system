@@ -1,0 +1,730 @@
+{% extends "base.html" %}
+
+{% block title %}Road Contractors &amp; Warranty Registry — RoadEye™{% endblock %}
+{% block breadcrumb %}Contractors &amp; Warranty{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        .sidebar, .app-header, .btn, footer, .no-print, .action-cell, .filter-bar {
+            display: none !important;
+        }
+        .main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .card {
+            border: 1px solid #BAC7D5 !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .contractor-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .contractor-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .grade-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 16px;
+    }
+
+    .badge-warranty-active {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+        font-weight: 600;
+    }
+
+    .badge-warranty-expired {
+        background: #64748B;
+        color: white;
+        font-weight: 500;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .claim-paper {
+        background: #ffffff;
+        color: #1e293b;
+        border: 2px solid #0f172a;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        font-family: 'Times New Roman', Times, serif;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- ============================================================ -->
+    <!-- PAGE HEADER                                                  -->
+    <!-- ============================================================ -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white border" style="font-size: 10px; letter-spacing: 0.05em;">INFRASTRUCTURE GOVERNANCE</span>
+                <span class="badge bg-warning text-dark font-mono" style="font-size: 10px;">ERA / FIDIC CLAUSE 11</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Contractor Accountability &amp; DLP</span>
+            </div>
+            <h1 class="page-title mt-1 d-flex align-items-center gap-2">
+                <span>ROAD CONTRACTORS &amp; WARRANTY REGISTRY</span>
+                <span class="badge bg-light text-dark border font-sans" style="font-size: 12px; font-weight: normal;">የመንገድ ተቋራጮች እና የዋስትና ክትትል</span>
+            </h1>
+            <div class="page-subtitle">Track road construction companies, defect liability periods (DLP), warranty status, and contractor quality grades.</div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="d-flex flex-wrap align-items-center gap-2 no-print">
+            <button class="btn btn-sm btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#newContractorModal">
+                <i class="bi bi-plus-circle"></i>
+                <span>Register Road Segment</span>
+            </button>
+            <button onclick="window.print()" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2">
+                <i class="bi bi-printer"></i>
+                <span>Print Audit Dossier</span>
+            </button>
+            <a href="{{ url_for('map_view') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2">
+                <i class="bi bi-geo-alt"></i>
+                <span>View on GIS Map</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Legal Advisory Callout Notice -->
+    <div class="alert alert-secondary border py-2 px-3 mb-4 d-flex align-items-center justify-content-between" style="border-color: var(--borders) !important; background-color: #F8FAFC !important;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-shield-check text-success fs-5"></i>
+            <span class="small text-secondary">
+                <strong class="text-dark">Defects Liability Period (DLP) Enforcement:</strong> Under Ethiopian Roads Administration (ERA) standard contract clauses, road defects occurring during the active warranty period must be rectified by the responsible contractor at zero cost to the government.
+            </span>
+        </div>
+        <span class="badge bg-success font-mono" style="font-size: 10px;">LEGAL WARRANTY ACTIVE</span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SUMMARY KPI ROW                                              -->
+    <!-- ============================================================ -->
+    <div class="row g-3 mb-4">
+        <!-- KPI 1: Monitored Corridors -->
+        <div class="col-6 col-lg-3">
+            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="stat-label">Monitored Corridors</span>
+                    <i class="bi bi-signpost-split text-primary fs-5"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-3 fw-bold text-dark">{{ analytics.total_contractors }}</span>
+                    <span class="small text-secondary">Segments ({{ analytics.total_roads_km }} km)</span>
+                </div>
+                <div class="small text-muted mt-1" style="font-size: 11px;">National &amp; Municipal Network</div>
+            </div>
+        </div>
+
+        <!-- KPI 2: Active Warranties -->
+        <div class="col-6 col-lg-3">
+            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="stat-label">Active Warranties (DLP)</span>
+                    <i class="bi bi-shield-fill-check text-success fs-5"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-3 fw-bold text-success">{{ analytics.active_warranties }}</span>
+                    <span class="badge bg-success" style="font-size: 10px;">100% Contractor Liability</span>
+                </div>
+                <div class="small text-muted mt-1" style="font-size: 11px;">Zero municipal repair expense</div>
+            </div>
+        </div>
+
+        <!-- KPI 3: Defects Under Warranty -->
+        <div class="col-6 col-lg-3">
+            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="stat-label">Warranty Defect Claims</span>
+                    <i class="bi bi-exclamation-octagon text-danger fs-5"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-3 fw-bold text-danger">{{ analytics.total_defects_in_warranty }}</span>
+                    <span class="small text-secondary">Billable to Contractors</span>
+                </div>
+                <div class="small text-muted mt-1" style="font-size: 11px;">Official claim notices generated</div>
+            </div>
+        </div>
+
+        <!-- KPI 4: Public Fund Savings -->
+        <div class="col-6 col-lg-3">
+            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="stat-label">Public Funds Protected</span>
+                    <i class="bi bi-piggy-bank text-warning fs-5"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-3 fw-bold text-dark">{{ "{:,.0f}".format(analytics.estimated_contractor_savings_etb) }}</span>
+                    <span class="small text-secondary font-mono">ETB</span>
+                </div>
+                <div class="small text-success mt-1" style="font-size: 11px;">Transferred to contractor accounts</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTRACTORS DIRECTORY TABLE                             -->
+    <!-- ============================================================ -->
+    <div class="card border mb-4" style="border-color: var(--borders) !important;">
+        <div class="card-header bg-white py-3 px-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 border-bottom">
+            <div>
+                <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-building text-primary"></i>
+                    <span>Contractor Highway Corridors &amp; Warranty Registry</span>
+                </h5>
+                <div class="text-secondary small">Comprehensive registry of construction firms, GPS boundaries, warranty liabilities, and quality performance.</div>
+            </div>
+
+            <!-- Table Filter Controls -->
+            <div class="d-flex align-items-center gap-2 no-print">
+                <div class="input-group input-group-sm" style="width: 240px;">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" id="contractorSearchInput" onkeyup="filterContractorsTable()" class="form-control border-start-0" placeholder="Search contractor or road...">
+                </div>
+                <select id="warrantyFilterSelect" onchange="filterContractorsTable()" class="form-select form-select-sm" style="width: 170px;">
+                    <option value="ALL">All Warranties</option>
+                    <option value="ACTIVE">Active (Under Guarantee)</option>
+                    <option value="EXPIRED">Expired (Municipal)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="contractorsTable">
+                <thead class="table-light text-uppercase font-mono" style="font-size: 11px; letter-spacing: 0.05em; color: var(--text-secondary);">
+                    <tr>
+                        <th style="width: 22%;">Road Segment (የመንገዱ ስም)</th>
+                        <th style="width: 18%;">Contractor (ኮንትራክተር)</th>
+                        <th style="width: 15%;">GPS Bounds (ጅማሬ - ማብቂያ)</th>
+                        <th style="width: 12%;">Handover Date (የተረከበበት)</th>
+                        <th style="width: 13%;">Warranty Status (የዋስትና ሁኔታ)</th>
+                        <th style="width: 8%;" class="text-center">Defects</th>
+                        <th style="width: 6%;" class="text-center">Grade</th>
+                        <th style="width: 6%;" class="text-end action-cell">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in contractors %}
+                    <tr data-status="{% if c.is_under_warranty %}ACTIVE{% else %}EXPIRED{% endif %}">
+                        <!-- Road Segment -->
+                        <td>
+                            <div class="fw-bold text-dark">{{ c.road_name }}</div>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                <span class="badge bg-light text-dark border font-mono" style="font-size: 10px;">{{ c.segment_code }}</span>
+                                <span class="text-secondary small font-mono">{{ c.length_km }} km</span>
+                                <span class="text-muted small">• {{ c.pavement_type }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Contractor & Consultant -->
+                        <td>
+                            <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                                <i class="bi bi-building-fill-gear text-secondary"></i>
+                                <span>{{ c.contractor_name }}</span>
+                            </div>
+                            <div class="text-secondary small mt-1">
+                                <span class="text-muted">Consultant:</span> {{ c.consultant_name or 'Independent Engineer' }}
+                            </div>
+                            {% if c.contact_email %}
+                            <div class="font-mono text-muted small" style="font-size: 10px;">{{ c.contact_email }}</div>
+                            {% endif %}
+                        </td>
+
+                        <!-- GPS Range -->
+                        <td>
+                            <div class="font-mono small text-dark">
+                                <i class="bi bi-geo-alt-fill text-danger" style="font-size: 10px;"></i>
+                                {{ "{:.4f}".format(c.start_lat) }}° N, {{ "{:.4f}".format(c.start_lon) }}° E
+                            </div>
+                            <div class="font-mono small text-secondary">
+                                <i class="bi bi-arrow-down" style="font-size: 10px;"></i>
+                                {{ "{:.4f}".format(c.end_lat) }}° N, {{ "{:.4f}".format(c.end_lon) }}° E
+                            </div>
+                        </td>
+
+                        <!-- Handover Date -->
+                        <td>
+                            <div class="fw-semibold text-dark">{{ c.handover_date }}</div>
+                            <div class="text-muted small font-mono">DLP: {{ c.warranty_years }} Years</div>
+                        </td>
+
+                        <!-- Warranty Status Badge -->
+                        <td>
+                            {% if c.is_under_warranty %}
+                            <span class="badge badge-warranty-active p-2 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-shield-fill-check"></i>
+                                <span>Active Warranty</span>
+                            </span>
+                            <div class="small text-success fw-semibold mt-1" style="font-size: 11px;">
+                                Expires: {{ c.warranty_expiry_date }}
+                            </div>
+                            <div class="badge bg-light text-success border mt-1" style="font-size: 9px;">100% Free Contractor Repair</div>
+                            {% else %}
+                            <span class="badge badge-warranty-expired p-2 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Warranty Expired</span>
+                            </span>
+                            <div class="small text-secondary mt-1" style="font-size: 11px;">
+                                Expired: {{ c.warranty_expiry_date }}
+                            </div>
+                            <div class="badge bg-light text-secondary border mt-1" style="font-size: 9px;">Municipal Budget Responsibility</div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Defects Count -->
+                        <td class="text-center">
+                            <span class="badge {% if c.incident_count > 10 %}bg-danger{% elif c.incident_count > 0 %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 px-2 py-1">
+                                {{ c.incident_count }}
+                            </span>
+                            <div class="text-secondary small font-mono mt-1" style="font-size: 10px;">
+                                {{ c.defect_rate_per_10km }} / 10km
+                            </div>
+                        </td>
+
+                        <!-- Quality Grade -->
+                        <td class="text-center">
+                            <div class="grade-badge bg-{{ c.grade_color }}-subtle text-{{ c.grade_color }} border border-{{ c.grade_color }}">
+                                {{ c.quality_grade }}
+                            </div>
+                            <div class="small text-muted font-mono" style="font-size: 10px;">{{ c.quality_score }}/100</div>
+                        </td>
+
+                        <!-- Action Buttons -->
+                        <td class="text-end action-cell">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Options
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2" onclick="openClaimNoticeModal({{ c.id }})">
+                                            <i class="bi bi-file-earmark-text text-danger"></i>
+                                            <span>Generate Warranty Claim Notice</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('map_view') }}">
+                                            <i class="bi bi-geo-alt text-primary"></i>
+                                            <span>Inspect on GIS Map</span>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button class="dropdown-item text-danger d-flex align-items-center gap-2" onclick="deleteContractor({{ c.id }}, '{{ c.road_name }}')">
+                                            <i class="bi bi-trash"></i>
+                                            <span>Delete Corridor</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CONTRACTOR QUALITY SCORECARD & RANKINGS                      -->
+    <!-- ============================================================ -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100 border p-3" style="border-color: var(--borders) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-bar-chart-fill text-primary me-1"></i>
+                        Contractor Pavement Quality Ranking (Defect Density)
+                    </h6>
+                    <span class="badge bg-light text-secondary border font-mono">Lower is Better</span>
+                </div>
+                <div class="space-y-3">
+                    {% for c in contractors %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1 small">
+                            <span class="fw-semibold text-dark">{{ c.contractor_name }}</span>
+                            <span class="font-mono text-secondary">{{ c.defect_rate_per_10km }} defects / 10km (Grade {{ c.quality_grade }})</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            {% set bar_width = [c.defect_rate_per_10km * 5, 100]|min %}
+                            <div class="progress-bar bg-{{ c.grade_color }}" role="progressbar" style="width: {{ bar_width }}%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 10px;">
+                            <span>Corridor: {{ c.road_name }}</span>
+                            <span>Score: {{ c.quality_score }}/100</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100 border p-3" style="border-color: var(--borders) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-journal-check text-success me-1"></i>
+                        Contractor Liability &amp; Warranty Policy (FIDIC &amp; ERA)
+                    </h6>
+                    <span class="badge bg-success font-mono">Operational Framework</span>
+                </div>
+                <div class="small text-secondary space-y-2">
+                    <p class="mb-2">
+                        <strong>1. Defects Liability Period (DLP):</strong> Construction firms are legally bonded to maintain roadway integrity for 24 to 36 months following official commissioning.
+                    </p>
+                    <p class="mb-2">
+                        <strong>2. Computer Vision Evidence:</strong> Every pothole and fatigue crack cataloged by the RoadEye neural pipeline is geotagged with sub-meter GPS and physical contact dimensions ($Z$).
+                    </p>
+                    <p class="mb-2">
+                        <strong>3. Automatic Rectification Orders:</strong> Formal notices include high-resolution optical captures, GPS coordinates, and a 14-day mandatory repair ultimatum before municipal back-charging.
+                    </p>
+                    <p class="mb-0">
+                        <strong>4. Future Tender Penalties:</strong> Contractors with persistent Grade D or F pavement scores receive automatic merit deductions in subsequent public highway bidding processes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: REGISTER NEW ROAD CONTRACTOR SEGMENT                  -->
+<!-- ============================================================ -->
+<div class="modal fade" id="newContractorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-plus-circle text-primary me-1"></i>
+                    Register Highway Corridor &amp; Construction Contractor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="newContractorForm" onsubmit="handleCreateContractor(event)">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Road Segment Name (የመንገዱ ስም) *</label>
+                            <input type="text" name="road_name" class="form-control" placeholder="e.g. ሸኖ – ደብረ ብርሃን (ክፍል 2)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Segment Code</label>
+                            <input type="text" name="segment_code" class="form-control" placeholder="e.g. ET-A2-S02">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Construction Contractor (ኮንትራክተር) *</label>
+                            <input type="text" name="contractor_name" class="form-control" placeholder="e.g. CRBC / Sur Construction / Sunshine" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Supervising Consultant Engineer</label>
+                            <input type="text" name="consultant_name" class="form-control" placeholder="e.g. Core Consulting / Beza Engineers">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Start Latitude *</label>
+                            <input type="number" step="any" name="start_lat" class="form-control font-mono" placeholder="9.5500" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Start Longitude *</label>
+                            <input type="number" step="any" name="start_lon" class="form-control font-mono" placeholder="39.4000" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">End Latitude *</label>
+                            <input type="number" step="any" name="end_lat" class="form-control font-mono" placeholder="9.6000" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">End Longitude *</label>
+                            <input type="number" step="any" name="end_lon" class="form-control font-mono" placeholder="39.4800" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Corridor Length (km)</label>
+                            <input type="number" step="any" name="length_km" class="form-control" placeholder="15.0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Handover / Commissioning Date *</label>
+                            <input type="date" name="handover_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Warranty Period (Years)</label>
+                            <select name="warranty_years" class="form-select" id="warrantyYearsSelect" onchange="calcExpiryDate()">
+                                <option value="1">1 Year DLP</option>
+                                <option value="2">2 Years DLP</option>
+                                <option value="3" selected>3 Years DLP (Standard FIDIC)</option>
+                                <option value="5">5 Years Extended</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Warranty Expiration Date</label>
+                            <input type="date" name="warranty_expiry_date" id="warrantyExpiryInput" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Contractor Liaison Email</label>
+                            <input type="email" name="contact_email" class="form-control" placeholder="liaison@contractor.com">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Administrative Notes / Contract Reference</label>
+                            <textarea name="notes" rows="2" class="form-control" placeholder="Contract number, asphalt specifications, or special maintenance stipulations..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Road Segment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: OFFICIAL WARRANTY DEFECT CLAIM NOTICE                 -->
+<!-- ============================================================ -->
+<div class="modal fade" id="claimNoticeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-text text-warning"></i>
+                    <span>Official Warranty Defect Claim Notice (የዋስትና መጠየቂያ ማሳወቂያ)</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="claim-paper p-4 p-md-5 rounded shadow-sm" id="printableClaimArea">
+                    <!-- Letterhead -->
+                    <div class="text-center pb-3 border-bottom mb-4">
+                        <div style="font-size: 18px; font-weight: bold; letter-spacing: 0.1em;">FEDERAL DEMOCRATIC REPUBLIC OF ETHIOPIA</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #0284c7;">ETHIOPIAN ROADS ADMINISTRATION (ERA)</div>
+                        <div style="font-size: 13px; color: #475569;">Infrastructure Asset Preservation &amp; Quality Audit Division</div>
+                        <div style="font-size: 12px; margin-top: 4px; font-style: italic;">RoadEye™ Automated Computer Vision Pavement Enforcement</div>
+                    </div>
+
+                    <!-- Notice Metadata -->
+                    <div class="d-flex justify-content-between mb-3" style="font-size: 13px;">
+                        <div>
+                            <strong>Ref No:</strong> <span id="claimRefNo" class="font-mono">ERA-DLP-2026-0001</span><br>
+                            <strong>Date:</strong> <span id="claimDate">October 31, 2026</span><br>
+                            <strong>Corridor:</strong> <span id="claimRoadName" class="fw-bold">ሸኖ – ደብረ ብርሃን (ክፍል 1)</span>
+                        </div>
+                        <div class="text-end">
+                            <strong>To Contractor:</strong> <span id="claimContractorName" class="fw-bold">CRBC</span><br>
+                            <strong>Consultant:</strong> <span id="claimConsultantName">Core Consulting</span><br>
+                            <strong>Warranty Status:</strong> <span id="claimWarrantyStatus" class="badge bg-success">ACTIVE DLP</span>
+                        </div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="p-2 mb-3 text-center border-top border-bottom bg-light fw-bold" style="font-size: 14px;">
+                        SUBJECT: FORMAL DIRECTIVE FOR IMMEDIATE DEFECT RECTIFICATION UNDER WARRANTY (DLP)
+                    </div>
+
+                    <!-- Body -->
+                    <div style="font-size: 13.5px; line-height: 1.6; text-align: justify;" class="mb-4">
+                        <p>
+                            Pursuant to <strong>FIDIC Conditions of Contract / ERA Standard Technical Specifications, Clause 11 (Defects Liability)</strong>, this official directive is issued concerning the road segment specified above.
+                        </p>
+                        <p>
+                            Automated computer vision and high-precision geodesic dashcam inspections conducted by the RoadEye neural monitoring platform have identified <strong id="claimDefectCount" class="text-danger">12</strong> confirmed pavement distress incidents (including structural potholes and alligator fatigue cracks) within your active Defects Liability Period (DLP).
+                        </p>
+
+                        <!-- Telemetry Table -->
+                        <table class="table table-bordered table-sm my-3 font-mono" style="font-size: 11px;">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Distress Type</th>
+                                    <th>Total Defects</th>
+                                    <th>Defect Density</th>
+                                    <th>Contractor Liability</th>
+                                    <th>Estimated Cost (ETB)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Severe Potholes (ጥልቅ ጉድጓዶች)</td>
+                                    <td id="claimPotholesCount" class="fw-bold text-danger">8</td>
+                                    <td rowspan="2" id="claimDefectRate" class="align-middle">3.4 / 10km</td>
+                                    <td rowspan="2" class="align-middle fw-bold text-success">100% Free Contractor Rectification</td>
+                                    <td rowspan="2" id="claimEstimatedCost" class="align-middle fw-bold">ETB 245,000</td>
+                                </tr>
+                                <tr>
+                                    <td>Alligator Cracks (የአዞ ቅርፊት ስንጥቅ)</td>
+                                    <td id="claimCracksCount" class="fw-bold text-warning">4</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p>
+                            You are hereby formally instructed to mobilize qualified asphalt repair crews and restore the road surface to standard design specifications within <strong class="text-danger">fourteen (14) calendar days</strong> of this notice. Failure to execute timely repairs will compel the Administration to dispatch municipal maintenance units and deduct full costs plus administrative surcharges from your retention guarantees.
+                        </p>
+                    </div>
+
+                    <!-- Sign-off Block -->
+                    <div class="row pt-4 border-top" style="font-size: 13px;">
+                        <div class="col-6">
+                            <div><strong>Issued By:</strong></div>
+                            <div class="mt-4 border-bottom pb-1" style="width: 200px;"></div>
+                            <div class="small text-muted mt-1">Chief Highway Inspector, ERA</div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <div><strong>Official Seal:</strong></div>
+                            <div class="mt-2 text-danger fw-bold font-mono" style="border: 2px dashed #dc2626; display: inline-block; padding: 8px 16px; transform: rotate(-5deg);">
+                                [ ERA VERIFIED QUALITY AUDIT ]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" onclick="printClaimNotice()">
+                    <i class="bi bi-printer"></i>
+                    <span>Print Formal Directive</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterContractorsTable() {
+        const query = (document.getElementById('contractorSearchInput').value || '').toLowerCase();
+        const warrantyFilter = document.getElementById('warrantyFilterSelect').value;
+        const rows = document.querySelectorAll('#contractorsTable tbody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const status = row.getAttribute('data-status');
+            const matchesQuery = !query || text.includes(query);
+            const matchesWarranty = (warrantyFilter === 'ALL') || (status === warrantyFilter);
+
+            if (matchesQuery && matchesWarranty) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function calcExpiryDate() {
+        const handover = document.querySelector('input[name="handover_date"]').value;
+        const years = parseInt(document.getElementById('warrantyYearsSelect').value || '3');
+        if (handover) {
+            const d = new Date(handover);
+            d.setFullYear(d.getFullYear() + years);
+            document.getElementById('warrantyExpiryInput').value = d.toISOString().split('T')[0];
+        }
+    }
+
+    document.querySelector('input[name="handover_date"]').addEventListener('change', calcExpiryDate);
+
+    async function handleCreateContractor(e) {
+        e.preventDefault();
+        const form = document.getElementById('newContractorForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const resp = await fetch('/api/contractors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await resp.json();
+            if (result.success) {
+                alert('Road contractor segment registered successfully!');
+                window.location.reload();
+            } else {
+                alert('Error: ' + (result.error || 'Failed to save contractor'));
+            }
+        } catch (err) {
+            alert('Failed to submit: ' + err);
+        }
+    }
+
+    async function deleteContractor(cid, roadName) {
+        if (!confirm(`Are you sure you want to delete the corridor record for "${roadName}"?`)) return;
+        try {
+            const resp = await fetch(`/api/contractors/${cid}`, { method: 'DELETE' });
+            const result = await resp.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                alert('Failed to delete: ' + (result.error || 'Unknown error'));
+            }
+        } catch (err) {
+            alert('Error deleting: ' + err);
+        }
+    }
+
+    async function openClaimNoticeModal(cid) {
+        try {
+            const resp = await fetch(`/api/contractors/${cid}/claim-notice`);
+            const res = await resp.json();
+            if (!res.success) {
+                alert('Notice could not be generated: ' + res.error);
+                return;
+            }
+            const c = res.contractor;
+            document.getElementById('claimRefNo').innerText = res.reference_no;
+            document.getElementById('claimDate').innerText = res.generated_at;
+            document.getElementById('claimRoadName').innerText = c.road_name;
+            document.getElementById('claimContractorName').innerText = c.contractor_name;
+            document.getElementById('claimConsultantName').innerText = c.consultant_name || 'Independent Engineer';
+            
+            const wStatus = document.getElementById('claimWarrantyStatus');
+            if (c.is_under_warranty) {
+                wStatus.className = 'badge bg-success';
+                wStatus.innerText = 'ACTIVE DLP (FREE REPAIR)';
+            } else {
+                wStatus.className = 'badge bg-secondary';
+                wStatus.innerText = 'EXPIRED (MUNICIPAL)';
+            }
+
+            document.getElementById('claimDefectCount').innerText = c.incident_count || 0;
+            document.getElementById('claimPotholesCount').innerText = c.potholes_count || 0;
+            document.getElementById('claimCracksCount').innerText = c.cracks_count || 0;
+            document.getElementById('claimDefectRate').innerText = (c.defect_rate_per_10km || 0) + ' / 10km';
+            document.getElementById('claimEstimatedCost').innerText = 'ETB ' + (c.repair_cost_etb || 0).toLocaleString();
+
+            const modal = new bootstrap.Modal(document.getElementById('claimNoticeModal'));
+            modal.show();
+        } catch (err) {
+            alert('Error loading notice: ' + err);
+        }
+    }
+
+    function printClaimNotice() {
+        const printContents = document.getElementById('printableClaimArea').innerHTML;
+        const originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload();
+    }
+</script>
+{% endblock %}

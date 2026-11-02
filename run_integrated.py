@@ -16,6 +16,7 @@ Output:
   outputs/integrated_damage_events.csv   All confirmed road damage incidents with risk & GPS
 """
 import os
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 import sys
 import csv
 import cv2
