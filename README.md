@@ -237,14 +237,42 @@ $$Z = \frac{H}{\tan\left(\theta + \arctan\left(\frac{y_{\text{contact}} - \frac{
 ---
 
 ### 2. Kinematic Time-To-Collision (TTC) Dynamic Matrix
-For obstacles within the vehicle's projected driving corridor, $\text{TTC}$ determines the temporal reaction margin:
+
+The **Time-To-Collision (TTC)** engine is the core decision-making module of the RoadEye ADAS system. Once an obstacle's physical distance is estimated, the system calculates exactly how many seconds remain before impact. This temporal margin dictates the system's auditory and visual warning intensity.
+
+#### The Core Equation
+For any obstacle detected within the vehicle's projected driving corridor, the $\text{TTC}$ is calculated as:
 
 $$\text{TTC} = \frac{d_{\text{obstacle}}}{v_{\text{approach}}}$$
 
-Where $v_{\text{approach}} = v_{\text{host}}$ for stationary pavement hazards, and $v_{\text{approach}} = \max(v_{\text{host}} - v_{\text{lead}}, 0)$ for dynamic lead vehicles.
+Where:
+* **$d_{\text{obstacle}}$**: The physical ground-plane distance to the hazard (in meters).
+* **$v_{\text{approach}}$**: The relative closing speed between our vehicle (host) and the hazard (in meters per second).
+
+Depending on the nature of the hazard, the system applies one of two kinematic scenarios:
+
+##### Scenario 1: Stationary Pavement Hazards
+For static road defects like potholes and alligator cracks, the obstacle is not moving. Therefore, our approach speed is simply our own driving speed:
+* **Equation:** $v_{\text{approach}} = v_{\text{host}}$
+* **Real-World Example:** 
+  You are driving at **$15\text{ m/s}$** (~$54\text{ km/h}$). The AI detects a deep pothole **$30\text{ meters}$** ahead:
+  $$\text{TTC} = \frac{30\text{ m}}{15\text{ m/s}} = 2.0\text{ seconds}$$
+  *System Action:* Triggers an **🟠 Amber Warning** to prepare for deceleration.
+
+##### Scenario 2: Dynamic Lead Vehicles
+For moving vehicles directly in front of us, the collision risk only exists if we are driving faster than they are. The approach speed is our relative speed:
+* **Equation:** $v_{\text{approach}} = \max(v_{\text{host}} - v_{\text{lead}}, 0)$
+* **Real-World Example:** 
+  You are driving at **$25\text{ m/s}$** (~$90\text{ km/h}$). The car $40\text{ meters}$ ahead of you is driving at **$15\text{ m/s}$** (~$54\text{ km/h}$):
+  $$\text{Relative Speed} = 25 - 15 = 10\text{ m/s}$$
+  $$\text{TTC} = \frac{40\text{ m}}{10\text{ m/s}} = 4.0\text{ seconds}$$
+  *System Action:* Triggers a **🟡 Yellow Caution** banner to maintain driver awareness. *(Note: If the lead car is driving faster than you, the result is 0, meaning no collision is imminent).*
+
+#### 🚦 Multi-Tier Risk Classification Matrix
+Once the $\text{TTC}$ (in seconds) is calculated, it is evaluated against empirical braking envelopes to trigger the appropriate HUD and audio alerts:
 
 | Risk Level | TTC Threshold | Visual HUD Banner | Auditory Warning Action | Operational Response |
-| :--- | :---: | :---: | :---: | :--- |
+| :--- | :---: | :--- | :--- | :--- |
 | 🔴 **Immediate Danger** | $\le 1.8\text{ s}$ | High-Contrast Red Banner | Spoken Voice Alert (*Amharic & English*) + Tone | Emergency braking or immediate lane evasive action |
 | 🟠 **Warning** | $1.8\text{ s} < \text{TTC} \le 3.5\text{ s}$ | Amber / Orange Warning | Audible Chime Pulse | Prepare deceleration; align steering corridor |
 | 🟡 **Caution** | $3.5\text{ s} < \text{TTC} \le 6.0\text{ s}$ | Yellow Informational Banner | Visual Indicator Only | Maintain heightened driver awareness |
