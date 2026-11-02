@@ -281,11 +281,27 @@ Once the $\text{TTC}$ (in seconds) is calculated, it is evaluated against empiri
 ---
 
 ### 3. Spatial GIS Forward Geodesic Projection
-When an obstacle is detected $d$ meters ahead along compass azimuth $\beta$ from current vehicle coordinates $(\phi_1, \lambda_1)$, its geographic position $(\phi_2, \lambda_2)$ is projected over Earth's radius ($R \approx 6,371,000\text{ m}$) using angular distance $\delta = d / R$:
+
+To dispatch municipal repair crews effectively, logging the vehicle's location is insufficient; the system must know the exact geographic coordinates of the road hazard itself. 
+
+RoadEye utilizes **Forward Geodesic Projection** to calculate the hazard's exact latitude and longitude by projecting the vehicle's current GPS position forward along the earth's curvature.
+
+#### The Problem
+When the AI detects a pothole 20 meters ahead, the onboard GPS only knows the *vehicle's* coordinates. If we save the vehicle's coordinates to the municipal database, the repair crew will be sent to the wrong location. 
+
+#### The Solution (Spherical Trigonometry Projection)
+By taking the vehicle's current coordinates $(\phi_1, \lambda_1)$, the compass bearing/azimuth ($\beta$), and the estimated distance to the hazard ($d$), the system projects a new coordinate $(\phi_2, \lambda_2)$ over the Earth's radius ($R \approx 6,371,000\text{ m}$) using angular distance $\delta = d / R$:
 
 $$\phi_2 = \arcsin\left(\sin(\phi_1)\cos(\delta) + \cos(\phi_1)\sin(\delta)\cos(\beta)\right)$$
 
 $$\lambda_2 = \lambda_1 + \arctan2\left(\sin(\beta)\sin(\delta)\cos(\phi_1),\, \cos(\delta) - \sin(\phi_1)\sin(\phi_2)\right)$$
+
+**Real-World Example:**
+1. A municipal inspection vehicle is driving North (Azimuth $\beta = 0^\circ$) through Debre Berhan.
+2. The vehicle's current GPS location is $\text{Lat } 9.6800, \text{Lon } 39.5300$.
+3. The YOLOv11 model and Monocular Distance Engine detect a severe alligator crack exactly **$30\text{ meters } (d)$** ahead.
+4. The Geodesic Projection algorithm applies the spherical trigonometry formulas to push the coordinates 30 meters due North.
+5. The system logs the exact defect location at $\text{Lat } 9.68027, \text{Lon } 39.5300$ and drops a precise color-coded pin on the Web Operations GIS Map for the repair crew.
 
 <br/>
 
