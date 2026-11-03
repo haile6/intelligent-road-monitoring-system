@@ -77,3 +77,41 @@ Leaving this problem unaddressed leads to rapid infrastructure collapse, soaring
 6. **Optical Vehicle ANPR Pipeline**: Integrate vehicle tracking with license plate localization and OCR to catalog optical vehicle evidence for traffic intelligence.
 7. **Full-Stack Municipal Web Platform**: Develop a responsive Flask, SQLite, and Leaflet.js web operations platform providing executive KPI dashboards, telemetry playback, work-order dispatch, and contractor warranty compliance tracking.
 8. **End-to-End Verification**: Validate the integrated pipeline with automated unit, kinematic, and end-to-end test suites.
+
+
+---
+
+## 4. Project Scope
+
+### 4.1 Functional Scope
+The implemented system provides the following core services:
+* **Real-Time Video Ingestion**: Dashcam video files, live USB webcams, or wireless mobile IP camera streams.
+* **Road Distress Detection & Tracking**: Identification and temporal confirmation of potholes and alligator cracking.
+* **Vehicle Detection & Tracking**: Tracking surrounding traffic (cars, trucks, buses, motorcycles) with persistent tracking IDs.
+* **Monocular Perspective Distance Calculation**: Real-time ground distance estimation ($Z$) in meters.
+* **Driving Corridor Lane Intersection**: Filtering hazards that lie directly in the vehicle's driving path versus adjacent lanes.
+* **Kinematic Collision Warning Engine**: Calculating dynamic $\text{TTC}$ and firing dual-language voice warnings and audible chimes.
+* **Geodesic Geotagging**: Synchronizing GPS telemetry with video frames and projecting defect coordinates forward.
+* **Automated ANPR**: Extracting vehicle and plate images with optical character recognition.
+* **Web Management Operations**: KPI dashboards, Telemetry Studio, interactive GIS maps, incident workflow lifecycles, and printable PDF/CSV field work orders.
+* **Contractor Warranty Registry**: Automated tracking of contractor road segments, warranty expiration dates, defect liability, and maintenance cost savings.
+
+### 4.2 Data Scope
+* **Video Telemetry**: High-definition video streams ($1920\times1080$ and $1280\times720$ at 24.0–30.0 fps).
+* **Pavement Damage Dataset**: Custom-labeled training and validation benchmarks representing asphalt roads under daylight, shaded, dry, and worn conditions.
+* **GPS Telemetry**: 1.0 Hz NMEA / CSV GPS telemetry logs containing UTC timestamps, latitude, longitude, elevation, bearing, and ground speed.
+* **Geographic Coverage**: Primary empirical validation centered on the Debre Berhan – Addis Ababa highway corridor (Ethiopia Route A2) and municipal urban roads.
+
+### 4.3 Technical Scope
+* **Programming Language**: Python 3.10 / 3.11
+* **Deep Learning Framework**: PyTorch 2.x, Ultralytics YOLOv8 / YOLO11
+* **Computer Vision**: OpenCV 4.8+, ByteTrack, EasyOCR
+* **Backend Framework**: Flask 3.x, Jinja2, Server-Sent Events (SSE)
+* **Database & Persistence**: SQLite 3 relational database
+* **GIS & Visualization**: Leaflet.js, OpenStreetMap, Folium, Chart.js, Bootstrap 5
+* **Target Deployment**: Local edge workstation, vehicle dashcam laptop, or connected mobile browser LAN client.
+
+### 4.4 Limitations and Exclusions
+* **Hardware Exclusions**: Active LiDAR, stereo cameras, and radar hardware are excluded; the system strictly relies on accessible monocular cameras.
+* **Sub-Surface Inspection**: Sub-surface geological voids, rebar corrosion, or non-visible base failures (requiring Ground Penetrating Radar) are outside the project boundary.
+* **Extreme Environmental Conditions**: Extreme pitch-black night driving without vehicle headlight illumination or dense blizzard conditions are outside baseline operational specifications.
