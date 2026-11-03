@@ -16,7 +16,7 @@
 
 **A production-ready Computer Vision & Intelligent Transportation System (ITS) platform connecting standard dashcam video, smartphone cameras, and GPS telemetry to automate municipal roadway asset preservation and active collision prevention.**
 
-[Live Dashboard](#-web-operations-platform) • [Core Capabilities](#-core-capabilities) • [Debre Berhan Dataset](#-debre-berhan-road-damage-dataset) • [System Architecture](#-system-architecture) • [Quickstart](#-quickstart--installation) • [Automated Tests](#-automated-testing--verification)
+[Project Proposal & Roadmap](docs/project_proposal.md) • [Live Dashboard](#-web-operations-platform) • [Core Capabilities](#-core-capabilities) • [Debre Berhan Dataset](#-debre-berhan-road-damage-dataset) • [System Architecture](#-system-architecture) • [Quickstart](#-quickstart--installation) • [Automated Tests](#-automated-testing--verification)
 
 <br/>
 

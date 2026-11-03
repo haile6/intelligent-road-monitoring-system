@@ -169,3 +169,34 @@ The implemented system provides the following core services:
 | **NFR-06 (Database Integrity & Reliability)** | The system shall handle duplicate events gracefully and preserve relational constraints. | Duplicate detections within $15\text{ m}$ and $10\text{ s}$ are consolidated; zero database corruption under unexpected termination. |
 | **NFR-07 (Portability & Accessibility)** | The web platform shall be responsive and accessible across local LAN and mobile devices. | Operators can connect and view the live Telemetry Studio from standard smartphone browsers over Wi-Fi without native app installation. |
 | **NFR-08 (Dual-Language Auditory Accessibility)** | ADAS audio collision warnings must support localized driver languages. | Spoken synthetic voice alerts in both Amharic and English deliver distinct auditory cues $< 100\text{ ms}$ after threshold breach. |
+
+
+---
+
+## 7. Project Implementation Roadmap & Milestones
+
+```mermaid
+flowchart TD
+    M1["Phase 1: Dataset Engineering & Benchmark Annotation\n(Debre Berhan Road Imagery, Potholes & Cracks)"]
+    M2["Phase 2: Deep Learning Model Training & Optimization\n(YOLOv8/11 Defect & Vehicle Detectors, ByteTrack MOT)"]
+    M3["Phase 3: Mathematical Geometry & Kinematics Engine\n(Perspective Distance Projection, Lane Corridors, Dynamic TTC)"]
+    M4["Phase 4: Spatial GIS Geodesic Synchronization\n(Video-GPS LERP, Great Circle Hazard Coordinate Geocoding)"]
+    M5["Phase 5: ANPR & Dual-Language Audio Alert Engine\n(Ethiopian License Plate OCR, Amharic/English HUD Alerts)"]
+    M6["Phase 6: Full-Stack Web Operations Platform\n(Flask, Leaflet GIS Map, Incident Lifecycle, Contractor DLP)"]
+    M7["Phase 7: End-to-End Field Validation & Verification\n(Automated Unit Tests, Highway Test Drives, Work Order Export)"]
+
+    M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7
+```
+
+| Milestone | Target Deliverable | Verification Metric |
+| :--- | :--- | :--- |
+| **M1: Data Engineering** | Annotated YOLO dataset with pothole and alligator crack classes | $\ge 1,000$ validated instances, 80/10/10 train/val/test split |
+| **M2: Deep Learning Models** | Optimized `road_damage_best.pt` and `yolo11s.pt` | $\text{mAP@50} \ge 0.85$, inference $\ge 24\text{ FPS}$ |
+| **M3: Geometry Engine** | `distance_estimator.py`, `path_analyzer.py`, `ttc_calculator.py` | Unit tests verify distance within $\pm 5\%$, TTC logic validated |
+| **M4: Geodesic GIS** | `gps_sync.py`, `geo.py`, forward spherical projection | Sub-second LERP interpolation, obstacle $\text{Lat}_2, \text{Lon}_2$ verified |
+| **M5: ANPR & Audio Alerts** | `license_plate_detector.pt`, EasyOCR, Amharic TTS audio engine | Plate accuracy $\ge 90\%$, Amharic & English alert audio synthesized |
+| **M6: Web Operations Suite** | Complete Flask application (`run_web.py`), SQLite schema, GIS map | All 9 web views operational, REST APIs respond $< 200\text{ ms}$ |
+| **M7: Final Verification** | Full test suite (`test_end_to_end.py`), PDF/CSV report exports | 20/20 automated tests pass in $< 0.05\text{ s}$, complete documentation |
+
+---
+*RoadEye Enterprise — Intelligent Transportation System & Municipal Pavement Preservation Platform*
