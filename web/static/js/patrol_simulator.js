@@ -226,21 +226,74 @@ class PatrolSimulator {
     /**
      * Adjust playback speed multiplier (1x, 2x, 4x, 8x).
      */
+    /**
+     * Adjust playback speed multiplier (0.5x, 1x, 2x, 4x, 8x).
+     */
     setSpeed(multiplier) {
-        this.options.speedMultiplier = parseFloat(multiplier) || 1.0;
+        this.options.speedMultiplier = Math.max(0.25, Math.min(16.0, parseFloat(multiplier) || 1.0));
         if (this.isPlaying) {
-            this.play(); // Restart interval with new speed
+            this.play(); // Restart interval with new frame timing
         }
     }
 
     /**
-     * Seek to a specific normalized progress (0.0 to 1.0).
+     * Seek to a specific normalized progress (0.0 to 1.0) with bidirectional hazard state re-evaluation.
      */
     seek(progress) {
         if (this.interpolatedPath.length === 0) return;
         const clamped = Math.max(0, Math.min(1.0, progress));
         this.currentIndex = Math.floor(clamped * (this.interpolatedPath.length - 1));
+
+        // Bidirectional hazard sync: reset later hazard pings when scrubbing backward
+        this.detectedHazardIds.clear();
+        this.activePingMarkers.forEach(m => {
+            if (this.map && this.map.hasLayer(m)) this.map.removeLayer(m);
+        });
+        this.activePingMarkers.clear();
+
+        for (let i = 0; i <= this.currentIndex; i++) {
+            const stepPt = this.interpolatedPath[i];
+            this.hazards.forEach(hazard => {
+                const dist = this._haversine(stepPt.lat, stepPt.lon, hazard.lat, hazard.lon);
+                if (dist <= this.options.proximityThresholdMeters) {
+                    this.detectedHazardIds.add(hazard.id);
+                }
+            });
+        }
+
         this._updateStep(this.interpolatedPath[this.currentIndex]);
+    }
+
+    /**
+     * Relative scrub forward or backward by delta progress (e.g. +0.02 or -0.02).
+     */
+    stepRelative(deltaProgress) {
+        if (this.interpolatedPath.length === 0) return;
+        const curProgress = (this.interpolatedPath.length > 1) ? (this.currentIndex / (this.interpolatedPath.length - 1)) : 0;
+        this.seek(curProgress + deltaProgress);
+    }
+
+    /**
+     * Query waypoint metadata at arbitrary progress ratio for hover scrubber tooltips.
+     */
+    getWaypointMetaAtProgress(progress) {
+        if (this.interpolatedPath.length === 0) return null;
+        const clamped = Math.max(0, Math.min(1.0, progress));
+        const idx = Math.floor(clamped * (this.interpolatedPath.length - 1));
+        const pt = this.interpolatedPath[idx];
+        const totalSec = Math.max(1, Math.round((this.totalDistanceM / 1000) / (35 / 3600)));
+        const curSec = Math.round(totalSec * clamped);
+        const curMin = String(Math.floor(curSec / 60)).padStart(2, '0');
+        const curRemSec = String(curSec % 60).padStart(2, '0');
+
+        return {
+            distanceKm: (pt.distanceM / 1000).toFixed(2),
+            totalKm: (this.totalDistanceM / 1000).toFixed(2),
+            timeFormatted: `${curMin}:${curRemSec}`,
+            progressPct: Math.round(clamped * 100),
+            bearing: Math.round(pt.bearing),
+            speedKmh: Math.round(pt.speed)
+        };
     }
 
     /**
