@@ -1,26 +1,59 @@
-# 🛣️ Data Science Project Concept Note & Implementation Proposal
+<div align="center">
 
-**Project Title**: **RoadEye: Intelligent Road Infrastructure Monitoring & Advanced Collision Avoidance Platform**  
-**Domain**: Computer Vision, Intelligent Transportation Systems (ITS), Municipal Asset Management  
-**Principal Researcher / Project Lead**: Haile Sintayehu ([@haile6](https://github.com/haile6))  
-**Academic / Institutional Context**: Ethiopian Road Infrastructure & Urban Mobility Initiative  
-**Date**: November 2026  
+# 🛣️ Data Science Project Concept Note & Implementation Proposal
+### RoadEye: Intelligent Road Infrastructure Monitoring & Advanced Collision Avoidance Platform
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![YOLOv8/11](https://img.shields.io/badge/YOLO-v8%20%7C%2011-00FFFF?style=for-the-badge&logo=yolo&logoColor=black)](https://github.com/ultralytics/ultralytics)
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.8%2B-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-GIS%20Mapping-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
+
+<br/>
+
+**Author & Principal Researcher**: **Haile Sintayehu** ([@haile6](https://github.com/haile6))  
+📫 **Contact**: `hailesintayehu113@gmail.com` • 🏛️ **Repository**: [haile6/intelligent-road-monitoring-system](https://github.com/haile6/intelligent-road-monitoring-system)  
+**Academic / Institutional Context**: Ethiopian Road Infrastructure & Urban Mobility Initiative • **Date**: November 2026  
+
+---
+
+[1. Project Introduction](#1-project-introduction) • [2. Problem Statement](#2-statement-of-the-problem) • [3. Project Objectives](#3-project-objectives) • [4. Project Scope](#4-project-scope) • [5. Significance & Beneficiaries](#5-project-significance-and-beneficiaries) • [6. Requirements Matrix](#6-functional-and-non-functional-requirements) • [7. Implementation Roadmap](#7-project-implementation-roadmap--milestones)
+
+---
+
+</div>
+
+<br/>
+
+> [!IMPORTANT]
+> **Executive Summary**: RoadEye delivers an end-to-end multimodal Data Science and Computer Vision solution combining standard dashcam video and GPS telemetry to solve two synchronized challenges: **Municipal Pavement Asset Preservation** (automated defect detection, severity grading, and forward geodesic geotagging) and **Active Collision Avoidance** (monocular metric distance, kinematic Time-To-Collision estimation, and dual-language Amharic/English driver alerts).
+
+<div align="center">
+  <img src="demo.gif" alt="RoadEye Real-Time ADAS & Telemetry Video Demo" width="95%" />
+  <p><em>Figure 1: Live In-Vehicle ADAS Perception & Collision Avoidance Demo — Real-time driving corridor projection, multi-target vehicle kinematics, closing Time-To-Collision (TTC) estimation, Ethiopian license plate recognition (ANPR), and dual-language (Amharic & English) HUD warnings.</em></p>
+</div>
+
+<br/>
 
 ---
 
 ## 1. Project Introduction
 
+Introduce the proposed project and provide sufficient background to explain its purpose and context.
+
 ### 1.1 Background and Context
-Road transportation serves as the backbone of economic mobility in developing nations, with over 90% of passenger and freight traffic in Ethiopia reliant on the national road network. However, paved asphalt surfaces suffer from accelerated degradation due to heavy axle freight loads, severe rainy seasons, and prolonged maintenance backlogs. Pavement distresses such as deep potholes and alligator fatigue cracks present severe safety hazards, causing rapid vehicle mechanical wear, high-speed tire punctures, and fatal rollover collisions when drivers swerve abruptly.
+Road transportation serves as the primary backbone of economic mobility in developing nations, with over 90% of passenger and freight traffic in Ethiopia reliant on the national highway network. However, paved asphalt surfaces suffer from rapid deterioration due to heavy freight axle loads, intense seasonal rains, and delayed municipal maintenance cycles. Pavement distresses such as deep potholes and alligator fatigue cracks present severe safety hazards, causing rapid mechanical vehicle wear, sudden tire punctures, and catastrophic rollover collisions when drivers make abrupt evasive maneuvers.
 
 ### 1.2 Problem Domain
 This project operates at the intersection of three critical domains:
-1. **Civil Infrastructure Preservation**: Municipal roadway asset inventory and maintenance scheduling.
-2. **Computer Vision & Edge Deep Learning**: High-accuracy object detection, multi-object tracking, and monocular geometry.
-3. **Intelligent Transportation Systems (ITS) & ADAS**: In-cabin active collision prevention and driving safety.
+1. **Civil Infrastructure Preservation**: Municipal roadway asset inventory, distress severity grading, and repair dispatch.
+2. **Computer Vision & Edge Deep Learning**: Real-time object detection, multi-object tracking (MOT), and perspective monocular geometry.
+3. **Intelligent Transportation Systems (ITS) & ADAS**: In-cabin active collision prevention, driver warnings, and spatial GIS mapping.
 
 ### 1.3 Proposed Data-Driven Solution
-**RoadEye** is an end-to-end multimodal computer vision platform designed to turn standard, low-cost monocular cameras (dashcams or smartphone cameras) and GPS receivers into an automated, synchronized roadway inspection and driver safety system. Instead of relying on expensive, dedicated multi-sensor survey vehicles, RoadEye leverages deep neural networks and geometric computer vision algorithms to detect road hazards in real time, calculate their exact metric distance, project their forward geographic coordinates, and alert drivers and municipal authorities simultaneously.
+**RoadEye** is an end-to-end multimodal computer vision and data science platform designed to transform standard, low-cost monocular cameras (dashcams or smartphone cameras) and GPS receivers into an automated, synchronized roadway inspection and driver safety system. Instead of relying on expensive, dedicated multi-sensor survey vehicles, RoadEye leverages deep neural networks and geometric computer vision algorithms to detect road hazards in real time, calculate their exact metric distance, project their forward geographic coordinates, and alert drivers and municipal authorities simultaneously.
 
 ### 1.4 Application of Data Science
 Data science and artificial intelligence techniques are applied across five synchronized layers:
@@ -31,7 +64,7 @@ Data science and artificial intelligence techniques are applied across five sync
 * **Automated Number Plate Recognition (ANPR)**: Deep plate localization and Optical Character Recognition (OCR) fine-tuned for regional vehicle license formats.
 
 ### 1.5 Overview of the Intended System / Product
-The resulting product consists of:
+The resulting product consists of two synchronized operational components:
 1. **On-Vehicle Edge Perception Engine**: Real-time HUD overlay running on dashcam feeds with audio collision alerts in both **Amharic** and **English**.
 2. **Operations & GIS Web Suite**: A responsive Flask/Leaflet web platform providing real-time KPI executive dashboards, interactive GIS maps, incident ledgers, field work-order generation, and contractor warranty accountability.
 
@@ -39,11 +72,13 @@ The resulting product consists of:
 
 ## 2. Statement of the Problem
 
+Clearly describe the specific problem the project intends to solve.
+
 ### 2.1 Description of the Existing Problem
 Municipal road networks throughout developing regions deteriorate faster than road authorities can inspect and repair them. Road defects generally originate as micro-cracks and small surface depressions; without prompt sealing, rainwater infiltrates the asphalt sub-base, rapidly producing cavernous potholes and extensive alligator fatigue cracking. 
 
 ### 2.2 Evidence and Practical Impact
-* **Traffic Fatalities**: The World Health Organization (WHO) and regional transportation statistics report high fatality rates across East African transit corridors. Sudden evasive swerving to avoid unseen potholes on unlit, high-speed highways is a primary cause of head-on collisions and rollovers.
+* **Traffic Fatalities**: The World Health Organization (WHO) and regional transportation statistics report high fatality rates across East African transit corridors (~27 deaths per 100,000 population annually). Sudden evasive swerving to avoid unseen potholes on unlit, high-speed highways is a primary cause of head-on collisions and rollovers.
 * **Economic Cost**: Vehicle maintenance costs multiply as shock absorbers, wheel rims, and tires suffer repetitive high-impact shock. Furthermore, repairing an advanced structural road failure costs up to 10× more than timely preventative crack sealing.
 
 ### 2.3 Limitations of Existing Approaches
@@ -78,10 +113,11 @@ Leaving this problem unaddressed leads to rapid infrastructure collapse, soaring
 7. **Full-Stack Municipal Web Platform**: Develop a responsive Flask, SQLite, and Leaflet.js web operations platform providing executive KPI dashboards, telemetry playback, work-order dispatch, and contractor warranty compliance tracking.
 8. **End-to-End Verification**: Validate the integrated pipeline with automated unit, kinematic, and end-to-end test suites.
 
-
 ---
 
 ## 4. Project Scope
+
+Define the boundaries of the project and specify what will and will not be implemented.
 
 ### 4.1 Functional Scope
 The implemented system provides the following core services:
@@ -116,7 +152,6 @@ The implemented system provides the following core services:
 * **Sub-Surface Inspection**: Sub-surface geological voids, rebar corrosion, or non-visible base failures (requiring Ground Penetrating Radar) are outside the project boundary.
 * **Extreme Environmental Conditions**: Extreme pitch-black night driving without vehicle headlight illumination or dense blizzard conditions are outside baseline operational specifications.
 
-
 ---
 
 ## 5. Project Significance and Beneficiaries
@@ -137,10 +172,11 @@ The implemented system provides the following core services:
 | **Commuters & General Public** | Indirect Beneficiaries | Safer roads, fewer traffic delays, decreased accident rates, and improved transit quality of life. |
 | **Automobile Insurers** | Indirect Beneficiaries | Reduced accident claims, verifiable optical video telemetry, and objective incident evidence. |
 
-
 ---
 
 ## 6. Functional and Non-Functional Requirements
+
+Define what the proposed system must do and the quality standards it should satisfy.
 
 ### 6.1 Functional Requirements
 
@@ -169,7 +205,6 @@ The implemented system provides the following core services:
 | **NFR-06 (Database Integrity & Reliability)** | The system shall handle duplicate events gracefully and preserve relational constraints. | Duplicate detections within $15\text{ m}$ and $10\text{ s}$ are consolidated; zero database corruption under unexpected termination. |
 | **NFR-07 (Portability & Accessibility)** | The web platform shall be responsive and accessible across local LAN and mobile devices. | Operators can connect and view the live Telemetry Studio from standard smartphone browsers over Wi-Fi without native app installation. |
 | **NFR-08 (Dual-Language Auditory Accessibility)** | ADAS audio collision warnings must support localized driver languages. | Spoken synthetic voice alerts in both Amharic and English deliver distinct auditory cues $< 100\text{ ms}$ after threshold breach. |
-
 
 ---
 
