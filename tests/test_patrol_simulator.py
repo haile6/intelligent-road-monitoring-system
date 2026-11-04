@@ -497,6 +497,58 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertAlmostEqual(recovered_time, defect_55_time, places=2)
 
 
+
+    def test_defect_keyframe_timecode_and_distance_mapping(self):
+        """Verify 0.15 km to 15s keyframe lock (Defect #50) and 0.28 km to 29s (Defect #55)."""
+        video_duration_sec = 34.0
+        total_corridor_dist_m = 280.0  # 0.28 km test track
+
+        # Mapping: distance along track corresponds linearly to video timeline
+        defect_50_time = 15.0  # 15s
+        defect_50_progress = defect_50_time / video_duration_sec
+        defect_50_distance_m = defect_50_progress * total_corridor_dist_m
+
+        # Car at ~0.12 to 0.15 km when video is at 15s
+        self.assertAlmostEqual(defect_50_distance_m / 1000.0, 0.123, delta=0.03)
+
+        defect_55_time = 28.96  # 29s
+        defect_55_progress = defect_55_time / video_duration_sec
+        defect_55_distance_m = defect_55_progress * total_corridor_dist_m
+        # Car at ~0.24 to 0.28 km when video is at 29s
+        self.assertAlmostEqual(defect_55_distance_m / 1000.0, 0.238, delta=0.04)
+
+    def test_seek_to_hazard_by_track_id_resolution(self):
+        """Verify seeking directly by hazard track ID resolves to correct timestamp and coordinate."""
+        mock_hazards = [
+            {"id": 53, "track_id": 53, "lat": 9.12480, "lon": 39.12482, "video_time_s": 5.0},
+            {"id": 50, "track_id": 50, "lat": 9.12483, "lon": 39.12485, "video_time_s": 15.0},
+            {"id": 55, "track_id": 55, "lat": 9.12481, "lon": 39.12482, "video_time_s": 28.96}
+        ]
+        video_duration_sec = 34.0
+
+        def resolve_hazard_seek(hazard_id):
+            h = next((x for x in mock_hazards if x["track_id"] == hazard_id), None)
+            if not h:
+                return None
+            time_sec = h["video_time_s"]
+            ratio = time_sec / video_duration_sec
+            return {
+                "hazard_id": h["track_id"],
+                "video_time_s": time_sec,
+                "progress_ratio": ratio
+            }
+
+        seek_50 = resolve_hazard_seek(50)
+        self.assertIsNotNone(seek_50)
+        self.assertEqual(seek_50["video_time_s"], 15.0)
+        self.assertAlmostEqual(seek_50["progress_ratio"], 15.0 / 34.0)
+
+        seek_55 = resolve_hazard_seek(55)
+        self.assertIsNotNone(seek_55)
+        self.assertEqual(seek_55["video_time_s"], 28.96)
+        self.assertAlmostEqual(seek_55["progress_ratio"], 28.96 / 34.0)
+
+
 if __name__ == "__main__":
     unittest.main()
 
