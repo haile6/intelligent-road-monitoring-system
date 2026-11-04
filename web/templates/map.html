@@ -92,6 +92,7 @@
             <div class="input-group input-group-sm" style="width: auto;">
                 <span class="input-group-text bg-white text-secondary"><i class="bi bi-compass"></i></span>
                 <select class="form-select form-select-sm fw-semibold" id="regionJumpSelect" onchange="jumpToRegion(this.value)" style="width: auto;">
+                    <option value="videotrack" selected>🎥 Dashcam Video Patrol Track (54 Defects)</option>
                     <option value="all">🇪🇹 All Ethiopia (መላው ኢትዮጵያ)</option>
                     <option value="addis" selected>🏙️ Addis Ababa &amp; Corridors (አዲስ አበባ)</option>
                     <option value="debreberhan">⛰️ Debre Berhan Network (ደብረ ብርሃን)</option>
@@ -424,6 +425,7 @@ const contractors = {{ contractors|tojson }};
 const osmGeojson = {{ osm_geojson|tojson }};
 
 const REGIONS = {
+    videotrack: { lat: 9.1245, lon: 39.1245, zoom: 17 },
     all: { lat: 9.145, lon: 40.0, zoom: 6 },
     addis: { lat: 9.02, lon: 38.76, zoom: 12 },
     debreberhan: { lat: 9.68, lon: 39.53, zoom: 13 },
@@ -439,10 +441,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initMap() {
-    const centerLat = 9.08;
-    const centerLon = 38.92;
-
-    map = L.map('map').setView([centerLat, centerLon], 10);
+    let centerLat = 9.1245;
+    let centerLon = 39.1245;
+    let initialZoom = 17;
+    if (gpsPoints && gpsPoints.length > 0) {
+        centerLat = parseFloat(gpsPoints[0].lat || gpsPoints[0].latitude);
+        centerLon = parseFloat(gpsPoints[0].lon || gpsPoints[0].longitude);
+    }
+    map = L.map('map').setView([centerLat, centerLon], initialZoom);
 
     // Standard Free OpenStreetMap Tiles
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -680,7 +686,8 @@ function initMap() {
 
         circleMarker.bindPopup(popupContent);
         markerLayerGroup.addLayer(circleMarker);
-        markers[inc.track_id || inc.id] = circleMarker;
+        markers[inc.id] = circleMarker;
+        if (inc.track_id) markers[inc.track_id] = circleMarker;
     });
 }
 
