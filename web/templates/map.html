@@ -116,6 +116,19 @@
                 </select>
             </div>
 
+            <!-- Patrol Display View Modes: Split-Screen / Full Map / PiP -->
+            <div class="btn-group btn-group-sm me-1" role="group" title="Patrol Visualization Layout">
+                <button class="btn btn-outline-primary active" id="btnPatrolSplitView" onclick="setPatrolDisplayMode('split')" title="Dual Live Sync: GIS Map + Dashcam Video">
+                    <i class="bi bi-layout-split"></i> Split-Screen
+                </button>
+                <button class="btn btn-outline-secondary" id="btnPatrolFullMap" onclick="setPatrolDisplayMode('map')" title="Full Map GIS View">
+                    <i class="bi bi-map"></i> Map Only
+                </button>
+                <button class="btn btn-outline-secondary" id="btnPatrolPipView" onclick="setPatrolDisplayMode('pip')" title="Floating Picture-in-Picture Video">
+                    <i class="bi bi-pip"></i> PiP
+                </button>
+            </div>
+
             <!-- View Switcher -->
             <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-secondary active" id="btnViewMap" onclick="switchView('map')">
@@ -171,8 +184,8 @@
     <!-- MAIN GIS MAP & HOTSPOT SIDEBAR                               -->
     <!-- ============================================================ -->
     <div id="mapViewContainer" class="row g-3">
-        <!-- Map Canvas -->
-        <div class="col-12 col-xl-9">
+        <!-- Map Canvas (Split-Screen / Full Map) -->
+        <div class="col-12 col-xl-7" id="patrolMapCol">
             <div class="card h-100 mb-0 shadow-sm">
                 <div class="card-header py-2 d-flex justify-content-between align-items-center bg-light">
                     <div class="d-flex align-items-center gap-2">
@@ -362,8 +375,60 @@
             </div>
         </div>
 
+        <!-- Synchronized Dashcam AI Vision Column (Split-Screen / PiP) -->
+        <div class="col-12 col-xl-5 patrol-dashcam-col" id="patrolDashcamCol">
+            <div class="patrol-dashcam-card" id="patrolDashcamCard">
+                <div class="dashcam-header">
+                    <div class="dashcam-title">
+                        <i class="bi bi-camera-video-fill text-danger"></i>
+                        <span>DASHCAM AI VISION STREAM</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;">
+                            <i class="bi bi-broadcast me-1"></i>LIVE SYNC
+                        </span>
+                        <button class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 11px;" onclick="toggleDashcamMute(this)" title="Mute/Unmute Video Audio">
+                            <i class="bi bi-volume-mute-fill" id="dashcamAudioIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="dashcam-video-wrapper">
+                    <video id="patrolDashcamVideo" class="dashcam-video-player" playsinline preload="auto" muted>
+                        <source src="/media/video/outputs/annotated_gemini_generated_video_dadfa683.mp4" type="video/mp4">
+                        Your browser does not support HTML5 video streaming.
+                    </video>
+
+                    <!-- Neural Vision HUD Overlays on top of Video -->
+                    <div class="dashcam-neural-hud">
+                        <div class="dashcam-hud-top">
+                            <div class="dashcam-hud-badge">
+                                <span class="dashcam-hud-sync-pulse"></span>
+                                <span>AI NEURAL DETECTION &bull; YOLOv8</span>
+                            </div>
+                            <div class="dashcam-hud-badge text-info">
+                                <i class="bi bi-cpu me-1"></i>30 FPS &bull; 1080p
+                            </div>
+                        </div>
+
+                        <div class="dashcam-target-box"></div>
+
+                        <div class="dashcam-hud-bottom">
+                            <div class="dashcam-hud-badge">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                <span id="dashcamGpsReadout">9.12346° N, 39.12346° E</span>
+                            </div>
+                            <div class="dashcam-hud-badge text-warning">
+                                <i class="bi bi-speedometer2 me-1"></i>
+                                <span id="dashcamSpeedReadout">30 km/h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sidebar / Hazard Hotspots & Corridors List -->
-        <div class="col-12 col-xl-3">
+        <div class="col-12 col-xl-3" id="hazardSidebarCol" style="display: none;">
             <div class="card h-100 mb-0 shadow-sm">
                 <div class="card-header py-2">
                     <ul class="nav nav-pills nav-fill card-header-pills" id="sidebarTabs" role="tablist">
@@ -1027,6 +1092,12 @@ function initPatrolSimulator() {
                 }
             }
 
+            // Update Synchronized Dashcam Video HUD Overlays
+            const dGps = document.getElementById('dashcamGpsReadout');
+            const dSpd = document.getElementById('dashcamSpeedReadout');
+            if (dGps) dGps.textContent = `${t.lat.toFixed(5)}° N, ${t.lon.toFixed(5)}° E`;
+            if (dSpd) dSpd.textContent = `${t.speedKmh} km/h`;
+
             if (scrubberEl && !scrubberEl.matches(':active')) {
                 scrubberEl.value = Math.round(t.progress * 1000);
                 updateScrubberFill(scrubberEl);
@@ -1087,6 +1158,12 @@ function initPatrolSimulator() {
             }
         }
     });
+
+    // Attach synchronized Dashcam Video Player
+    const dashcamVideoEl = document.getElementById('patrolDashcamVideo');
+    if (dashcamVideoEl) {
+        patrolSimulatorInstance.attachVideoPlayer(dashcamVideoEl, 34.0);
+    }
 
     // Default route: recorded GPS track
     const pointsToLoad = (gpsPoints && gpsPoints.length > 1) ? gpsPoints : debreBerhanArterialWaypoints;
@@ -1186,6 +1263,72 @@ function simulatorToggleAutoPan(isChecked) {
 function simulatorSetRadarRange(meters) {
     if (patrolSimulatorInstance) {
         patrolSimulatorInstance.setRadarRange(meters);
+    }
+}
+
+
+function setPatrolDisplayMode(mode) {
+    const mapCol = document.getElementById('patrolMapCol');
+    const dashcamCol = document.getElementById('patrolDashcamCol');
+    const dashcamCard = document.getElementById('patrolDashcamCard');
+    const sidebarCol = document.getElementById('hazardSidebarCol');
+
+    const btnSplit = document.getElementById('btnPatrolSplitView');
+    const btnMap = document.getElementById('btnPatrolFullMap');
+    const btnPip = document.getElementById('btnPatrolPipView');
+
+    [btnSplit, btnMap, btnPip].forEach(b => {
+        if (b) {
+            b.classList.remove('active', 'btn-primary');
+            b.classList.add('btn-outline-secondary');
+        }
+    });
+
+    if (mode === 'split') {
+        if (btnSplit) {
+            btnSplit.classList.add('active', 'btn-primary');
+            btnSplit.classList.remove('btn-outline-secondary');
+        }
+        if (mapCol) mapCol.className = 'col-12 col-xl-7';
+        if (dashcamCol) {
+            dashcamCol.style.display = 'block';
+            dashcamCol.className = 'col-12 col-xl-5 patrol-dashcam-col';
+        }
+        if (dashcamCard) dashcamCard.classList.remove('patrol-pip-mode');
+        if (sidebarCol) sidebarCol.style.display = 'none';
+    } else if (mode === 'pip') {
+        if (btnPip) {
+            btnPip.classList.add('active', 'btn-primary');
+            btnPip.classList.remove('btn-outline-secondary');
+        }
+        if (mapCol) mapCol.className = 'col-12 col-xl-9';
+        if (dashcamCol) {
+            dashcamCol.style.display = 'block';
+            dashcamCol.className = 'patrol-dashcam-col';
+        }
+        if (dashcamCard) dashcamCard.classList.add('patrol-pip-mode');
+        if (sidebarCol) sidebarCol.style.display = 'block';
+    } else { // 'map'
+        if (btnMap) {
+            btnMap.classList.add('active', 'btn-primary');
+            btnMap.classList.remove('btn-outline-secondary');
+        }
+        if (mapCol) mapCol.className = 'col-12 col-xl-9';
+        if (dashcamCol) dashcamCol.style.display = 'none';
+        if (dashcamCard) dashcamCard.classList.remove('patrol-pip-mode');
+        if (sidebarCol) sidebarCol.style.display = 'block';
+    }
+
+    if (map) setTimeout(() => map.invalidateSize(), 250);
+}
+
+function toggleDashcamMute(btn) {
+    const video = document.getElementById('patrolDashcamVideo');
+    const icon = document.getElementById('dashcamAudioIcon');
+    if (!video) return;
+    video.muted = !video.muted;
+    if (icon) {
+        icon.className = video.muted ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill text-info';
     }
 }
 
