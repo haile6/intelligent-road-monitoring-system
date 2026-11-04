@@ -253,141 +253,17 @@ def create_ethiopian_contractors_benchmark():
     """Curate verified Ethiopian Road Contractors & DLP Warranty Benchmark Dataset."""
     print("[*] Curating Open Benchmark of Ethiopian Road Contractors & Warranty Data...")
     
-    benchmark_data = [
-        {
-            "segment_code": "ET-A2-S01",
-            "road_name": "ሸኖ – ደብረ ብርሃን አውራ ጎዳና የመንገድ ፕሮጀክት",
-            "corridor": "Ethiopia Route A2 (Sheno – Debre Berhan Highway Rehabilitation)",
-            "contractor_name": "CRBC (China Road and Bridge Corporation)",
-            "supervising_consultant": "Core Consulting Engineers Plc",
-            "client_authority": "Ethiopian Roads Administration (ERA)",
-            "start_lat": 9.5500, "start_lon": 39.4000,
-            "end_lat": 9.6000, "end_lon": 39.4800,
-            "length_km": 15.4,
-            "pavement_type": "Asphalt Concrete (Superpave 50mm Binder + Wearing)",
-            "handover_date": "2023-01-10",
-            "warranty_years": 3,
-            "warranty_expiry_date": "2026-01-10",
-            "warranty_status": "Active",
-            "contract_value_etb": 450000000.0,
-            "funding_source": "Government of Ethiopia & World Bank RSDP",
-            "contact_email": "liaison@crbc-ethiopia.com",
-            "contact_phone": "+251 11 661 2345"
-        },
-        {
-            "segment_code": "ET-DB-M01",
-            "road_name": "ደብረ ብርሃን ከተማ ዋና የንግድ መስመር (ቀለበት መንገድ)",
-            "corridor": "Debre Berhan Municipal Arterial Ring Road Network",
-            "contractor_name": "Sur Construction Plc",
-            "supervising_consultant": "Beza Consulting Engineers",
-            "client_authority": "Debre Berhan City Administration & Amhara Roads",
-            "start_lat": 9.6700, "start_lon": 39.5200,
-            "end_lat": 9.6900, "end_lon": 39.5400,
-            "length_km": 4.2,
-            "pavement_type": "Asphalt Concrete Standard 60mm",
-            "handover_date": "2021-10-01",
-            "warranty_years": 2,
-            "warranty_expiry_date": "2023-10-01",
-            "warranty_status": "Expired",
-            "contract_value_etb": 185000000.0,
-            "funding_source": "Municipal Infrastructure Grant",
-            "contact_email": "contracts@surconstruction.com",
-            "contact_phone": "+251 11 551 7890"
-        },
-        {
-            "segment_code": "ET-DB-ANK",
-            "road_name": "ደብረ ብርሃን – አንኮበር አስፓልት መንገድ",
-            "corridor": "Debre Berhan – Ankober Asphalt Road Project (42km)",
-            "contractor_name": "Sunshine Construction Plc",
-            "supervising_consultant": "Transport Construction Design Share Co. (TCDSCO)",
-            "client_authority": "Ethiopian Roads Administration (ERA)",
-            "start_lat": 9.6800, "start_lon": 39.5300,
-            "end_lat": 9.5900, "end_lon": 39.7300,
-            "length_km": 42.0,
-            "pavement_type": "Asphalt Concrete Standard 50mm",
-            "handover_date": "2024-03-20",
-            "warranty_years": 3,
-            "warranty_expiry_date": "2027-03-20",
-            "warranty_status": "Active",
-            "contract_value_etb": 820000000.0,
-            "funding_source": "Federal Capital Budget",
-            "contact_email": "infrastructure@sunshineinvestmentgroup.net",
-            "contact_phone": "+251 11 552 4400"
-        },
-        {
-            "segment_code": "ET-AA-KTB",
-            "road_name": "መገናኛ – ኮተቤ – ለገጣፎ ኮሪደር አስፓልት መንገድ",
-            "corridor": "Megenagna – Kotebe – Legetafo Corridor Transit Road",
-            "contractor_name": "Yotek Construction Plc",
-            "supervising_consultant": "Associated Engineering Consultants",
-            "client_authority": "Addis Ababa City Roads Authority (AACRA)",
-            "start_lat": 9.0100, "start_lon": 38.7600,
-            "end_lat": 9.1199, "end_lon": 38.9799,
-            "length_km": 18.2,
-            "pavement_type": "Dense Bituminous Macadam (DBM)",
-            "handover_date": "2022-05-15",
-            "warranty_years": 2,
-            "warranty_expiry_date": "2024-05-15",
-            "warranty_status": "Expired",
-            "contract_value_etb": 310000000.0,
-            "funding_source": "City Administration Capital Development Fund",
-            "contact_email": "contact@yotekcon.com",
-            "contact_phone": "+251 11 662 8820"
-        },
-        {
-            "segment_code": "ET-A2-MZZ",
-            "road_name": "መሀል ሜዳ – ዓለም ከተማ አስፓልት መንገድ",
-            "corridor": "Mehalmeda – Alemketema Asphalt Road Project (72km)",
-            "contractor_name": "Gemshu Beyene Construction (GEBECON)",
-            "supervising_consultant": "Net Consult Consulting Engineers",
-            "client_authority": "Ethiopian Roads Administration (ERA)",
-            "start_lat": 9.7200, "start_lon": 39.5500,
-            "end_lat": 9.8500, "end_lon": 39.6800,
-            "length_km": 72.0,
-            "pavement_type": "Reinforced Asphalt Concrete (Mountain Grade)",
-            "handover_date": "2023-11-12",
-            "warranty_years": 3,
-            "warranty_expiry_date": "2026-11-12",
-            "warranty_status": "Active",
-            "contract_value_etb": 980000000.0,
-            "funding_source": "AfDB & Government of Ethiopia",
-            "contact_email": "projects@gebecon.com.et",
-            "contact_phone": "+251 11 663 1290"
-        },
-        {
-            "segment_code": "ET-EXP-MDJ",
-            "road_name": "ሞጆ – መቂ – ባቱ (ዝዋይ) የክፍያ ፈጣን መንገድ",
-            "corridor": "Modjo – Meki – Batu Toll Expressway Lot 1/3 (Phase 1)",
-            "contractor_name": "SBI International Holdings AG",
-            "supervising_consultant": "Techniplan International Consulting",
-            "client_authority": "Ethiopian Toll Roads Enterprise (ETRE) / ERA",
-            "start_lat": 8.5900, "start_lon": 39.1200,
-            "end_lat": 8.1500, "end_lon": 38.8300,
-            "length_km": 56.8,
-            "pavement_type": "4-Lane Superpave Asphalt Expressway",
-            "handover_date": "2022-09-30",
-            "warranty_years": 3,
-            "warranty_expiry_date": "2025-09-30",
-            "warranty_status": "Expired",
-            "contract_value_etb": 3600000000.0,
-            "funding_source": "African Development Bank (AfDB) Loan",
-            "contact_email": "ethiopia@sbi-international.com",
-            "contact_phone": "+251 22 111 8840"
-        }
-    ]
-
     csv_path = os.path.join(OUTPUT_DIR, "ethiopian_road_contractors_benchmark.csv")
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(benchmark_data[0].keys()))
-        writer.writeheader()
-        writer.writerows(benchmark_data)
-
     json_path = os.path.join(OUTPUT_DIR, "ethiopian_road_contractors_benchmark.json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(benchmark_data, f, indent=2, ensure_ascii=False)
 
-    print(f"[+] Successfully saved {len(benchmark_data)} Ethiopian contractor benchmark segments to {csv_path}")
-    return benchmark_data
+    if os.path.exists(csv_path):
+        with open(csv_path, "r", encoding="utf-8") as f:
+            benchmark_data = list(csv.DictReader(f))
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(benchmark_data, f, indent=2, ensure_ascii=False)
+        print(f"[+] Successfully loaded and synchronized {len(benchmark_data)} Ethiopian contractor benchmark segments from {csv_path}")
+        return benchmark_data
+    return []
 
 
 def main():

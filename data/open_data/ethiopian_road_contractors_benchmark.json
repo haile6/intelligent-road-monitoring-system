@@ -19,7 +19,9 @@
     "contract_value_etb": "1200000000.0",
     "funding_source": "AACRA Municipal Budget & Exim Bank Loan",
     "contact_email": "liaison@crbc-ethiopia.com",
-    "contact_phone": "+251 11 661 2345"
+    "contact_phone": "+251 11 661 2345",
+    "website_url": "https://www.crbc.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P044613"
   },
   {
     "segment_code": "ET-AA-BOL",
@@ -41,7 +43,9 @@
     "contract_value_etb": "420000000.0",
     "funding_source": "Addis Ababa City Administration Capital Budget",
     "contact_email": "liaison@crbc-ethiopia.com",
-    "contact_phone": "+251 11 661 2345"
+    "contact_phone": "+251 11 661 2345",
+    "website_url": "https://www.crbc.com",
+    "source_url": "http://www.era.gov.et"
   },
   {
     "segment_code": "ET-AA-LRT",
@@ -63,7 +67,9 @@
     "contract_value_etb": "560000000.0",
     "funding_source": "Federal & Municipal Transport Infrastructure Fund",
     "contact_email": "crec_ethiopia@crecg.com",
-    "contact_phone": "+251 11 663 5500"
+    "contact_phone": "+251 11 663 5500",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "http://coreconsultingengineers.com"
   },
   {
     "segment_code": "ET-AA-KTB",
@@ -85,7 +91,9 @@
     "contract_value_etb": "310000000.0",
     "funding_source": "City Administration Capital Development Fund",
     "contact_email": "contact@yotekcon.com",
-    "contact_phone": "+251 11 662 8820"
+    "contact_phone": "+251 11 662 8820",
+    "website_url": "http://www.yotekcon.com",
+    "source_url": "http://www.yotekcon.com"
   },
   {
     "segment_code": "ET-AA-CMC",
@@ -107,7 +115,9 @@
     "contract_value_etb": "290000000.0",
     "funding_source": "AACRA Municipal Budget",
     "contact_email": "infrastructure@sunshineinvestmentgroup.net",
-    "contact_phone": "+251 11 552 4400"
+    "contact_phone": "+251 11 552 4400",
+    "website_url": "https://sunshineinvestmentgroup.net",
+    "source_url": "https://sunshineinvestmentgroup.net"
   },
   {
     "segment_code": "ET-AA-SND",
@@ -129,7 +139,9 @@
     "contract_value_etb": "750000000.0",
     "funding_source": "Federal Capital Budget (ERA)",
     "contact_email": "infrastructure@sunshineinvestmentgroup.net",
-    "contact_phone": "+251 11 552 4400"
+    "contact_phone": "+251 11 552 4400",
+    "website_url": "https://sunshineinvestmentgroup.net",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P117731"
   },
   {
     "segment_code": "ET-AA-JMO",
@@ -151,7 +163,9 @@
     "contract_value_etb": "380000000.0",
     "funding_source": "AACRA Municipal Budget",
     "contact_email": "contact@macrogeneralcontractor.com",
-    "contact_phone": "+251 11 442 1200"
+    "contact_phone": "+251 11 442 1200",
+    "website_url": "https://macrogeneralcontractor.com",
+    "source_url": "http://www.era.gov.et"
   },
   {
     "segment_code": "ET-AA-KAL",
@@ -173,7 +187,9 @@
     "contract_value_etb": "680000000.0",
     "funding_source": "AACRA & Ethiopian Toll Roads Enterprise",
     "contact_email": "liaison@crbc-ethiopia.com",
-    "contact_phone": "+251 11 661 2345"
+    "contact_phone": "+251 11 661 2345",
+    "website_url": "https://www.crbc.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P148850"
   },
   {
     "segment_code": "ET-AA-AYT",
@@ -195,7 +211,9 @@
     "contract_value_etb": "260000000.0",
     "funding_source": "Addis Ababa Housing Development Project Office",
     "contact_email": "info@aserconstruction.com",
-    "contact_phone": "+251 11 662 0330"
+    "contact_phone": "+251 11 662 0330",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "http://coreconsultingengineers.com"
   },
   {
     "segment_code": "ET-AA-TOR",
@@ -217,7 +235,9 @@
     "contract_value_etb": "340000000.0",
     "funding_source": "AACRA Capital Development Budget",
     "contact_email": "contact@ramaconstruction.com",
-    "contact_phone": "+251 11 551 2290"
+    "contact_phone": "+251 11 551 2290",
+    "website_url": "https://ramaconstruction.com",
+    "source_url": "http://www.era.gov.et"
   },
   {
     "segment_code": "ET-AMH-S01",
@@ -239,7 +259,9 @@
     "contract_value_etb": "450000000.0",
     "funding_source": "Government of Ethiopia & World Bank RSDP",
     "contact_email": "liaison@crbc-ethiopia.com",
-    "contact_phone": "+251 11 661 2345"
+    "contact_phone": "+251 11 661 2345",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P117731"
   },
   {
     "segment_code": "ET-AMH-DBM",
@@ -261,7 +283,9 @@
     "contract_value_etb": "185000000.0",
     "funding_source": "Municipal Infrastructure Grant",
     "contact_email": "contracts@surconstruction.com",
-    "contact_phone": "+251 11 551 7890"
+    "contact_phone": "+251 11 551 7890",
+    "website_url": "https://surconstruction.com",
+    "source_url": "https://surconstruction.com"
   },
   {
     "segment_code": "ET-AMH-ANK",
@@ -283,7 +307,9 @@
     "contract_value_etb": "820000000.0",
     "funding_source": "Federal Capital Budget (ERA)",
     "contact_email": "infrastructure@sunshineinvestmentgroup.net",
-    "contact_phone": "+251 11 552 4400"
+    "contact_phone": "+251 11 552 4400",
+    "website_url": "https://sunshineinvestmentgroup.net",
+    "source_url": "https://sunshineinvestmentgroup.net"
   },
   {
     "segment_code": "ET-AMH-MZZ",
@@ -305,7 +331,9 @@
     "contract_value_etb": "980000000.0",
     "funding_source": "AfDB & Government of Ethiopia",
     "contact_email": "projects@gebecon.com.et",
-    "contact_phone": "+251 11 663 1290"
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
   },
   {
     "segment_code": "ET-AMH-DOG",
@@ -327,7 +355,9 @@
     "contract_value_etb": "1150000000.0",
     "funding_source": "Federal Capital Budget (ERA)",
     "contact_email": "projects@gebecon.com.et",
-    "contact_phone": "+251 11 663 1290"
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
   },
   {
     "segment_code": "ET-AMH-EFE",
@@ -349,7 +379,9 @@
     "contract_value_etb": "720000000.0",
     "funding_source": "Government of Ethiopia Capital Budget",
     "contact_email": "info@dce-et.com",
-    "contact_phone": "+251 11 663 8000"
+    "contact_phone": "+251 11 663 8000",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "http://coreconsultingengineers.com"
   },
   {
     "segment_code": "ET-AMH-WRL",
@@ -371,7 +403,9 @@
     "contract_value_etb": "1020000000.0",
     "funding_source": "Federal Capital Budget (ERA)",
     "contact_email": "infrastructure@sunshineinvestmentgroup.net",
-    "contact_phone": "+251 11 552 4400"
+    "contact_phone": "+251 11 552 4400",
+    "website_url": "https://sunshineinvestmentgroup.net",
+    "source_url": "https://sunshineinvestmentgroup.net"
   },
   {
     "segment_code": "ET-AMH-GOR",
@@ -393,7 +427,9 @@
     "contract_value_etb": "790000000.0",
     "funding_source": "ERA & Ministry of Tourism Tourism Corridors Fund",
     "contact_email": "projects@gebecon.com.et",
-    "contact_phone": "+251 11 663 1290"
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
   },
   {
     "segment_code": "ET-AMH-BDG",
@@ -415,7 +451,9 @@
     "contract_value_etb": "2850000000.0",
     "funding_source": "World Bank RSDP & Federal Government",
     "contact_email": "liaison@crbc-ethiopia.com",
-    "contact_phone": "+251 11 661 2345"
+    "contact_phone": "+251 11 661 2345",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P117731"
   },
   {
     "segment_code": "ET-AMH-BDR",
@@ -437,7 +475,9 @@
     "contract_value_etb": "540000000.0",
     "funding_source": "Amhara Regional Infrastructure Grant",
     "contact_email": "contracts@surconstruction.com",
-    "contact_phone": "+251 11 551 7890"
+    "contact_phone": "+251 11 551 7890",
+    "website_url": "https://surconstruction.com",
+    "source_url": "https://surconstruction.com"
   },
   {
     "segment_code": "ET-AMH-DEJ",
@@ -459,7 +499,9 @@
     "contract_value_etb": "1450000000.0",
     "funding_source": "JICA Japan Grant Aid & Government of Ethiopia",
     "contact_email": "ethiopia@kajima.com",
-    "contact_phone": "+251 11 553 1180"
+    "contact_phone": "+251 11 553 1180",
+    "website_url": "https://www.kajima.co.jp/english/",
+    "source_url": "https://www.jica.go.jp/english/"
   },
   {
     "segment_code": "ET-AMH-DBK",
@@ -481,7 +523,9 @@
     "contract_value_etb": "1620000000.0",
     "funding_source": "African Development Bank (AfDB) Loan",
     "contact_email": "contracts@surconstruction.com",
-    "contact_phone": "+251 11 551 7890"
+    "contact_phone": "+251 11 551 7890",
+    "website_url": "https://surconstruction.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P106872"
   },
   {
     "segment_code": "ET-AMH-KMB",
@@ -503,7 +547,9 @@
     "contract_value_etb": "2300000000.0",
     "funding_source": "World Bank Trade Logistics Project",
     "contact_email": "cccc_ethiopia@ccccltd.cn",
-    "contact_phone": "+251 11 663 8810"
+    "contact_phone": "+251 11 663 8810",
+    "website_url": "https://en.ccccltd.cn",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P156590"
   },
   {
     "segment_code": "ET-AMH-WLD",
@@ -525,6 +571,296 @@
     "contract_value_etb": "1340000000.0",
     "funding_source": "ERA Federal Capital Budget",
     "contact_email": "contracts@surconstruction.com",
-    "contact_phone": "+251 11 551 7890"
+    "contact_phone": "+251 11 551 7890",
+    "website_url": "https://surconstruction.com",
+    "source_url": "http://www.era.gov.et"
+  },
+  {
+    "segment_code": "ET-ORO-ADM",
+    "road_name": "አዲስ አበባ – አዳማ የክፍያ ፈጣን አውራ ጎዳና",
+    "corridor": "Addis Ababa – Adama High-Speed Toll Expressway Corridor",
+    "contractor_name": "China Communications Construction Company (CCCC)",
+    "supervising_consultant": "Husson / CORE Consulting Engineers",
+    "client_authority": "Ethiopian Toll Roads Enterprise (ETRE) / ERA",
+    "start_lat": "8.9600",
+    "start_lon": "38.8300",
+    "end_lat": "8.5400",
+    "end_lon": "39.2700",
+    "length_km": "84.7",
+    "pavement_type": "Dual 6-Lane Superpave Asphalt Expressway",
+    "handover_date": "2020-09-15",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2023-09-15",
+    "warranty_status": "Expired",
+    "contract_value_etb": "8500000000.0",
+    "funding_source": "Government of Ethiopia & Exim Bank Loan",
+    "contact_email": "cccc_ethiopia@ccccltd.cn",
+    "contact_phone": "+251 11 663 8810",
+    "website_url": "https://en.ccccltd.cn",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P148850"
+  },
+  {
+    "segment_code": "ET-ORO-MDJ",
+    "road_name": "ሞጆ – መቂ – ባቱ (ዝዋይ) የክፍያ ፈጣን መንገድ (ክፍል 1)",
+    "corridor": "Modjo-Hawassa High-Speed Toll Expressway Phase 1 Lot 1/3",
+    "contractor_name": "SBI International Holdings AG",
+    "supervising_consultant": "Techniplan International Consulting",
+    "client_authority": "Ethiopian Toll Roads Enterprise (ETRE) / ERA",
+    "start_lat": "8.5900",
+    "start_lon": "39.1200",
+    "end_lat": "8.1500",
+    "end_lon": "38.8300",
+    "length_km": "56.8",
+    "pavement_type": "4-Lane Superpave Asphalt Expressway",
+    "handover_date": "2022-09-30",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2025-09-30",
+    "warranty_status": "Expired",
+    "contract_value_etb": "3600000000.0",
+    "funding_source": "African Development Bank (AfDB) Loan",
+    "contact_email": "ethiopia@sbi-international.com",
+    "contact_phone": "+251 22 111 8840",
+    "website_url": "https://sbi-international.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P148850"
+  },
+  {
+    "segment_code": "ET-ORO-AMB",
+    "road_name": "አምቦ ከተማ ዋና አስፓልት መንገድ ፕሮጀክት",
+    "corridor": "Ambo Town Asphalt Road Project (35km - GEBECON Portfolio)",
+    "contractor_name": "Gemshu Beyene Construction (GEBECON)",
+    "supervising_consultant": "Net Consult Consulting Engineers",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "8.9800",
+    "start_lon": "37.8500",
+    "end_lat": "8.9900",
+    "end_lon": "37.8700",
+    "length_km": "35.0",
+    "pavement_type": "Asphalt Concrete Standard 50mm",
+    "handover_date": "2023-08-10",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2026-08-10",
+    "warranty_status": "Active",
+    "contract_value_etb": "520000000.0",
+    "funding_source": "ERA Federal Budget",
+    "contact_email": "projects@gebecon.com.et",
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
+  },
+  {
+    "segment_code": "ET-ORO-GNC",
+    "road_name": "ጊንጪ – ሽኩቴ አስፓልት መንገድ ፕሮጀክት",
+    "corridor": "Ginchi – Shukute Asphalt Road Project (59km - GEBECON Portfolio)",
+    "contractor_name": "Gemshu Beyene Construction (GEBECON)",
+    "supervising_consultant": "Beza Consulting Engineers",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "9.0200",
+    "start_lon": "38.1300",
+    "end_lat": "8.9000",
+    "end_lon": "38.0100",
+    "length_km": "59.0",
+    "pavement_type": "Dense Bituminous Macadam",
+    "handover_date": "2022-10-14",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2025-10-14",
+    "warranty_status": "Active",
+    "contract_value_etb": "880000000.0",
+    "funding_source": "Government of Ethiopia Capital Budget",
+    "contact_email": "projects@gebecon.com.et",
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
+  },
+  {
+    "segment_code": "ET-ORO-NKM",
+    "road_name": "ነቀምቴ – ቡሬ ዋና አውራ ጎዳና (ኦሮሚያ-አማራ አገናኝ ኮሪደር)",
+    "corridor": "Nekemte – Bure Regional Link Highway (World Bank RSDP)",
+    "contractor_name": "IL&FS Engineering and Construction Co.",
+    "supervising_consultant": "Associated Engineering Consultants",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "9.0900",
+    "start_lon": "36.5500",
+    "end_lat": "10.7000",
+    "end_lon": "37.0700",
+    "length_km": "258.0",
+    "pavement_type": "Heavy Pavement Asphalt Concrete 60mm",
+    "handover_date": "2023-05-18",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2026-05-18",
+    "warranty_status": "Active",
+    "contract_value_etb": "3900000000.0",
+    "funding_source": "World Bank RSDP Project P131118",
+    "contact_email": "contact@ilfs-ethiopia.com",
+    "contact_phone": "+251 11 550 4400",
+    "website_url": "http://www.era.gov.et",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P131118"
+  },
+  {
+    "segment_code": "ET-SDM-HAW",
+    "road_name": "አርሲ ነገሌ – ሐዋሳ ፈጣን አውራ ጎዳና መስመር",
+    "corridor": "Modjo-Hawassa Expressway Southern Link Corridor",
+    "contractor_name": "China Railway Seventh Group (CRSG)",
+    "supervising_consultant": "Core Consulting Engineers Plc",
+    "client_authority": "Ethiopian Toll Roads Enterprise (ETRE) / ERA",
+    "start_lat": "7.3500",
+    "start_lon": "38.6500",
+    "end_lat": "7.0600",
+    "end_lon": "38.4800",
+    "length_km": "52.0",
+    "pavement_type": "Dual 4-Lane Superpave Asphalt Expressway",
+    "handover_date": "2023-11-25",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2026-11-25",
+    "warranty_status": "Active",
+    "contract_value_etb": "3400000000.0",
+    "funding_source": "World Bank Expressway Support Project P148850",
+    "contact_email": "crsg_ethiopia@crrcgc.cc",
+    "contact_phone": "+251 11 661 5590",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P148850"
+  },
+  {
+    "segment_code": "ET-SNN-MOR",
+    "road_name": "ሞሪቾ ዲሚቱ – ቤቴና አስፓልት መንገድ",
+    "corridor": "Moricho Dimitu – Betena Asphalt Road (60.8km - Sunshine Portfolio)",
+    "contractor_name": "Sunshine Construction Plc",
+    "supervising_consultant": "Transport Construction Design Share Co. (TCDSCO)",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "6.8500",
+    "start_lon": "37.7500",
+    "end_lat": "7.1500",
+    "end_lon": "37.9500",
+    "length_km": "60.8",
+    "pavement_type": "Asphalt Concrete Standard 50mm",
+    "handover_date": "2024-01-18",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2027-01-18",
+    "warranty_status": "Active",
+    "contract_value_etb": "910000000.0",
+    "funding_source": "Federal Capital Budget (ERA)",
+    "contact_email": "infrastructure@sunshineinvestmentgroup.net",
+    "contact_phone": "+251 11 552 4400",
+    "website_url": "https://sunshineinvestmentgroup.net",
+    "source_url": "https://sunshineinvestmentgroup.net"
+  },
+  {
+    "segment_code": "ET-TIG-MEK",
+    "road_name": "መቀሌ – ውቅሮ – አዲግራት ዋና አውራ ጎዳና",
+    "corridor": "Tigray Northern Transit Trunk Highway Corridor",
+    "contractor_name": "Sur Construction Plc",
+    "supervising_consultant": "Core Consulting Engineers Plc",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "13.5000",
+    "start_lon": "39.4700",
+    "end_lat": "14.2800",
+    "end_lon": "39.4600",
+    "length_km": "120.0",
+    "pavement_type": "High-Standard Asphalt Concrete 60mm",
+    "handover_date": "2023-04-10",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2026-04-10",
+    "warranty_status": "Active",
+    "contract_value_etb": "1950000000.0",
+    "funding_source": "ERA Federal Budget & Regional Grant",
+    "contact_email": "contracts@surconstruction.com",
+    "contact_phone": "+251 11 551 7890",
+    "website_url": "https://surconstruction.com",
+    "source_url": "https://surconstruction.com"
+  },
+  {
+    "segment_code": "ET-TIG-MAY",
+    "road_name": "ማይጸብሪ – ዲማ አስፓልት መንገድ ፕሮጀክት",
+    "corridor": "Maytsebry – Dima Asphalt Road Project (76.6km - GEBECON Portfolio)",
+    "contractor_name": "Gemshu Beyene Construction (GEBECON)",
+    "supervising_consultant": "Associated Engineering Consultants",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "13.6200",
+    "start_lon": "38.1400",
+    "end_lat": "13.8800",
+    "end_lon": "38.3500",
+    "length_km": "76.6",
+    "pavement_type": "Reinforced Asphalt Concrete (Tekeze Gorge Link)",
+    "handover_date": "2022-06-20",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2025-06-20",
+    "warranty_status": "Active",
+    "contract_value_etb": "1180000000.0",
+    "funding_source": "Government of Ethiopia Capital Budget",
+    "contact_email": "projects@gebecon.com.et",
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
+  },
+  {
+    "segment_code": "ET-DIR-DEW",
+    "road_name": "ድሬዳዋ – ደንገጎ – ደወሌ – ቁልቢ ዋና አውራ ጎዳና",
+    "corridor": "Diredawa – Dangago – Dewalle – Kulubi Highway (280km - GEBECON Portfolio)",
+    "contractor_name": "Gemshu Beyene Construction (GEBECON)",
+    "supervising_consultant": "Net Consult Consulting Engineers",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "9.6000",
+    "start_lon": "41.8600",
+    "end_lat": "10.7500",
+    "end_lon": "42.5800",
+    "length_km": "280.0",
+    "pavement_type": "Heavy-Axle Heavy-Duty Freight Asphalt Concrete",
+    "handover_date": "2022-03-15",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2025-03-15",
+    "warranty_status": "Active",
+    "contract_value_etb": "4200000000.0",
+    "funding_source": "Government of Ethiopia & Djibouti Bilateral Trade Fund",
+    "contact_email": "projects@gebecon.com.et",
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "https://gebeconstruction.com",
+    "source_url": "https://gebeconstruction.com"
+  },
+  {
+    "segment_code": "ET-HAR-BYP",
+    "road_name": "ሐረር ባይፓስ አስፓልት መንገድ ፕሮጀክት",
+    "corridor": "Harar By Pass Asphalt Road Project (20.2km - GEBECON & Core Consulting Portfolio)",
+    "contractor_name": "Gemshu Beyene Construction (GEBECON)",
+    "supervising_consultant": "Core Consulting Engineers Plc",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "9.3100",
+    "start_lon": "42.1200",
+    "end_lat": "9.3300",
+    "end_lon": "42.1600",
+    "length_km": "20.2",
+    "pavement_type": "Asphalt Concrete Standard 60mm",
+    "handover_date": "2023-07-28",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2026-07-28",
+    "warranty_status": "Active",
+    "contract_value_etb": "390000000.0",
+    "funding_source": "ERA Federal Capital Budget",
+    "contact_email": "projects@gebecon.com.et",
+    "contact_phone": "+251 11 663 1290",
+    "website_url": "http://coreconsultingengineers.com",
+    "source_url": "https://gebeconstruction.com"
+  },
+  {
+    "segment_code": "ET-SOM-JIJ",
+    "road_name": "ጅጅጋ – ደገሀቡር – ቀብሪደሃር ዋና አውራ ጎዳና",
+    "corridor": "Somali Region Eastern Transit Highway Corridor",
+    "contractor_name": "China Civil Engineering Construction Corporation (CCECC)",
+    "supervising_consultant": "Beza Consulting Engineers",
+    "client_authority": "Ethiopian Roads Administration (ERA)",
+    "start_lat": "9.3500",
+    "start_lon": "42.8000",
+    "end_lat": "6.7400",
+    "end_lon": "44.2800",
+    "length_km": "105.0",
+    "pavement_type": "Superpave Asphalt Concrete Highway",
+    "handover_date": "2023-09-12",
+    "warranty_years": "3",
+    "warranty_expiry_date": "2026-09-12",
+    "warranty_status": "Active",
+    "contract_value_etb": "2100000000.0",
+    "funding_source": "World Bank RSDP Project P106872",
+    "contact_email": "ccecc_ethiopia@ccecc.com.cn",
+    "contact_phone": "+251 11 662 5500",
+    "website_url": "http://www.ccecc.com.cn/en/",
+    "source_url": "https://projects.worldbank.org/en/projects-operations/project-detail/P106872"
   }
 ]
