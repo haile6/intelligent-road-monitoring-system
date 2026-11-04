@@ -242,6 +242,9 @@
                                         <input class="form-check-input" type="checkbox" id="patrolAutoPan" checked onchange="simulatorToggleAutoPan(this.checked)">
                                         <label class="form-check-label text-white-50" for="patrolAutoPan">Track</label>
                                     </div>
+                                    <button class="btn btn-sm patrol-btn-action px-2 ms-1" id="btnAudioToggle" title="Toggle Sonar Audio Ping (ON)" onclick="simulatorToggleAudio(this)">
+                                        <i class="bi bi-volume-up-fill text-info"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -842,8 +845,8 @@ function initPatrolSimulator() {
             const badgeEl = document.getElementById('patrolHazardBadge');
             if (hazardCountEl) hazardCountEl.textContent = d.totalDetected;
             if (badgeEl) {
-                badgeEl.style.transform = 'scale(1.2)';
-                setTimeout(() => { badgeEl.style.transform = 'scale(1.0)'; }, 300);
+                badgeEl.classList.add('radar-active');
+                setTimeout(() => { badgeEl.classList.remove('radar-active'); }, 1800);
             }
 
             // Show real-time Heads-Up Hazard Alert Banner
@@ -911,6 +914,14 @@ function simulatorToggleAutoPan(isChecked) {
     if (patrolSimulatorInstance) {
         patrolSimulatorInstance.options.autoPan = Boolean(isChecked);
     }
+}
+
+function simulatorToggleAudio(btn) {
+    if (!patrolSimulatorInstance) return;
+    patrolSimulatorInstance.options.audioAlerts = !patrolSimulatorInstance.options.audioAlerts;
+    const isOn = patrolSimulatorInstance.options.audioAlerts;
+    btn.innerHTML = isOn ? '<i class="bi bi-volume-up-fill text-info"></i>' : '<i class="bi bi-volume-mute-fill text-secondary"></i>';
+    btn.title = isOn ? 'Toggle Sonar Audio Ping (ON)' : 'Toggle Sonar Audio Ping (MUTED)';
 }
 
 function simulatorChangeRoute(routeKey) {
