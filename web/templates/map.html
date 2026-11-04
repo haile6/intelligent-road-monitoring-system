@@ -6,6 +6,7 @@
 {% block extra_head %}
 <!-- Leaflet GIS Mapping CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+<link rel="stylesheet" href="/static/css/patrol_simulator.css?v=1.0" />
 <style>
     #map {
         height: 650px;
@@ -186,6 +187,59 @@
                 <div class="card-body p-2 position-relative">
                     <div id="map"></div>
 
+                    <!-- Floating Glassmorphic Patrol Playback Simulator Dock -->
+                    <div id="patrolPlaybackDock" class="patrol-playback-dock">
+                        <div class="patrol-dock-inner">
+                            <div class="patrol-dock-top">
+                                <div class="patrol-dock-controls">
+                                    <button class="btn btn-primary patrol-btn-play shadow" id="patrolBtnPlay" title="Play Virtual Patrol Simulation" onclick="simulatorTogglePlay()">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                    <button class="btn patrol-btn-action" id="patrolBtnReset" title="Restart to Beginning" onclick="simulatorReset()">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn patrol-btn-action active" id="btnSpeed1" onclick="simulatorSetSpeed(1.0, this)">1x</button>
+                                        <button class="btn patrol-btn-action" id="btnSpeed2" onclick="simulatorSetSpeed(2.0, this)">2x</button>
+                                        <button class="btn patrol-btn-action" id="btnSpeed4" onclick="simulatorSetSpeed(4.0, this)">4x</button>
+                                    </div>
+                                    <select class="form-select form-select-sm patrol-route-select" id="patrolRouteSelect" onchange="simulatorChangeRoute(this.value)">
+                                        <option value="recorded" selected>🚙 Route: Recorded Patrol Track (54 Hazards)</option>
+                                        <option value="debre_berhan">🏙️ Route: Debre Berhan City Arterial (DBU - Hospital - Piazza)</option>
+                                    </select>
+                                </div>
+
+                                <div class="patrol-telemetry-cluster">
+                                    <div class="patrol-badge-pill">
+                                        <i class="bi bi-speedometer2 text-info"></i>
+                                        <span class="patrol-badge-speed"><span id="patrolSpeed">0</span> km/h</span>
+                                    </div>
+                                    <div class="patrol-badge-pill">
+                                        <i class="bi bi-compass text-warning"></i>
+                                        <span id="patrolHeading">N 000°</span>
+                                    </div>
+                                    <div class="patrol-badge-pill">
+                                        <i class="bi bi-geo-alt text-success"></i>
+                                        <span id="patrolDist">0.0 km</span>
+                                    </div>
+                                    <div class="patrol-badge-pill patrol-badge-hazard" id="patrolHazardBadge">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                        <span id="patrolHazardsCount">0</span> Hazards Pinged
+                                    </div>
+                                    <div class="form-check form-switch ms-1 mb-0" style="font-size: 11px;">
+                                        <input class="form-check-input" type="checkbox" id="patrolAutoPan" checked onchange="simulatorToggleAutoPan(this.checked)">
+                                        <label class="form-check-label text-white-50" for="patrolAutoPan">Track</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="patrol-scrubber-container">
+                                <input type="range" class="form-range patrol-scrubber-input" id="patrolScrubber" min="0" max="1000" value="0" oninput="simulatorSeek(this.value / 1000)">
+                                <div class="patrol-scrubber-time" id="patrolTimeDisplay">00:00 / 00:00</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- GIS Legend Overlay -->
                     <div class="gis-legend position-absolute bottom-0 start-0 m-3 shadow-sm" style="z-index: 1000;">
                         <div class="fw-bold text-dark mb-1" style="font-size: 11px;">GIS VECTOR LEGEND</div>
@@ -354,6 +408,7 @@
 {% block scripts %}
 <!-- Leaflet JS -->
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script src="/static/js/patrol_simulator.js?v=1.0"></script>
 <script>
 let map;
 let markerLayerGroup;
@@ -566,6 +621,9 @@ function initMap() {
         gpsLayerGroup.addLayer(gpsLine);
     }
 
+    // 3b. INITIALIZE VIRTUAL PATROL SIMULATOR
+    initPatrolSimulator();
+
     // 4. PLOT HAZARD MARKERS
     incidents.forEach(inc => {
         const lat = parseFloat(inc.damage_latitude || inc.latitude || 9.0238);
@@ -702,6 +760,113 @@ function switchView(mode) {
         btnMap.classList.add('active');
         btnTable.classList.remove('active');
         if (map) setTimeout(() => map.invalidateSize(), 150);
+    }
+}
+
+// ==========================================
+// VIRTUAL PATROL SIMULATOR CONTROLLERS
+// ==========================================
+let patrolSimulatorInstance = null;
+
+const debreBerhanArterialWaypoints = [
+    { lat: 9.6424, lon: 39.5066, speed_kmh: 40.0 }, // Tebase Industrial Park
+    { lat: 9.6578, lon: 39.5140, speed_kmh: 45.0 }, // Kebele 08
+    { lat: 9.6672, lon: 39.5194, speed_kmh: 48.0 }, // DBU South Gate
+    { lat: 9.6720, lon: 39.5272, speed_kmh: 42.0 }, // DBU Main Campus
+    { lat: 9.6754, lon: 39.5151, speed_kmh: 38.0 }, // DBU North Campus
+    { lat: 9.6782, lon: 39.5330, speed_kmh: 35.0 }, // Zara Yaqob Square
+    { lat: 9.6807, lon: 39.5397, speed_kmh: 32.0 }, // Emergency Hospital Road
+    { lat: 9.6825, lon: 39.5406, speed_kmh: 40.0 }, // Hakim Gizaw Hospital
+    { lat: 9.6860, lon: 39.5438, speed_kmh: 45.0 }, // Health Science College
+    { lat: 9.6911, lon: 39.5209, speed_kmh: 50.0 }, // Blanket Factory Avenue
+    { lat: 9.6966, lon: 39.5962, speed_kmh: 55.0 }  // North Highway Exit
+];
+
+function initPatrolSimulator() {
+    if (!map) return;
+
+    patrolSimulatorInstance = new PatrolSimulator(map, {
+        speedMultiplier: 1.0,
+        autoPan: true,
+        proximityThresholdMeters: 45.0,
+        onTelemetryUpdate: function(t) {
+            const speedEl = document.getElementById('patrolSpeed');
+            const headEl = document.getElementById('patrolHeading');
+            const distEl = document.getElementById('patrolDist');
+            const scrubberEl = document.getElementById('patrolScrubber');
+            const timeEl = document.getElementById('patrolTimeDisplay');
+
+            if (speedEl) speedEl.textContent = t.speedKmh;
+            if (headEl) headEl.textContent = t.cardinal + ' ' + String(t.bearing).padStart(3, '0') + '°';
+            if (distEl) distEl.textContent = (t.distanceTraveledM / 1000).toFixed(2) + ' / ' + (t.totalDistanceM / 1000).toFixed(2) + ' km';
+            if (scrubberEl && !scrubberEl.matches(':active')) {
+                scrubberEl.value = Math.round(t.progress * 1000);
+            }
+
+            // Estimate elapsed / total duration in MM:SS
+            if (timeEl) {
+                const totalSec = Math.max(1, Math.round((t.totalDistanceM / 1000) / (35 / 3600)));
+                const curSec = Math.round(totalSec * t.progress);
+                const curMin = String(Math.floor(curSec / 60)).padStart(2, '0');
+                const curRemSec = String(curSec % 60).padStart(2, '0');
+                const totMin = String(Math.floor(totalSec / 60)).padStart(2, '0');
+                const totRemSec = String(totalSec % 60).padStart(2, '0');
+                timeEl.textContent = `${curMin}:${curRemSec} / ${totMin}:${totRemSec}`;
+            }
+        },
+        onHazardDetected: function(d) {
+            const hazardCountEl = document.getElementById('patrolHazardsCount');
+            const badgeEl = document.getElementById('patrolHazardBadge');
+            if (hazardCountEl) hazardCountEl.textContent = d.totalDetected;
+            if (badgeEl) {
+                badgeEl.style.transform = 'scale(1.2)';
+                setTimeout(() => { badgeEl.style.transform = 'scale(1.0)'; }, 300);
+            }
+        }
+    });
+
+    // Default route: recorded GPS track
+    const pointsToLoad = (gpsPoints && gpsPoints.length > 1) ? gpsPoints : debreBerhanArterialWaypoints;
+    patrolSimulatorInstance.loadTrajectory(pointsToLoad, incidents);
+}
+
+function simulatorTogglePlay() {
+    if (patrolSimulatorInstance) patrolSimulatorInstance.togglePlay();
+}
+
+function simulatorReset() {
+    if (patrolSimulatorInstance) patrolSimulatorInstance.reset();
+}
+
+function simulatorSetSpeed(multiplier, btnElement) {
+    if (patrolSimulatorInstance) {
+        patrolSimulatorInstance.setSpeed(multiplier);
+        document.querySelectorAll('.patrol-dock-controls .btn-group .btn').forEach(b => b.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+    }
+}
+
+function simulatorSeek(progressRatio) {
+    if (patrolSimulatorInstance) patrolSimulatorInstance.seek(progressRatio);
+}
+
+function simulatorToggleAutoPan(isChecked) {
+    if (patrolSimulatorInstance) {
+        patrolSimulatorInstance.options.autoPan = Boolean(isChecked);
+    }
+}
+
+function simulatorChangeRoute(routeKey) {
+    if (!patrolSimulatorInstance) return;
+    if (routeKey === 'debre_berhan') {
+        patrolSimulatorInstance.loadTrajectory(debreBerhanArterialWaypoints, incidents);
+        map.flyTo([9.6750, 39.5300], 14, { duration: 1.2 });
+    } else {
+        const points = (gpsPoints && gpsPoints.length > 1) ? gpsPoints : debreBerhanArterialWaypoints;
+        patrolSimulatorInstance.loadTrajectory(points, incidents);
+        if (gpsPoints && gpsPoints.length > 0) {
+            map.flyTo([parseFloat(gpsPoints[0].lat), parseFloat(gpsPoints[0].lon)], 16, { duration: 1.2 });
+        }
     }
 }
 </script>
