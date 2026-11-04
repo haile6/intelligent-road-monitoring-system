@@ -271,10 +271,11 @@
                                     <button class="btn patrol-btn-action" id="patrolBtnReset" title="Restart to Beginning" onclick="simulatorReset()">
                                         <i class="bi bi-arrow-counterclockwise"></i>
                                     </button>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button class="btn patrol-btn-action active" id="btnSpeed1" onclick="simulatorSetSpeed(1.0, this)">1x</button>
-                                        <button class="btn patrol-btn-action" id="btnSpeed2" onclick="simulatorSetSpeed(2.0, this)">2x</button>
-                                        <button class="btn patrol-btn-action" id="btnSpeed4" onclick="simulatorSetSpeed(4.0, this)">4x</button>
+                                    <div class="btn-group btn-group-sm" role="group" title="Playback Speed Multiplier">
+                                        <button class="btn patrol-btn-action active" id="btnSpeed1" onclick="simulatorSetSpeed(1.0, this)" title="1x Real-Time Patrol">1x</button>
+                                        <button class="btn patrol-btn-action" id="btnSpeed2" onclick="simulatorSetSpeed(2.0, this)" title="2x High-Paced Scan">2x</button>
+                                        <button class="btn patrol-btn-action" id="btnSpeed4" onclick="simulatorSetSpeed(4.0, this)" title="4x Rapid Corridor Patrol">4x</button>
+                                        <button class="btn patrol-btn-action" id="btnSpeed8" onclick="simulatorSetSpeed(8.0, this)" title="8x High-Speed Inspection Scan">8x</button>
                                     </div>
                                     <select class="form-select form-select-sm patrol-route-select" id="patrolRouteSelect" onchange="simulatorChangeRoute(this.value)">
                                         <option value="recorded" selected>🚙 Route: Recorded Patrol Track (54 Hazards)</option>
@@ -322,8 +323,9 @@
                                 </div>
                             </div>
 
-                            <div class="patrol-scrubber-container">
-                                <input type="range" class="form-range patrol-scrubber-input" id="patrolScrubber" min="0" max="1000" value="0" oninput="simulatorSeek(this.value / 1000)">
+                            <div class="patrol-scrubber-container position-relative">
+                                <div id="patrolScrubberTooltip" class="patrol-scrubber-tooltip">0.00 km &bull; 00:00</div>
+                                <input type="range" class="form-range patrol-scrubber-input" id="patrolScrubber" min="0" max="1000" value="0" oninput="simulatorSeek(this.value / 1000)" title="Drag timeline to jump to any road landmark">
                                 <div class="patrol-scrubber-time" id="patrolTimeDisplay">00:00 / 00:00</div>
                             </div>
                         </div>
@@ -962,6 +964,7 @@ function initPatrolSimulator() {
 
             if (scrubberEl && !scrubberEl.matches(':active')) {
                 scrubberEl.value = Math.round(t.progress * 1000);
+                updateScrubberFill(scrubberEl);
             }
 
             // Estimate elapsed / total duration in MM:SS
@@ -1041,9 +1044,44 @@ function simulatorSetSpeed(multiplier, btnElement) {
     }
 }
 
-function simulatorSeek(progressRatio) {
-    if (patrolSimulatorInstance) patrolSimulatorInstance.seek(progressRatio);
+function updateScrubberFill(scrubber) {
+    if (!scrubber) return;
+    const pct = (scrubber.value - scrubber.min) / (scrubber.max - scrubber.min) * 100;
+    scrubber.style.background = `linear-gradient(to right, #38BDF8 0%, #38BDF8 ${pct}%, rgba(255, 255, 255, 0.15) ${pct}%, rgba(255, 255, 255, 0.15) 100%)`;
 }
+
+function simulatorSeek(progressRatio) {
+    if (patrolSimulatorInstance) {
+        patrolSimulatorInstance.seek(progressRatio);
+        const scrubberEl = document.getElementById('patrolScrubber');
+        if (scrubberEl) updateScrubberFill(scrubberEl);
+    }
+}
+
+// Initialize dynamic scrubber hover tooltip
+document.addEventListener('DOMContentLoaded', function() {
+    const scrubber = document.getElementById('patrolScrubber');
+    const tooltip = document.getElementById('patrolScrubberTooltip');
+    if (scrubber && tooltip) {
+        scrubber.addEventListener('mousemove', function(e) {
+            if (!patrolSimulatorInstance) return;
+            const rect = scrubber.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const meta = patrolSimulatorInstance.getWaypointMetaAtProgress(ratio);
+            if (meta) {
+                tooltip.innerHTML = `📍 ${meta.distanceKm} km &bull; ${meta.timeFormatted} <small class="text-white-50">(${meta.progressPct}%)</small>`;
+                tooltip.style.left = `${(ratio * rect.width)}px`;
+                tooltip.classList.add('visible');
+            }
+        });
+        scrubber.addEventListener('mouseleave', function() {
+            tooltip.classList.remove('visible');
+        });
+        scrubber.addEventListener('input', function() {
+            updateScrubberFill(this);
+        });
+    }
+});
 
 function simulatorToggleAutoPan(isChecked) {
     if (patrolSimulatorInstance) {
