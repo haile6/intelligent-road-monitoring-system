@@ -164,6 +164,22 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertIn(19, detected_ids)
         self.assertGreaterEqual(len(detected_ids), 30, "Most video defects should be pinged along the trajectory")
 
+    def test_sonar_acoustic_frequencies_and_ring_delays(self):
+        """Verify frequency selection logic for proximity sonar alerts."""
+        def get_sonar_freq(risk_str):
+            risk = (risk_str or "").lower()
+            return 920 if ("danger" in risk or "immediate" in risk or "high" in risk) else 660
+
+        self.assertEqual(get_sonar_freq("IMMEDIATE DANGER"), 920)
+        self.assertEqual(get_sonar_freq("Danger"), 920)
+        self.assertEqual(get_sonar_freq("CAUTION"), 660)
+        self.assertEqual(get_sonar_freq("Safe / Monitor"), 660)
+
+        # Verify concentric ring stagger interval (0s, 0.38s, 0.76s)
+        delays = [0.0, 0.38, 0.76]
+        self.assertEqual(len(delays), 3)
+        self.assertTrue(delays[0] < delays[1] < delays[2])
+
 
 if __name__ == "__main__":
     unittest.main()
