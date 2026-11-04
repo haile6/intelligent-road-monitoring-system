@@ -208,6 +208,10 @@
                                 <i class="bi bi-chevron-up" id="cockpitToggleIcon"></i>
                             </button>
                         </div>
+                        <div class="cockpit-landmark-banner" id="cockpitLandmarkBanner" title="Active Municipal Corridor Landmark">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                            <span id="cockpitLandmarkText">🎥 Recorded Dashcam Video Track (54 Hazards)</span>
+                        </div>
                         <div class="cockpit-hud-body" id="cockpitHudBody">
                             <div class="cockpit-hud-grid">
                                 <!-- Digital Speedometer Gauge -->
@@ -1009,6 +1013,18 @@ function initPatrolSimulator() {
                 const m = String(Math.floor(t.etaSeconds / 60)).padStart(2, '0');
                 const s = String(t.etaSeconds % 60).padStart(2, '0');
                 cEta.textContent = `${m}:${s}`;
+            }
+
+            // Update Active Landmark Banner
+            const cLandmark = document.getElementById('cockpitLandmarkText');
+            if (cLandmark) {
+                if (t.landmark && t.landmark.trim().length > 0) {
+                    cLandmark.textContent = t.landmark;
+                } else {
+                    const sel = document.getElementById('patrolRouteSelect');
+                    const isDb = sel && sel.value === 'debre_berhan';
+                    cLandmark.textContent = isDb ? 'Debre Berhan Arterial Network' : '🎥 Dashcam Video Track (54 Hazards)';
+                }
             }
 
             if (scrubberEl && !scrubberEl.matches(':active')) {

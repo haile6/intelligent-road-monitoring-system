@@ -850,3 +850,30 @@
     color: #38BDF8;
     transform: translateY(-1px);
 }
+
+/* Active Corridor Landmark Banner in Cockpit HUD */
+.cockpit-landmark-banner {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin-top: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #F1F5F9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.cockpit-landmark-banner i {
+    animation: landmark-pin-bounce 2.2s infinite ease-in-out;
+}
+
+@keyframes landmark-pin-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
