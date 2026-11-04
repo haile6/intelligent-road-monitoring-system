@@ -327,6 +327,9 @@
                                 <div id="patrolScrubberTooltip" class="patrol-scrubber-tooltip">0.00 km &bull; 00:00</div>
                                 <input type="range" class="form-range patrol-scrubber-input" id="patrolScrubber" min="0" max="1000" value="0" oninput="simulatorSeek(this.value / 1000)" title="Drag timeline to jump to any road landmark">
                                 <div class="patrol-scrubber-time" id="patrolTimeDisplay">00:00 / 00:00</div>
+                                <span class="patrol-shortcuts-pill" title="Keyboard Shortcuts:&#10;• [Space] Play / Pause&#10;• [← / →] Seek ±2% along track&#10;• [1, 2, 4, 8] Speed Multipliers&#10;• [R] Reset to start">
+                                    <i class="bi bi-keyboard"></i>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -530,6 +533,35 @@ const REGIONS = {
     diredawa: { lat: 9.60, lon: 42.00, zoom: 10 },
     mekelle: { lat: 13.50, lon: 39.47, zoom: 11 }
 };
+
+
+// Global Keyboard Shortcuts for Patrol Simulation
+document.addEventListener('keydown', function(e) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (!patrolSimulatorInstance) return;
+
+    if (e.code === 'Space') {
+        e.preventDefault();
+        simulatorTogglePlay();
+    } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        patrolSimulatorInstance.stepRelative(-0.02);
+    } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        patrolSimulatorInstance.stepRelative(0.02);
+    } else if (e.key === '1') {
+        simulatorSetSpeed(1.0, document.getElementById('btnSpeed1'));
+    } else if (e.key === '2') {
+        simulatorSetSpeed(2.0, document.getElementById('btnSpeed2'));
+    } else if (e.key === '4') {
+        simulatorSetSpeed(4.0, document.getElementById('btnSpeed4'));
+    } else if (e.key === '8') {
+        simulatorSetSpeed(8.0, document.getElementById('btnSpeed8'));
+    } else if (e.key === 'r' || e.key === 'R' || e.key === '0') {
+        simulatorReset();
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     initMap();
@@ -1059,6 +1091,35 @@ function simulatorSeek(progressRatio) {
 }
 
 // Initialize dynamic scrubber hover tooltip
+
+// Global Keyboard Shortcuts for Patrol Simulation
+document.addEventListener('keydown', function(e) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (!patrolSimulatorInstance) return;
+
+    if (e.code === 'Space') {
+        e.preventDefault();
+        simulatorTogglePlay();
+    } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        patrolSimulatorInstance.stepRelative(-0.02);
+    } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        patrolSimulatorInstance.stepRelative(0.02);
+    } else if (e.key === '1') {
+        simulatorSetSpeed(1.0, document.getElementById('btnSpeed1'));
+    } else if (e.key === '2') {
+        simulatorSetSpeed(2.0, document.getElementById('btnSpeed2'));
+    } else if (e.key === '4') {
+        simulatorSetSpeed(4.0, document.getElementById('btnSpeed4'));
+    } else if (e.key === '8') {
+        simulatorSetSpeed(8.0, document.getElementById('btnSpeed8'));
+    } else if (e.key === 'r' || e.key === 'R' || e.key === '0') {
+        simulatorReset();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const scrubber = document.getElementById('patrolScrubber');
     const tooltip = document.getElementById('patrolScrubberTooltip');
