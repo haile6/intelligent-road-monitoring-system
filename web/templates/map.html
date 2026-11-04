@@ -252,18 +252,23 @@
                         </div>
                     </div>
 
-                    <!-- GIS Legend Overlay -->
-                    <div class="gis-legend position-absolute bottom-0 start-0 m-3 shadow-sm" style="z-index: 1000;">
-                        <div class="fw-bold text-dark mb-1" style="font-size: 11px;">GIS VECTOR LEGEND</div>
-                        <div class="d-flex flex-column gap-1">
-                            <div><span class="gis-legend-line" style="background: #10B981; height: 5px;"></span><b>Active Warranty (100% Contractor Liability)</b></div>
-                            <div><span class="gis-legend-line" style="background: #6366F1; height: 4px;"></span><b>Expired Warranty (Municipal Maintenance)</b></div>
-                            <div><span class="gis-legend-line" style="background: #0284C7; height: 3.5px;"></span><b>Debre Berhan OSM Asphalt Network</b></div>
-                            <div><span class="gis-legend-line" style="background: #2563A6; height: 3px;"></span><b>GPS Vehicle Track</b></div>
-                            <div class="border-top pt-1 mt-1">
-                                <span class="gis-legend-dot" style="background: #DC2626;"></span>Immediate Danger &nbsp;
-                                <span class="gis-legend-dot" style="background: #D97706;"></span>Warning &nbsp;
-                                <span class="gis-legend-dot" style="background: #10B981;"></span>Safe
+                    <!-- GIS Legend Overlay (Relocated to Top-Right to prevent overlap) -->
+                    <div class="gis-legend position-absolute top-0 end-0 m-3 shadow-sm" style="z-index: 900; max-width: 270px;">
+                        <div class="d-flex align-items-center justify-content-between mb-1" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#legendContent" aria-expanded="true">
+                            <span class="fw-bold text-dark" style="font-size: 11px;"><i class="bi bi-layers me-1 text-primary"></i>GIS VECTOR LEGEND</span>
+                            <span class="text-secondary small ms-2"><i class="bi bi-chevron-down" style="font-size: 10px;"></i></span>
+                        </div>
+                        <div class="collapse show" id="legendContent">
+                            <div class="d-flex flex-column gap-1 pt-1">
+                                <div><span class="gis-legend-line" style="background: #10B981; height: 5px;"></span><b>Active Warranty (100% Contractor)</b></div>
+                                <div><span class="gis-legend-line" style="background: #6366F1; height: 4px;"></span><b>Expired Warranty (Municipal)</b></div>
+                                <div><span class="gis-legend-line" style="background: #0284C7; height: 3.5px;"></span><b>Debre Berhan OSM Network</b></div>
+                                <div><span class="gis-legend-line" style="background: #2563A6; height: 3px;"></span><b>GPS Vehicle Track</b></div>
+                                <div class="border-top pt-1 mt-1 text-muted" style="font-size: 10px;">
+                                    <span class="gis-legend-dot" style="background: #DC2626;"></span>Danger &nbsp;
+                                    <span class="gis-legend-dot" style="background: #D97706;"></span>Caution &nbsp;
+                                    <span class="gis-legend-dot" style="background: #10B981;"></span>Safe
+                                </div>
                             </div>
                         </div>
                     </div>
