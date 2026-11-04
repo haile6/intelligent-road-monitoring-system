@@ -218,6 +218,11 @@ Define what the proposed system must do and the quality standards it should sati
 | **FR-08** | The system shall detect surrounding vehicles and automatically recognize vehicle license plates (ANPR). | High-resolution vehicle and plate crops are cataloged with OCR text and confidence values. |
 | **FR-09** | The system shall persist all confirmed incidents, telemetry, and plates in a relational SQLite database. | Full CRUD operations, status transitions (`Reported` $\to$ `Repaired`), and query endpoints are enabled. |
 | **FR-10** | The system shall serve an interactive web operations suite (Dashboard, Telemetry Studio, GIS Map, Incident Ledger, Work Orders). | Municipal operators can monitor roads, export CSV/PDF work orders, and review synchronized video playback. |
+| **FR-11** | The system shall provide a Digital Twin Virtual Patrol Simulator with time-stepped kinematics and dynamic speed controls ($1\times, 2\times, 4\times, 8\times$). | Operators can simulate field inspections in-browser with bidirectional timeline scrub seeking and keyboard shortcuts. |
+| **FR-12** | The system shall operate a 360° Proximity Sonar Radar with configurable horizons ($25\text{m}, 50\text{m}, 100\text{m}$) and Web Audio acoustic synthesis. | Concentric SVG shockwaves and frequency-shifted audio pings ($440\text{Hz} \to 880\text{Hz}$) alert operators in real time. |
+| **FR-13** | The system shall display a floating Cockpit Telemetry HUD with cornering speed physics, 16-wind compass rose, and sub-meter dual odometer. | Realistic road curvature deceleration, heading degrees (`N 014°`, `NE 048°`), and trip progress are dynamically visualized. |
+| **FR-14** | The system shall provide multi-corridor route selection between empirical highway tracks and municipal arterial corridors. | Operators switch dynamically between Route 1 (54 Hazards) and Route 2 (Debre Berhan 8.4 km corridor with 11 landmarks). |
+| **FR-15** | The system shall provide a Synchronized Split-Screen Dashcam Video & GIS Studio with keyframe defect lock and sub-second drift correction. | Spatial vehicle marker motion is synchronized with high-definition dashcam video (0.15 km ➔ 15s lock) with rapid hazard chips. |
 
 ### 6.2 Non-Functional Requirements
 
@@ -231,6 +236,8 @@ Define what the proposed system must do and the quality standards it should sati
 | **NFR-06 (Database Integrity & Reliability)** | The system shall handle duplicate events gracefully and preserve relational constraints. | Duplicate detections within $15\text{ m}$ and $10\text{ s}$ are consolidated; zero database corruption under unexpected termination. |
 | **NFR-07 (Portability & Accessibility)** | The web platform shall be responsive and accessible across local LAN and mobile devices. | Operators can connect and view the live Telemetry Studio from standard smartphone browsers over Wi-Fi without native app installation. |
 | **NFR-08 (Dual-Language Auditory Accessibility)** | ADAS audio collision warnings must support localized driver languages. | Spoken synthetic voice alerts in both Amharic and English deliver distinct auditory cues $< 100\text{ ms}$ after threshold breach. |
+| **NFR-09 (Video-GIS Synchronization Drift)** | Dashcam video keyframe alignment and GIS vehicle position shall maintain tight synchronization. | Temporal drift between video playback and spatial coordinate interpolation satisfies $\Delta t \le 0.5\text{ s}$ across all speeds ($1\times$ to $8\times$). |
+| **NFR-10 (Acoustic Warning Latency)** | Synthesized Web Audio API sonar alerts shall fire instantly upon proximity horizon breach. | Sonar audio pulse triggers with latency $< 20\text{ ms}$ when any distress item penetrates the active radar radius. |
 
 ---
 
@@ -244,9 +251,10 @@ flowchart TD
     M4["Phase 4: Spatial GIS Geodesic Synchronization\n(Video-GPS LERP, Great Circle Hazard Coordinate Geocoding)"]
     M5["Phase 5: ANPR & Dual-Language Audio Alert Engine\n(Ethiopian License Plate OCR, Amharic/English HUD Alerts)"]
     M6["Phase 6: Full-Stack Web Operations Platform\n(Flask, Leaflet GIS Map, Incident Lifecycle, Contractor DLP)"]
-    M7["Phase 7: End-to-End Field Validation & Verification\n(Automated Unit Tests, Highway Test Drives, Work Order Export)"]
+    M7["Phase 7: Digital Twin Patrol Simulator & Split-Screen Studio\n(100m Sonar Radar, Cockpit HUD, Debre Berhan 8.4km, Video Sync)"]
+    M8["Phase 8: End-to-End System Verification & 51-Unit-Test Suite\n(Kinematics, Route Interpolation, Video Sync, Automated CI)"]
 
-    M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7
+    M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7 --> M8
 ```
 
 | Milestone | Target Deliverable | Verification Metric |
@@ -257,7 +265,8 @@ flowchart TD
 | **M4: Geodesic GIS** | `gps_sync.py`, `geo.py`, forward spherical projection | Sub-second LERP interpolation, obstacle $\text{Lat}_2, \text{Lon}_2$ verified |
 | **M5: ANPR & Audio Alerts** | `license_plate_detector.pt`, EasyOCR, Amharic TTS audio engine | Plate accuracy $\ge 90\%$, Amharic & English alert audio synthesized |
 | **M6: Web Operations Suite** | Complete Flask application (`run_web.py`), SQLite schema, GIS map | All 9 web views operational, REST APIs respond $< 200\text{ ms}$ |
-| **M7: Final Verification** | Full test suite (`test_end_to_end.py`), PDF/CSV report exports | 20/20 automated tests pass in $< 0.05\text{ s}$, complete documentation |
+| **M7: Digital Twin & Video Studio** | `PatrolSimulator`, Cockpit HUD, 100m Radar, Split-Screen Video Sync | Bidirectional scrubber, 16-wind compass, Debre Berhan 8.4km route |
+| **M8: Final Verification** | Full test suite (`test_end_to_end.py`, `test_patrol_simulator.py`) | **51/51 automated unit tests pass (100%)** in $< 0.15\text{ s}$, complete documentation |
 
 ---
 *RoadEye Enterprise — Intelligent Transportation System & Municipal Pavement Preservation Platform*
