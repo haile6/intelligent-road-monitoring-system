@@ -118,6 +118,7 @@ class PatrolSimulator {
             risk: (h.max_risk_level || 'medium').toLowerCase(),
             distance_m: parseFloat(h.distance_m || 0),
             ttc_seconds: parseFloat(h.ttc_seconds || 0),
+            video_time_s: parseFloat(h.video_time_s || 0),
             markerRef: null
         })).filter(h => h.lat !== 0 && h.lon !== 0);
 
@@ -326,6 +327,42 @@ class PatrolSimulator {
         if (this.interpolatedPath.length === 0) return;
         const curProgress = (this.interpolatedPath.length > 1) ? (this.currentIndex / (this.interpolatedPath.length - 1)) : 0;
         this.seek(curProgress + deltaProgress);
+    }
+
+    /**
+     * Seek directly to a specific video timestamp in seconds (e.g. 15.0s for 0.15km).
+     */
+    seekToVideoTimestamp(timestampSeconds) {
+        if (this.videoDuration <= 0) return;
+        const ratio = Math.max(0, Math.min(1.0, timestampSeconds / this.videoDuration));
+        this.seek(ratio);
+    }
+
+    /**
+     * Seek directly to a detected pavement distress incident by track ID or defect ID.
+     */
+    seekToHazard(hazardId) {
+        const hazard = this.hazards.find(h => String(h.id) === String(hazardId) || String(h.track_id) === String(hazardId));
+        if (!hazard) return;
+
+        if (hazard.video_time_s && hazard.video_time_s > 0 && this.videoDuration > 0) {
+            this.seekToVideoTimestamp(hazard.video_time_s);
+            return;
+        }
+
+        let closestIdx = 0;
+        let minDist = Infinity;
+        for (let i = 0; i < this.interpolatedPath.length; i++) {
+            const pt = this.interpolatedPath[i];
+            const dist = this._haversine(pt.lat, pt.lon, hazard.lat, hazard.lon);
+            if (dist < minDist) {
+                minDist = dist;
+                closestIdx = i;
+            }
+        }
+
+        const ratio = (this.interpolatedPath.length > 1) ? (closestIdx / (this.interpolatedPath.length - 1)) : 0;
+        this.seek(ratio);
     }
 
     /**
