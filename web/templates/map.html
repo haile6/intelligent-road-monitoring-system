@@ -282,8 +282,8 @@
                                         <button class="btn patrol-btn-action" id="btnSpeed8" onclick="simulatorSetSpeed(8.0, this)" title="8x High-Speed Inspection Scan">8x</button>
                                     </div>
                                     <select class="form-select form-select-sm patrol-route-select" id="patrolRouteSelect" onchange="simulatorChangeRoute(this.value)">
-                                        <option value="recorded" selected>🚙 Route: Recorded Patrol Track (54 Hazards)</option>
-                                        <option value="debre_berhan">🏙️ Route: Debre Berhan City Arterial (DBU - Hospital - Piazza)</option>
+                                        <option value="recorded" selected>🚙 Route: Recorded Patrol Track (54 Hazards &bull; 0.28 km)</option>
+                                        <option value="debre_berhan">🏙️ Route: Debre Berhan City Arterial (Tebasse ➔ DBU ➔ Stadium ➔ Hospital ➔ Piazza &bull; 5.8 km)</option>
                                     </select>
                                 </div>
 
@@ -1211,17 +1211,59 @@ function simulatorToggleAudio(btn) {
     btn.title = isOn ? 'Toggle Sonar Audio Ping (ON)' : 'Toggle Sonar Audio Ping (MUTED)';
 }
 
+let simulatedRouteCorridorPolyline = null;
+
 function simulatorChangeRoute(routeKey) {
     if (!patrolSimulatorInstance) return;
+
+    if (simulatedRouteCorridorPolyline && map && map.hasLayer(simulatedRouteCorridorPolyline)) {
+        map.removeLayer(simulatedRouteCorridorPolyline);
+        simulatedRouteCorridorPolyline = null;
+    }
+
     if (routeKey === 'debre_berhan') {
         patrolSimulatorInstance.loadTrajectory(debreBerhanArterialWaypoints, debreBerhanArterialHazards);
-        map.flyTo([9.6720, 39.5270], 14, { duration: 1.2 });
+
+        // Highlight full municipal corridor on the map
+        const latLngs = debreBerhanArterialWaypoints.map(w => [w.lat, w.lon]);
+        simulatedRouteCorridorPolyline = L.polyline(latLngs, {
+            color: '#38BDF8',
+            weight: 4.5,
+            opacity: 0.85,
+            dashArray: '8, 8',
+            lineJoin: 'round'
+        }).addTo(map);
+
+        map.flyToBounds(simulatedRouteCorridorPolyline.getBounds(), {
+            padding: [60, 60],
+            duration: 1.2
+        });
+
+        // Update landmark banner text
+        const cLandmark = document.getElementById('cockpitLandmarkText');
+        if (cLandmark) cLandmark.textContent = '📍 Tebasse Industrial Park (Starting Corridor)';
     } else {
         const points = (gpsPoints && gpsPoints.length > 1) ? gpsPoints : debreBerhanArterialWaypoints;
         patrolSimulatorInstance.loadTrajectory(points, incidents);
+
         if (gpsPoints && gpsPoints.length > 0) {
-            map.flyTo([parseFloat(gpsPoints[0].lat), parseFloat(gpsPoints[0].lon)], 16, { duration: 1.2 });
+            const latLngs = gpsPoints.map(p => [parseFloat(p.lat), parseFloat(p.lon)]);
+            const bounds = L.latLngBounds(latLngs);
+            map.flyToBounds(bounds, {
+                padding: [80, 80],
+                duration: 1.2
+            });
         }
+
+        const cLandmark = document.getElementById('cockpitLandmarkText');
+        if (cLandmark) cLandmark.textContent = '🎥 Dashcam Video Track (54 Hazards)';
+    }
+
+    // Reset scrubber slider fill
+    const scrubberEl = document.getElementById('patrolScrubber');
+    if (scrubberEl) {
+        scrubberEl.value = 0;
+        updateScrubberFill(scrubberEl);
     }
 }
 </script>
