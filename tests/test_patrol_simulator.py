@@ -128,6 +128,43 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertLess(dist_close, threshold_m, "Close hazard must fall within detection radius")
         self.assertGreater(dist_far, threshold_m, "Far hazard must exceed detection radius")
 
+    def test_real_dashcam_video_defects_playback_trigger(self):
+        """Verify proximity detection across actual dashcam video defect track."""
+        import database.db_manager as dm
+        gps_pts = dm.get_gps_track_points()
+        incidents = dm.get_all_incidents()
+
+        self.assertGreater(len(gps_pts), 10, "Should have real recorded GPS track points")
+        self.assertGreater(len(incidents), 20, "Should have real detected defects")
+
+        # Interpolate the real GPS path
+        waypoints = [{"lat": float(p["lat"]), "lon": float(p["lon"]), "speed": float(p.get("speed_kmh", 30))} for p in gps_pts]
+        path = interpolate_path(waypoints, step_meters=2.0)
+
+        # Track which defects get triggered
+        detected_ids = set()
+        threshold_m = 45.0
+
+        for pt in path:
+            for inc in incidents:
+                i_lat = float(inc.get("damage_latitude") or inc.get("latitude") or 0)
+                i_lon = float(inc.get("damage_longitude") or inc.get("longitude") or 0)
+                if i_lat == 0 or i_lon == 0:
+                    continue
+
+                dist = haversine_m(pt["lat"], pt["lon"], i_lat, i_lon)
+                if dist <= threshold_m:
+                    detected_ids.add(inc.get("track_id") or inc.get("id"))
+
+        # Verify that major video defects were all encountered along the path
+        # (e.g. Defect #56, #55, #47, #19)
+        self.assertIn(56, detected_ids)
+        self.assertIn(55, detected_ids)
+        self.assertIn(47, detected_ids)
+        self.assertIn(19, detected_ids)
+        self.assertGreaterEqual(len(detected_ids), 30, "Most video defects should be pinged along the trajectory")
+
 
 if __name__ == "__main__":
     unittest.main()
+
