@@ -55,12 +55,14 @@ def interpolate_path(waypoints, step_meters=2.0):
             cur_speed = p1.get("speed", 30) + (p2.get("speed", 30) - p1.get("speed", 30)) * ratio
             running_dist += (dist / steps)
 
+            cur_landmark = p1.get("landmark", "") if ratio < 0.5 else p2.get("landmark", p1.get("landmark", ""))
             interpolated.append({
                 "lat": cur_lat,
                 "lon": cur_lon,
                 "bearing": bearing,
                 "speed": cur_speed,
-                "distance_m": running_dist
+                "distance_m": running_dist,
+                "landmark": cur_landmark
             })
 
     return interpolated
@@ -380,6 +382,69 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertEqual(meta_mid["distance_km"], "1.75")
         self.assertEqual(meta_mid["time_formatted"], "03:00")
         self.assertEqual(meta_mid["progress_pct"], 50)
+
+
+
+    def test_debre_berhan_arterial_route_interpolation_and_monotonicity(self):
+        """Verify Debre Berhan municipal corridor (Tebasse -> DBU -> Stadium -> Hospital -> Piazza) interpolation."""
+        debre_berhan_waypoints = [
+            {"lat": 9.64242, "lon": 39.50659, "speed": 45.0, "landmark": "Tebasse Industrial Park"},
+            {"lat": 9.65832, "lon": 39.51624, "speed": 48.0, "landmark": "Kebele 08 & BGI Brewery"},
+            {"lat": 9.66717, "lon": 39.51937, "speed": 42.0, "landmark": "DBU South Gate & Research"},
+            {"lat": 9.67202, "lon": 39.52719, "speed": 38.0, "landmark": "DBU Main Campus Entrance"},
+            {"lat": 9.67750, "lon": 39.52780, "speed": 35.0, "landmark": "Sports Complex Avenue"},
+            {"lat": 9.68182, "lon": 39.52820, "speed": 32.0, "landmark": "Debre Berhan Stadium"},
+            {"lat": 9.68450, "lon": 39.53500, "speed": 36.0, "landmark": "Health Science Avenue"},
+            {"lat": 9.68644, "lon": 39.54096, "speed": 30.0, "landmark": "Hakim Gizaw Referral Hospital"},
+            {"lat": 9.68247, "lon": 39.54063, "speed": 34.0, "landmark": "Millennium Park & Monument"},
+            {"lat": 9.67822, "lon": 39.53304, "speed": 28.0, "landmark": "Piazza Central Square & Zara Yaqob"},
+            {"lat": 9.67608, "lon": 39.53490, "speed": 25.0, "landmark": "Arada Central Heritage Market"}
+        ]
+
+        interpolated = interpolate_path(debre_berhan_waypoints, step_meters=5.0)
+        self.assertGreater(len(interpolated), 100, "Should generate smooth high-density path along corridor")
+
+        # Total distance should be approximately 5.0 to 6.5 km
+        total_dist_km = interpolated[-1]["distance_m"] / 1000.0
+        self.assertGreater(total_dist_km, 7.5)
+        self.assertLess(total_dist_km, 9.5)
+
+        # Monotonicity check
+        for i in range(len(interpolated) - 1):
+            self.assertLessEqual(interpolated[i]["distance_m"], interpolated[i + 1]["distance_m"])
+
+    def test_landmark_metadata_and_urban_distress_detection(self):
+        """Verify landmark metadata propagation and proximity hazard detection along Debre Berhan corridor."""
+        debre_berhan_waypoints = [
+            {"lat": 9.64242, "lon": 39.50659, "speed": 45.0, "landmark": "Tebasse Industrial Park"},
+            {"lat": 9.67202, "lon": 39.52719, "speed": 38.0, "landmark": "DBU Main Campus Entrance"},
+            {"lat": 9.68182, "lon": 39.52820, "speed": 32.0, "landmark": "Debre Berhan Stadium"},
+            {"lat": 9.68644, "lon": 39.54096, "speed": 30.0, "landmark": "Hakim Gizaw Referral Hospital"},
+            {"lat": 9.67822, "lon": 39.53304, "speed": 28.0, "landmark": "Piazza Central Square & Zara Yaqob"}
+        ]
+
+        interpolated = interpolate_path(debre_berhan_waypoints, step_meters=10.0)
+
+        # Check landmarks appear along the path
+        landmarks_seen = {p["landmark"] for p in interpolated if p["landmark"]}
+        self.assertIn("Tebasse Industrial Park", landmarks_seen)
+        self.assertIn("DBU Main Campus Entrance", landmarks_seen)
+        self.assertIn("Debre Berhan Stadium", landmarks_seen)
+        self.assertIn("Hakim Gizaw Referral Hospital", landmarks_seen)
+        self.assertIn("Piazza Central Square & Zara Yaqob", landmarks_seen)
+
+        # Test urban distress defect detection near DBU (9.6725, 39.5275)
+        dbu_pothole = {"id": "DB-106", "lat": 9.67250, "lon": 39.52750}
+        detected = False
+        threshold_m = 100.0
+
+        for pt in interpolated:
+            dist = haversine_m(pt["lat"], pt["lon"], dbu_pothole["lat"], dbu_pothole["lon"])
+            if dist <= threshold_m:
+                detected = True
+                break
+
+        self.assertTrue(detected, "DBU urban defect must be detected within 100m radar threshold")
 
 
 if __name__ == "__main__":
