@@ -111,14 +111,16 @@ Leaving this problem unaddressed leads to rapid infrastructure collapse, soaring
 > **To develop, evaluate, and deploy an end-to-end, data-driven road infrastructure monitoring and collision avoidance platform (RoadEye) that automates pavement distress detection, metric distance estimation, forward geodesic geotagging, and real-time ADAS alerts using monocular video and GPS telemetry.**
 
 ### 3.2 Specific Objectives
-1. **Data Engineering & Benchmark Construction**: Curate and annotate a specialized regional dataset of pavement defects (potholes and alligator cracks) and vehicle types reflecting real-world road conditions.
-2. **Neural Perception Development**: Train and optimize YOLOv8/11 deep learning models to reliably detect road damage and multi-class vehicles with high mean Average Precision ($\text{mAP} \ge 0.85$) at $\ge 24\text{ FPS}$.
-3. **Monocular Distance Mathematical Formulation**: Formulate and implement a single-camera ground-plane perspective projection model to calculate forward metric distance ($Z$) within a $\pm 5\%$ margin of error without LiDAR.
-4. **Kinematic Collision Risk Engine**: Implement dynamic Time-To-Collision ($\text{TTC}$) algorithms that categorize threats into a 4-tier risk envelope and generate synchronized visual and dual-language (**Amharic & English**) auditory alerts.
-5. **Spatial GIS Forward Geodesic Projection**: Build a geodesic projection module that uses compass bearing and forward distance to calculate the defect's exact geographic coordinates ($\text{Lat}_2, \text{Lon}_2$), eliminating vehicle GPS offset errors.
-6. **Optical Vehicle ANPR Pipeline**: Integrate vehicle tracking with license plate localization and OCR to catalog optical vehicle evidence for traffic intelligence.
-7. **Full-Stack Municipal Web Platform**: Develop a responsive Flask, SQLite, and Leaflet.js web operations platform providing executive KPI dashboards, telemetry playback, work-order dispatch, and contractor warranty compliance tracking.
-8. **End-to-End Verification**: Validate the integrated pipeline with automated unit, kinematic, and end-to-end test suites.
+1. **Data Engineering & Regional Benchmark Construction**: Curate and annotate a localized dataset of pavement defects (potholes and structural alligator cracks) and vehicle classes reflecting real-world Ethiopian road conditions.
+2. **Deep Neural Perception & Tracking Optimization**: Train, prune, and optimize YOLOv8/11 architectures and ByteTrack MOT to reliably detect and track road damage with high mean Average Precision ($\text{mAP} \ge 0.85$) at real-time inference ($\ge 24\text{ FPS}$).
+3. **Monocular Ground-Plane Distance Estimation**: Formulate a closed-form geometric perspective projection model to calculate forward obstacle metric distance ($Z$) within $\pm 5\%$ margin of error without requiring active LiDAR sensors.
+4. **Dynamic Collision Kinematics & Dual-Language ADAS**: Implement Time-To-Collision ($\text{TTC}$) lookahead algorithms that categorize hazards into a 4-tier risk envelope and fire synchronized visual HUD and spoken dual-language (**Amharic & English**) auditory warnings.
+5. **Spatial Geodesic Geotagging & Corridor LERP**: Construct a forward geodesic projection engine combining compass bearing and contact distance to compute exact obstacle geographic coordinates ($\text{Lat}_2, \text{Lon}_2$), eliminating vehicle GPS position offset.
+6. **OpenStreetMap Highway Infrastructure & Contractor Warranty Audit (DLP)**: Integrate Ethiopian national highway corridors with OpenStreetMap vector layers to automatically enforce contractor construction warranties, track Defect Liability Periods, and calculate municipal maintenance savings.
+7. **Digital Twin Virtual Patrol & 100m Proximity Radar Simulator**: Build an interactive GIS patrol simulator featuring a 100m proximity radar horizon, concentric sonar shockwaves, forward laser line lock, and Web Audio acoustic synthesizer alerts (920 Hz / 660 Hz).
+8. **Live Cockpit Telemetry HUD & Vehicle Kinematics Engine**: Implement dynamic cornering speed deceleration physics, 16-wind rotating compass rose, sub-meter dual trip odometer, and live ETA estimation.
+9. **Synchronized Split-Screen Dashcam Video Studio**: Construct sub-second bidirectional lockstep playback pairing moving GIS map coordinates with the dashcam video feed, featuring rapid 1-click defect keyframe seeking (0.15 km ➔ 15s lock).
+10. **Comprehensive System Verification**: Validate the end-to-end software platform with a rigorous 51-test automated unit and integration suite achieving 100% test pass rate.
 
 ---
 
@@ -127,17 +129,19 @@ Leaving this problem unaddressed leads to rapid infrastructure collapse, soaring
 Define the boundaries of the project and specify what will and will not be implemented.
 
 ### 4.1 Functional Scope
-The implemented system provides the following core services:
-* **Real-Time Video Ingestion**: Dashcam video files, live USB webcams, or wireless mobile IP camera streams.
-* **Road Distress Detection & Tracking**: Identification and temporal confirmation of potholes and alligator cracking.
-* **Vehicle Detection & Tracking**: Tracking surrounding traffic (cars, trucks, buses, motorcycles) with persistent tracking IDs.
-* **Monocular Perspective Distance Calculation**: Real-time ground distance estimation ($Z$) in meters.
-* **Driving Corridor Lane Intersection**: Filtering hazards that lie directly in the vehicle's driving path versus adjacent lanes.
-* **Kinematic Collision Warning Engine**: Calculating dynamic $\text{TTC}$ and firing dual-language voice warnings and audible chimes.
-* **Geodesic Geotagging**: Synchronizing GPS telemetry with video frames and projecting defect coordinates forward.
-* **Automated ANPR**: Extracting vehicle and plate images with optical character recognition.
-* **Web Management Operations**: KPI dashboards, Telemetry Studio, interactive GIS maps, incident workflow lifecycles, and printable PDF/CSV field work orders.
-* **Contractor Warranty Registry**: Automated tracking of contractor road segments, warranty expiration dates, defect liability, and maintenance cost savings.
+The implemented system provides the following comprehensive functional capabilities:
+* **Multimodal Telemetry Ingestion**: Dashcam video streams, recorded MP4/AVI runs, live USB webcams, and NMEA/CSV GPS telemetry logs.
+* **Deep Neural Distress Detection & Multi-Object Tracking**: Continuous detection and persistent temporal tracking of potholes and alligator cracking with single-entry database registration.
+* **Traffic Detection & Optical ANPR**: Tracking surrounding commercial and passenger vehicles with deep license plate crop extraction and OCR recognition.
+* **Monocular Ground Distance Calculation**: Closed-form trigonometric ground-plane metric distance estimation ($Z$) in meters.
+* **Driving Corridor Projection & Hazard Filtering**: Real-time lane geometry estimation filtering in-path hazards from shoulder and adjacent lane obstacles.
+* **Dynamic Time-To-Collision (TTC) & Dual-Language ADAS**: Calculating kinematic collision lookahead and triggering visual HUD alerts alongside synthetic spoken **Amharic** and **English** voice warnings.
+* **Forward Geodesic Geotagging**: Computing true physical coordinates ($\text{Lat}_2, \text{Lon}_2$) using spherical Great Circle trigonometry.
+* **Contractor Warranty & Liability Registry (DLP)**: Tracking contractor maintenance warranty windows, active vs expired liabilities, and calculating municipal repair cost recovery.
+* **Digital Twin Virtual Patrol Simulator**: Interactive playback dock with Play/Pause, variable speed multipliers (1x, 2x, 4x, 8x), interactive timeline scrubber with hover tooltips, and global keyboard navigation shortcuts (`Space`, `←/→`, `1/2/4/8`, `R`).
+* **100m Proximity Radar & Multi-Tier Horizon Control**: Dynamic 100m scanning range circle around the patrol vehicle with triple-ring concentric sonar shockwaves, forward laser acquisition beam, and configurable range selection (50m, 100m, 150m, 200m).
+* **Live Cockpit Telemetry HUD**: Floating glassmorphic HUD widget featuring a digital speedometer with cornering deceleration physics, 16-wind rotating compass rose dial (`N 014°`, `NE 048°`), sub-meter dual trip odometer, and live ETA calculation.
+* **Synchronized Split-Screen Dashcam Video & GIS Studio**: Dual-view inspection portal pairing the moving GIS patrol marker with the synchronized dashcam video keyframes, featuring sub-second drift correction and rapid keyframe jump chips (0.15 km ➔ 15s lock).
 
 ### 4.2 Data Scope
 * **Video Telemetry**: High-definition video streams ($1920\times1080$ and $1280\times720$ at 24.0–30.0 fps).
