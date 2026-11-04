@@ -104,7 +104,7 @@ Synchronizes high-FPS video frames with 1.0 Hz GPS telemetry via linear interpol
 <td width="50%" valign="top">
 
 #### 🗺️ Interactive GIS Vector Corridors (`/map`)
-*Vector polylines for 36 national corridors (green active warranty vs indigo municipal liability), 66 OpenStreetMap Debre Berhan urban asphalt roads, regional quick-jump zoom, and layer toggles.*
+*Vector polylines for 36 national corridors, 66 enriched Debre Berhan OSM road segments with local landmarks, and a **Virtual Patrol Playback Simulator** with live speedometer HUD, heading compass, and proximity radar ping alerts.*
 
 </td>
 </tr>
@@ -486,6 +486,9 @@ python -m unittest tests/test_contractor_registry.py
 
 # Run GIS spatial vector corridors & OSM test suite
 python -m unittest tests/test_gis_corridors.py -v
+
+# Run Virtual Patrol Playback & Radar Proximity test suite
+python -m unittest tests/test_patrol_simulator.py
 ```
 
 > [!TIP]

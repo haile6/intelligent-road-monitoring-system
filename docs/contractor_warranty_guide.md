@@ -74,3 +74,11 @@ The GIS Map (`/map`) renders road networks using vector polylines:
 - **Red (`#EF4444`):** Real-time GPS patrol track.
 - **Geotagged Markers:** Damage classification pins with imagery and depth estimates.
 
+---
+
+## 6. Virtual Patrol Playback Simulator & Radar Proximity Engine
+RoadEye features an interactive patrol simulation engine:
+- **Sub-Second Geodesic Interpolation:** Fluid 40 FPS vehicle motion along recorded GPS coordinates or urban road corridors.
+- **Dynamic 360° Vector Vehicle Marker:** Automatically rotates in the direction of travel with animated headlight beams and emergency strobe lights.
+- **Proximity Radar Pings:** Automatically detects pavement defects within a 45-meter spatial threshold, triggering visual concentric radar ping waves around hazard markers.
+- **Glassmorphic Telemetry HUD:** Real-time speedometer (km/h), compass bearing (cardinal + degrees), odometer (km), and timeline scrubber controls.
