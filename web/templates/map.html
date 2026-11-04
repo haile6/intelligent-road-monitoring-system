@@ -8,23 +8,32 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
 <style>
     #map {
-        height: 600px;
+        height: 650px;
         width: 100%;
-        border-radius: 4px;
+        border-radius: 6px;
         border: 1px solid var(--borders);
         z-index: 1;
     }
     .leaflet-popup-content-wrapper {
-        border-radius: 4px;
+        border-radius: 6px;
         padding: 4px;
-        box-shadow: var(--shadow-dropdown);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
     .gis-legend {
-        background: #FFFFFF;
-        padding: 8px 12px;
-        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(4px);
+        padding: 10px 14px;
+        border-radius: 6px;
         border: 1px solid var(--borders);
-        font-size: 11.5px;
+        font-size: 11px;
+    }
+    .gis-legend-line {
+        display: inline-block;
+        width: 18px;
+        height: 4px;
+        border-radius: 2px;
+        margin-right: 6px;
+        vertical-align: middle;
     }
     .gis-legend-dot {
         width: 10px;
@@ -32,6 +41,29 @@
         border-radius: 50%;
         display: inline-block;
         margin-right: 6px;
+        vertical-align: middle;
+    }
+    .gis-road-tooltip {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        background: #0F172A;
+        color: #FFFFFF;
+        border: none;
+    }
+    .gis-road-tooltip::before {
+        border-top-color: #0F172A !important;
+    }
+    .corridor-item-card {
+        transition: all 0.15s ease-in-out;
+        cursor: pointer;
+    }
+    .corridor-item-card:hover {
+        background-color: #F1F5F9 !important;
+        border-color: #94A3B8 !important;
+        transform: translateX(2px);
     }
 </style>
 {% endblock %}
@@ -42,21 +74,37 @@
     <!-- ============================================================ -->
     <!-- PAGE HEADER & GIS CONTROLS                                   -->
     <!-- ============================================================ -->
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3 pb-3 border-bottom" style="border-color: var(--borders) !important;">
         <div>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-primary" style="font-size: 10px; letter-spacing: 0.05em;">GIS SPATIAL TELEMETRY</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor: Addis Ababa Highway Network</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 10px;">{{ contractors|length }} NATIONAL CORRIDORS</span>
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle" style="font-size: 10px;">{{ incidents|length }} GEOTAGGED DISTRESS</span>
             </div>
-            <h1 class="page-title mt-1">ROAD NETWORK INTELLIGENCE MAP</h1>
-            <div class="page-subtitle">Geotagged Pavement Hazard Clusters, GPS Vehicle Trajectory &amp; Hotspot Risk Zones</div>
+            <h1 class="page-title mt-1">ETHIOPIAN ROAD NETWORK INTELLIGENCE MAP</h1>
+            <div class="page-subtitle">Interactive Vector Highway Corridors, OpenStreetMap Infrastructure, and Neural Hazard Clusters</div>
         </div>
 
-        <!-- Controls: Layer Toggles, Table Fallback, Open Folium -->
+        <!-- Controls: Region Jump, Layer Toggles & View Switcher -->
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <!-- Filter by Severity -->
-            <div class="d-flex align-items-center gap-1 bg-white border rounded px-2 py-1" style="border-color: var(--borders) !important;">
-                <span class="text-secondary small fw-semibold" style="font-size: 11.5px;">Filter:</span>
+            <!-- Jump to Region Dropdown -->
+            <div class="input-group input-group-sm" style="width: auto;">
+                <span class="input-group-text bg-white text-secondary"><i class="bi bi-compass"></i></span>
+                <select class="form-select form-select-sm fw-semibold" id="regionJumpSelect" onchange="jumpToRegion(this.value)" style="width: auto;">
+                    <option value="all">🇪🇹 All Ethiopia (መላው ኢትዮጵያ)</option>
+                    <option value="addis" selected>🏙️ Addis Ababa &amp; Corridors (አዲስ አበባ)</option>
+                    <option value="debreberhan">⛰️ Debre Berhan Network (ደብረ ብርሃን)</option>
+                    <option value="bahirdar">🌊 Bahir Dar &amp; Tana (ባህር ዳር)</option>
+                    <option value="gondar">🏰 Gondar &amp; Simien (ጎንደር)</option>
+                    <option value="expressway">🛣️ Modjo – Hawassa Expressway (ሞጆ-ሐዋሳ)</option>
+                    <option value="diredawa">🏜️ Dire Dawa &amp; Harar (ድሬዳዋ-ሐረር)</option>
+                    <option value="mekelle">🏔️ Mekelle Corridor (መቀሌ)</option>
+                </select>
+            </div>
+
+            <!-- Severity Filter -->
+            <div class="d-flex align-items-center gap-1 bg-white border rounded px-2 py-1">
+                <span class="text-secondary small fw-semibold" style="font-size: 11.5px;">Hazards:</span>
                 <select class="form-select form-select-sm border-0 py-0 ps-1 pe-4 text-dark fw-semibold" id="mapSeverityFilter" style="font-size: 12px; width: auto; background-color: transparent !important;" onchange="filterMapMarkers()">
                     <option value="all" selected>All Severities</option>
                     <option value="danger">Immediate Danger</option>
@@ -66,21 +114,54 @@
                 </select>
             </div>
 
-            <!-- View Switcher (Map vs Table Fallback) -->
+            <!-- View Switcher -->
             <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-secondary active" id="btnViewMap" onclick="switchView('map')">
                     <i class="bi bi-map"></i> Map
                 </button>
                 <button class="btn btn-outline-secondary" id="btnViewTable" onclick="switchView('table')">
-                    <i class="bi bi-table"></i> Fallback Table
+                    <i class="bi bi-table"></i> Table
                 </button>
             </div>
 
-            <!-- Standalone Folium Viewer -->
-            <a href="/folium_map" target="_blank" class="btn btn-sm btn-outline-secondary" title="Open Folium Standalone Map">
-                <i class="bi bi-box-arrow-up-right"></i>
-                <span>Folium GIS</span>
+            <!-- Direct Link to Registry -->
+            <a href="/contractors" class="btn btn-sm btn-primary">
+                <i class="bi bi-shield-check me-1"></i>
+                <span>Contractors Registry</span>
             </a>
+        </div>
+    </div>
+
+    <!-- Quick Layer Toggle Toolbar -->
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 p-2 bg-white border rounded shadow-xs">
+        <span class="small fw-bold text-dark font-mono"><i class="bi bi-layers-half text-primary me-1"></i>MAP LAYERS:</span>
+        <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleContractors" checked onchange="toggleLayer('contractors', this.checked)">
+            <label class="form-check-label small fw-semibold" for="toggleContractors">
+                <span class="gis-legend-line" style="background: #10B981;"></span>
+                <span>National Highway Corridors ({{ contractors|length }})</span>
+            </label>
+        </div>
+        <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleOsm" checked onchange="toggleLayer('osm', this.checked)">
+            <label class="form-check-label small fw-semibold" for="toggleOsm">
+                <span class="gis-legend-line" style="background: #0284C7;"></span>
+                <span>Debre Berhan OSM Roads (66)</span>
+            </label>
+        </div>
+        <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleGps" checked onchange="toggleLayer('gps', this.checked)">
+            <label class="form-check-label small fw-semibold" for="toggleGps">
+                <span class="gis-legend-line" style="background: #2563A6;"></span>
+                <span>GPS Vehicle Trajectory</span>
+            </label>
+        </div>
+        <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="checkbox" id="toggleHazards" checked onchange="toggleLayer('hazards', this.checked)">
+            <label class="form-check-label small fw-semibold" for="toggleHazards">
+                <span class="gis-legend-dot" style="background: #EF4444;"></span>
+                <span>Detected Hazards ({{ incidents|length }})</span>
+            </label>
         </div>
     </div>
 
@@ -90,15 +171,16 @@
     <div id="mapViewContainer" class="row g-3">
         <!-- Map Canvas -->
         <div class="col-12 col-xl-9">
-            <div class="card h-100 mb-0">
-                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+            <div class="card h-100 mb-0 shadow-sm">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center bg-light">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-geo-alt text-primary"></i>
-                        <span class="fw-semibold text-dark" style="font-size: 13px;">Addis Ababa Corridor Telemetry Layer</span>
+                        <i class="bi bi-geo-alt-fill text-primary"></i>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Ethiopian Infrastructure &amp; Pavement Inspection View</span>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-secondary font-mono">{{ incidents|length }} Geotagged Hazards</span>
-                        <span class="badge bg-primary font-mono">{{ gps_points|length }} GPS Points</span>
+                    <div class="d-flex align-items-center gap-2 font-mono small text-secondary">
+                        <span>Tile: OpenStreetMap Standard</span>
+                        <span>•</span>
+                        <span id="activeCorridorCount">{{ contractors|length }} Corridors Visible</span>
                     </div>
                 </div>
                 <div class="card-body p-2 position-relative">
@@ -106,61 +188,108 @@
 
                     <!-- GIS Legend Overlay -->
                     <div class="gis-legend position-absolute bottom-0 start-0 m-3 shadow-sm" style="z-index: 1000;">
-                        <div class="fw-bold text-dark mb-1" style="font-size: 11px;">HAZARD SEVERITY</div>
+                        <div class="fw-bold text-dark mb-1" style="font-size: 11px;">GIS VECTOR LEGEND</div>
                         <div class="d-flex flex-column gap-1">
-                            <div><span class="gis-legend-dot" style="background: var(--critical-danger);"></span>Immediate Danger (TTC &lt; 1.5s)</div>
-                            <div><span class="gis-legend-dot" style="background: var(--warning);"></span>Warning (In braking path)</div>
-                            <div><span class="gis-legend-dot" style="background: var(--caution);"></span>Caution (Corridor advisory)</div>
-                            <div><span class="gis-legend-dot" style="background: var(--safe-normal);"></span>Safe / Monitor</div>
-                            <div><span class="gis-legend-dot" style="background: #2563A6; width: 14px; height: 3px; border-radius: 0;"></span>GPS Vehicle Track</div>
+                            <div><span class="gis-legend-line" style="background: #10B981; height: 5px;"></span><b>Active Warranty (100% Contractor Liability)</b></div>
+                            <div><span class="gis-legend-line" style="background: #6366F1; height: 4px;"></span><b>Expired Warranty (Municipal Maintenance)</b></div>
+                            <div><span class="gis-legend-line" style="background: #0284C7; height: 3.5px;"></span><b>Debre Berhan OSM Asphalt Network</b></div>
+                            <div><span class="gis-legend-line" style="background: #2563A6; height: 3px;"></span><b>GPS Vehicle Track</b></div>
+                            <div class="border-top pt-1 mt-1">
+                                <span class="gis-legend-dot" style="background: #DC2626;"></span>Immediate Danger &nbsp;
+                                <span class="gis-legend-dot" style="background: #D97706;"></span>Warning &nbsp;
+                                <span class="gis-legend-dot" style="background: #10B981;"></span>Safe
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar / Hazard Hotspots -->
+        <!-- Sidebar / Hazard Hotspots & Corridors List -->
         <div class="col-12 col-xl-3">
-            <div class="card h-100 mb-0">
-                <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0" style="font-size: 13px;">Geographic Hotspots</h6>
-                    <span class="metadata-text">Click to Center</span>
+            <div class="card h-100 mb-0 shadow-sm">
+                <div class="card-header py-2">
+                    <ul class="nav nav-pills nav-fill card-header-pills" id="sidebarTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active py-1 font-mono" style="font-size: 12px;" data-bs-toggle="tab" data-bs-target="#tabCorridors">
+                                <i class="bi bi-signpost-split me-1"></i>Corridors ({{ contractors|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link py-1 font-mono" style="font-size: 12px;" data-bs-toggle="tab" data-bs-target="#tabHazards">
+                                <i class="bi bi-exclamation-triangle me-1"></i>Defects ({{ incidents|length }})
+                            </button>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body p-2 overflow-auto" style="max-height: 590px;">
-                    <div class="d-flex flex-column gap-2" id="hazardCardList">
-                        {% for inc in incidents %}
-                        {% set is_danger = 'IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '') %}
-                        {% set is_warning = 'WARNING' in (inc.max_risk_level or '') %}
-                        {% set is_caution = 'CAUTION' in (inc.max_risk_level or '') %}
-                        <div class="p-2 border rounded bg-white hazard-marker-card" 
-                             style="cursor: pointer;"
-                             data-risk="{% if is_danger %}danger{% elif is_warning %}warning{% elif is_caution %}caution{% else %}safe{% endif %}"
-                             onclick="centerOnMarker({{ inc.damage_latitude or inc.latitude or 9.0238 }}, {{ inc.damage_longitude or inc.longitude or 38.7468 }}, {{ inc.track_id or inc.id }})">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <span class="fw-bold font-mono text-dark" style="font-size: 12px;">Defect #{{ inc.track_id or inc.id }} ({{ inc.damage_type }})</span>
-                                {% if is_danger %}
-                                <span class="badge badge-risk-danger">Danger</span>
-                                {% elif is_warning %}
-                                <span class="badge badge-risk-warning">Warning</span>
-                                {% elif is_caution %}
-                                <span class="badge badge-risk-caution">Caution</span>
+                <div class="card-body p-2 overflow-auto" style="max-height: 615px;">
+                    <div class="tab-content">
+                        <!-- Tab 1: Corridors List -->
+                        <div class="tab-pane fade show active" id="tabCorridors">
+                            <div class="d-flex flex-column gap-2" id="corridorsCardList">
+                                {% for c in contractors %}
+                                <div class="p-2 border rounded bg-white corridor-item-card" onclick="zoomToCorridor({{ c.id }})">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="fw-bold text-dark text-truncate" style="font-size: 12px; max-width: 170px;" title="{{ c.road_name }}">
+                                            {{ c.road_name }}
+                                        </span>
+                                        {% if c.is_under_warranty %}
+                                        <span class="badge bg-success" style="font-size: 9px;">ACTIVE DLP</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary" style="font-size: 9px;">EXPIRED</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-secondary small d-flex justify-content-between" style="font-size: 11px;">
+                                        <span class="text-dark fw-semibold">{{ c.contractor_name }}</span>
+                                        <span class="font-mono">{{ c.length_km }} km</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top" style="font-size: 10px;">
+                                        <span class="font-mono text-muted">{{ c.segment_code }}</span>
+                                        <span>Defects: <b class="{% if c.incident_count > 0 %}text-danger{% else %}text-success{% endif %}">{{ c.incident_count or 0 }}</b> (Grade {{ c.quality_grade }})</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Hazards List -->
+                        <div class="tab-pane fade" id="tabHazards">
+                            <div class="d-flex flex-column gap-2" id="hazardCardList">
+                                {% for inc in incidents %}
+                                {% set is_danger = 'IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '') %}
+                                {% set is_warning = 'WARNING' in (inc.max_risk_level or '') %}
+                                {% set is_caution = 'CAUTION' in (inc.max_risk_level or '') %}
+                                <div class="p-2 border rounded bg-white hazard-marker-card" 
+                                     style="cursor: pointer;"
+                                     data-risk="{% if is_danger %}danger{% elif is_warning %}warning{% elif is_caution %}caution{% else %}safe{% endif %}"
+                                     onclick="centerOnMarker({{ inc.damage_latitude or inc.latitude or 9.0238 }}, {{ inc.damage_longitude or inc.longitude or 38.7468 }}, {{ inc.track_id or inc.id }})">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="fw-bold font-mono text-dark" style="font-size: 12px;">Defect #{{ inc.track_id or inc.id }} ({{ inc.damage_type }})</span>
+                                        {% if is_danger %}
+                                        <span class="badge badge-risk-danger">Danger</span>
+                                        {% elif is_warning %}
+                                        <span class="badge badge-risk-warning">Warning</span>
+                                        {% elif is_caution %}
+                                        <span class="badge badge-risk-caution">Caution</span>
+                                        {% else %}
+                                        <span class="badge badge-risk-safe">Safe</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="font-mono text-secondary" style="font-size: 11px;">
+                                        {{ "%.5f"|format(inc.damage_latitude or inc.latitude or 9.0238) }}° N, {{ "%.5f"|format(inc.damage_longitude or inc.longitude or 38.7468) }}° E
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top metadata-text">
+                                        <span>Dist: <b>{{ "%.1f"|format(inc.distance_m or 0) }}m</b></span>
+                                        <span>TTC: <b class="{% if is_danger %}text-danger{% elif is_warning %}text-warning{% else %}text-success{% endif %}">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</b></span>
+                                    </div>
+                                </div>
                                 {% else %}
-                                <span class="badge badge-risk-safe">Safe</span>
-                                {% endif %}
-                            </div>
-                            <div class="font-mono text-secondary" style="font-size: 11px;">
-                                {{ "%.5f"|format(inc.damage_latitude or inc.latitude or 9.0238) }}° N, {{ "%.5f"|format(inc.damage_longitude or inc.longitude or 38.7468) }}° E
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top metadata-text">
-                                <span>Dist: <b>{{ "%.1f"|format(inc.distance_m or 0) }}m</b></span>
-                                <span>TTC: <b class="{% if is_danger %}text-danger{% elif is_warning %}text-warning{% else %}text-success{% endif %}">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</b></span>
+                                <div class="text-center py-4 text-secondary small">
+                                    No geotagged incidents recorded.
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
-                        {% else %}
-                        <div class="text-center py-4 text-secondary small">
-                            No geotagged incidents recorded.
-                        </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -168,9 +297,9 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- TABLE FALLBACK (IF GPS/TILES UNAVAILABLE OR TOGGLED)         -->
+    <!-- TABLE FALLBACK                                               -->
     <!-- ============================================================ -->
-    <div id="tableViewContainer" class="card" style="display: none;">
+    <div id="tableViewContainer" class="card mt-3" style="display: none;">
         <div class="card-header py-2 d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0">Geographic Telemetry Fallback Table</h6>
             <button class="btn btn-sm btn-outline-secondary" onclick="switchView('map')">
@@ -189,8 +318,6 @@
                         <th>Distance (m)</th>
                         <th>TTC (sec)</th>
                         <th>Speed</th>
-                        <th>Coordinate Source</th>
-                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -214,14 +341,6 @@
                         <td class="font-mono">{{ "%.1f"|format(inc.distance_m or 0) }}m</td>
                         <td class="font-mono">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</td>
                         <td class="font-mono">{{ "%.1f"|format(inc.speed_kmh or 60.0) }} km/h</td>
-                        <td>
-                            <span class="badge bg-secondary font-mono">{{ inc.gps_status or 'GPS Sync' }}</span>
-                        </td>
-                        <td class="text-end">
-                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px;">
-                                Frame
-                            </a>
-                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -238,56 +357,181 @@
 <script>
 let map;
 let markerLayerGroup;
+let contractorLayerGroup;
+let osmLayerGroup;
+let gpsLayerGroup;
+
 const markers = {};
+const contractorPolylines = {};
 const incidents = {{ incidents|tojson }};
 const gpsPoints = {{ gps_points|tojson }};
+const contractors = {{ contractors|tojson }};
+const osmGeojson = {{ osm_geojson|tojson }};
+
+const REGIONS = {
+    all: { lat: 9.145, lon: 40.0, zoom: 6 },
+    addis: { lat: 9.02, lon: 38.76, zoom: 12 },
+    debreberhan: { lat: 9.68, lon: 39.53, zoom: 13 },
+    bahirdar: { lat: 11.59, lon: 37.38, zoom: 12 },
+    gondar: { lat: 12.60, lon: 37.46, zoom: 12 },
+    expressway: { lat: 8.20, lon: 38.85, zoom: 9 },
+    diredawa: { lat: 9.60, lon: 42.00, zoom: 10 },
+    mekelle: { lat: 13.50, lon: 39.47, zoom: 11 }
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     initMap();
 });
 
 function initMap() {
-    const defaultLat = 9.0238;
-    const defaultLon = 38.7468;
-    const centerLat = incidents.length ? (incidents[0].damage_latitude || defaultLat) : defaultLat;
-    const centerLon = incidents.length ? (incidents[0].damage_longitude || defaultLon) : defaultLon;
+    const centerLat = 9.08;
+    const centerLon = 38.92;
 
-    map = L.map('map').setView([centerLat, centerLon], 14);
+    map = L.map('map').setView([centerLat, centerLon], 10);
 
-    // Standard Free OpenStreetMap Tiles (No API key required)
+    // Standard Free OpenStreetMap Tiles
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
     }).addTo(map);
 
+    // Layer Groups
+    contractorLayerGroup = L.layerGroup().addTo(map);
+    osmLayerGroup = L.layerGroup().addTo(map);
+    gpsLayerGroup = L.layerGroup().addTo(map);
     markerLayerGroup = L.layerGroup().addTo(map);
 
-    // Plot GPS Track Polyline
-    if (gpsPoints && gpsPoints.length > 1) {
-        const polyCoords = gpsPoints.map(p => [parseFloat(p.latitude || p.lat), parseFloat(p.longitude || p.lon)]);
-        L.polyline(polyCoords, {
-            color: '#2563A6',
-            weight: 3.5,
-            opacity: 0.85
-        }).addTo(map);
+    // 1. PLOT NATIONAL HIGHWAY CORRIDORS (Polylines with tooltips & popups)
+    if (contractors && contractors.length > 0) {
+        contractors.forEach(c => {
+            const startLat = parseFloat(c.start_lat);
+            const startLon = parseFloat(c.start_lon);
+            const endLat = parseFloat(c.end_lat);
+            const endLon = parseFloat(c.end_lon);
+
+            if (isNaN(startLat) || isNaN(startLon) || isNaN(endLat) || isNaN(endLon)) return;
+
+            const isActive = Boolean(c.is_under_warranty);
+            const lineColor = isActive ? '#10B981' : '#6366F1';
+            const lineWeight = isActive ? 5.5 : 4.5;
+
+            const polyline = L.polyline([[startLat, startLon], [endLat, endLon]], {
+                color: lineColor,
+                weight: lineWeight,
+                opacity: 0.88,
+                dashArray: isActive ? null : '6, 6'
+            });
+
+            // Hover Tooltip with road and contractor name
+            polyline.bindTooltip(`
+                <div style="font-size: 11px;">
+                    <div style="font-weight: 700; color: #FFFFFF;">🛣️ ${c.road_name}</div>
+                    <div style="color: ${isActive ? '#34D399' : '#A5B4FC'}; font-weight: 600;">
+                        ${c.contractor_name} &bull; ${c.length_km} km
+                    </div>
+                </div>
+            `, { sticky: true, className: 'gis-road-tooltip' });
+
+            // Click Popup with complete information & redirect buttons
+            const popupContent = `
+                <div style="font-family: 'Inter', sans-serif; font-size: 12px; min-width: 260px; line-height: 1.5;">
+                    <div style="font-weight: 800; color: #0F172A; font-size: 13.5px; margin-bottom: 3px;">
+                        ${c.road_name}
+                    </div>
+                    <div style="font-family: monospace; font-size: 11px; color: #64748B; margin-bottom: 6px;">
+                        ${c.segment_code} &bull; ${c.length_km} km &bull; ${c.pavement_type || 'Asphalt Concrete'}
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'}" style="font-size: 10px; padding: 4px 8px;">
+                            ${isActive ? 'Active Warranty (100% Contractor Liability)' : 'Warranty Expired (Municipal Maintenance)'}
+                        </span>
+                    </div>
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 4px; padding: 6px 8px; margin-bottom: 8px; font-size: 11.5px;">
+                        <div><strong>Contractor:</strong> ${c.contractor_name}</div>
+                        <div><strong>Consultant:</strong> ${c.consultant_name || 'Independent Engineer'}</div>
+                        <div><strong>Quality Rating:</strong> Grade <span style="font-weight:bold; color: ${lineColor};">${c.quality_grade || 'A'}</span> (${c.quality_score || 95}/100)</div>
+                        <div><strong>Hazard Incidents:</strong> <span style="font-weight: bold; color: ${c.incident_count > 0 ? '#DC2626' : '#10B981'};">${c.incident_count || 0} defects</span></div>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid #E2E8F0; padding-top: 6px;">
+                        ${c.website_url ? `<a href="${c.website_url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary" style="font-size: 10px; padding: 2px 8px;"><i class="bi bi-globe me-1"></i>Official Website</a>` : ''}
+                        ${c.source_url ? `<a href="${c.source_url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-info" style="font-size: 10px; padding: 2px 8px;"><i class="bi bi-patch-check me-1"></i>Project Evidence</a>` : ''}
+                    </div>
+                </div>
+            `;
+            polyline.bindPopup(popupContent);
+
+            // Highlight on hover
+            polyline.on('mouseover', function(e) {
+                polyline.setStyle({ weight: 8, opacity: 1 });
+            });
+            polyline.on('mouseout', function(e) {
+                polyline.setStyle({ weight: lineWeight, opacity: 0.88 });
+            });
+
+            contractorLayerGroup.addLayer(polyline);
+            contractorPolylines[c.id] = polyline;
+        });
     }
 
-    // Plot Hazard Markers
+    // 2. PLOT DEBRE BERHAN OPENSTREETMAP ROADS (GeoJSON)
+    if (osmGeojson && osmGeojson.features) {
+        L.geoJSON(osmGeojson, {
+            style: function(feature) {
+                return {
+                    color: '#0284C7',
+                    weight: 3.5,
+                    opacity: 0.85
+                };
+            },
+            onEachFeature: function(feature, layer) {
+                const props = feature.properties || {};
+                layer.bindTooltip(`
+                    <div style="font-size: 11px;">
+                        <b>🏙️ ${props.name || 'Debre Berhan Road Link'}</b><br>
+                        ${props.highway || 'trunk'} &bull; Max: ${props.maxspeed || '50'} km/h
+                    </div>
+                `, { sticky: true });
+                layer.bindPopup(`
+                    <div style="font-size: 12px; font-family: 'Inter', sans-serif;">
+                        <strong style="color: #0369A1; font-size: 13px;">${props.name || 'Debre Berhan Street'}</strong><br>
+                        <span class="badge bg-info text-dark mt-1">${props.highway || 'road'}</span>
+                        <span class="badge bg-light text-dark border">Surface: ${props.surface || 'asphalt'}</span>
+                        <span class="badge bg-secondary">Max: ${props.maxspeed || '50'} km/h</span>
+                    </div>
+                `);
+                osmLayerGroup.addLayer(layer);
+            }
+        });
+    }
+
+    // 3. PLOT GPS VEHICLE TRACK
+    if (gpsPoints && gpsPoints.length > 1) {
+        const polyCoords = gpsPoints.map(p => [parseFloat(p.latitude || p.lat), parseFloat(p.longitude || p.lon)]);
+        const gpsLine = L.polyline(polyCoords, {
+            color: '#2563A6',
+            weight: 3.5,
+            opacity: 0.90
+        });
+        gpsLine.bindTooltip('🚙 GPS Vehicle Trajectory', { sticky: true });
+        gpsLayerGroup.addLayer(gpsLine);
+    }
+
+    // 4. PLOT HAZARD MARKERS
     incidents.forEach(inc => {
-        const lat = parseFloat(inc.damage_latitude || inc.latitude || defaultLat);
-        const lon = parseFloat(inc.damage_longitude || inc.longitude || defaultLon);
+        const lat = parseFloat(inc.damage_latitude || inc.latitude || 9.0238);
+        const lon = parseFloat(inc.damage_longitude || inc.longitude || 38.7468);
         const risk = (inc.max_risk_level || '').toUpperCase();
 
-        let markerColor = '#287D57';
+        let markerColor = '#10B981';
         let riskCategory = 'safe';
         if (risk.includes('IMMEDIATE') || risk.includes('DANGER')) {
-            markerColor = '#C62828';
+            markerColor = '#DC2626';
             riskCategory = 'danger';
         } else if (risk.includes('WARNING')) {
             markerColor = '#D97706';
             riskCategory = 'warning';
         } else if (risk.includes('CAUTION')) {
-            markerColor = '#CA8A04';
+            markerColor = '#F59E0B';
             riskCategory = 'caution';
         }
 
@@ -305,7 +549,7 @@ function initMap() {
         const popupContent = `
             <div style="font-family: 'Inter', sans-serif; font-size: 12px; min-width: 200px;">
                 <div style="font-weight: 700; color: #142B45; margin-bottom: 2px;">
-                    Defect #${inc.track_id || inc.id}: ${inc.damage_type.toUpperCase()}
+                    Defect #${inc.track_id || inc.id}: ${(inc.damage_type || 'Hazard').toUpperCase()}
                 </div>
                 <div style="margin-bottom: 4px;">
                     <span style="background: ${markerColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600;">
@@ -332,6 +576,38 @@ function initMap() {
     });
 }
 
+function zoomToCorridor(cid) {
+    if (map && contractorPolylines[cid]) {
+        const poly = contractorPolylines[cid];
+        map.flyToBounds(poly.getBounds(), { padding: [60, 60], maxZoom: 14 });
+        setTimeout(() => poly.openPopup(), 400);
+    }
+}
+
+function jumpToRegion(regionKey) {
+    const reg = REGIONS[regionKey];
+    if (map && reg) {
+        map.flyTo([reg.lat, reg.lon], reg.zoom, { duration: 1.2 });
+    }
+}
+
+function toggleLayer(layerName, isChecked) {
+    if (!map) return;
+    if (layerName === 'contractors') {
+        if (isChecked) map.addLayer(contractorLayerGroup);
+        else map.removeLayer(contractorLayerGroup);
+    } else if (layerName === 'osm') {
+        if (isChecked) map.addLayer(osmLayerGroup);
+        else map.removeLayer(osmLayerGroup);
+    } else if (layerName === 'gps') {
+        if (isChecked) map.addLayer(gpsLayerGroup);
+        else map.removeLayer(gpsLayerGroup);
+    } else if (layerName === 'hazards') {
+        if (isChecked) map.addLayer(markerLayerGroup);
+        else map.removeLayer(markerLayerGroup);
+    }
+}
+
 function centerOnMarker(lat, lon, id) {
     if (map && markers[id]) {
         map.setView([lat, lon], 17);
@@ -343,7 +619,6 @@ function filterMapMarkers() {
     const sel = document.getElementById('mapSeverityFilter').value;
     markerLayerGroup.clearLayers();
 
-    // Re-filter markers
     incidents.forEach(inc => {
         const id = inc.track_id || inc.id;
         const marker = markers[id];
@@ -354,7 +629,6 @@ function filterMapMarkers() {
         }
     });
 
-    // Filter sidebar list
     document.querySelectorAll('.hazard-marker-card').forEach(card => {
         const r = card.getAttribute('data-risk');
         card.style.display = (sel === 'all' || r === sel) ? '' : 'none';

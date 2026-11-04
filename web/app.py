@@ -138,13 +138,28 @@ def incidents_view():
 
 @app.route("/map")
 def map_view():
-    """GIS Interactive Road Map view showing GPS track and detected damage pins."""
+    """GIS Interactive Road Map view showing GPS track, contractor road corridors, and detected damage pins."""
     incidents = db_manager.get_all_incidents()
     gps_points = db_manager.get_gps_track_points()
+    contractor_analytics = db_manager.get_contractor_analytics()
+    contractors = contractor_analytics.get("contractors", [])
+
+    # Load Debre Berhan OSM GeoJSON if exists
+    osm_geojson = None
+    osm_path = os.path.join(BASE_DIR, "data", "open_data", "debre_berhan_roads_osm.geojson")
+    if os.path.exists(osm_path):
+        try:
+            with open(osm_path, "r", encoding="utf-8") as f:
+                osm_geojson = json.load(f)
+        except Exception as e:
+            print(f"Notice: OSM GeoJSON load error: {e}")
+
     return render_template(
         "map.html",
         incidents=incidents,
         gps_points=gps_points,
+        contractors=contractors,
+        osm_geojson=osm_geojson,
         active_page="map"
     )
 
