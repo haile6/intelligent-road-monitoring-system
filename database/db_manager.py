@@ -702,95 +702,47 @@ def seed_contractors_if_empty():
 
     if count == 0:
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        seed_data = [
-            (
-                "ሸኖ – ደብረ ብርሃን (ክፍል 1)",
-                "ET-A2-S01",
-                "CRBC (China Road and Bridge Corporation)",
-                "Core Consulting Engineers",
-                9.5500, 39.4000,
-                9.6000, 39.4800,
-                15.4,
-                "2023-01-10",
-                3,
-                "2026-01-10",
-                "Active",
-                "Asphalt Concrete (Superpave 50mm)",
-                450000000.0,
-                "liaison@crbc-ethiopia.com",
-                "+251 11 661 2345",
-                "በዋስትና ስር ያለ (እስከ Jan 2026) — 100% የኮንትራክተሩ ነፃ የጥገና ኃላፊነት",
-                now_str
-            ),
-            (
-                "ደብረ ብርሃን ከተማ ዋና መንገድ",
-                "ET-DB-M01",
-                "Sur Construction",
-                "Beza Consulting Engineers",
-                9.6700, 39.5200,
-                9.6900, 39.5400,
-                4.2,
-                "2021-10-01",
-                2,
-                "2023-10-01",
-                "Expired",
-                "Asphalt Concrete Standard 60mm",
-                185000000.0,
-                "contracts@surconstruction.com",
-                "+251 11 551 7890",
-                "የዋስትና ጊዜው አልቋል — የማዘጋጃ ቤቱ መደበኛ የጥገና በጀት ይመደባል",
-                now_str
-            ),
-            (
-                "አዲስ አበባ – ሰንዳፋ መስመር",
-                "ET-A2-SND",
-                "Sunshine Construction",
-                "Transport Construction Design Share Co.",
-                9.1200, 38.9800,
-                9.2000, 39.0500,
-                17.8,
-                "2024-03-20",
-                3,
-                "2027-03-20",
-                "Active",
-                "Heavy-Duty Polymer Modified Asphalt",
-                620000000.0,
-                "infrastructure@sunshineinvestmentgroup.net",
-                "+251 11 552 4400",
-                "አዲስ የተመረቀ — አሁን ዋስትና ላይ ያለ (እስከ Mar 2027)",
-                now_str
-            ),
-            (
-                "መገናኛ – ኮተቤ – ለገጣፎ ኮሪደር",
-                "ET-AA-KTB",
-                "Yotek Construction",
-                "Addis Ababa City Roads Authority (AACRA)",
-                9.0100, 38.7600,
-                9.1199, 38.9799,
-                18.2,
-                "2022-05-15",
-                2,
-                "2024-05-15",
-                "Expired",
-                "Dense Bituminous Macadam",
-                310000000.0,
-                "contact@yotekcon.com",
-                "+251 11 662 8820",
-                "የኮተቤ - ለገጣፎ አክሲስ (የ 178 ነባር የዳታቤዝ አደጋዎች መገኛ ቀጠና)",
-                now_str
-            )
-        ]
+        csv_path = os.path.join(BASE_DIR, "data", "open_data", "ethiopian_road_contractors_benchmark.csv")
+        seed_data = []
 
-        cursor.executemany("""
-        INSERT INTO road_contractors (
-            road_name, segment_code, contractor_name, consultant_name,
-            start_lat, start_lon, end_lat, end_lon, length_km,
-            handover_date, warranty_years, warranty_expiry_date,
-            warranty_status, pavement_type, contract_value_etb,
-            contact_email, contact_phone, notes, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, seed_data)
-        conn.commit()
+        if os.path.exists(csv_path):
+            import csv
+            with open(csv_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    seed_data.append((
+                        r.get("road_name", ""),
+                        r.get("segment_code", ""),
+                        r.get("contractor_name", ""),
+                        r.get("supervising_consultant", ""),
+                        float(r.get("start_lat", 0.0)),
+                        float(r.get("start_lon", 0.0)),
+                        float(r.get("end_lat", 0.0)),
+                        float(r.get("end_lon", 0.0)),
+                        float(r.get("length_km", 0.0)),
+                        r.get("handover_date", ""),
+                        int(r.get("warranty_years", 3)),
+                        r.get("warranty_expiry_date", ""),
+                        r.get("warranty_status", "Active"),
+                        r.get("pavement_type", "Asphalt Concrete"),
+                        float(r.get("contract_value_etb", 0.0)),
+                        r.get("contact_email", ""),
+                        r.get("contact_phone", ""),
+                        f"{r.get('corridor', '')} — {r.get('funding_source', '')}",
+                        now_str
+                    ))
+
+        if seed_data:
+            cursor.executemany("""
+            INSERT INTO road_contractors (
+                road_name, segment_code, contractor_name, consultant_name,
+                start_lat, start_lon, end_lat, end_lon, length_km,
+                handover_date, warranty_years, warranty_expiry_date,
+                warranty_status, pavement_type, contract_value_etb,
+                contact_email, contact_phone, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, seed_data)
+            conn.commit()
     conn.close()
 
 
