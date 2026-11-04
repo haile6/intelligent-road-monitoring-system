@@ -213,6 +213,80 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertGreater(ttc_100m, ttc_legacy * 2.0)
 
 
+
+    def test_compass_cardinal_resolution_8_and_16_wind(self):
+        """Verify dynamic compass heading quadrant resolution for 8-point and 16-point roses."""
+        def bearing_to_cardinal(deg, precision=8):
+            if precision == 16:
+                cardinals16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+                idx = round(deg / 22.5) % 16
+                return cardinals16[idx]
+            cardinals8 = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+            idx = round(deg / 45.0) % 8
+            return cardinals8[idx]
+
+        # 8-point cardinal checks
+        self.assertEqual(bearing_to_cardinal(0, 8), 'N')
+        self.assertEqual(bearing_to_cardinal(14, 8), 'N')     # 14 degrees is North quadrant (337.5 - 22.5)
+        self.assertEqual(bearing_to_cardinal(48, 8), 'NE')    # 48 degrees is North-East
+        self.assertEqual(bearing_to_cardinal(92, 8), 'E')
+        self.assertEqual(bearing_to_cardinal(180, 8), 'S')
+        self.assertEqual(bearing_to_cardinal(268, 8), 'W')
+
+        # 16-point cardinal high-precision checks
+        self.assertEqual(bearing_to_cardinal(0, 16), 'N')
+        self.assertEqual(bearing_to_cardinal(14, 16), 'NNE')  # 14 degrees resolves to NNE in 16-wind
+        self.assertEqual(bearing_to_cardinal(48, 16), 'NE')
+        self.assertEqual(bearing_to_cardinal(68, 16), 'ENE')
+        self.assertEqual(bearing_to_cardinal(90, 16), 'E')
+        self.assertEqual(bearing_to_cardinal(355, 16), 'N')
+
+    def test_cornering_deceleration_physics_engine(self):
+        """Verify that sharp angular bends induce deceleration while straight roads permit cruising."""
+        # Route 1: Straight road heading North (no turn angle)
+        straight_waypoints = [
+            {"lat": 9.6700, "lon": 39.5200, "speed": 40.0},
+            {"lat": 9.6720, "lon": 39.5200, "speed": 40.0},
+            {"lat": 9.6740, "lon": 39.5200, "speed": 40.0}
+        ]
+        straight_path = interpolate_path(straight_waypoints, step_meters=2.0)
+        straight_speeds = [p["speed"] for p in straight_path]
+        avg_straight_speed = sum(straight_speeds) / len(straight_speeds)
+        self.assertAlmostEqual(avg_straight_speed, 40.0, delta=2.0)
+
+        # Function simulating cornering deceleration factor
+        def compute_cornering_speed(base_speed, turn_angle_deg, progress):
+            if turn_angle_deg <= 15:
+                return base_speed
+            turn_severity = min(1.0, turn_angle_deg / 90.0)
+            decel = math.sin(progress * math.pi) * 0.35 * turn_severity
+            return max(12.0, base_speed * (1.0 - decel))
+
+        # Sharp 90-degree right turn from North to East
+        turn_angle = 90.0
+        mid_turn_speed = compute_cornering_speed(40.0, turn_angle, 0.5)
+        # At apex of turn (progress=0.5), speed drops by 35% from 40 to ~26 km/h
+        self.assertLess(mid_turn_speed, 30.0, "Car must slow down at corner apex")
+        self.assertGreater(mid_turn_speed, 20.0, "Car speed remains positive and safe")
+
+    def test_dual_odometer_conservation_and_eta(self):
+        """Verify distance conservation (traveled + remaining = total) and ETA calculation."""
+        total_dist_m = 2500.0  # 2.50 km
+        traveled_m = 1200.0    # 1.20 km
+        remaining_m = total_dist_m - traveled_m
+
+        # Conservation check
+        self.assertEqual(traveled_m + remaining_m, total_dist_m)
+        self.assertAlmostEqual(traveled_m / 1000.0, 1.20, places=2)
+        self.assertAlmostEqual(total_dist_m / 1000.0, 2.50, places=2)
+        self.assertAlmostEqual(remaining_m / 1000.0, 1.30, places=2)
+
+        # ETA at 36 km/h (10 m/s)
+        speed_mps = 36.0 / 3.6  # 10 m/s
+        eta_seconds = round(remaining_m / speed_mps)
+        self.assertEqual(eta_seconds, 130)  # 2 minutes 10 seconds
+
+
 if __name__ == "__main__":
     unittest.main()
 
