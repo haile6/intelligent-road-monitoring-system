@@ -16,6 +16,10 @@ detections/
 *.sqlite
 *.sqlite3
 
+# Large OSM binaries
+data/osm/
+*.pbf
+
 # GPS data
 data/*.csv
 
