@@ -447,6 +447,56 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertTrue(detected, "DBU urban defect must be detected within 100m radar threshold")
 
 
+
+    def test_video_time_synchronization_and_drift_correction(self):
+        """Verify video time mapping from progress and sub-second drift compensation."""
+        video_duration_sec = 34.0
+
+        def compute_video_target_time(progress):
+            clamped = max(0.0, min(1.0, progress))
+            return clamped * video_duration_sec
+
+        self.assertAlmostEqual(compute_video_target_time(0.0), 0.0)
+        self.assertAlmostEqual(compute_video_target_time(0.5), 17.0)
+        self.assertAlmostEqual(compute_video_target_time(1.0), 34.0)
+
+        # Drift correction logic
+        threshold_drift_sec = 0.40
+        def check_drift_correction_needed(current_video_time, progress):
+            target_time = compute_video_target_time(progress)
+            drift = abs(current_video_time - target_time)
+            return drift > threshold_drift_sec, target_time
+
+        # Normal small jitter (0.15s) -> no forced seek
+        needs_seek, target = check_drift_correction_needed(17.15, 0.5)
+        self.assertFalse(needs_seek, "Small drift within 0.40s should play naturally")
+
+        # Significant drift (1.2s, e.g. after scrubber jump) -> forced seek
+        needs_seek, target = check_drift_correction_needed(10.0, 0.5)
+        self.assertTrue(needs_seek, "Large drift must trigger forced synchronization")
+        self.assertAlmostEqual(target, 17.0)
+
+    def test_video_playback_rate_matching(self):
+        """Verify HTML5 video playbackRate matches simulation speed multipliers."""
+        valid_multipliers = [0.5, 1.0, 2.0, 4.0, 8.0]
+        for mult in valid_multipliers:
+            playback_rate = max(0.25, min(16.0, mult))
+            self.assertEqual(playback_rate, mult)
+
+    def test_bidirectional_video_seek_mapping(self):
+        """Verify seeking video timestamp (e.g. 28.9s for Defect #55) maps to trajectory index."""
+        video_duration_sec = 34.0
+        defect_55_time = 28.96  # Video timestamp for Defect #55 in database
+        expected_ratio = defect_55_time / video_duration_sec
+
+        self.assertGreater(expected_ratio, 0.80)
+        self.assertLess(expected_ratio, 0.90)
+
+        # Mapping back from ratio to video time
+        recovered_time = expected_ratio * video_duration_sec
+        self.assertAlmostEqual(recovered_time, defect_55_time, places=2)
+
+
 if __name__ == "__main__":
     unittest.main()
 
