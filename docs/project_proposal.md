@@ -28,7 +28,10 @@
 <br/>
 
 > [!IMPORTANT]
-> **Executive Summary**: RoadEye delivers an end-to-end multimodal Data Science and Computer Vision solution combining standard dashcam video and GPS telemetry to solve two synchronized challenges: **Municipal Pavement Asset Preservation** (automated defect detection, severity grading, and forward geodesic geotagging) and **Active Collision Avoidance** (monocular metric distance, kinematic Time-To-Collision estimation, and dual-language Amharic/English driver alerts).
+> **Executive Summary**: RoadEye delivers an enterprise-grade multimodal Data Science, Computer Vision, and Intelligent Transportation System (ITS) platform combining dashcam video feeds, GPS telemetry, and OpenStreetMap (OSM) infrastructure to solve three synchronized challenges:
+> 1. **Municipal Pavement Asset Preservation**: Automated pavement distress detection (potholes, structural cracking), metric severity grading, and forward geodesic geotagging.
+> 2. **Active Collision Avoidance & ADAS**: Monocular metric distance estimation ($Z$), kinematic Time-To-Collision ($\text{TTC}$) lookahead, and dual-language (Amharic & English) auditory driver alerts.
+> 3. **Digital Twin Road Patrol Simulator & Split-Screen Inspection Studio**: Real-time vehicle patrol playback across Ethiopian highway corridors, 100m early-warning concentric proximity sonar radar, live Cockpit Telemetry HUD, and sub-second synchronized split-screen dashcam video playback with instant keyframe defect jumping.
 
 <div align="center">
   <img src="demo.gif" alt="RoadEye Real-Time ADAS & Telemetry Video Demo" width="95%" />
@@ -53,20 +56,24 @@ This project operates at the intersection of three critical domains:
 3. **Intelligent Transportation Systems (ITS) & ADAS**: In-cabin active collision prevention, driver warnings, and spatial GIS mapping.
 
 ### 1.3 Proposed Data-Driven Solution
-**RoadEye** is an end-to-end multimodal computer vision and data science platform designed to transform standard, low-cost monocular cameras (dashcams or smartphone cameras) and GPS receivers into an automated, synchronized roadway inspection and driver safety system. Instead of relying on expensive, dedicated multi-sensor survey vehicles, RoadEye leverages deep neural networks and geometric computer vision algorithms to detect road hazards in real time, calculate their exact metric distance, project their forward geographic coordinates, and alert drivers and municipal authorities simultaneously.
+**RoadEye** is an end-to-end multimodal computer vision, spatial data science, and intelligent transportation platform designed to transform standard, low-cost monocular cameras (dashcams or smartphone cameras) and GPS receivers into an automated, synchronized roadway inspection, contractor warranty audit, and collision safety system. Instead of relying on prohibitively expensive, specialized profiler survey vans, RoadEye leverages deep neural networks, ground-plane perspective geometry, and GIS geodesic interpolation to detect pavement distresses in real time, estimate contact distances, project forward GPS coordinates, audit contractor liability, and simulate digital twin patrol missions with synchronized video evidence.
 
-### 1.4 Application of Data Science
-Data science and artificial intelligence techniques are applied across five synchronized layers:
-* **Deep Neural Object Detection**: Transfer-learned YOLOv8/11 architectures trained on localized road damage datasets (potholes and structural alligator cracking).
-* **Multi-Object Tracking (MOT)**: Temporal ByteTrack algorithms to maintain persistent object identities, filter transient false positives, and ensure single-entry database logging.
-* **Monocular Perspective Geometry**: Closed-form ground-plane trigonometric projection estimating physical distance ($Z$) in meters without LiDAR or stereo hardware.
-* **Spherical Geodesic Kinematics**: Great Circle forward geodesic equations combined with linear timestamp interpolation (LERP) to pinpoint hazard latitude/longitude ahead of the vehicle.
-* **Automated Number Plate Recognition (ANPR)**: Deep plate localization and Optical Character Recognition (OCR) fine-tuned for regional vehicle license formats.
+### 1.4 Application of Data Science & Software Engineering
+Data science, machine learning, and spatial engineering techniques are applied across seven synchronized layers:
+* **Deep Neural Object Detection**: Transfer-learned YOLOv8/11 architectures fine-tuned on regional road distress benchmarks (deep impact potholes, transverse fissures, and structural alligator fatigue cracking).
+* **Multi-Object Tracking (MOT)**: Temporal ByteTrack algorithms to maintain persistent object identities across occlusions, eliminate duplicate database records, and filter transient noise.
+* **Monocular Perspective Geometry**: Closed-form ground-plane trigonometric projection estimating physical ground distance ($Z$) in meters without requiring LiDAR or multi-camera stereoscopy.
+* **Spherical Geodesic Kinematics**: Great Circle forward geodesic equations combined with sub-second linear timestamp interpolation (LERP) to pinpoint obstacle latitude/longitude forward of vehicle GPS coordinates.
+* **Proximity Sonar Radar & Acoustic Synthesis**: Interactive 100m proximity radar horizon with concentric shockwave pulses, forward laser line acquisition, and dynamic Web Audio synthesizer alerts (920 Hz Danger, 660 Hz Caution).
+* **Live Cockpit Telemetry & Vehicle Kinematics Engine**: Real-time speedometer with cornering deceleration physics, 16-wind rotating compass rose, sub-meter dual trip odometer, and live ETA estimation.
+* **Synchronized Video-GIS Split-Screen Streaming**: Bidirectional lockstep synchronization connecting HTML5 dashcam video playback with Leaflet GIS map tracking, sub-second drift compensation, and 1-click defect keyframe seeking.
 
-### 1.5 Overview of the Intended System / Product
-The resulting product consists of two synchronized operational components:
-1. **On-Vehicle Edge Perception Engine**: Real-time HUD overlay running on dashcam feeds with audio collision alerts in both **Amharic** and **English**.
-2. **Operations & GIS Web Suite**: A responsive Flask/Leaflet web platform providing real-time KPI executive dashboards, interactive GIS maps, incident ledgers, field work-order generation, and contractor warranty accountability.
+### 1.5 System Architecture & Operational Components
+The RoadEye platform integrates four unified operational modules:
+1. **On-Vehicle Edge Perception Engine**: Real-time HUD perception running on dashcam video streams with dual-language (**Amharic & English**) visual and auditory collision warnings.
+2. **Contractor Warranty & Liability Registry (DLP)**: Automated auditing module linking OpenStreetMap national highway corridors with contractor construction contracts, warranty expiration dates, and municipal maintenance savings.
+3. **Interactive GIS Digital Twin & Patrol Simulator**: High-fidelity Leaflet map environment featuring a 100m proximity scanning radar, animated patrol car marker, dynamic speed/compass HUD, and multi-tier range selection.
+4. **Synchronized Split-Screen Dashcam Video Studio**: Dual-view inspection portal pairing the moving GIS patrol marker with the synchronized dashcam video keyframes, enabling municipal reviewers to visually verify pavement distress pins against video evidence.
 
 ---
 
