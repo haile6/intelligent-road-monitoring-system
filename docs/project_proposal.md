@@ -143,11 +143,25 @@ The implemented system provides the following comprehensive functional capabilit
 * **Live Cockpit Telemetry HUD**: Floating glassmorphic HUD widget featuring a digital speedometer with cornering deceleration physics, 16-wind rotating compass rose dial (`N 014°`, `NE 048°`), sub-meter dual trip odometer, and live ETA calculation.
 * **Synchronized Split-Screen Dashcam Video & GIS Studio**: Dual-view inspection portal pairing the moving GIS patrol marker with the synchronized dashcam video keyframes, featuring sub-second drift correction and rapid keyframe jump chips (0.15 km ➔ 15s lock).
 
-### 4.2 Data Scope
-* **Video Telemetry**: High-definition video streams ($1920\times1080$ and $1280\times720$ at 24.0–30.0 fps).
-* **Pavement Damage Dataset**: Custom-labeled training and validation benchmarks representing asphalt roads under daylight, shaded, dry, and worn conditions.
-* **GPS Telemetry**: 1.0 Hz NMEA / CSV GPS telemetry logs containing UTC timestamps, latitude, longitude, elevation, bearing, and ground speed.
-* **Geographic Coverage**: Primary empirical validation centered on the Debre Berhan – Addis Ababa highway corridor (Ethiopia Route A2) and municipal urban roads.
+### 4.2 Data Scope & Empirical Inspection Corridors
+* **Video Telemetry Streams**: High-definition dashcam video streams ($1920\times1080$ and $1280\times720$ at 24.0–30.0 fps, H.264/AVC encoding).
+* **Pavement Distress Dataset**: Curated regional training and validation benchmarks representing asphalt distresses (potholes, severe edge cracking, longitudinal fissures, and structural alligator cracking) under dry, worn, and variable lighting conditions.
+* **GPS & OpenStreetMap Data**: 1.0 Hz NMEA / CSV GPS telemetry synchronized with OpenStreetMap (OSM) vector geometry, road classifications, and contractor attribute metadata.
+* **Corridor Route Profiles**:
+  1. **Route 1: Recorded Highway Patrol Track (54 Hazards • 0.28 km)**: Empirical dashcam video patrol run along Ethiopia Route A2 containing 54 confirmed distress events, sub-second GPS tracking points, and synchronized keyframe timecodes.
+  2. **Route 2: Debre Berhan Municipal Arterial Corridor (8.4 km • 12 Urban Hazards)**: High-resolution municipal arterial network traversing 11 iconic civic and educational landmarks:
+     - *Tebasse Integrated Industrial Park (DBIP)* `[9.64242° N, 39.50659° E]`
+     - *Kebele 08 & BGI Brewery Industrial Link* `[9.65832° N, 39.51624° E]`
+     - *DBU South Gate & Agriculture Research Station* `[9.66717° N, 39.51937° E]`
+     - *Debre Berhan University Main Campus Entrance* `[9.67202° N, 39.52719° E]`
+     - *Sports Complex & Youth Center Avenue* `[9.67750° N, 39.52780° E]`
+     - *Debre Berhan Stadium* `[9.68182° N, 39.52820° E]`
+     - *Health Science College Avenue* `[9.68450° N, 39.53500° E]`
+     - *Hakim Gizaw Referral Hospital Main Arterial* `[9.68644° N, 39.54096° E]`
+     - *Millennium Park & Monument Square* `[9.68247° N, 39.54063° E]`
+     - *Piazza Central Square & Emperor Zara Yaqob Monument* `[9.67822° N, 39.53304° E]`
+     - *Arada Central Heritage Market & St. Mary* `[9.67608° N, 39.53490° E]`
+     - Accompanied by 12 geo-referenced urban distress anomalies (`DB-101` through `DB-112`) across asphalt surfaces.
 
 ### 4.3 Technical Scope
 * **Programming Language**: Python 3.10 / 3.11
@@ -168,10 +182,11 @@ The implemented system provides the following comprehensive functional capabilit
 ## 5. Project Significance and Beneficiaries
 
 ### 5.1 Project Significance
-1. **Democratization of Road Asset Preservation**: Replaces half-million-dollar survey vans with everyday smartphones or dashcams, allowing any municipal agency to perform regular road surveys.
+1. **Democratization of Road Asset Preservation**: Replaces half-million-dollar survey profiler vans with everyday smartphones or dashcams, allowing any municipal agency to perform regular roadway inspection audits.
 2. **Empirical Geographic Precision**: By using forward geodesic projection instead of naive vehicle GPS tagging, repair crews receive accurate defect coordinates rather than vehicle trail coordinates.
 3. **Active Collision Prevention**: Bridges municipal asset monitoring with real-time driver safety, providing millisecond-level auditory collision warnings in the driver's native language (**Amharic** and **English**).
 4. **Contractor Accountability & Municipal Cost Savings**: The built-in Defect Liability Period (DLP) warranty module automatically attributes defects to the responsible road contractor, saving municipal budgets millions in preventable repairs.
+5. **Indisputable Video-to-GIS Evidence Synchronization**: The platform permanently bridges the gap between raw video evidence and GIS spatial maps. By locking the vehicle's position to the dashcam video timecode (e.g. 0.15 km on map locking to 15.0s on video), municipal road authorities receive verifiable, visual proof of every defect without manual video scouring.
 
 ### 5.2 Target Beneficiaries
 
