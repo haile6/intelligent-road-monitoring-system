@@ -73,3 +73,4 @@ The GIS Map (`/map`) renders road networks using vector polylines:
 - **Cyan (`#0284C7`):** Urban OpenStreetMap asphalt segments (e.g. Debre Berhan network).
 - **Red (`#EF4444`):** Real-time GPS patrol track.
 - **Geotagged Markers:** Damage classification pins with imagery and depth estimates.
+

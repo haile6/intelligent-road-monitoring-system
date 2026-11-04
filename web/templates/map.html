@@ -473,32 +473,82 @@ function initMap() {
         });
     }
 
-    // 2. PLOT DEBRE BERHAN OPENSTREETMAP ROADS (GeoJSON)
+    // 2. PLOT DEBRE BERHAN OPENSTREETMAP ROADS (GeoJSON with Rich Place Names & Telemetry)
     if (osmGeojson && osmGeojson.features) {
         L.geoJSON(osmGeojson, {
             style: function(feature) {
                 return {
                     color: '#0284C7',
-                    weight: 3.5,
-                    opacity: 0.85
+                    weight: 3.8,
+                    opacity: 0.88
                 };
             },
             onEachFeature: function(feature, layer) {
                 const props = feature.properties || {};
+                const lenFormatted = props.length_m ? (props.length_m >= 1000 ? (props.length_m / 1000).toFixed(2) + ' km' : props.length_m + ' m') : '';
+
+                // Hover Tooltip with Place Name and Landmark
                 layer.bindTooltip(`
-                    <div style="font-size: 11px;">
-                        <b>🏙️ ${props.name || 'Debre Berhan Road Link'}</b><br>
-                        ${props.highway || 'trunk'} &bull; Max: ${props.maxspeed || '50'} km/h
+                    <div style="font-size: 11px; font-family: 'Inter', sans-serif; min-width: 180px;">
+                        <div style="font-weight: 700; color: #38BDF8;">🏙️ ${props.name || 'Debre Berhan Asphalt Road'}</div>
+                        <div style="color: #FFFFFF; font-size: 10.5px; margin-top: 2px;">📍 ${props.place_name || props.subcity_kebele || 'ደብረ ብርሃን'}</div>
+                        <div style="color: #94A3B8; font-size: 9.5px; margin-top: 1px;">
+                            ${props.landmark ? props.landmark + ' &bull; ' : ''}${lenFormatted} &bull; ${props.highway || 'asphalt'}
+                        </div>
                     </div>
-                `, { sticky: true });
+                `, { sticky: true, className: 'gis-road-tooltip' });
+
+                // Interactive Click Popup with Full Place Metadata & Landmark Badges
                 layer.bindPopup(`
-                    <div style="font-size: 12px; font-family: 'Inter', sans-serif;">
-                        <strong style="color: #0369A1; font-size: 13px;">${props.name || 'Debre Berhan Street'}</strong><br>
-                        <span class="badge bg-info text-dark mt-1">${props.highway || 'road'}</span>
-                        <span class="badge bg-light text-dark border">Surface: ${props.surface || 'asphalt'}</span>
-                        <span class="badge bg-secondary">Max: ${props.maxspeed || '50'} km/h</span>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; min-width: 280px; max-width: 340px; line-height: 1.5;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 10px; font-weight: 600; padding: 4px 8px;">
+                                <i class="bi bi-geo-alt-fill me-1"></i>${props.subcity_kebele || 'ደብረ ብርሃን ከተማ'}
+                            </span>
+                            <span class="badge bg-info text-dark" style="font-size: 9.5px; padding: 3px 6px;">
+                                ${props.zone || 'Urban Corridor'}
+                            </span>
+                        </div>
+                        <div style="font-weight: 800; color: #0369A1; font-size: 13.5px; margin-bottom: 2px;">
+                            ${props.name || 'Debre Berhan Asphalt Road'}
+                        </div>
+                        ${props.name_en ? `<div style="font-size: 11px; color: #64748B; margin-bottom: 7px; font-weight: 500;">${props.name_en}</div>` : ''}
+                        
+                        <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 11.5px;">
+                            <div class="mb-1">
+                                <strong>📍 የቦታው ስም / መጠሪያ:</strong> 
+                                <span style="color: #0284C7; font-weight: 700;">${props.place_name || props.name}</span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>🏛️ ዋና መለያ (Landmark):</strong> 
+                                <span style="color: #334155;">${props.landmark || 'የከተማው ዋና አስፓልት ኔትወርክ'}</span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>🛣️ የመንገድ ደረጃ:</strong> 
+                                <span class="badge bg-light text-dark border text-capitalize" style="font-size: 10px;">${props.highway || 'urban arterial'}</span>
+                                <span class="badge bg-light text-dark border" style="font-size: 10px;">Surface: ${props.surface || 'asphalt'}</span>
+                            </div>
+                            <div>
+                                <strong>📏 ርዝመት እና ፍጥነት:</strong> 
+                                <b>${lenFormatted || 'N/A'}</b> &bull; Max: <span class="badge bg-secondary" style="font-size: 10px;">${props.maxspeed || '50'} km/h</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #64748B; border-top: 1px solid #E2E8F0; padding-top: 6px;">
+                            <span>OSM ID: <code>${props.id}</code></span>
+                            <span>GPS: <code>${props.mid_lat || ''}, ${props.mid_lon || ''}</code></span>
+                        </div>
                     </div>
                 `);
+
+                // Highlight hover animation
+                layer.on('mouseover', function(e) {
+                    layer.setStyle({ weight: 7.0, opacity: 1.0, color: '#0EA5E9' });
+                });
+                layer.on('mouseout', function(e) {
+                    layer.setStyle({ weight: 3.8, opacity: 0.88, color: '#0284C7' });
+                });
+
                 osmLayerGroup.addLayer(layer);
             }
         });
