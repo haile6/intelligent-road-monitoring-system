@@ -99,12 +99,26 @@ class PatrolSimulator {
         this.cumulativeDistances = [0];
         let runningDist = 0;
 
+        const segmentBearings = [];
+        const segmentDists = [];
+        for (let i = 0; i < this.rawWaypoints.length - 1; i++) {
+            const p1 = this.rawWaypoints[i];
+            const p2 = this.rawWaypoints[i + 1];
+            segmentDists.push(this._haversine(p1.lat, p1.lon, p2.lat, p2.lon));
+            segmentBearings.push(this._calculateBearing(p1.lat, p1.lon, p2.lat, p2.lon));
+        }
+
         for (let i = 0; i < this.rawWaypoints.length - 1; i++) {
             const p1 = this.rawWaypoints[i];
             const p2 = this.rawWaypoints[i + 1];
 
-            const segmentDist = this._haversine(p1.lat, p1.lon, p2.lat, p2.lon);
-            const bearing = this._calculateBearing(p1.lat, p1.lon, p2.lat, p2.lon);
+            const segmentDist = segmentDists[i];
+            const bearing = segmentBearings[i];
+            const nextBearing = (i + 1 < segmentBearings.length) ? segmentBearings[i + 1] : bearing;
+
+            // Turn angle delta between consecutive segments
+            let turnAngle = Math.abs(nextBearing - bearing);
+            if (turnAngle > 180) turnAngle = 360 - turnAngle;
 
             // Interpolate roughly every 1.5 to 2.5 meters for fluid 40fps playback
             const steps = Math.max(8, Math.floor(segmentDist / 2.0));
@@ -113,7 +127,27 @@ class PatrolSimulator {
                 const ratio = s / steps;
                 const curLat = p1.lat + (p2.lat - p1.lat) * ratio;
                 const curLon = p1.lon + (p2.lon - p1.lon) * ratio;
-                const curSpeed = p1.speed + (p2.speed - p1.speed) * ratio;
+
+                // Smooth bearing interpolation entering bend
+                let curBearing = bearing;
+                if (turnAngle > 5 && ratio > 0.60) {
+                    const turnProgress = (ratio - 0.60) / 0.40;
+                    curBearing = this._interpolateBearing(bearing, nextBearing, turnProgress);
+                }
+
+                // Realistic cornering physics: vehicle decelerates during turns, accelerates on straights
+                let corneringDecel = 1.0;
+                if (turnAngle > 15) {
+                    const turnSeverity = Math.min(1.0, turnAngle / 90.0);
+                    const decelCurve = Math.sin(ratio * Math.PI) * 0.35 * turnSeverity;
+                    corneringDecel = Math.max(0.65, 1.0 - decelCurve);
+                }
+
+                // Base speed interpolated between waypoints
+                const baseSpeed = p1.speed + (p2.speed - p1.speed) * ratio;
+                // Subtle micro-variations (+/- 0.4 km/h) for authentic live speedometer readout
+                const microNoise = Math.sin(s * 1.3) * 0.4;
+                const dynamicSpeed = Math.max(12, (baseSpeed * corneringDecel) + microNoise);
 
                 const stepDist = (segmentDist / steps);
                 runningDist += stepDist;
@@ -121,8 +155,8 @@ class PatrolSimulator {
                 this.interpolatedPath.push({
                     lat: curLat,
                     lon: curLon,
-                    bearing: bearing,
-                    speed: Math.max(15, curSpeed),
+                    bearing: curBearing,
+                    speed: dynamicSpeed,
                     distanceM: runningDist
                 });
                 this.cumulativeDistances.push(runningDist);
@@ -310,16 +344,26 @@ class PatrolSimulator {
             }
         }
 
-        // 4. Compute telemetry
+        // 4. Compute comprehensive live telemetry (Speed, Heading, Dual Odometer, ETA)
         const progress = this.interpolatedPath.length > 1 ? (this.currentIndex / (this.interpolatedPath.length - 1)) : 0;
+        const currentSpeedKmh = Math.max(0, Math.round(pt.speed));
+        const currentSpeedMps = currentSpeedKmh / 3.6;
+        const distanceTraveledM = Math.round(pt.distanceM);
+        const remainingDistanceM = Math.max(0, Math.round(this.totalDistanceM - pt.distanceM));
+        const etaSeconds = currentSpeedMps > 0.5 ? Math.round(remainingDistanceM / currentSpeedMps) : 0;
+
         const telemetry = {
             lat: pt.lat,
             lon: pt.lon,
-            speedKmh: Math.round(pt.speed),
+            speedKmh: currentSpeedKmh,
+            speedMps: currentSpeedMps.toFixed(1),
             bearing: Math.round(pt.bearing),
-            cardinal: this._bearingToCardinal(pt.bearing),
-            distanceTraveledM: Math.round(pt.distanceM),
+            cardinal: this._bearingToCardinal(pt.bearing, 8),
+            cardinal16: this._bearingToCardinal(pt.bearing, 16),
+            distanceTraveledM: distanceTraveledM,
+            remainingDistanceM: remainingDistanceM,
             totalDistanceM: Math.round(this.totalDistanceM),
+            etaSeconds: etaSeconds,
             progress: progress,
             hazardCount: this.detectedHazardIds.size,
             isPlaying: this.isPlaying
@@ -481,10 +525,22 @@ class PatrolSimulator {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    _bearingToCardinal(deg) {
-        const cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-        const idx = Math.round(deg / 45) % 8;
-        return cardinals[idx];
+    _interpolateBearing(b1, b2, t) {
+        let diff = (b2 - b1) % 360;
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+        return (b1 + diff * t + 360) % 360;
+    }
+
+    _bearingToCardinal(deg, precision = 8) {
+        if (precision === 16) {
+            const cardinals16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            const idx16 = Math.round(deg / 22.5) % 16;
+            return cardinals16[idx16];
+        }
+        const cardinals8 = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        const idx8 = Math.round(deg / 45) % 8;
+        return cardinals8[idx8];
     }
 }
 
