@@ -12,11 +12,14 @@ class PatrolSimulator {
         this.options = Object.assign({
             speedMultiplier: 1.0,
             autoPan: true,
+            audioAlerts: true,
             proximityThresholdMeters: 45.0,
             frameRateFps: 40,
             onTelemetryUpdate: null,
             onHazardDetected: null
         }, options);
+        this.currentPt = null;
+        this.audioCtx = null;
 
         this.rawWaypoints = [];
         this.interpolatedPath = [];
@@ -249,6 +252,7 @@ class PatrolSimulator {
      */
     _updateStep(pt) {
         if (!pt) return;
+        this.currentPt = pt;
 
         // 1. Move vehicle marker
         if (this.vehicleMarker) {
@@ -316,24 +320,55 @@ class PatrolSimulator {
      * Trigger visual radar ping ripple animation on map at hazard coordinate.
      */
     _triggerRadarPing(hazard, distanceM) {
-        const pingColor = hazard.risk === 'high' ? '#EF4444' : (hazard.risk === 'medium' ? '#F59E0B' : '#10B981');
-        
-        // Create transient radar ripple marker
-        const rippleIcon = L.divIcon({
-            className: 'patrol-radar-ping-icon',
-            html: `<div class="radar-ping-ripple" style="border-color: ${pingColor}; background: ${pingColor}33;"></div>`,
-            iconSize: [60, 60],
-            iconAnchor: [30, 30]
+        const isDanger = hazard.risk.includes('danger') || hazard.risk.includes('immediate') || hazard.risk === 'high';
+        const isCaution = hazard.risk.includes('caution') || hazard.risk === 'medium';
+        const pingColor = isDanger ? '#EF4444' : (isCaution ? '#F59E0B' : '#10B981');
+        const defectName = (hazard.type || 'Pothole').toUpperCase();
+        const distFormatted = (hazard.distance_m > 0 ? hazard.distance_m : distanceM).toFixed(1);
+
+        // 1. Create transient multi-ring concentric sonar burst marker
+        const sonarIcon = L.divIcon({
+            className: 'patrol-sonar-burst-icon',
+            html: `
+                <div class="concentric-sonar-container">
+                    <div class="sonar-core-pulse" style="background: ${pingColor}; box-shadow: 0 0 16px ${pingColor};"></div>
+                    <div class="sonar-ring sonar-ring-1" style="border-color: ${pingColor};"></div>
+                    <div class="sonar-ring sonar-ring-2" style="border-color: ${pingColor};"></div>
+                    <div class="sonar-ring sonar-ring-3" style="border-color: ${pingColor};"></div>
+                    <div class="sonar-distance-pill" style="border-color: ${pingColor}; color: ${pingColor};">
+                        ⚠️ ${defectName} #${hazard.track_id || hazard.id} &bull; ${distFormatted}m
+                    </div>
+                </div>
+            `,
+            iconSize: [100, 100],
+            iconAnchor: [50, 50]
         });
 
-        const rippleMarker = L.marker([hazard.lat, hazard.lon], { icon: rippleIcon, interactive: false }).addTo(this.map);
+        const sonarMarker = L.marker([hazard.lat, hazard.lon], { icon: sonarIcon, interactive: false }).addTo(this.map);
 
-        // Remove ripple after 3 seconds
+        // 2. Draw temporary forward radar acquisition laser beam from vehicle to defect
+        if (this.currentPt) {
+            const laserBeam = L.polyline([[this.currentPt.lat, this.currentPt.lon], [hazard.lat, hazard.lon]], {
+                color: pingColor,
+                weight: 2.2,
+                dashArray: '5, 5',
+                opacity: 0.85
+            }).addTo(this.map);
+
+            setTimeout(() => {
+                if (this.map) this.map.removeLayer(laserBeam);
+            }, 1800);
+        }
+
+        // 3. Play Web Audio synthesized proximity sonar beep
+        this._playSonarBeep(hazard.risk);
+
+        // Remove sonar rings after 3.2 seconds
         setTimeout(() => {
-            this.map.removeLayer(rippleMarker);
+            if (this.map) this.map.removeLayer(sonarMarker);
         }, 3200);
 
-        // Notify HUD callback with exact defect telemetry
+        // 4. Notify HUD callback with exact defect telemetry
         if (typeof this.options.onHazardDetected === 'function') {
             this.options.onHazardDetected({
                 hazard: hazard,
@@ -346,6 +381,42 @@ class PatrolSimulator {
                 lon: hazard.lon,
                 totalDetected: this.detectedHazardIds.size
             });
+        }
+    }
+
+    /**
+     * Synthesize clean, subtle acoustic proximity radar sonar ping via Web Audio API.
+     */
+    _playSonarBeep(risk = 'medium') {
+        if (!this.options.audioAlerts) return;
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            if (!this.audioCtx) this.audioCtx = new AudioCtx();
+            if (this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+
+            const isDanger = (risk || '').includes('danger') || (risk || '').includes('immediate');
+            const freq = isDanger ? 920 : 660;
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.45, this.audioCtx.currentTime + 0.12);
+
+            gain.gain.setValueAtTime(0.09, this.audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.25);
+
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+
+            osc.start();
+            osc.stop(this.audioCtx.currentTime + 0.26);
+        } catch (e) {
+            // Audio policy / mute fallback
         }
     }
 
