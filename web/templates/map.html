@@ -186,6 +186,17 @@
                     </div>
                 </div>
                 <div class="card-body p-2 position-relative">
+                                        <!-- Real-Time Hazard Alert Banner (HUD) -->
+                    <div id="patrolHazardBanner" class="patrol-hazard-banner">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                            <span class="badge bg-danger" id="bannerRiskBadge">DANGER</span>
+                            <span class="fw-bold text-white" id="bannerDefectTitle" style="font-size: 13.5px;">Defect #55 (POTHOLE)</span>
+                        </div>
+                        <div class="small" id="bannerDefectMeta" style="color: #CBD5E1; font-size: 11px;">
+                            Distance: <b class="text-white" id="bannerDist">2.8m</b> &bull; TTC: <b class="text-danger" id="bannerTtc">0.34s</b> &bull; <span class="font-mono text-white-50" id="bannerCoords">9.12481° N, 39.12482° E</span>
+                        </div>
+                    </div>
+
                     <div id="map"></div>
 
                     <!-- Floating Glassmorphic Patrol Playback Simulator Dock -->
@@ -828,6 +839,40 @@ function initPatrolSimulator() {
             if (badgeEl) {
                 badgeEl.style.transform = 'scale(1.2)';
                 setTimeout(() => { badgeEl.style.transform = 'scale(1.0)'; }, 300);
+            }
+
+            // Show real-time Heads-Up Hazard Alert Banner
+            const banner = document.getElementById('patrolHazardBanner');
+            const titleEl = document.getElementById('bannerDefectTitle');
+            const riskEl = document.getElementById('bannerRiskBadge');
+            const distEl = document.getElementById('bannerDist');
+            const ttcEl = document.getElementById('bannerTtc');
+            const coordsEl = document.getElementById('bannerCoords');
+
+            if (banner && titleEl) {
+                const isDanger = d.risk.includes('danger') || d.risk.includes('immediate');
+                const isCaution = d.risk.includes('caution');
+                const riskLabel = isDanger ? 'DANGER' : (isCaution ? 'CAUTION' : 'SAFE / MONITOR');
+                const badgeClass = isDanger ? 'bg-danger' : (isCaution ? 'bg-warning text-dark' : 'bg-success');
+                const bannerClass = isDanger ? 'danger' : (isCaution ? 'caution' : 'safe');
+
+                banner.className = `patrol-hazard-banner active ${bannerClass}`;
+                titleEl.textContent = `Defect #${d.trackId} (${(d.damageType || 'pothole').toUpperCase()})`;
+                if (riskEl) {
+                    riskEl.className = `badge ${badgeClass}`;
+                    riskEl.textContent = riskLabel;
+                }
+                if (distEl) distEl.textContent = (d.distanceM || 0).toFixed(1) + 'm';
+                if (ttcEl) {
+                    ttcEl.textContent = (d.ttcSeconds || 0).toFixed(2) + 's';
+                    ttcEl.className = isDanger ? 'text-danger' : (isCaution ? 'text-warning' : 'text-success');
+                }
+                if (coordsEl) coordsEl.textContent = `${d.lat.toFixed(5)}° N, ${d.lon.toFixed(5)}° E`;
+
+                clearTimeout(banner._hideTimeout);
+                banner._hideTimeout = setTimeout(() => {
+                    banner.classList.remove('active');
+                }, 2800);
             }
         }
     });

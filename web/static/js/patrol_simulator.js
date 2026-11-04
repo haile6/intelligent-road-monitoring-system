@@ -73,10 +73,13 @@ class PatrolSimulator {
 
         this.hazards = hazardIncidents.map(h => ({
             id: h.id,
+            track_id: h.track_id || h.id,
             lat: parseFloat(h.damage_latitude || h.latitude || 0),
             lon: parseFloat(h.damage_longitude || h.longitude || 0),
             type: h.damage_type || 'pothole',
             risk: (h.max_risk_level || 'medium').toLowerCase(),
+            distance_m: parseFloat(h.distance_m || 0),
+            ttc_seconds: parseFloat(h.ttc_seconds || 0),
             markerRef: null
         })).filter(h => h.lat !== 0 && h.lon !== 0);
 
@@ -330,11 +333,17 @@ class PatrolSimulator {
             this.map.removeLayer(rippleMarker);
         }, 3200);
 
-        // Notify HUD callback
+        // Notify HUD callback with exact defect telemetry
         if (typeof this.options.onHazardDetected === 'function') {
             this.options.onHazardDetected({
                 hazard: hazard,
-                distanceM: Math.round(distanceM),
+                trackId: hazard.track_id || hazard.id,
+                damageType: hazard.type || 'pothole',
+                risk: hazard.risk || 'medium',
+                distanceM: hazard.distance_m > 0 ? hazard.distance_m : Number(distanceM.toFixed(1)),
+                ttcSeconds: hazard.ttc_seconds > 0 ? hazard.ttc_seconds : Number((distanceM / 8.33).toFixed(2)),
+                lat: hazard.lat,
+                lon: hazard.lon,
                 totalDetected: this.detectedHazardIds.size
             });
         }
@@ -377,3 +386,4 @@ class PatrolSimulator {
 }
 
 window.PatrolSimulator = PatrolSimulator;
+
