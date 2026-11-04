@@ -10,6 +10,7 @@
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Leaflet](https://img.shields.io/badge/Leaflet-GIS%20Mapping-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
+[![CI Test Suite](https://github.com/haile6/intelligent-road-monitoring-system/actions/workflows/python-tests.yml/badge.svg)](https://github.com/haile6/intelligent-road-monitoring-system/actions/workflows/python-tests.yml)
 [![License](https://img.shields.io/badge/License-MIT-F7DF1E?style=for-the-badge&logo=open-source-initiative&logoColor=black)](LICENSE)
 
 <br/>
@@ -90,6 +91,20 @@ YOLO11s vehicle detector paired with a specialized license plate locator and Eas
 
 ### 🛰️ Sub-Second GPS Geodesic Projection
 Synchronizes high-FPS video frames with 1.0 Hz GPS telemetry via linear interpolation (LERP). Computes forward Great Circle destination coordinates to pinpoint the exact geographic position ($\text{Lat}, \text{Lon}$) of road hazards in advance.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### 🏗️ Contractor & Warranty Registry (`/contractors`)
+*Comprehensive Ethiopian road contractor benchmark (36 national highway corridors), Defect Liability Period (DLP) warranty telemetry, FIDIC Clause 11 automated legal claim notices, and direct contractor redirects.*
+
+</td>
+<td width="50%" valign="top">
+
+#### 🗺️ Interactive GIS Vector Corridors (`/map`)
+*Vector polylines for 36 national corridors (green active warranty vs indigo municipal liability), 66 OpenStreetMap Debre Berhan urban asphalt roads, regional quick-jump zoom, and layer toggles.*
 
 </td>
 </tr>
@@ -463,7 +478,14 @@ The repository includes a comprehensive, automated end-to-end test suite verifyi
 
 ```bash
 # Run all automated unit and end-to-end tests
-python -m unittest tests/test_end_to_end.py -v
+# Run comprehensive end-to-end tests
+python -m unittest tests/test_end_to_end.py
+
+# Run Ethiopian road contractor DLP warranty test suite
+python -m unittest tests/test_contractor_registry.py
+
+# Run GIS spatial vector corridors & OSM test suite
+python -m unittest tests/test_gis_corridors.py -v
 ```
 
 > [!TIP]
