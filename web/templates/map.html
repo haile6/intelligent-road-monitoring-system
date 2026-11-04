@@ -405,8 +405,8 @@
                                 <span class="dashcam-hud-sync-pulse"></span>
                                 <span>AI NEURAL DETECTION &bull; YOLOv8</span>
                             </div>
-                            <div class="dashcam-hud-badge text-info">
-                                <i class="bi bi-cpu me-1"></i>30 FPS &bull; 1080p
+                            <div class="dashcam-hud-badge text-info" id="dashcamSyncLockBadge">
+                                <i class="bi bi-lock-fill me-1 text-success"></i>SYNC: 0.00 km &bull; 00:00
                             </div>
                         </div>
 
@@ -423,6 +423,20 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Rapid Hazard Keyframe Jump Bar -->
+                <div class="dashcam-quick-jumps p-2 bg-dark border-top border-secondary-subtle d-flex align-items-center gap-1 flex-wrap">
+                    <span class="text-white-50 small fw-bold me-1" style="font-size: 10px;"><i class="bi bi-fast-forward me-1 text-info"></i>KEYFRAME JUMP:</span>
+                    <button class="btn btn-sm btn-outline-info py-0 px-2" style="font-size: 10.5px;" onclick="simulatorJumpKeyframe(5.0, 53)" title="Jump to 0.05 km / 05s (Defect #53)">
+                        📍 0.05 km &bull; 05s (#53)
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning py-0 px-2 active fw-bold" style="font-size: 10.5px;" onclick="simulatorJumpKeyframe(15.0, 50)" title="Jump to 0.15 km / 15s (Defect #50)">
+                        🎯 0.15 km &bull; 15s (#50)
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 10.5px;" onclick="simulatorJumpKeyframe(28.9, 55)" title="Jump to 0.28 km / 29s (Defect #55 Danger)">
+                        🚨 0.28 km &bull; 29s (#55)
+                    </button>
                 </div>
             </div>
         </div>
@@ -873,14 +887,21 @@ function initMap() {
                     ${lat.toFixed(5)}° N, ${lon.toFixed(5)}° E
                 </div>
                 <div style="border-top: 1px solid #D9E0E7; padding-top: 4px;">
-                    <a href="/studio?file=outputs/final_integrated_video.mp4&seek=${inc.video_time_s || 0}" style="color: #2563A6; text-decoration: none; font-weight: 600;">
-                        Inspect Keyframe in Video Studio &rarr;
-                    </a>
+                    <div class="d-flex gap-1 mt-1">
+                        <button class="btn btn-sm btn-primary w-100 py-1" style="font-size: 10px; font-weight: 700;" onclick="simulatorJumpKeyframe(${inc.video_time_s || 0}, ${inc.track_id || inc.id})">
+                            📹 Sync Video &amp; Car Here (${(inc.video_time_s || 0).toFixed(1)}s)
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
 
         circleMarker.bindPopup(popupContent);
+        circleMarker.on('click', function() {
+            if (patrolSimulatorInstance) {
+                patrolSimulatorInstance.seekToHazard(inc.track_id || inc.id);
+            }
+        });
         markerLayerGroup.addLayer(circleMarker);
         markers[inc.id] = circleMarker;
         if (inc.track_id) markers[inc.track_id] = circleMarker;
@@ -1266,6 +1287,16 @@ function simulatorSetRadarRange(meters) {
     }
 }
 
+
+
+function simulatorJumpKeyframe(timestampSeconds, defectId) {
+    if (!patrolSimulatorInstance) return;
+    patrolSimulatorInstance.seekToVideoTimestamp(timestampSeconds);
+
+    if (defectId && markers[defectId]) {
+        markers[defectId].openPopup();
+    }
+}
 
 function setPatrolDisplayMode(mode) {
     const mapCol = document.getElementById('patrolMapCol');
