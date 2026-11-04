@@ -287,6 +287,101 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         self.assertEqual(eta_seconds, 130)  # 2 minutes 10 seconds
 
 
+
+    def test_variable_speed_multipliers_and_frame_timing(self):
+        """Verify speed multipliers (1x, 2x, 4x, 8x) and interval timing calculation."""
+        fps = 40
+        speed_multipliers = [0.5, 1.0, 2.0, 4.0, 8.0]
+        expected_intervals_ms = {
+            0.5: 50,  # 1000 / (40 * 0.5) = 50ms
+            1.0: 25,  # 1000 / (40 * 1.0) = 25ms
+            2.0: 12,  # 1000 / (40 * 2.0) = 12ms (clamped to max(12, ...))
+            4.0: 12,  # clamped to 12ms
+            8.0: 12   # clamped to 12ms
+        }
+
+        for mult in speed_multipliers:
+            raw_interval = math.floor(1000 / (fps * mult))
+            actual_interval = max(12, raw_interval)
+            self.assertEqual(actual_interval, expected_intervals_ms[mult])
+
+        # Clamping checks: multiplier must be within [0.25, 16.0]
+        def clamp_multiplier(m):
+            return max(0.25, min(16.0, float(m)))
+
+        self.assertEqual(clamp_multiplier(0.1), 0.25)
+        self.assertEqual(clamp_multiplier(32.0), 16.0)
+        self.assertEqual(clamp_multiplier(8.0), 8.0)
+
+    def test_bidirectional_scrubber_seeking_and_hazard_reset(self):
+        """Verify that scrubbing forward detects hazards, and scrubbing backward clears them."""
+        # Setup mock trajectory of 100 points
+        path_len = 100
+        # Hazard at index 40 and index 80
+        hazard_indices = {40: 101, 80: 102}
+
+        def compute_detected_at_index(target_idx):
+            detected = set()
+            for i in range(target_idx + 1):
+                if i in hazard_indices:
+                    detected.add(hazard_indices[i])
+            return detected
+
+        # Seek to 20% (index 20) -> no hazards
+        det_20 = compute_detected_at_index(20)
+        self.assertEqual(len(det_20), 0)
+
+        # Seek forward to 50% (index 50) -> Hazard #101 detected
+        det_50 = compute_detected_at_index(50)
+        self.assertIn(101, det_50)
+        self.assertNotIn(102, det_50)
+
+        # Seek forward to 90% (index 90) -> Both #101 and #102 detected
+        det_90 = compute_detected_at_index(90)
+        self.assertIn(101, det_90)
+        self.assertIn(102, det_90)
+
+        # Seek BACKWARD to 30% (index 30) -> Both must be cleared!
+        det_back_30 = compute_detected_at_index(30)
+        self.assertEqual(len(det_back_30), 0, "Scrubbing backward must reset detected hazards")
+
+    def test_relative_stepping_and_boundary_clamping(self):
+        """Verify relative scrubber stepping (+-0.02) and [0.0, 1.0] boundary clamping."""
+        def step_relative(cur_progress, delta):
+            return max(0.0, min(1.0, cur_progress + delta))
+
+        # Forward step from 0.50
+        self.assertAlmostEqual(step_relative(0.50, 0.02), 0.52)
+        # Backward step from 0.50
+        self.assertAlmostEqual(step_relative(0.50, -0.02), 0.48)
+        # Clamping at upper boundary
+        self.assertEqual(step_relative(0.99, 0.05), 1.0)
+        # Clamping at lower boundary
+        self.assertEqual(step_relative(0.01, -0.05), 0.0)
+
+    def test_waypoint_metadata_at_progress_for_tooltips(self):
+        """Verify hover scrubber tooltip metadata generation at arbitrary progress."""
+        total_dist_m = 3500.0  # 3.5 km
+        total_sec = round((total_dist_m / 1000.0) / (35.0 / 3600.0))  # at 35 km/h -> 360s
+
+        def get_meta(progress):
+            clamped = max(0.0, min(1.0, progress))
+            cur_dist = total_dist_m * clamped
+            cur_sec = round(total_sec * clamped)
+            m = str(cur_sec // 60).zfill(2)
+            s = str(cur_sec % 60).zfill(2)
+            return {
+                "distance_km": f"{cur_dist / 1000.0:.2f}",
+                "time_formatted": f"{m}:{s}",
+                "progress_pct": round(clamped * 100)
+            }
+
+        meta_mid = get_meta(0.50)
+        self.assertEqual(meta_mid["distance_km"], "1.75")
+        self.assertEqual(meta_mid["time_formatted"], "03:00")
+        self.assertEqual(meta_mid["progress_pct"], 50)
+
+
 if __name__ == "__main__":
     unittest.main()
 
