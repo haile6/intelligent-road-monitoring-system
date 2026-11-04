@@ -13,7 +13,7 @@ class PatrolSimulator {
             speedMultiplier: 1.0,
             autoPan: true,
             audioAlerts: true,
-            proximityThresholdMeters: 45.0,
+            proximityThresholdMeters: 100.0,
             frameRateFps: 40,
             onTelemetryUpdate: null,
             onHazardDetected: null
@@ -33,6 +33,7 @@ class PatrolSimulator {
         this.cumulativeDistances = [];
         this.detectedHazardIds = new Set();
         this.activePingMarkers = new Map();
+        this.radarRangeCircle = null;
 
         this._initVehicleIcon();
     }
@@ -178,6 +179,17 @@ class PatrolSimulator {
     }
 
     /**
+     * Adjust radar proximity detection radius horizon (e.g. 50m, 100m, 150m).
+     */
+    setRadarRange(meters) {
+        this.options.proximityThresholdMeters = parseFloat(meters) || 100.0;
+        if (this.radarRangeCircle) {
+            this.radarRangeCircle.setRadius(this.options.proximityThresholdMeters);
+        }
+        console.log(`[PatrolSimulator] Radar proximity threshold updated to: ${this.options.proximityThresholdMeters}m`);
+    }
+
+    /**
      * Adjust playback speed multiplier (1x, 2x, 4x, 8x).
      */
     setSpeed(multiplier) {
@@ -228,6 +240,21 @@ class PatrolSimulator {
                 this.traveledPolyline.setLatLngs([]);
             }
 
+            if (!this.radarRangeCircle) {
+                this.radarRangeCircle = L.circle([firstPt.lat, firstPt.lon], {
+                    radius: this.options.proximityThresholdMeters,
+                    color: '#38BDF8',
+                    fillColor: '#38BDF8',
+                    fillOpacity: 0.05,
+                    weight: 1.5,
+                    dashArray: '4, 6',
+                    interactive: false
+                }).addTo(this.map);
+            } else {
+                this.radarRangeCircle.setLatLng([firstPt.lat, firstPt.lon]);
+                this.radarRangeCircle.setRadius(this.options.proximityThresholdMeters);
+            }
+
             this._updateStep(firstPt);
         }
     }
@@ -263,6 +290,11 @@ class PatrolSimulator {
             if (wrapper) {
                 wrapper.style.transform = `rotate(${Math.round(pt.bearing)}deg)`;
             }
+        }
+
+        // 1b. Move 100m scanning radar range circle
+        if (this.radarRangeCircle) {
+            this.radarRangeCircle.setLatLng([pt.lat, pt.lon]);
         }
 
         // 2. Update traveled green polyline trail
