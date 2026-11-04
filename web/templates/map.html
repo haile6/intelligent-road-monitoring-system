@@ -1116,8 +1116,14 @@ function initPatrolSimulator() {
             // Update Synchronized Dashcam Video HUD Overlays
             const dGps = document.getElementById('dashcamGpsReadout');
             const dSpd = document.getElementById('dashcamSpeedReadout');
+            const syncLock = document.getElementById('dashcamSyncLockBadge');
             if (dGps) dGps.textContent = `${t.lat.toFixed(5)}° N, ${t.lon.toFixed(5)}° E`;
             if (dSpd) dSpd.textContent = `${t.speedKmh} km/h`;
+            if (syncLock) {
+                const distKm = (t.distanceTraveledM / 1000).toFixed(2);
+                const vidSec = (t.progress * 34.0).toFixed(1);
+                syncLock.innerHTML = `<i class="bi bi-lock-fill me-1 text-success"></i>SYNC: ${distKm} km &bull; ${vidSec}s`;
+            }
 
             if (scrubberEl && !scrubberEl.matches(':active')) {
                 scrubberEl.value = Math.round(t.progress * 1000);

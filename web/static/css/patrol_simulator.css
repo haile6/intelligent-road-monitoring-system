@@ -1033,3 +1033,12 @@
     0% { transform: scale(0.85); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+.dashcam-quick-jumps button {
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashcam-quick-jumps button:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 10px rgba(56, 189, 248, 0.35);
+}
