@@ -12,10 +12,18 @@
       "type": "Feature",
       "properties": {
         "id": 108984711,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን – ተርማበር አቀበት ሰሜን አውራ ጎዳና",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan – Termaber North Highway",
+        "place_name": "ሰሜን መውጫ ወደ ሸዋ ሮቢትና ደሴ",
+        "subcity_kebele": "ቀበሌ 01 / ሰሜን በር",
+        "landmark": "ሰሜን መቆጣጠሪያ ኬላ እና ሚዛን ጣቢያ",
+        "zone": "North Highway",
+        "length_m": 9837.2,
+        "mid_lat": 9.69659,
+        "mid_lon": 39.59616
       },
       "geometry": {
         "type": "LineString",
@@ -439,10 +447,18 @@
       "type": "Feature",
       "properties": {
         "id": 112161738,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 2583.5,
+        "mid_lat": 9.65781,
+        "mid_lon": 39.51396
       },
       "geometry": {
         "type": "LineString",
@@ -790,10 +806,18 @@
       "type": "Feature",
       "properties": {
         "id": 112161742,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ)",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan University (DBU) Main Highway",
+        "place_name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 07 / ዩኒቨርሲቲ ግቢ",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU)",
+        "zone": "Higher Education Zone",
+        "length_m": 2045.9,
+        "mid_lat": 9.67202,
+        "mid_lon": 39.52719
       },
       "geometry": {
         "type": "LineString",
@@ -1001,10 +1025,18 @@
       "type": "Feature",
       "properties": {
         "id": 112161795,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 1874.6,
+        "mid_lat": 9.68247,
+        "mid_lon": 39.54063
       },
       "geometry": {
         "type": "LineString",
@@ -1248,10 +1280,18 @@
       "type": "Feature",
       "properties": {
         "id": 112161799,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 1871.4,
+        "mid_lat": 9.68234,
+        "mid_lon": 39.54055
       },
       "geometry": {
         "type": "LineString",
@@ -1507,10 +1547,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907619,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ከተማ አስተዳደር ማዘጋጃ ቤት አደባባይ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan City Administration Hall Avenue",
+        "place_name": "ማዘጋጃ ቤት እና ከንቲባ ጽህፈት ቤት ዙሪያ",
+        "subcity_kebele": "ቀበሌ 06 / አስተዳደር ቀጠና",
+        "landmark": "ደብረ ብርሃን ከተማ አስተዳደር ህንፃ",
+        "zone": "Civic Administrative",
+        "length_m": 622.1,
+        "mid_lat": 9.67344,
+        "mid_lon": 39.53553
       },
       "geometry": {
         "type": "LineString",
@@ -1614,10 +1662,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907625,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 68.0,
+        "mid_lat": 9.68074,
+        "mid_lon": 39.53973
       },
       "geometry": {
         "type": "LineString",
@@ -1713,10 +1769,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907628,
-        "name": "Debre Berhan Road Link",
+        "name": "ተርማበር ታሪካዊ የተራራ ላይ አስፓልት አውራ ጎዳና",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Termaber Alpine Highway Corridor",
+        "place_name": "ተርማበር አቀበት እና መዘዞ መውጫ",
+        "subcity_kebele": "ተርማበር ወረዳ / ሰሜን መውጫ",
+        "landmark": "ተርማበር ታሪካዊ ዋሻ እና የተራራ ሰንሰለት",
+        "zone": "North Transit Highway",
+        "length_m": 20968.5,
+        "mid_lat": 9.7583,
+        "mid_lon": 39.53396
       },
       "geometry": {
         "type": "LineString",
@@ -2848,10 +2912,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907635,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 2879.2,
+        "mid_lat": 9.68182,
+        "mid_lon": 39.5282
       },
       "geometry": {
         "type": "LineString",
@@ -3075,10 +3147,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907637,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 311.7,
+        "mid_lat": 9.68542,
+        "mid_lon": 39.54129
       },
       "geometry": {
         "type": "LineString",
@@ -3138,10 +3218,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907645,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 430.8,
+        "mid_lat": 9.68596,
+        "mid_lon": 39.54381
       },
       "geometry": {
         "type": "LineString",
@@ -3213,10 +3301,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907647,
-        "name": "Debre Berhan Road Link",
+        "name": "ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "BGI Brewery & Industrial Link Road",
+        "place_name": "ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ",
+        "subcity_kebele": "ቀበሌ 08 / ኢንዱስትሪ ቀጠና",
+        "landmark": "ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ",
+        "zone": "Brewery Industrial",
+        "length_m": 1831.3,
+        "mid_lat": 9.65832,
+        "mid_lon": 39.51624
       },
       "geometry": {
         "type": "LineString",
@@ -3488,10 +3584,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907650,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 24.1,
+        "mid_lat": 9.68091,
+        "mid_lon": 39.53976
       },
       "geometry": {
         "type": "LineString",
@@ -3515,10 +3619,18 @@
       "type": "Feature",
       "properties": {
         "id": 221907653,
-        "name": "Debre Berhan Road Link",
+        "name": "ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል ዋና መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Hakim Gizaw Referral Hospital Main Arterial",
+        "place_name": "ሀኪም ግዛው ሪፈራል ሆስፒታል ዙሪያ",
+        "subcity_kebele": "ቀበሌ 02 / የጤና ቀጠና",
+        "landmark": "ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል",
+        "zone": "Healthcare District",
+        "length_m": 1403.2,
+        "mid_lat": 9.68644,
+        "mid_lon": 39.54096
       },
       "geometry": {
         "type": "LineString",
@@ -3702,10 +3814,18 @@
       "type": "Feature",
       "properties": {
         "id": 331252399,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 2587.3,
+        "mid_lat": 9.65787,
+        "mid_lon": 39.51394
       },
       "geometry": {
         "type": "LineString",
@@ -3981,10 +4101,18 @@
       "type": "Feature",
       "properties": {
         "id": 331252408,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ግብርና እና ምርምር ጣቢያ መንገድ",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "DBU Agriculture & Research Station Road",
+        "place_name": "ዩኒቨርሲቲ ምርምር ጣቢያ እና ሰላሌ መውጫ",
+        "subcity_kebele": "ቀበሌ 07 / ምርምር ማዕከል",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ የግብርና ኮሌጅ",
+        "zone": "University West Campus",
+        "length_m": 56.1,
+        "mid_lat": 9.66717,
+        "mid_lon": 39.51937
       },
       "geometry": {
         "type": "LineString",
@@ -4004,10 +4132,18 @@
       "type": "Feature",
       "properties": {
         "id": 331252411,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ግብርና እና ምርምር ጣቢያ መንገድ",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "DBU Agriculture & Research Station Road",
+        "place_name": "ዩኒቨርሲቲ ምርምር ጣቢያ እና ሰላሌ መውጫ",
+        "subcity_kebele": "ቀበሌ 07 / ምርምር ማዕከል",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ የግብርና ኮሌጅ",
+        "zone": "University West Campus",
+        "length_m": 55.3,
+        "mid_lat": 9.66722,
+        "mid_lon": 39.51933
       },
       "geometry": {
         "type": "LineString",
@@ -4027,10 +4163,18 @@
       "type": "Feature",
       "properties": {
         "id": 331252412,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ)",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan University (DBU) Main Highway",
+        "place_name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 07 / ዩኒቨርሲቲ ግቢ",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU)",
+        "zone": "Higher Education Zone",
+        "length_m": 2049.6,
+        "mid_lat": 9.6719,
+        "mid_lon": 39.52696
       },
       "geometry": {
         "type": "LineString",
@@ -4286,10 +4430,18 @@
       "type": "Feature",
       "properties": {
         "id": 382281624,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 940.5,
+        "mid_lat": 9.67319,
+        "mid_lon": 39.50947
       },
       "geometry": {
         "type": "LineString",
@@ -4381,10 +4533,18 @@
       "type": "Feature",
       "properties": {
         "id": 385769166,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ብርድ ልብስ ፋብሪካ እና የጨርቃጨርቅ ኮሪደር",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Blanket Factory & Textile Avenue",
+        "place_name": "ብርድ ልብስ ፋብሪካ እና ሱፍ ማቀነባበሪያ",
+        "subcity_kebele": "ቀበሌ 02 / ኢንዱስትሪ መንደር",
+        "landmark": "ደብረ ብርሃን ታሪካዊ ብርድ ልብስ ፋብሪካ",
+        "zone": "Textile Industrial Zone",
+        "length_m": 1228.1,
+        "mid_lat": 9.6911,
+        "mid_lon": 39.52088
       },
       "geometry": {
         "type": "LineString",
@@ -4512,10 +4672,18 @@
       "type": "Feature",
       "properties": {
         "id": 385769168,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ብርድ ልብስ ፋብሪካ እና የጨርቃጨርቅ ኮሪደር",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Blanket Factory & Textile Avenue",
+        "place_name": "ብርድ ልብስ ፋብሪካ እና ሱፍ ማቀነባበሪያ",
+        "subcity_kebele": "ቀበሌ 02 / ኢንዱስትሪ መንደር",
+        "landmark": "ደብረ ብርሃን ታሪካዊ ብርድ ልብስ ፋብሪካ",
+        "zone": "Textile Industrial Zone",
+        "length_m": 569.1,
+        "mid_lat": 9.69176,
+        "mid_lon": 39.53697
       },
       "geometry": {
         "type": "LineString",
@@ -4591,10 +4759,18 @@
       "type": "Feature",
       "properties": {
         "id": 430872666,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 38.6,
+        "mid_lat": 9.68431,
+        "mid_lon": 39.54178
       },
       "geometry": {
         "type": "LineString",
@@ -4614,10 +4790,18 @@
       "type": "Feature",
       "properties": {
         "id": 449804155,
-        "name": "Debre Berhan Road Link",
+        "name": "ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "BGI Brewery & Industrial Link Road",
+        "place_name": "ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ",
+        "subcity_kebele": "ቀበሌ 08 / ኢንዱስትሪ ቀጠና",
+        "landmark": "ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ",
+        "zone": "Brewery Industrial",
+        "length_m": 1177.8,
+        "mid_lat": 9.6605,
+        "mid_lon": 39.51746
       },
       "geometry": {
         "type": "LineString",
@@ -4757,10 +4941,18 @@
       "type": "Feature",
       "properties": {
         "id": 452876435,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ)",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan University (DBU) Main Highway",
+        "place_name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 07 / ዩኒቨርሲቲ ግቢ",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU)",
+        "zone": "Higher Education Zone",
+        "length_m": 58.9,
+        "mid_lat": 9.6722,
+        "mid_lon": 39.52967
       },
       "geometry": {
         "type": "LineString",
@@ -4860,10 +5052,18 @@
       "type": "Feature",
       "properties": {
         "id": 452876436,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 1455.2,
+        "mid_lat": 9.67608,
+        "mid_lon": 39.5349
       },
       "geometry": {
         "type": "LineString",
@@ -5047,10 +5247,18 @@
       "type": "Feature",
       "properties": {
         "id": 452876437,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ)",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan University (DBU) Main Highway",
+        "place_name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 07 / ዩኒቨርሲቲ ግቢ",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU)",
+        "zone": "Higher Education Zone",
+        "length_m": 20.7,
+        "mid_lat": 9.67232,
+        "mid_lon": 39.52955
       },
       "geometry": {
         "type": "LineString",
@@ -5074,10 +5282,18 @@
       "type": "Feature",
       "properties": {
         "id": 452876438,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 1447.1,
+        "mid_lat": 9.67606,
+        "mid_lon": 39.53477
       },
       "geometry": {
         "type": "LineString",
@@ -5221,10 +5437,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187166,
-        "name": "Debre Berhan Road Link",
+        "name": "አጼ ዘርአ ያዕቆብ አደባባይ እና ዋና ቡሌቫርድ",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Zara Yaqob Square Central Boulevard",
+        "place_name": "ዘርአ ያዕቆብ አደባባይ / አራዳ መሀል ከተማ",
+        "subcity_kebele": "ቀበሌ 05 / መሀል አራዳ",
+        "landmark": "አጼ ዘርአ ያዕቆብ አደባባይ እና ማዘጋጃ ቤት",
+        "zone": "Downtown Commercial Core",
+        "length_m": 75.0,
+        "mid_lat": 9.67822,
+        "mid_lon": 39.53304
       },
       "geometry": {
         "type": "LineString",
@@ -5324,10 +5548,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187167,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 259.0,
+        "mid_lat": 9.67907,
+        "mid_lon": 39.53222
       },
       "geometry": {
         "type": "LineString",
@@ -5363,10 +5595,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187168,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 259.0,
+        "mid_lat": 9.67913,
+        "mid_lon": 39.53201
       },
       "geometry": {
         "type": "LineString",
@@ -5398,10 +5638,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187169,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 2091.2,
+        "mid_lat": 9.67789,
+        "mid_lon": 39.53144
       },
       "geometry": {
         "type": "LineString",
@@ -5697,10 +5945,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187170,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 2115.9,
+        "mid_lat": 9.67839,
+        "mid_lon": 39.53169
       },
       "geometry": {
         "type": "LineString",
@@ -6048,10 +6304,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187171,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 282.5,
+        "mid_lat": 9.67764,
+        "mid_lon": 39.53062
       },
       "geometry": {
         "type": "LineString",
@@ -6099,10 +6363,18 @@
       "type": "Feature",
       "properties": {
         "id": 513187172,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 281.1,
+        "mid_lat": 9.67759,
+        "mid_lon": 39.53058
       },
       "geometry": {
         "type": "LineString",
@@ -6154,10 +6426,18 @@
       "type": "Feature",
       "properties": {
         "id": 608823909,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 8799.1,
+        "mid_lat": 9.61713,
+        "mid_lon": 39.50037
       },
       "geometry": {
         "type": "LineString",
@@ -6489,10 +6769,18 @@
       "type": "Feature",
       "properties": {
         "id": 608826856,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "trunk_link",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 10.6,
+        "mid_lat": 9.65626,
+        "mid_lon": 39.51365
       },
       "geometry": {
         "type": "LineString",
@@ -6512,10 +6800,18 @@
       "type": "Feature",
       "properties": {
         "id": 608829995,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "trunk_link",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 14.9,
+        "mid_lat": 9.68378,
+        "mid_lon": 39.54129
       },
       "geometry": {
         "type": "LineString",
@@ -6535,10 +6831,18 @@
       "type": "Feature",
       "properties": {
         "id": 608833267,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን – ተርማበር አቀበት ሰሜን አውራ ጎዳና",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan – Termaber North Highway",
+        "place_name": "ሰሜን መውጫ ወደ ሸዋ ሮቢትና ደሴ",
+        "subcity_kebele": "ቀበሌ 01 / ሰሜን በር",
+        "landmark": "ሰሜን መቆጣጠሪያ ኬላ እና ሚዛን ጣቢያ",
+        "zone": "North Highway",
+        "length_m": 48.4,
+        "mid_lat": 9.69053,
+        "mid_lon": 39.55125
       },
       "geometry": {
         "type": "LineString",
@@ -6558,10 +6862,18 @@
       "type": "Feature",
       "properties": {
         "id": 608833268,
-        "name": "Debre Berhan Road Link",
+        "name": "ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል ዋና መንገድ",
         "highway": "trunk",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Hakim Gizaw Referral Hospital Main Arterial",
+        "place_name": "ሀኪም ግዛው ሪፈራል ሆስፒታል ዙሪያ",
+        "subcity_kebele": "ቀበሌ 02 / የጤና ቀጠና",
+        "landmark": "ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል",
+        "zone": "Healthcare District",
+        "length_m": 684.4,
+        "mid_lat": 9.68827,
+        "mid_lon": 39.54856
       },
       "geometry": {
         "type": "LineString",
@@ -6609,10 +6921,18 @@
       "type": "Feature",
       "properties": {
         "id": 611429977,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "secondary",
-        "surface": "gravel",
-        "maxspeed": "50"
+        "surface": "asphalt",
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 14468.7,
+        "mid_lat": 9.65677,
+        "mid_lon": 39.47866
       },
       "geometry": {
         "type": "LineString",
@@ -6844,10 +7164,18 @@
       "type": "Feature",
       "properties": {
         "id": 647641191,
-        "name": "Debre Berhan Road Link",
+        "name": "ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል ዋና መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Hakim Gizaw Referral Hospital Main Arterial",
+        "place_name": "ሀኪም ግዛው ሪፈራል ሆስፒታል ዙሪያ",
+        "subcity_kebele": "ቀበሌ 02 / የጤና ቀጠና",
+        "landmark": "ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል",
+        "zone": "Healthcare District",
+        "length_m": 429.5,
+        "mid_lat": 9.68949,
+        "mid_lon": 39.54736
       },
       "geometry": {
         "type": "LineString",
@@ -6883,10 +7211,18 @@
       "type": "Feature",
       "properties": {
         "id": 647641193,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ)",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan University (DBU) Main Highway",
+        "place_name": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 07 / ዩኒቨርሲቲ ግቢ",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU)",
+        "zone": "Higher Education Zone",
+        "length_m": 23.8,
+        "mid_lat": 9.67221,
+        "mid_lon": 39.5295
       },
       "geometry": {
         "type": "LineString",
@@ -6910,10 +7246,18 @@
       "type": "Feature",
       "properties": {
         "id": 647641194,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 22.5,
+        "mid_lat": 9.68086,
+        "mid_lon": 39.5396
       },
       "geometry": {
         "type": "LineString",
@@ -6937,10 +7281,18 @@
       "type": "Feature",
       "properties": {
         "id": 690600369,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 369.2,
+        "mid_lat": 9.67584,
+        "mid_lon": 39.53299
       },
       "geometry": {
         "type": "LineString",
@@ -7000,10 +7352,18 @@
       "type": "Feature",
       "properties": {
         "id": 742756278,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 707.2,
+        "mid_lat": 9.64242,
+        "mid_lon": 39.50659
       },
       "geometry": {
         "type": "LineString",
@@ -7047,10 +7407,18 @@
       "type": "Feature",
       "properties": {
         "id": 988257720,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ዩኒቨርሲቲ ግብርና እና ምርምር ጣቢያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "DBU Agriculture & Research Station Road",
+        "place_name": "ዩኒቨርሲቲ ምርምር ጣቢያ እና ሰላሌ መውጫ",
+        "subcity_kebele": "ቀበሌ 07 / ምርምር ማዕከል",
+        "landmark": "ደብረ ብርሃን ዩኒቨርሲቲ የግብርና ኮሌጅ",
+        "zone": "University West Campus",
+        "length_m": 74.5,
+        "mid_lat": 9.67538,
+        "mid_lon": 39.51505
       },
       "geometry": {
         "type": "LineString",
@@ -7070,10 +7438,18 @@
       "type": "Feature",
       "properties": {
         "id": 988313080,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "secondary",
-        "surface": "unpaved",
-        "maxspeed": "50"
+        "surface": "asphalt",
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 1192.4,
+        "mid_lat": 9.67596,
+        "mid_lon": 39.5436
       },
       "geometry": {
         "type": "LineString",
@@ -7161,10 +7537,18 @@
       "type": "Feature",
       "properties": {
         "id": 988313086,
-        "name": "Debre Berhan Road Link",
+        "name": "ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "BGI Brewery & Industrial Link Road",
+        "place_name": "ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ",
+        "subcity_kebele": "ቀበሌ 08 / ኢንዱስትሪ ቀጠና",
+        "landmark": "ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ",
+        "zone": "Brewery Industrial",
+        "length_m": 692.1,
+        "mid_lat": 9.66344,
+        "mid_lon": 39.53484
       },
       "geometry": {
         "type": "LineString",
@@ -7232,10 +7616,18 @@
       "type": "Feature",
       "properties": {
         "id": 1068813066,
-        "name": "Debre Berhan Road Link",
+        "name": "ሰሜን-ምዕራብ ቻቻ አገናኝ አስፓልት መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "North-West Chacha Regional Link",
+        "place_name": "ቻቻ አቅጣጫ ገጠር አገናኝ አስፓልት",
+        "subcity_kebele": "ቀበሌ 01 / ሰሜን ምዕራብ ቀጠና",
+        "landmark": "የቻቻ ወንዝ ተፋሰስ እና የእርሻ ልማት ማዕከል",
+        "zone": "North-West Link",
+        "length_m": 11010.2,
+        "mid_lat": 9.69897,
+        "mid_lon": 39.46791
       },
       "geometry": {
         "type": "LineString",
@@ -7683,10 +8075,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249677124,
-        "name": "Debre Birhan - Ankober Road",
+        "name": "ደብረ ብርሃን – አንኮበር ታሪካዊ አውራ ጎዳና",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan – Ankober Heritage Highway",
+        "place_name": "አንኮበር መታጠፊያ እና ምስራቅ በር",
+        "subcity_kebele": "ቀበሌ 04 / አንኮበር መውጫ",
+        "landmark": "የአንኮበር ታሪካዊ መንግሥት መዳረሻ አውራ ጎዳና",
+        "zone": "East Heritage Corridor",
+        "length_m": 3117.6,
+        "mid_lat": 9.67482,
+        "mid_lon": 39.55685
       },
       "geometry": {
         "type": "LineString",
@@ -7790,10 +8190,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249677125,
-        "name": "Debre Birhan - Ankober Road",
+        "name": "ደብረ ብርሃን – አንኮበር ታሪካዊ አውራ ጎዳና",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan – Ankober Heritage Highway",
+        "place_name": "አንኮበር መታጠፊያ እና ምስራቅ በር",
+        "subcity_kebele": "ቀበሌ 04 / አንኮበር መውጫ",
+        "landmark": "የአንኮበር ታሪካዊ መንግሥት መዳረሻ አውራ ጎዳና",
+        "zone": "East Heritage Corridor",
+        "length_m": 3119.2,
+        "mid_lat": 9.67489,
+        "mid_lon": 39.55699
       },
       "geometry": {
         "type": "LineString",
@@ -7897,10 +8305,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706904,
-        "name": "Debre Berhan Road Link",
+        "name": "ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "BGI Brewery & Industrial Link Road",
+        "place_name": "ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ",
+        "subcity_kebele": "ቀበሌ 08 / ኢንዱስትሪ ቀጠና",
+        "landmark": "ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ",
+        "zone": "Brewery Industrial",
+        "length_m": 84.2,
+        "mid_lat": 9.66178,
+        "mid_lon": 39.52378
       },
       "geometry": {
         "type": "LineString",
@@ -7920,10 +8336,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706906,
-        "name": "Debre Berhan Road Link",
+        "name": "ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "BGI Brewery & Industrial Link Road",
+        "place_name": "ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ",
+        "subcity_kebele": "ቀበሌ 08 / ኢንዱስትሪ ቀጠና",
+        "landmark": "ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ",
+        "zone": "Brewery Industrial",
+        "length_m": 564.4,
+        "mid_lat": 9.6638,
+        "mid_lon": 39.52634
       },
       "geometry": {
         "type": "LineString",
@@ -7987,10 +8411,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706907,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 1691.0,
+        "mid_lat": 9.66765,
+        "mid_lon": 39.53375
       },
       "geometry": {
         "type": "LineString",
@@ -8150,10 +8582,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706909,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 1689.1,
+        "mid_lat": 9.66791,
+        "mid_lon": 39.5337
       },
       "geometry": {
         "type": "LineString",
@@ -8317,10 +8757,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706911,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "secondary",
-        "surface": "unpaved",
-        "maxspeed": "50"
+        "surface": "asphalt",
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 180.8,
+        "mid_lat": 9.67898,
+        "mid_lon": 39.54494
       },
       "geometry": {
         "type": "LineString",
@@ -8352,10 +8800,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706912,
-        "name": "Debre Berhan Road Link",
+        "name": "ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ",
         "highway": "secondary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Millennium Park & Monument Square Link",
+        "place_name": "ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት",
+        "subcity_kebele": "ቀበሌ 02 / መናፈሻ አካባቢ",
+        "landmark": "የደብረ ብርሃን ሚሌኒየም መናፈሻ",
+        "zone": "Civic & Parks",
+        "length_m": 684.2,
+        "mid_lat": 9.68196,
+        "mid_lon": 39.54548
       },
       "geometry": {
         "type": "LineString",
@@ -8463,10 +8919,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706914,
-        "name": "Debre Berhan Road Link",
+        "name": "አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Arada Central Market & St. Mary Church Road",
+        "place_name": "አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ",
+        "subcity_kebele": "ቀበሌ 05 / የገበያ ቀጠና",
+        "landmark": "ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን",
+        "zone": "Heritage Market",
+        "length_m": 771.8,
+        "mid_lat": 9.67551,
+        "mid_lon": 39.53774
       },
       "geometry": {
         "type": "LineString",
@@ -8578,10 +9042,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706933,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 546.0,
+        "mid_lat": 9.68477,
+        "mid_lon": 39.52606
       },
       "geometry": {
         "type": "LineString",
@@ -8629,10 +9101,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706937,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ብርድ ልብስ ፋብሪካ እና የጨርቃጨርቅ ኮሪደር",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Blanket Factory & Textile Avenue",
+        "place_name": "ብርድ ልብስ ፋብሪካ እና ሱፍ ማቀነባበሪያ",
+        "subcity_kebele": "ቀበሌ 02 / ኢንዱስትሪ መንደር",
+        "landmark": "ደብረ ብርሃን ታሪካዊ ብርድ ልብስ ፋብሪካ",
+        "zone": "Textile Industrial Zone",
+        "length_m": 41.2,
+        "mid_lat": 9.68888,
+        "mid_lon": 39.53746
       },
       "geometry": {
         "type": "LineString",
@@ -8660,10 +9140,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706938,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 545.3,
+        "mid_lat": 9.68481,
+        "mid_lon": 39.52609
       },
       "geometry": {
         "type": "LineString",
@@ -8711,10 +9199,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706939,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 30.1,
+        "mid_lat": 9.6835,
+        "mid_lon": 39.52819
       },
       "geometry": {
         "type": "LineString",
@@ -8734,10 +9230,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706940,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 183.8,
+        "mid_lat": 9.68298,
+        "mid_lon": 39.52901
       },
       "geometry": {
         "type": "LineString",
@@ -8773,10 +9277,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706941,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 14.0,
+        "mid_lat": 9.68252,
+        "mid_lon": 39.52978
       },
       "geometry": {
         "type": "LineString",
@@ -8796,10 +9308,18 @@
       "type": "Feature",
       "properties": {
         "id": 1249706942,
-        "name": "Debre Berhan Road Link",
+        "name": "ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ",
         "highway": "tertiary",
         "surface": "asphalt",
-        "maxspeed": "50"
+        "maxspeed": "50",
+        "name_en": "Debre Berhan Stadium & Sports Center Avenue",
+        "place_name": "ስታዲየም እና ስፖርት ኮምፕሌክስ",
+        "subcity_kebele": "ቀበሌ 03 / ስታዲየም መንደር",
+        "landmark": "ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል",
+        "zone": "Sports District",
+        "length_m": 184.9,
+        "mid_lat": 9.68299,
+        "mid_lon": 39.52909
       },
       "geometry": {
         "type": "LineString",
@@ -8831,10 +9351,18 @@
       "type": "Feature",
       "properties": {
         "id": 1250098783,
-        "name": "Debre Berhan Road Link",
+        "name": "ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና",
         "highway": "secondary",
-        "surface": "unpaved",
-        "maxspeed": "50"
+        "surface": "asphalt",
+        "maxspeed": "50",
+        "name_en": "Tebase Industrial Park & Addis Ababa Gateway",
+        "place_name": "ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር",
+        "subcity_kebele": "ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ",
+        "landmark": "ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP)",
+        "zone": "Southern Gateway",
+        "length_m": 183.3,
+        "mid_lat": 9.67896,
+        "mid_lon": 39.54487
       },
       "geometry": {
         "type": "LineString",

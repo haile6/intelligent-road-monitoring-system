@@ -1,67 +1,67 @@
-osm_way_id,road_name,highway_class,surface_type,speed_limit_kmh,start_lat,start_lon,end_lat,end_lon,point_count
-108984711,Debre Berhan Road Link,trunk,asphalt,50,9.69067,39.55143,9.69623,39.63065,103
-112161738,Debre Berhan Road Link,trunk,asphalt,50,9.64773,39.51124,9.66701,39.51917,84
-112161742,Debre Berhan Road Link,trunk,asphalt,50,9.67817,39.53295,9.66737,39.51953,49
-112161795,Debre Berhan Road Link,trunk,asphalt,50,9.68602,39.54682,9.67832,39.53306,58
-112161799,Debre Berhan Road Link,trunk,asphalt,50,9.67824,39.53315,9.68602,39.54682,61
-221907619,Debre Berhan Road Link,tertiary,asphalt,50,9.67437,39.53329,9.67295,39.53828,23
-221907625,Debre Berhan Road Link,tertiary,asphalt,50,9.68083,39.53977,9.68083,39.53977,21
-221907628,Debre Berhan Road Link,tertiary,asphalt,50,9.82271,39.46834,9.69538,39.5583,280
-221907635,Debre Berhan Road Link,tertiary,asphalt,50,9.6755,39.51537,9.68877,39.53757,53
-221907637,Debre Berhan Road Link,tertiary,asphalt,50,9.68448,39.54174,9.68636,39.54002,12
-221907645,Debre Berhan Road Link,tertiary,asphalt,50,9.68719,39.54233,9.6847,39.54531,15
-221907647,Debre Berhan Road Link,tertiary,asphalt,50,9.65077,39.51282,9.66569,39.51735,65
-221907650,Debre Berhan Road Link,tertiary,asphalt,50,9.68081,39.5398,9.68101,39.53971,3
-221907653,Debre Berhan Road Link,tertiary,asphalt,50,9.6909,39.54546,9.68192,39.53757,43
-331252399,Debre Berhan Road Link,trunk,asphalt,50,9.66707,39.51913,9.64773,39.51124,66
-331252408,Debre Berhan Road Link,trunk,asphalt,50,9.66701,39.51917,9.66732,39.51958,2
-331252411,Debre Berhan Road Link,trunk,asphalt,50,9.66737,39.51953,9.66707,39.51913,2
-331252412,Debre Berhan Road Link,trunk,asphalt,50,9.66732,39.51958,9.67811,39.53302,61
-382281624,Debre Berhan Road Link,tertiary,asphalt,50,9.67204,39.50681,9.67527,39.51473,20
-385769166,Debre Berhan Road Link,tertiary,asphalt,50,9.68618,39.52387,9.69522,39.52052,29
-385769168,Debre Berhan Road Link,tertiary,asphalt,50,9.68902,39.53729,9.69355,39.53617,16
-430872666,Debre Berhan Road Link,tertiary,asphalt,50,9.68414,39.54182,9.68448,39.54174,2
-449804155,Debre Berhan Road Link,secondary,asphalt,50,9.66154,39.52349,9.66066,39.51328,32
-452876435,Debre Berhan Road Link,tertiary,asphalt,50,9.67215,39.52973,9.67215,39.52973,22
-452876436,Debre Berhan Road Link,tertiary,asphalt,50,9.67218,39.52974,9.68064,39.53975,43
-452876437,Debre Berhan Road Link,tertiary,asphalt,50,9.67228,39.52963,9.67236,39.52946,3
-452876438,Debre Berhan Road Link,tertiary,asphalt,50,9.68068,39.53966,9.67225,39.52973,33
-513187166,Debre Berhan Road Link,trunk,asphalt,50,9.6782,39.53294,9.6782,39.53294,22
-513187167,Debre Berhan Road Link,tertiary,asphalt,50,9.67832,39.53304,9.67986,39.53129,6
-513187168,Debre Berhan Road Link,tertiary,asphalt,50,9.67986,39.53129,9.67826,39.53295,5
-513187169,Debre Berhan Road Link,tertiary,asphalt,50,9.67094,39.52772,9.68047,39.53822,71
-513187170,Debre Berhan Road Link,tertiary,asphalt,50,9.68049,39.53829,9.6709,39.52765,84
-513187171,Debre Berhan Road Link,tertiary,asphalt,50,9.67665,39.53153,9.67843,39.52973,9
-513187172,Debre Berhan Road Link,tertiary,asphalt,50,9.67843,39.52973,9.6766,39.53148,10
-608823909,Debre Berhan Road Link,trunk,asphalt,50,9.57781,39.48834,9.64773,39.51124,80
-608826856,Debre Berhan Road Link,trunk_link,asphalt,50,9.65628,39.51361,9.65623,39.51369,2
-608829995,Debre Berhan Road Link,trunk_link,asphalt,50,9.68381,39.54123,9.68375,39.54135,2
-608833267,Debre Berhan Road Link,trunk,asphalt,50,9.6904,39.55108,9.69067,39.55143,2
-608833268,Debre Berhan Road Link,trunk,asphalt,50,9.68602,39.54682,9.6904,39.55108,9
-611429977,Debre Berhan Road Link,secondary,gravel,50,9.61348,39.40351,9.66245,39.51421,55
-647641191,Debre Berhan Road Link,tertiary,asphalt,50,9.6909,39.54546,9.68856,39.54858,6
-647641193,Debre Berhan Road Link,tertiary,asphalt,50,9.67227,39.52941,9.67216,39.52959,3
-647641194,Debre Berhan Road Link,tertiary,asphalt,50,9.68094,39.53955,9.68076,39.53964,3
-690600369,Debre Berhan Road Link,tertiary,asphalt,50,9.67754,39.53244,9.67437,39.53329,12
-742756278,Debre Berhan Road Link,tertiary,asphalt,50,9.64464,39.50919,9.64037,39.5057,8
-988257720,Debre Berhan Road Link,tertiary,asphalt,50,9.67527,39.51473,9.6755,39.51537,2
-988313080,Debre Berhan Road Link,secondary,unpaved,50,9.67291,39.53814,9.67856,39.54562,19
-988313086,Debre Berhan Road Link,tertiary,asphalt,50,9.66451,39.53238,9.66265,39.53825,14
-1068813066,Debre Berhan Road Link,tertiary,asphalt,50,9.66247,39.48801,9.73525,39.45681,109
-1249677124,Debre Birhan - Ankober Road,secondary,asphalt,50,9.66443,39.56208,9.68477,39.54542,23
-1249677125,Debre Birhan - Ankober Road,secondary,asphalt,50,9.68487,39.54557,9.66443,39.56208,23
-1249706904,Debre Berhan Road Link,secondary,asphalt,50,9.66203,39.52408,9.66154,39.52349,2
-1249706906,Debre Berhan Road Link,secondary,asphalt,50,9.66203,39.52408,9.66443,39.52827,13
-1249706907,Debre Berhan Road Link,secondary,asphalt,50,9.66443,39.52827,9.67291,39.53814,37
-1249706909,Debre Berhan Road Link,secondary,asphalt,50,9.67291,39.53814,9.66443,39.52827,38
-1249706911,Debre Berhan Road Link,secondary,unpaved,50,9.67856,39.54562,9.67942,39.54422,5
-1249706912,Debre Berhan Road Link,secondary,asphalt,50,9.67942,39.54422,9.68432,39.54658,24
-1249706914,Debre Berhan Road Link,tertiary,asphalt,50,9.67616,39.5353,9.67383,39.54081,25
-1249706933,Debre Berhan Road Link,tertiary,asphalt,50,9.68618,39.52387,9.68356,39.52807,9
-1249706937,Debre Berhan Road Link,tertiary,asphalt,50,9.68877,39.53757,9.68902,39.53729,4
-1249706938,Debre Berhan Road Link,tertiary,asphalt,50,9.68356,39.52807,9.68618,39.52387,9
-1249706939,Debre Berhan Road Link,tertiary,asphalt,50,9.68356,39.52807,9.68344,39.52831,2
-1249706940,Debre Berhan Road Link,tertiary,asphalt,50,9.68344,39.52831,9.68255,39.52972,6
-1249706941,Debre Berhan Road Link,tertiary,asphalt,50,9.68255,39.52972,9.68249,39.52983,2
-1249706942,Debre Berhan Road Link,tertiary,asphalt,50,9.68255,39.52972,9.68344,39.52831,5
-1250098783,Debre Berhan Road Link,secondary,unpaved,50,9.67942,39.54422,9.67856,39.54562,6
+osm_id,road_name,name_en,place_name,subcity_kebele,landmark,zone,highway_class,surface,maxspeed,length_meters,mid_lat,mid_lon
+108984711,ደብረ ብርሃን – ተርማበር አቀበት ሰሜን አውራ ጎዳና,Debre Berhan – Termaber North Highway,ሰሜን መውጫ ወደ ሸዋ ሮቢትና ደሴ,ቀበሌ 01 / ሰሜን በር,ሰሜን መቆጣጠሪያ ኬላ እና ሚዛን ጣቢያ,North Highway,trunk,asphalt,50,9837.2,9.69659,39.59616
+112161738,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,trunk,asphalt,50,2583.5,9.65781,39.51396
+112161742,ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ),Debre Berhan University (DBU) Main Highway,ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር,ቀበሌ 07 / ዩኒቨርሲቲ ግቢ,ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU),Higher Education Zone,trunk,asphalt,50,2045.9,9.67202,39.52719
+112161795,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,trunk,asphalt,50,1874.6,9.68247,39.54063
+112161799,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,trunk,asphalt,50,1871.4,9.68234,39.54055
+221907619,ደብረ ብርሃን ከተማ አስተዳደር ማዘጋጃ ቤት አደባባይ,Debre Berhan City Administration Hall Avenue,ማዘጋጃ ቤት እና ከንቲባ ጽህፈት ቤት ዙሪያ,ቀበሌ 06 / አስተዳደር ቀጠና,ደብረ ብርሃን ከተማ አስተዳደር ህንፃ,Civic Administrative,tertiary,asphalt,50,622.1,9.67344,39.53553
+221907625,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,tertiary,asphalt,50,68.0,9.68074,39.53973
+221907628,ተርማበር ታሪካዊ የተራራ ላይ አስፓልት አውራ ጎዳና,Termaber Alpine Highway Corridor,ተርማበር አቀበት እና መዘዞ መውጫ,ተርማበር ወረዳ / ሰሜን መውጫ,ተርማበር ታሪካዊ ዋሻ እና የተራራ ሰንሰለት,North Transit Highway,tertiary,asphalt,50,20968.5,9.7583,39.53396
+221907635,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,2879.2,9.68182,39.5282
+221907637,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,tertiary,asphalt,50,311.7,9.68542,39.54129
+221907645,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,tertiary,asphalt,50,430.8,9.68596,39.54381
+221907647,ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ,BGI Brewery & Industrial Link Road,ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ,ቀበሌ 08 / ኢንዱስትሪ ቀጠና,ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ,Brewery Industrial,tertiary,asphalt,50,1831.3,9.65832,39.51624
+221907650,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,tertiary,asphalt,50,24.1,9.68091,39.53976
+221907653,ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል ዋና መንገድ,Hakim Gizaw Referral Hospital Main Arterial,ሀኪም ግዛው ሪፈራል ሆስፒታል ዙሪያ,ቀበሌ 02 / የጤና ቀጠና,ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል,Healthcare District,tertiary,asphalt,50,1403.2,9.68644,39.54096
+331252399,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,trunk,asphalt,50,2587.3,9.65787,39.51394
+331252408,ደብረ ብርሃን ዩኒቨርሲቲ ግብርና እና ምርምር ጣቢያ መንገድ,DBU Agriculture & Research Station Road,ዩኒቨርሲቲ ምርምር ጣቢያ እና ሰላሌ መውጫ,ቀበሌ 07 / ምርምር ማዕከል,ደብረ ብርሃን ዩኒቨርሲቲ የግብርና ኮሌጅ,University West Campus,trunk,asphalt,50,56.1,9.66717,39.51937
+331252411,ደብረ ብርሃን ዩኒቨርሲቲ ግብርና እና ምርምር ጣቢያ መንገድ,DBU Agriculture & Research Station Road,ዩኒቨርሲቲ ምርምር ጣቢያ እና ሰላሌ መውጫ,ቀበሌ 07 / ምርምር ማዕከል,ደብረ ብርሃን ዩኒቨርሲቲ የግብርና ኮሌጅ,University West Campus,trunk,asphalt,50,55.3,9.66722,39.51933
+331252412,ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ),Debre Berhan University (DBU) Main Highway,ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር,ቀበሌ 07 / ዩኒቨርሲቲ ግቢ,ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU),Higher Education Zone,trunk,asphalt,50,2049.6,9.6719,39.52696
+382281624,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,tertiary,asphalt,50,940.5,9.67319,39.50947
+385769166,ደብረ ብርሃን ብርድ ልብስ ፋብሪካ እና የጨርቃጨርቅ ኮሪደር,Debre Berhan Blanket Factory & Textile Avenue,ብርድ ልብስ ፋብሪካ እና ሱፍ ማቀነባበሪያ,ቀበሌ 02 / ኢንዱስትሪ መንደር,ደብረ ብርሃን ታሪካዊ ብርድ ልብስ ፋብሪካ,Textile Industrial Zone,tertiary,asphalt,50,1228.1,9.6911,39.52088
+385769168,ደብረ ብርሃን ብርድ ልብስ ፋብሪካ እና የጨርቃጨርቅ ኮሪደር,Debre Berhan Blanket Factory & Textile Avenue,ብርድ ልብስ ፋብሪካ እና ሱፍ ማቀነባበሪያ,ቀበሌ 02 / ኢንዱስትሪ መንደር,ደብረ ብርሃን ታሪካዊ ብርድ ልብስ ፋብሪካ,Textile Industrial Zone,tertiary,asphalt,50,569.1,9.69176,39.53697
+430872666,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,tertiary,asphalt,50,38.6,9.68431,39.54178
+449804155,ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ,BGI Brewery & Industrial Link Road,ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ,ቀበሌ 08 / ኢንዱስትሪ ቀጠና,ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ,Brewery Industrial,secondary,asphalt,50,1177.8,9.6605,39.51746
+452876435,ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ),Debre Berhan University (DBU) Main Highway,ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር,ቀበሌ 07 / ዩኒቨርሲቲ ግቢ,ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU),Higher Education Zone,tertiary,asphalt,50,58.9,9.6722,39.52967
+452876436,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,1455.2,9.67608,39.5349
+452876437,ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ),Debre Berhan University (DBU) Main Highway,ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር,ቀበሌ 07 / ዩኒቨርሲቲ ግቢ,ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU),Higher Education Zone,tertiary,asphalt,50,20.7,9.67232,39.52955
+452876438,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,1447.1,9.67606,39.53477
+513187166,አጼ ዘርአ ያዕቆብ አደባባይ እና ዋና ቡሌቫርድ,Zara Yaqob Square Central Boulevard,ዘርአ ያዕቆብ አደባባይ / አራዳ መሀል ከተማ,ቀበሌ 05 / መሀል አራዳ,አጼ ዘርአ ያዕቆብ አደባባይ እና ማዘጋጃ ቤት,Downtown Commercial Core,trunk,asphalt,50,75.0,9.67822,39.53304
+513187167,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,259.0,9.67907,39.53222
+513187168,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,259.0,9.67913,39.53201
+513187169,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,2091.2,9.67789,39.53144
+513187170,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,2115.9,9.67839,39.53169
+513187171,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,282.5,9.67764,39.53062
+513187172,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,281.1,9.67759,39.53058
+608823909,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,trunk,asphalt,50,8799.1,9.61713,39.50037
+608826856,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,trunk_link,asphalt,50,10.6,9.65626,39.51365
+608829995,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,trunk_link,asphalt,50,14.9,9.68378,39.54129
+608833267,ደብረ ብርሃን – ተርማበር አቀበት ሰሜን አውራ ጎዳና,Debre Berhan – Termaber North Highway,ሰሜን መውጫ ወደ ሸዋ ሮቢትና ደሴ,ቀበሌ 01 / ሰሜን በር,ሰሜን መቆጣጠሪያ ኬላ እና ሚዛን ጣቢያ,North Highway,trunk,asphalt,50,48.4,9.69053,39.55125
+608833268,ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል ዋና መንገድ,Hakim Gizaw Referral Hospital Main Arterial,ሀኪም ግዛው ሪፈራል ሆስፒታል ዙሪያ,ቀበሌ 02 / የጤና ቀጠና,ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል,Healthcare District,trunk,asphalt,50,684.4,9.68827,39.54856
+611429977,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,secondary,asphalt,50,14468.7,9.65677,39.47866
+647641191,ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል ዋና መንገድ,Hakim Gizaw Referral Hospital Main Arterial,ሀኪም ግዛው ሪፈራል ሆስፒታል ዙሪያ,ቀበሌ 02 / የጤና ቀጠና,ሀኪም ግዛው ጠቅላላ ሪፈራል ሆስፒታል,Healthcare District,tertiary,asphalt,50,429.5,9.68949,39.54736
+647641193,ደብረ ብርሃን ዩኒቨርሲቲ ዋና አውራ ጎዳና (ዋና መግቢያ),Debre Berhan University (DBU) Main Highway,ደብረ ብርሃን ዩኒቨርሲቲ ዋና መግቢያ በር,ቀበሌ 07 / ዩኒቨርሲቲ ግቢ,ደብረ ብርሃን ዩኒቨርሲቲ ዋና ካምፓስ (DBU),Higher Education Zone,tertiary,asphalt,50,23.8,9.67221,39.5295
+647641194,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,tertiary,asphalt,50,22.5,9.68086,39.5396
+690600369,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,369.2,9.67584,39.53299
+742756278,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,tertiary,asphalt,50,707.2,9.64242,39.50659
+988257720,ደብረ ብርሃን ዩኒቨርሲቲ ግብርና እና ምርምር ጣቢያ መንገድ,DBU Agriculture & Research Station Road,ዩኒቨርሲቲ ምርምር ጣቢያ እና ሰላሌ መውጫ,ቀበሌ 07 / ምርምር ማዕከል,ደብረ ብርሃን ዩኒቨርሲቲ የግብርና ኮሌጅ,University West Campus,tertiary,asphalt,50,74.5,9.67538,39.51505
+988313080,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,secondary,asphalt,50,1192.4,9.67596,39.5436
+988313086,ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ,BGI Brewery & Industrial Link Road,ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ,ቀበሌ 08 / ኢንዱስትሪ ቀጠና,ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ,Brewery Industrial,tertiary,asphalt,50,692.1,9.66344,39.53484
+1068813066,ሰሜን-ምዕራብ ቻቻ አገናኝ አስፓልት መንገድ,North-West Chacha Regional Link,ቻቻ አቅጣጫ ገጠር አገናኝ አስፓልት,ቀበሌ 01 / ሰሜን ምዕራብ ቀጠና,የቻቻ ወንዝ ተፋሰስ እና የእርሻ ልማት ማዕከል,North-West Link,tertiary,asphalt,50,11010.2,9.69897,39.46791
+1249677124,ደብረ ብርሃን – አንኮበር ታሪካዊ አውራ ጎዳና,Debre Berhan – Ankober Heritage Highway,አንኮበር መታጠፊያ እና ምስራቅ በር,ቀበሌ 04 / አንኮበር መውጫ,የአንኮበር ታሪካዊ መንግሥት መዳረሻ አውራ ጎዳና,East Heritage Corridor,secondary,asphalt,50,3117.6,9.67482,39.55685
+1249677125,ደብረ ብርሃን – አንኮበር ታሪካዊ አውራ ጎዳና,Debre Berhan – Ankober Heritage Highway,አንኮበር መታጠፊያ እና ምስራቅ በር,ቀበሌ 04 / አንኮበር መውጫ,የአንኮበር ታሪካዊ መንግሥት መዳረሻ አውራ ጎዳና,East Heritage Corridor,secondary,asphalt,50,3119.2,9.67489,39.55699
+1249706904,ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ,BGI Brewery & Industrial Link Road,ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ,ቀበሌ 08 / ኢንዱስትሪ ቀጠና,ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ,Brewery Industrial,secondary,asphalt,50,84.2,9.66178,39.52378
+1249706906,ቢጂአይ ቢራ ፋብሪካ እና የኢንዱስትሪ አገናኝ መንገድ,BGI Brewery & Industrial Link Road,ቢጂአይ ፋብሪካ እና ቀበሌ 08 መኖሪያ,ቀበሌ 08 / ኢንዱስትሪ ቀጠና,ቢጂአይ ኢትዮጵያ ደብረ ብርሃን ቢራ ፋብሪካ,Brewery Industrial,secondary,asphalt,50,564.4,9.6638,39.52634
+1249706907,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,secondary,asphalt,50,1691.0,9.66765,39.53375
+1249706909,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,secondary,asphalt,50,1689.1,9.66791,39.5337
+1249706911,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,secondary,asphalt,50,180.8,9.67898,39.54494
+1249706912,ሚሌኒየም ፓርክ እና ሀውልት አደባባይ አገናኝ,Millennium Park & Monument Square Link,ሚሌኒየም መናፈሻ እና መታሰቢያ ሀውልት,ቀበሌ 02 / መናፈሻ አካባቢ,የደብረ ብርሃን ሚሌኒየም መናፈሻ,Civic & Parks,secondary,asphalt,50,684.2,9.68196,39.54548
+1249706914,አራዳ ገበያ እና ቅድስት ማርያም ቤተክርስቲያን ዙሪያ መንገድ,Arada Central Market & St. Mary Church Road,አራዳ ገበያ እና ቅድስት ማርያም ዙሪያ,ቀበሌ 05 / የገበያ ቀጠና,ደብረ ብርሃን ቅድስት ማርያም ቤተክርስቲያን,Heritage Market,tertiary,asphalt,50,771.8,9.67551,39.53774
+1249706933,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,546.0,9.68477,39.52606
+1249706937,ደብረ ብርሃን ብርድ ልብስ ፋብሪካ እና የጨርቃጨርቅ ኮሪደር,Debre Berhan Blanket Factory & Textile Avenue,ብርድ ልብስ ፋብሪካ እና ሱፍ ማቀነባበሪያ,ቀበሌ 02 / ኢንዱስትሪ መንደር,ደብረ ብርሃን ታሪካዊ ብርድ ልብስ ፋብሪካ,Textile Industrial Zone,tertiary,asphalt,50,41.2,9.68888,39.53746
+1249706938,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,545.3,9.68481,39.52609
+1249706939,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,30.1,9.6835,39.52819
+1249706940,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,183.8,9.68298,39.52901
+1249706941,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,14.0,9.68252,39.52978
+1249706942,ደብረ ብርሃን ስታዲየም እና ስፖርት ማዕከል አቬኑ,Debre Berhan Stadium & Sports Center Avenue,ስታዲየም እና ስፖርት ኮምፕሌክስ,ቀበሌ 03 / ስታዲየም መንደር,ደብረ ብርሃን ስታዲየም እና ወጣቶች ማዕከል,Sports District,tertiary,asphalt,50,184.9,9.68299,39.52909
+1250098783,ተባሴ የተቀናጀ የኢንዱስትሪ ፓርክ እና የአዲስ አበባ መግቢያ አውራ ጎዳና,Tebase Industrial Park & Addis Ababa Gateway,ተባሴ ኢንዱስትሪ ፓርክ / ደቡብ መግቢያ በር,ቀበሌ 09 / ተባሴ ኢንዱስትሪ ፓርክ,ደብረ ብርሃን የተቀናጀ የኢንዱስትሪ ፓርክ (DBIP),Southern Gateway,secondary,asphalt,50,183.3,9.67896,39.54487
