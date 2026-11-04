@@ -1,0 +1,280 @@
+/**
+ * RoadEye™ Virtual Patrol Playback & Radar Proximity Simulator Styles
+ * ------------------------------------------------------------------
+ * Glassmorphic Telemetry HUD, Rotating Vehicle Vector Marker, Headlights,
+ * and Animated Concentric Radar Ping Waves for Detected Road Hazards.
+ */
+
+/* 1. VEHICLE MARKER & RADAR PULSE */
+.patrol-vehicle-container {
+    background: transparent;
+    border: none;
+}
+
+.patrol-vehicle-wrapper {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
+    transition: transform 0.08s linear;
+}
+
+.patrol-car-body {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    border: 2px solid #38BDF8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.6), inset 0 0 8px rgba(56, 189, 248, 0.3);
+    z-index: 10;
+}
+
+.patrol-car-svg {
+    font-size: 17px;
+    color: #FFFFFF;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+.patrol-roof-light {
+    position: absolute;
+    top: -2px;
+    width: 8px;
+    height: 4px;
+    border-radius: 2px;
+    background: #EF4444;
+    animation: siren-strobe 0.6s infinite alternate ease-in-out;
+}
+
+@keyframes siren-strobe {
+    0% { background: #EF4444; box-shadow: 0 0 8px #EF4444; }
+    50% { background: #3B82F6; box-shadow: 0 0 8px #3B82F6; }
+    100% { background: #EF4444; box-shadow: 0 0 8px #EF4444; }
+}
+
+/* Headlight beam casting forward */
+.patrol-headlight-beam {
+    position: absolute;
+    top: -34px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 36px solid rgba(254, 240, 138, 0.28);
+    filter: blur(2px);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Vehicle ambient radar pulse */
+.patrol-radar-pulse {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(56, 189, 248, 0.5);
+    animation: car-radar-ping 2.2s infinite ease-out;
+    pointer-events: none;
+}
+
+@keyframes car-radar-ping {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    100% { transform: scale(2.0); opacity: 0; }
+}
+
+/* 2. HAZARD PROXIMITY RADAR PING RIPPLE */
+.patrol-radar-ping-icon {
+    background: transparent;
+    border: none;
+}
+
+.radar-ping-ripple {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2.5px solid #EF4444;
+    background: rgba(239, 68, 68, 0.25);
+    animation: hazard-ping-expand 1.4s ease-out infinite;
+    pointer-events: none;
+}
+
+@keyframes hazard-ping-expand {
+    0% { transform: scale(0.2); opacity: 1; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* 3. GLASSMORPHISM PLAYBACK CONTROL DOCK */
+.patrol-playback-dock {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.15);
+    padding: 12px 20px;
+    min-width: 680px;
+    max-width: 92%;
+    color: #F8FAFC;
+    transition: all 0.25s ease;
+}
+
+.patrol-dock-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.patrol-dock-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.patrol-dock-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.patrol-btn-play {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.patrol-btn-play:hover {
+    transform: scale(1.08);
+}
+
+.patrol-btn-action {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #E2E8F0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.patrol-btn-action:hover, .patrol-btn-action.active {
+    background: #0284C7;
+    border-color: #38BDF8;
+    color: #FFFFFF;
+}
+
+/* Progress Scrubber */
+.patrol-scrubber-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.patrol-scrubber-input {
+    flex-grow: 1;
+    height: 6px;
+    accent-color: #38BDF8;
+    cursor: pointer;
+}
+
+.patrol-scrubber-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #94A3B8;
+    min-width: 75px;
+    text-align: right;
+}
+
+/* Telemetry Badges Cluster */
+.patrol-telemetry-cluster {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.32);
+    border-radius: 10px;
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.patrol-badge-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #E2E8F0;
+}
+
+.patrol-badge-pill i {
+    font-size: 13px;
+}
+
+.patrol-badge-speed {
+    color: #38BDF8;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.patrol-badge-hazard {
+    background: rgba(239, 68, 68, 0.22);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #FCA5A5;
+    animation: badge-pulse 1.8s infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Route Selector inside dock */
+.patrol-route-select {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #F1F5F9;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.patrol-route-select option {
+    background: #0F172A;
+    color: #F8FAFC;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .patrol-playback-dock {
+        min-width: 95%;
+        bottom: 12px;
+        padding: 10px 14px;
+    }
+    .patrol-telemetry-cluster {
+        display: none;
+    }
+}
