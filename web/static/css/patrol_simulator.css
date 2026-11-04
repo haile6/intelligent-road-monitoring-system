@@ -428,3 +428,22 @@
     0% { transform: scale(1.08) rotate(-1.5deg); }
     100% { transform: scale(1.15) rotate(1.5deg); }
 }
+
+/* Radar Range Select inside Pill */
+.patrol-range-select {
+    background: transparent;
+    border: none;
+    color: #38BDF8;
+    font-weight: 700;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 2px;
+    outline: none;
+}
+
+.patrol-range-select option {
+    background: #0F172A;
+    color: #F8FAFC;
+}

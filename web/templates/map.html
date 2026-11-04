@@ -234,6 +234,16 @@
                                         <i class="bi bi-geo-alt text-success"></i>
                                         <span id="patrolDist">0.0 km</span>
                                     </div>
+                                    <div class="patrol-badge-pill">
+                                        <i class="bi bi-broadcast text-danger"></i>
+                                        <span class="text-white-50" style="font-size: 10px;">RADAR:</span>
+                                        <select class="patrol-range-select" id="patrolRadarRangeSelect" onchange="simulatorSetRadarRange(this.value)" title="Adjust Radar Proximity Horizon">
+                                            <option value="50">50m</option>
+                                            <option value="100" selected>100m</option>
+                                            <option value="150">150m</option>
+                                            <option value="200">200m</option>
+                                        </select>
+                                    </div>
                                     <div class="patrol-badge-pill patrol-badge-hazard" id="patrolHazardBadge">
                                         <i class="bi bi-exclamation-triangle-fill"></i>
                                         <span id="patrolHazardsCount">0</span> Hazards Pinged
@@ -814,7 +824,7 @@ function initPatrolSimulator() {
     patrolSimulatorInstance = new PatrolSimulator(map, {
         speedMultiplier: 1.0,
         autoPan: true,
-        proximityThresholdMeters: 45.0,
+        proximityThresholdMeters: 100.0,
         onTelemetryUpdate: function(t) {
             const speedEl = document.getElementById('patrolSpeed');
             const headEl = document.getElementById('patrolHeading');
@@ -913,6 +923,12 @@ function simulatorSeek(progressRatio) {
 function simulatorToggleAutoPan(isChecked) {
     if (patrolSimulatorInstance) {
         patrolSimulatorInstance.options.autoPan = Boolean(isChecked);
+    }
+}
+
+function simulatorSetRadarRange(meters) {
+    if (patrolSimulatorInstance) {
+        patrolSimulatorInstance.setRadarRange(meters);
     }
 }
 
