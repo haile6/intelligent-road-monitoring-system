@@ -222,17 +222,20 @@
                                 </div>
 
                                 <div class="patrol-telemetry-cluster">
-                                    <div class="patrol-badge-pill">
-                                        <i class="bi bi-speedometer2 text-info"></i>
-                                        <span class="patrol-badge-speed"><span id="patrolSpeed">0</span> km/h</span>
+                                    <div class="patrol-badge-pill" id="patrolSpeedPill" title="Live Vehicle Speedometer">
+                                        <i class="bi bi-speedometer2 text-info" id="patrolSpeedIcon"></i>
+                                        <span class="patrol-badge-speed"><span id="patrolSpeed">0</span> <small class="text-white-50" style="font-size: 10px;">km/h</small></span>
                                     </div>
-                                    <div class="patrol-badge-pill">
-                                        <i class="bi bi-compass text-warning"></i>
-                                        <span id="patrolHeading">N 000°</span>
+                                    <div class="patrol-badge-pill" id="patrolHeadingPill" title="Dynamic Compass Heading & Bearing Angle">
+                                        <div class="patrol-compass-mini-dial" title="Rotating Compass Rose">
+                                            <div class="patrol-compass-needle" id="patrolCompassNeedle"></div>
+                                        </div>
+                                        <span id="patrolHeading" class="font-monospace fw-bold">N 000°</span>
                                     </div>
-                                    <div class="patrol-badge-pill">
-                                        <i class="bi bi-geo-alt text-success"></i>
-                                        <span id="patrolDist">0.0 km</span>
+                                    <div class="patrol-badge-pill" id="patrolDistPill" title="Sub-Meter Trip Odometer (Traveled / Total & Remaining)">
+                                        <i class="bi bi-signpost-2-fill text-success"></i>
+                                        <span id="patrolDist" class="font-monospace">0.00 / 0.00 km</span>
+                                        <span id="patrolRemainingDist" class="patrol-remaining-dist">(-0.00 km)</span>
                                     </div>
                                     <div class="patrol-badge-pill">
                                         <i class="bi bi-broadcast text-danger"></i>
@@ -832,9 +835,31 @@ function initPatrolSimulator() {
             const scrubberEl = document.getElementById('patrolScrubber');
             const timeEl = document.getElementById('patrolTimeDisplay');
 
-            if (speedEl) speedEl.textContent = t.speedKmh;
+            // 1. Live Speedometer with cornering/cruising dynamic accents
+            if (speedEl) {
+                speedEl.textContent = t.speedKmh;
+                const speedPill = document.getElementById('patrolSpeedPill');
+                if (speedPill) {
+                    speedPill.classList.remove('speed-cornering', 'speed-cruising', 'speed-high');
+                    if (t.speedKmh < 28) speedPill.classList.add('speed-cornering');
+                    else if (t.speedKmh <= 48) speedPill.classList.add('speed-cruising');
+                    else speedPill.classList.add('speed-high');
+                }
+            }
+
+            // 2. Real-Time Compass Rose with rotating needle dial
             if (headEl) headEl.textContent = t.cardinal + ' ' + String(t.bearing).padStart(3, '0') + '°';
+            const needleEl = document.getElementById('patrolCompassNeedle');
+            if (needleEl) {
+                needleEl.style.transform = `rotate(${t.bearing}deg)`;
+            }
+
+            // 3. Sub-Meter Dual Odometer (Traveled vs Total & Remaining km)
             if (distEl) distEl.textContent = (t.distanceTraveledM / 1000).toFixed(2) + ' / ' + (t.totalDistanceM / 1000).toFixed(2) + ' km';
+            const remDistEl = document.getElementById('patrolRemainingDist');
+            if (remDistEl) {
+                remDistEl.textContent = '(-' + (t.remainingDistanceM / 1000).toFixed(2) + ' km)';
+            }
             if (scrubberEl && !scrubberEl.matches(':active')) {
                 scrubberEl.value = Math.round(t.progress * 1000);
             }

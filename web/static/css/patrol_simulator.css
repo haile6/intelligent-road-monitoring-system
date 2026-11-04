@@ -447,3 +447,59 @@
     background: #0F172A;
     color: #F8FAFC;
 }
+
+/* --- LIVE HUD TELEMETRY: COMPASS DIAL & SPEED ACCENTS --- */
+.patrol-compass-mini-dial {
+    position: relative;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1E293B 40%, #0F172A 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.65);
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.patrol-compass-needle {
+    position: absolute;
+    width: 2px;
+    height: 12px;
+    background: linear-gradient(to bottom, #EF4444 50%, #E2E8F0 50%);
+    border-radius: 1px;
+    transform-origin: center center;
+    transition: transform 0.09s linear;
+    box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);
+}
+
+.patrol-compass-needle::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 6px;
+    height: 6px;
+    background: #EF4444;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.patrol-remaining-dist {
+    font-size: 9.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #94A3B8;
+    margin-left: 3px;
+    letter-spacing: -0.2px;
+}
+
+/* Speedometer dynamic color accents */
+.patrol-badge-pill.speed-cornering .patrol-badge-speed {
+    color: #38BDF8 !important; /* Cornering / low speed Cyan */
+}
+.patrol-badge-pill.speed-cruising .patrol-badge-speed {
+    color: #10B981 !important; /* Cruising Neon Green */
+}
+.patrol-badge-pill.speed-high .patrol-badge-speed {
+    color: #F59E0B !important; /* Highway / Fast Amber */
+}
