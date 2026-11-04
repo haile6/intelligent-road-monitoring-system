@@ -34,6 +34,9 @@ class PatrolSimulator {
         this.detectedHazardIds = new Set();
         this.activePingMarkers = new Map();
         this.radarRangeCircle = null;
+        this.videoElement = null;
+        this.videoDuration = 0;
+        this.isVideoSyncEnabled = true;
 
         this._initVehicleIcon();
     }
@@ -41,6 +44,36 @@ class PatrolSimulator {
     /**
      * Build custom Leaflet vector vehicle marker with dynamic 360° rotation & headlight beams.
      */
+    /**
+     * Attach an HTML5 <video> element for sub-second synchronized dashcam playback.
+     */
+    attachVideoPlayer(videoEl, defaultDurationSec = 34.0) {
+        this.videoElement = videoEl;
+        if (!this.videoElement) return;
+
+        this.videoDuration = defaultDurationSec;
+        if (this.videoElement.duration && !isNaN(this.videoElement.duration)) {
+            this.videoDuration = this.videoElement.duration;
+        }
+
+        this.videoElement.addEventListener('loadedmetadata', () => {
+            if (this.videoElement.duration && !isNaN(this.videoElement.duration)) {
+                this.videoDuration = this.videoElement.duration;
+            }
+        });
+
+        // Bidirectional sync: if user seeks directly on video player, update GIS vehicle
+        this.videoElement.addEventListener('seeked', () => {
+            if (!this.isPlaying && this.videoDuration > 0 && this.interpolatedPath.length > 1) {
+                const ratio = this.videoElement.currentTime / this.videoDuration;
+                const currentRatio = this.currentIndex / (this.interpolatedPath.length - 1);
+                if (Math.abs(ratio - currentRatio) > 0.04) {
+                    this.seek(ratio);
+                }
+            }
+        });
+    }
+
     _initVehicleIcon() {
         this.vehicleIcon = L.divIcon({
             className: 'patrol-vehicle-container',
@@ -194,6 +227,15 @@ class PatrolSimulator {
         this.isPlaying = true;
         this._updatePlayButtonUI(true);
 
+        if (this.videoElement && this.isVideoSyncEnabled) {
+            this.videoElement.playbackRate = this.options.speedMultiplier;
+            this.videoElement.play().catch(() => {
+                // Autoplay policy: fallback to muted video playback
+                this.videoElement.muted = true;
+                this.videoElement.play().catch(e => console.log('[PatrolSimulator] Video play postponed:', e));
+            });
+        }
+
         const intervalMs = Math.max(12, Math.floor(1000 / (this.options.frameRateFps * this.options.speedMultiplier)));
         clearInterval(this.timer);
         this.timer = setInterval(() => this._tick(), intervalMs);
@@ -205,6 +247,9 @@ class PatrolSimulator {
     pause() {
         this.isPlaying = false;
         clearInterval(this.timer);
+        if (this.videoElement && !this.videoElement.paused) {
+            this.videoElement.pause();
+        }
         this._updatePlayButtonUI(false);
     }
 
@@ -235,6 +280,9 @@ class PatrolSimulator {
      */
     setSpeed(multiplier) {
         this.options.speedMultiplier = Math.max(0.25, Math.min(16.0, parseFloat(multiplier) || 1.0));
+        if (this.videoElement) {
+            this.videoElement.playbackRate = this.options.speedMultiplier;
+        }
         if (this.isPlaying) {
             this.play(); // Restart interval with new frame timing
         }
@@ -265,6 +313,9 @@ class PatrolSimulator {
             });
         }
 
+        if (this.videoElement && this.videoDuration > 0 && this.isVideoSyncEnabled) {
+            this.videoElement.currentTime = clamped * this.videoDuration;
+        }
         this._updateStep(this.interpolatedPath[this.currentIndex]);
     }
 
@@ -307,6 +358,9 @@ class PatrolSimulator {
         this.pause();
         this.currentIndex = 0;
         this.detectedHazardIds.clear();
+        if (this.videoElement) {
+            this.videoElement.currentTime = 0;
+        }
 
         if (this.interpolatedPath.length > 0) {
             const firstPt = this.interpolatedPath[0];
@@ -371,6 +425,16 @@ class PatrolSimulator {
     _updateStep(pt) {
         if (!pt) return;
         this.currentPt = pt;
+
+        // 0. Synchronize Video Player frame timing (sub-second drift correction)
+        const currentProgress = (this.interpolatedPath.length > 1) ? (this.currentIndex / (this.interpolatedPath.length - 1)) : 0;
+        if (this.videoElement && this.videoDuration > 0 && this.isVideoSyncEnabled && this.isPlaying) {
+            const targetVideoTime = currentProgress * this.videoDuration;
+            const driftSec = Math.abs(this.videoElement.currentTime - targetVideoTime);
+            if (driftSec > 0.40) {
+                this.videoElement.currentTime = targetVideoTime;
+            }
+        }
 
         // 1. Move vehicle marker
         if (this.vehicleMarker) {
