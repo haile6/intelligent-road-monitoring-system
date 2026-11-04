@@ -902,18 +902,35 @@ function switchView(mode) {
 // ==========================================
 let patrolSimulatorInstance = null;
 
+// Iconic Debre Berhan Municipal Pavement Inspection Corridor (Tebasse ➔ DBU ➔ Stadium ➔ Hospital ➔ Piazza)
 const debreBerhanArterialWaypoints = [
-    { lat: 9.6424, lon: 39.5066, speed_kmh: 40.0 }, // Tebase Industrial Park
-    { lat: 9.6578, lon: 39.5140, speed_kmh: 45.0 }, // Kebele 08
-    { lat: 9.6672, lon: 39.5194, speed_kmh: 48.0 }, // DBU South Gate
-    { lat: 9.6720, lon: 39.5272, speed_kmh: 42.0 }, // DBU Main Campus
-    { lat: 9.6754, lon: 39.5151, speed_kmh: 38.0 }, // DBU North Campus
-    { lat: 9.6782, lon: 39.5330, speed_kmh: 35.0 }, // Zara Yaqob Square
-    { lat: 9.6807, lon: 39.5397, speed_kmh: 32.0 }, // Emergency Hospital Road
-    { lat: 9.6825, lon: 39.5406, speed_kmh: 40.0 }, // Hakim Gizaw Hospital
-    { lat: 9.6860, lon: 39.5438, speed_kmh: 45.0 }, // Health Science College
-    { lat: 9.6911, lon: 39.5209, speed_kmh: 50.0 }, // Blanket Factory Avenue
-    { lat: 9.6966, lon: 39.5962, speed_kmh: 55.0 }  // North Highway Exit
+    { lat: 9.64242, lon: 39.50659, speed_kmh: 45.0, landmark: "Tebasse Industrial Park (ተባሴ ኢንዱስትሪ ፓርክ)" },
+    { lat: 9.65832, lon: 39.51624, speed_kmh: 48.0, landmark: "Kebele 08 & BGI Brewery (ቢጂአይ ቢራ ፋብሪካ)" },
+    { lat: 9.66717, lon: 39.51937, speed_kmh: 42.0, landmark: "DBU South Gate & Research (ዩኒቨርሲቲ ደቡብ በር)" },
+    { lat: 9.67202, lon: 39.52719, speed_kmh: 38.0, landmark: "DBU Main Campus Entrance (ደብረ ብርሃን ዩኒቨርሲቲ)" },
+    { lat: 9.67750, lon: 39.52780, speed_kmh: 35.0, landmark: "Sports Complex Avenue (የስፖርት ማዕከል አቬኑ)" },
+    { lat: 9.68182, lon: 39.52820, speed_kmh: 32.0, landmark: "Debre Berhan Stadium (ደብረ ብርሃን ስታዲየም)" },
+    { lat: 9.68450, lon: 39.53500, speed_kmh: 36.0, landmark: "Health Science Avenue (ጤና ሳይንስ አቬኑ)" },
+    { lat: 9.68644, lon: 39.54096, speed_kmh: 30.0, landmark: "Hakim Gizaw Referral Hospital (ሀኪም ግዛው ሆስፒታል)" },
+    { lat: 9.68247, lon: 39.54063, speed_kmh: 34.0, landmark: "Millennium Park & Monument (ሚሌኒየም መናፈሻ)" },
+    { lat: 9.67822, lon: 39.53304, speed_kmh: 28.0, landmark: "Piazza Central Square & Zara Yaqob (ፒያሳ አደባባይ)" },
+    { lat: 9.67608, lon: 39.53490, speed_kmh: 25.0, landmark: "Arada Central Heritage Market (አራዳ ገበያ)" }
+];
+
+// Geo-referenced Urban Distress Incidents along Debre Berhan Corridor
+const debreBerhanArterialHazards = [
+    { id: 'DB-101', track_id: 'DB-101', damage_latitude: 9.64750, damage_longitude: 39.50950, damage_type: 'pothole', max_risk_level: 'Immediate Danger', distance_m: 3.2, ttc_seconds: 0.28 },
+    { id: 'DB-102', track_id: 'DB-102', damage_latitude: 9.65300, damage_longitude: 39.51200, damage_type: 'alligator_crack', max_risk_level: 'Caution', distance_m: 4.8, ttc_seconds: 0.42 },
+    { id: 'DB-103', track_id: 'DB-103', damage_latitude: 9.65900, damage_longitude: 39.51650, damage_type: 'pothole', max_risk_level: 'Danger', distance_m: 2.9, ttc_seconds: 0.31 },
+    { id: 'DB-104', track_id: 'DB-104', damage_latitude: 9.66350, damage_longitude: 39.51800, damage_type: 'longitudinal_crack', max_risk_level: 'Safe / Monitor', distance_m: 5.6, ttc_seconds: 0.65 },
+    { id: 'DB-105', track_id: 'DB-105', damage_latitude: 9.66850, damage_longitude: 39.52100, damage_type: 'pothole', max_risk_level: 'Immediate Danger', distance_m: 3.1, ttc_seconds: 0.34 },
+    { id: 'DB-106', track_id: 'DB-106', damage_latitude: 9.67250, damage_longitude: 39.52750, damage_type: 'pothole', max_risk_level: 'Caution', distance_m: 4.2, ttc_seconds: 0.48 },
+    { id: 'DB-107', track_id: 'DB-107', damage_latitude: 9.67700, damage_longitude: 39.52780, damage_type: 'edge_crack', max_risk_level: 'Warning', distance_m: 3.8, ttc_seconds: 0.45 },
+    { id: 'DB-108', track_id: 'DB-108', damage_latitude: 9.68150, damage_longitude: 39.52850, damage_type: 'pothole', max_risk_level: 'Immediate Danger', distance_m: 2.4, ttc_seconds: 0.29 },
+    { id: 'DB-109', track_id: 'DB-109', damage_latitude: 9.68450, damage_longitude: 39.53600, damage_type: 'pothole', max_risk_level: 'Danger', distance_m: 3.5, ttc_seconds: 0.39 },
+    { id: 'DB-110', track_id: 'DB-110', damage_latitude: 9.68620, damage_longitude: 39.54120, damage_type: 'alligator_crack', max_risk_level: 'Caution', distance_m: 4.5, ttc_seconds: 0.52 },
+    { id: 'DB-111', track_id: 'DB-111', damage_latitude: 9.68200, damage_longitude: 39.54020, damage_type: 'pothole', max_risk_level: 'Warning', distance_m: 3.9, ttc_seconds: 0.46 },
+    { id: 'DB-112', track_id: 'DB-112', damage_latitude: 9.67800, damage_longitude: 39.53320, damage_type: 'pothole', max_risk_level: 'Immediate Danger', distance_m: 2.1, ttc_seconds: 0.25 }
 ];
 
 function initPatrolSimulator() {
@@ -1181,8 +1198,8 @@ function simulatorToggleAudio(btn) {
 function simulatorChangeRoute(routeKey) {
     if (!patrolSimulatorInstance) return;
     if (routeKey === 'debre_berhan') {
-        patrolSimulatorInstance.loadTrajectory(debreBerhanArterialWaypoints, incidents);
-        map.flyTo([9.6750, 39.5300], 14, { duration: 1.2 });
+        patrolSimulatorInstance.loadTrajectory(debreBerhanArterialWaypoints, debreBerhanArterialHazards);
+        map.flyTo([9.6720, 39.5270], 14, { duration: 1.2 });
     } else {
         const points = (gpsPoints && gpsPoints.length > 1) ? gpsPoints : debreBerhanArterialWaypoints;
         patrolSimulatorInstance.loadTrajectory(points, incidents);

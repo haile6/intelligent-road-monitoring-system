@@ -72,7 +72,8 @@ class PatrolSimulator {
             lat: parseFloat(p.latitude || p.lat),
             lon: parseFloat(p.longitude || p.lon),
             speed: parseFloat(p.speed_kmh || p.speed || 36.0),
-            timestamp: p.timestamp || ''
+            timestamp: p.timestamp || '',
+            landmark: p.landmark || p.road_name || ''
         })).filter(p => !isNaN(p.lat) && !isNaN(p.lon));
 
         this.hazards = hazardIncidents.map(h => ({
@@ -152,12 +153,14 @@ class PatrolSimulator {
                 const stepDist = (segmentDist / steps);
                 runningDist += stepDist;
 
+                const curLandmark = (ratio < 0.5) ? (p1.landmark || '') : (p2.landmark || p1.landmark || '');
                 this.interpolatedPath.push({
                     lat: curLat,
                     lon: curLon,
                     bearing: curBearing,
                     speed: dynamicSpeed,
-                    distanceM: runningDist
+                    distanceM: runningDist,
+                    landmark: curLandmark
                 });
                 this.cumulativeDistances.push(runningDist);
             }
@@ -171,7 +174,8 @@ class PatrolSimulator {
             lon: lastPt.lon,
             bearing: lastBearing,
             speed: lastPt.speed || 30.0,
-            distanceM: runningDist
+            distanceM: runningDist,
+            landmark: lastPt.landmark || ''
         });
 
         this.totalDistanceM = runningDist;
@@ -413,6 +417,8 @@ class PatrolSimulator {
             bearing: Math.round(pt.bearing),
             cardinal: this._bearingToCardinal(pt.bearing, 8),
             cardinal16: this._bearingToCardinal(pt.bearing, 16),
+            landmark: pt.landmark || '',
+            roadName: pt.landmark || 'Active Inspection Corridor',
             distanceTraveledM: distanceTraveledM,
             remainingDistanceM: remainingDistanceM,
             totalDistanceM: Math.round(this.totalDistanceM),
