@@ -228,26 +228,60 @@
                     <tr data-status="{% if c.is_under_warranty %}ACTIVE{% else %}EXPIRED{% endif %}">
                         <!-- Road Segment -->
                         <td>
-                            <div class="fw-bold text-dark">{{ c.road_name }}</div>
-                            <div class="d-flex align-items-center gap-2 mt-1">
+                            <div class="fw-bold text-dark">
+                                {% if c.source_url %}
+                                <a href="{{ c.source_url }}" target="_blank" rel="noopener noreferrer" class="text-dark text-decoration-none hover-primary d-inline-flex align-items-center gap-1" title="Click to view official project documentation source">
+                                    <span>{{ c.road_name }}</span>
+                                    <i class="bi bi-box-arrow-up-right text-info" style="font-size: 11px;"></i>
+                                </a>
+                                {% else %}
+                                <span>{{ c.road_name }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex align-items-center flex-wrap gap-1 mt-1">
                                 <span class="badge bg-light text-dark border font-mono" style="font-size: 10px;">{{ c.segment_code }}</span>
                                 <span class="text-secondary small font-mono">{{ c.length_km }} km</span>
                                 <span class="text-muted small">• {{ c.pavement_type }}</span>
                             </div>
+                            {% if c.source_url %}
+                            <div class="mt-1">
+                                <a href="{{ c.source_url }}" target="_blank" rel="noopener noreferrer" class="badge bg-info-subtle text-info-emphasis border border-info-subtle text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 10px;" title="Official verification source link">
+                                    <i class="bi bi-patch-check-fill text-info"></i>
+                                    <span>Project Source (የመረጃ ምንጭ)</span>
+                                    <i class="bi bi-arrow-up-right" style="font-size: 9px;"></i>
+                                </a>
+                            </div>
+                            {% endif %}
                         </td>
 
                         <!-- Contractor & Consultant -->
                         <td>
                             <div class="fw-bold text-dark d-flex align-items-center gap-2">
                                 <i class="bi bi-building-fill-gear text-secondary"></i>
+                                {% if c.website_url %}
+                                <a href="{{ c.website_url }}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none hover-underline d-inline-flex align-items-center gap-1" title="Click to visit contractor official website">
+                                    <span>{{ c.contractor_name }}</span>
+                                    <i class="bi bi-box-arrow-up-right text-primary" style="font-size: 11px;"></i>
+                                </a>
+                                {% else %}
                                 <span>{{ c.contractor_name }}</span>
+                                {% endif %}
                             </div>
                             <div class="text-secondary small mt-1">
                                 <span class="text-muted">Consultant:</span> {{ c.consultant_name or 'Independent Engineer' }}
                             </div>
-                            {% if c.contact_email %}
-                            <div class="font-mono text-muted small" style="font-size: 10px;">{{ c.contact_email }}</div>
-                            {% endif %}
+                            <div class="d-flex align-items-center flex-wrap gap-1 mt-1">
+                                {% if c.website_url %}
+                                <a href="{{ c.website_url }}" target="_blank" rel="noopener noreferrer" class="badge bg-primary-subtle text-primary border border-primary-subtle text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 10px;" title="Open contractor website">
+                                    <i class="bi bi-globe"></i>
+                                    <span>Official Website (ይፋዊ ድረ-ገጽ)</span>
+                                    <i class="bi bi-arrow-up-right" style="font-size: 9px;"></i>
+                                </a>
+                                {% endif %}
+                                {% if c.contact_email %}
+                                <span class="font-mono text-muted small" style="font-size: 10px;">{{ c.contact_email }}</span>
+                                {% endif %}
+                            </div>
                         </td>
 
                         <!-- GPS Range -->
@@ -322,6 +356,22 @@
                                             <span>Generate Warranty Claim Notice</span>
                                         </button>
                                     </li>
+                                    {% if c.website_url %}
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 text-primary" href="{{ c.website_url }}" target="_blank" rel="noopener noreferrer">
+                                            <i class="bi bi-globe"></i>
+                                            <span>Visit Contractor Website (ይፋዊ ድረ-ገጽ)</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if c.source_url %}
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 text-info" href="{{ c.source_url }}" target="_blank" rel="noopener noreferrer">
+                                            <i class="bi bi-patch-check"></i>
+                                            <span>View Project Evidence Link (የመረጃ ምንጭ)</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('map_view') }}">
                                             <i class="bi bi-geo-alt text-primary"></i>
@@ -578,6 +628,26 @@
                             </tbody>
                         </table>
 
+                        <!-- Official Redirect Links Banner -->
+                        <div class="p-3 my-3 bg-white border rounded shadow-xs" id="claimLinksBanner">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-6" id="claimWebsiteBox">
+                                    <span class="small text-muted d-block font-mono" style="font-size: 10px;"><i class="bi bi-globe me-1 text-primary"></i>OFFICIAL CONTRACTOR WEBSITE:</span>
+                                    <a id="claimWebsiteLink" href="#" target="_blank" rel="noopener noreferrer" class="fw-bold text-primary small text-decoration-none d-inline-flex align-items-center gap-1">
+                                        <span id="claimWebsiteText">Visit Website</span>
+                                        <i class="bi bi-box-arrow-up-right" style="font-size: 10px;"></i>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 text-md-end" id="claimSourceBox">
+                                    <span class="small text-muted d-block font-mono" style="font-size: 10px;"><i class="bi bi-shield-check me-1 text-info"></i>OFFICIAL PROJECT EVIDENCE:</span>
+                                    <a id="claimSourceLink" href="#" target="_blank" rel="noopener noreferrer" class="fw-bold text-info small text-decoration-none d-inline-flex align-items-center gap-1">
+                                        <span>View Official Source Record</span>
+                                        <i class="bi bi-box-arrow-up-right" style="font-size: 10px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
                         <p>
                             You are hereby formally instructed to mobilize qualified asphalt repair crews and restore the road surface to standard design specifications within <strong class="text-danger">fourteen (14) calendar days</strong> of this notice. Failure to execute timely repairs will compel the Administration to dispatch municipal maintenance units and deduct full costs plus administrative surcharges from your retention guarantees.
                         </p>
@@ -710,6 +780,25 @@
             document.getElementById('claimCracksCount').innerText = c.cracks_count || 0;
             document.getElementById('claimDefectRate').innerText = (c.defect_rate_per_10km || 0) + ' / 10km';
             document.getElementById('claimEstimatedCost').innerText = 'ETB ' + (c.repair_cost_etb || 0).toLocaleString();
+
+            const webBox = document.getElementById('claimWebsiteBox');
+            const webLink = document.getElementById('claimWebsiteLink');
+            if (c.website_url) {
+                webLink.href = c.website_url;
+                document.getElementById('claimWebsiteText').innerText = c.website_url.replace(/^https?:\/\//, '');
+                webBox.style.display = 'block';
+            } else {
+                webBox.style.display = 'none';
+            }
+
+            const srcBox = document.getElementById('claimSourceBox');
+            const srcLink = document.getElementById('claimSourceLink');
+            if (c.source_url) {
+                srcLink.href = c.source_url;
+                srcBox.style.display = 'block';
+            } else {
+                srcBox.style.display = 'none';
+            }
 
             const modal = new bootstrap.Modal(document.getElementById('claimNoticeModal'));
             modal.show();

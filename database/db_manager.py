@@ -155,10 +155,20 @@ def init_db():
         contract_value_etb REAL DEFAULT 0.0,
         contact_email TEXT DEFAULT '',
         contact_phone TEXT DEFAULT '',
+        website_url TEXT DEFAULT '',
+        source_url TEXT DEFAULT '',
         notes TEXT DEFAULT '',
         created_at TEXT
     )
     """)
+
+    # Automatic schema migration for existing databases
+    cursor.execute("PRAGMA table_info(road_contractors)")
+    existing_cols = [r[1] for r in cursor.fetchall()]
+    if "website_url" not in existing_cols:
+        cursor.execute("ALTER TABLE road_contractors ADD COLUMN website_url TEXT DEFAULT ''")
+    if "source_url" not in existing_cols:
+        cursor.execute("ALTER TABLE road_contractors ADD COLUMN source_url TEXT DEFAULT ''")
 
     conn.commit()
     conn.close()
@@ -728,6 +738,8 @@ def seed_contractors_if_empty():
                         float(r.get("contract_value_etb", 0.0)),
                         r.get("contact_email", ""),
                         r.get("contact_phone", ""),
+                        r.get("website_url", ""),
+                        r.get("source_url", ""),
                         f"{r.get('corridor', '')} — {r.get('funding_source', '')}",
                         now_str
                     ))
@@ -739,8 +751,8 @@ def seed_contractors_if_empty():
                 start_lat, start_lon, end_lat, end_lon, length_km,
                 handover_date, warranty_years, warranty_expiry_date,
                 warranty_status, pavement_type, contract_value_etb,
-                contact_email, contact_phone, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                contact_email, contact_phone, website_url, source_url, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, seed_data)
             conn.commit()
     conn.close()
@@ -922,8 +934,8 @@ def add_contractor(data):
         start_lat, start_lon, end_lat, end_lon, length_km,
         handover_date, warranty_years, warranty_expiry_date,
         warranty_status, pavement_type, contract_value_etb,
-        contact_email, contact_phone, notes, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        contact_email, contact_phone, website_url, source_url, notes, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         data.get("road_name", ""),
         data.get("segment_code", ""),
@@ -942,6 +954,8 @@ def add_contractor(data):
         float(data.get("contract_value_etb", 0.0)),
         data.get("contact_email", ""),
         data.get("contact_phone", ""),
+        data.get("website_url", ""),
+        data.get("source_url", ""),
         data.get("notes", ""),
         now_str
     ))
