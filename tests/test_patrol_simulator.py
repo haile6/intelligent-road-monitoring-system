@@ -116,17 +116,26 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
             self.assertTrue(0 <= path[i]["bearing"] < 360)
 
     def test_proximity_radar_detection_trigger(self):
-        """Verify that hazards within proximity threshold (45m) are successfully detected."""
+        """Verify that hazards within proximity threshold (100m default) are successfully detected."""
         car_position = {"lat": 9.67205, "lon": 39.52722}
         hazard_close = {"id": 1, "lat": 9.67210, "lon": 39.52725}  # ~6.5m away
-        hazard_far = {"id": 2, "lat": 9.68000, "lon": 39.53500}    # ~1.2 km away
+        hazard_mid = {"id": 2, "lat": 9.67265, "lon": 39.52765}    # ~80m away
+        hazard_far = {"id": 3, "lat": 9.68000, "lon": 39.53500}    # ~1.2 km away
 
         dist_close = haversine_m(car_position["lat"], car_position["lon"], hazard_close["lat"], hazard_close["lon"])
+        dist_mid = haversine_m(car_position["lat"], car_position["lon"], hazard_mid["lat"], hazard_mid["lon"])
         dist_far = haversine_m(car_position["lat"], car_position["lon"], hazard_far["lat"], hazard_far["lon"])
 
-        threshold_m = 45.0
-        self.assertLess(dist_close, threshold_m, "Close hazard must fall within detection radius")
-        self.assertGreater(dist_far, threshold_m, "Far hazard must exceed detection radius")
+        # Default 100m threshold
+        threshold_100m = 100.0
+        self.assertLess(dist_close, threshold_100m, "Close hazard must fall within 100m detection radius")
+        self.assertLess(dist_mid, threshold_100m, "Mid hazard (~80m) must fall within 100m detection radius")
+        self.assertGreater(dist_far, threshold_100m, "Far hazard must exceed 100m detection radius")
+
+        # Comparison with 50m tight threshold
+        threshold_50m = 50.0
+        self.assertLess(dist_close, threshold_50m)
+        self.assertGreater(dist_mid, threshold_50m, "Mid hazard (~80m) should NOT trigger under 50m tight radius")
 
     def test_real_dashcam_video_defects_playback_trigger(self):
         """Verify proximity detection across actual dashcam video defect track."""
@@ -179,6 +188,29 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
         delays = [0.0, 0.38, 0.76]
         self.assertEqual(len(delays), 3)
         self.assertTrue(delays[0] < delays[1] < delays[2])
+
+
+    def test_radar_range_tiers_and_early_warning_horizon(self):
+        """Verify multi-tier radar range horizons (50m, 100m, 150m, 200m) and early warning TTC lookahead."""
+        valid_ranges = [50.0, 100.0, 150.0, 200.0]
+        speed_kmh = 30.0
+        speed_mps = speed_kmh / 3.6  # ~8.333 m/s
+
+        ttc_expectations = {
+            50.0: 6.0,    # ~6.0s TTC
+            100.0: 12.0,  # ~12.0s TTC early warning
+            150.0: 18.0,  # ~18.0s TTC
+            200.0: 24.0   # ~24.0s TTC
+        }
+
+        for r in valid_ranges:
+            expected_ttc = r / speed_mps
+            self.assertAlmostEqual(expected_ttc, ttc_expectations[r], delta=0.5)
+
+        # 100m range provides more than double the reaction time compared to legacy 45m
+        ttc_legacy = 45.0 / speed_mps
+        ttc_100m = 100.0 / speed_mps
+        self.assertGreater(ttc_100m, ttc_legacy * 2.0)
 
 
 if __name__ == "__main__":
