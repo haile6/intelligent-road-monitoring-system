@@ -850,7 +850,7 @@
     "start_lon": "42.8000",
     "end_lat": "6.7400",
     "end_lon": "44.2800",
-    "length_km": "105.0",
+    "length_km": 335.0,
     "pavement_type": "Superpave Asphalt Concrete Highway",
     "handover_date": "2023-09-12",
     "warranty_years": "3",
