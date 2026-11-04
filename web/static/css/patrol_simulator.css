@@ -503,3 +503,254 @@
 .patrol-badge-pill.speed-high .patrol-badge-speed {
     color: #F59E0B !important; /* Highway / Fast Amber */
 }
+
+/* --- FLOATING LIVE COCKPIT TELEMETRY HUD CARD --- */
+.patrol-cockpit-hud {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 260px;
+    background: rgba(15, 23, 42, 0.90);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 12px;
+    padding: 10px 12px;
+    z-index: 1000;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 18px rgba(56, 189, 248, 0.15);
+    color: #F8FAFC;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.patrol-cockpit-hud.minimized {
+    padding: 8px 12px;
+}
+
+.patrol-cockpit-hud.minimized .cockpit-hud-body {
+    display: none;
+}
+
+.cockpit-hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cockpit-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #38BDF8;
+    text-transform: uppercase;
+}
+
+.cockpit-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 8px #10B981;
+    animation: live-blink 1.2s infinite alternate;
+}
+
+@keyframes live-blink {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.cockpit-toggle-btn {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    padding: 0 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.cockpit-toggle-btn:hover {
+    color: #FFFFFF;
+}
+
+.cockpit-hud-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.cockpit-gauge-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 7px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cockpit-gauge-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+}
+
+.cockpit-speed-display {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    justify-content: center;
+}
+
+.cockpit-speed-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 800;
+    color: #38BDF8;
+    line-height: 1;
+}
+
+.cockpit-speed-unit {
+    font-size: 10px;
+    color: #94A3B8;
+    font-weight: 700;
+}
+
+.cockpit-speed-bar-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.cockpit-speed-bar-fill {
+    height: 100%;
+    background: #38BDF8;
+    transition: width 0.15s ease, background 0.2s ease;
+}
+
+.cockpit-status-tag {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
+.tag-idle { background: rgba(148, 163, 184, 0.2); color: #CBD5E1; }
+.tag-cornering { background: rgba(56, 189, 248, 0.2); color: #38BDF8; }
+.tag-cruising { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+.tag-high { background: rgba(245, 158, 11, 0.2); color: #F59E0B; }
+
+/* Cockpit Compass Rose */
+.cockpit-compass-wrapper {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    margin: 2px auto;
+}
+
+.cockpit-compass-dial {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1E293B, #0F172A);
+    border: 1.5px solid rgba(245, 158, 11, 0.5);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.cockpit-compass-ticks {
+    position: absolute;
+    inset: 2px;
+    font-size: 8px;
+    font-weight: 800;
+    pointer-events: none;
+}
+
+.tick-n { position: absolute; top: 0px; left: 50%; transform: translateX(-50%); color: #EF4444; }
+.tick-e { position: absolute; right: 1px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+.tick-s { position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); color: #94A3B8; }
+.tick-w { position: absolute; left: 1px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+
+.cockpit-compass-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.5px;
+    height: 24px;
+    margin-top: -12px;
+    margin-left: -1.25px;
+    background: linear-gradient(to bottom, #EF4444 50%, #E2E8F0 50%);
+    border-radius: 1px;
+    transform-origin: center center;
+    transition: transform 0.09s linear;
+}
+
+.cockpit-compass-pointer::before {
+    content: '';
+    position: absolute;
+    top: -2.5px;
+    left: -2px;
+    width: 6.5px;
+    height: 6px;
+    background: #EF4444;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.cockpit-heading-readout {
+    font-size: 11px;
+    color: #F59E0B;
+    margin-top: 2px;
+}
+
+/* Odometer Row */
+.cockpit-odometer-row {
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 7px 9px;
+}
+
+.cockpit-sub-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #94A3B8;
+}
+
+.cockpit-odo-values {
+    font-size: 11px;
+    font-weight: 700;
+    color: #10B981;
+}
+
+.cockpit-progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.cockpit-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #38BDF8);
+    transition: width 0.15s ease;
+}
+
+@media (max-width: 992px) {
+    .patrol-cockpit-hud {
+        display: none;
+    }
+}

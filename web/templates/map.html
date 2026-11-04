@@ -197,6 +197,67 @@
                         </div>
                     </div>
 
+                                        <!-- Floating Glassmorphic Live Cockpit Telemetry HUD -->
+                    <div id="patrolCockpitHud" class="patrol-cockpit-hud">
+                        <div class="cockpit-hud-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="cockpit-live-dot"></span>
+                                <span class="cockpit-title">LIVE TELEMETRY HUD</span>
+                            </div>
+                            <button class="cockpit-toggle-btn" onclick="toggleCockpitHud()" title="Toggle / Collapse HUD">
+                                <i class="bi bi-chevron-up" id="cockpitToggleIcon"></i>
+                            </button>
+                        </div>
+                        <div class="cockpit-hud-body" id="cockpitHudBody">
+                            <div class="cockpit-hud-grid">
+                                <!-- Digital Speedometer Gauge -->
+                                <div class="cockpit-gauge-card">
+                                    <div class="cockpit-gauge-label">VEHICLE SPEED</div>
+                                    <div class="cockpit-speed-display">
+                                        <span class="cockpit-speed-number" id="cockpitSpeedVal">0</span>
+                                        <span class="cockpit-speed-unit">KM/H</span>
+                                    </div>
+                                    <div class="cockpit-speed-bar-track">
+                                        <div class="cockpit-speed-bar-fill" id="cockpitSpeedBar" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="cockpit-status-tag tag-idle" id="cockpitSpeedStatus">IDLE</div>
+                                </div>
+
+                                <!-- Compass Heading Rose -->
+                                <div class="cockpit-gauge-card">
+                                    <div class="cockpit-gauge-label">COMPASS BEARING</div>
+                                    <div class="cockpit-compass-wrapper">
+                                        <div class="cockpit-compass-dial" id="cockpitCompassDial">
+                                            <div class="cockpit-compass-ticks">
+                                                <span class="tick-n">N</span>
+                                                <span class="tick-e">E</span>
+                                                <span class="tick-s">S</span>
+                                                <span class="tick-w">W</span>
+                                            </div>
+                                            <div class="cockpit-compass-pointer" id="cockpitCompassPointer"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cockpit-heading-readout font-monospace fw-bold" id="cockpitHeadingReadout">N 000°</div>
+                                </div>
+                            </div>
+
+                            <!-- Trip Odometer & Route Progress -->
+                            <div class="cockpit-odometer-row">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="cockpit-sub-label"><i class="bi bi-signpost-split text-success me-1"></i>TRIP ODOMETER</span>
+                                    <span class="cockpit-odo-values font-monospace" id="cockpitOdoValues">0.00 / 0.00 km</span>
+                                </div>
+                                <div class="cockpit-progress-track">
+                                    <div class="cockpit-progress-bar" id="cockpitProgressBar" style="width: 0%;"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 10px; color: #94A3B8;">
+                                    <span>Remaining: <b class="text-white font-monospace" id="cockpitRemDist">0.00 km</b></span>
+                                    <span>ETA: <b class="text-info font-mono" id="cockpitEtaTime">00:00</b></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="map"></div>
 
                     <!-- Floating Glassmorphic Patrol Playback Simulator Dock -->
@@ -860,6 +921,45 @@ function initPatrolSimulator() {
             if (remDistEl) {
                 remDistEl.textContent = '(-' + (t.remainingDistanceM / 1000).toFixed(2) + ' km)';
             }
+
+            // 4. Update Floating Live Cockpit HUD
+            const cSpeed = document.getElementById('cockpitSpeedVal');
+            const cSpeedBar = document.getElementById('cockpitSpeedBar');
+            const cSpeedStatus = document.getElementById('cockpitSpeedStatus');
+            const cPointer = document.getElementById('cockpitCompassPointer');
+            const cHeading = document.getElementById('cockpitHeadingReadout');
+            const cOdo = document.getElementById('cockpitOdoValues');
+            const cProg = document.getElementById('cockpitProgressBar');
+            const cRem = document.getElementById('cockpitRemDist');
+            const cEta = document.getElementById('cockpitEtaTime');
+
+            if (cSpeed) cSpeed.textContent = t.speedKmh;
+            if (cSpeedBar) {
+                const pct = Math.min(100, Math.round((t.speedKmh / 70) * 100));
+                cSpeedBar.style.width = pct + '%';
+                if (t.speedKmh < 28) {
+                    cSpeedBar.style.background = '#38BDF8';
+                    if (cSpeedStatus) { cSpeedStatus.textContent = 'CORNERING'; cSpeedStatus.className = 'cockpit-status-tag tag-cornering'; }
+                } else if (t.speedKmh <= 48) {
+                    cSpeedBar.style.background = '#10B981';
+                    if (cSpeedStatus) { cSpeedStatus.textContent = 'CRUISING'; cSpeedStatus.className = 'cockpit-status-tag tag-cruising'; }
+                } else {
+                    cSpeedBar.style.background = '#F59E0B';
+                    if (cSpeedStatus) { cSpeedStatus.textContent = 'HIGH SPEED'; cSpeedStatus.className = 'cockpit-status-tag tag-high'; }
+                }
+            }
+
+            if (cPointer) cPointer.style.transform = `rotate(${t.bearing}deg)`;
+            if (cHeading) cHeading.textContent = t.cardinal + ' ' + String(t.bearing).padStart(3, '0') + '°';
+            if (cOdo) cOdo.textContent = (t.distanceTraveledM / 1000).toFixed(2) + ' / ' + (t.totalDistanceM / 1000).toFixed(2) + ' km';
+            if (cProg) cProg.style.width = Math.round(t.progress * 100) + '%';
+            if (cRem) cRem.textContent = (t.remainingDistanceM / 1000).toFixed(2) + ' km';
+            if (cEta) {
+                const m = String(Math.floor(t.etaSeconds / 60)).padStart(2, '0');
+                const s = String(t.etaSeconds % 60).padStart(2, '0');
+                cEta.textContent = `${m}:${s}`;
+            }
+
             if (scrubberEl && !scrubberEl.matches(':active')) {
                 scrubberEl.value = Math.round(t.progress * 1000);
             }
@@ -954,6 +1054,20 @@ function simulatorToggleAutoPan(isChecked) {
 function simulatorSetRadarRange(meters) {
     if (patrolSimulatorInstance) {
         patrolSimulatorInstance.setRadarRange(meters);
+    }
+}
+
+function toggleCockpitHud() {
+    const hud = document.getElementById('patrolCockpitHud');
+    const icon = document.getElementById('cockpitToggleIcon');
+    if (!hud) return;
+    hud.classList.toggle('minimized');
+    if (icon) {
+        if (hud.classList.contains('minimized')) {
+            icon.className = 'bi bi-chevron-down';
+        } else {
+            icon.className = 'bi bi-chevron-up';
+        }
     }
 }
 
