@@ -296,7 +296,7 @@ This section details the operationalization of Machine Learning models within Ro
 
 ---
 
-### 8.2 Week 4: ML Lifecycle, Experiment Tracking & Model/Data Versioning
+### 8.2 ML Lifecycle, Experiment Tracking & Model/Data Versioning
 
 ```mermaid
 flowchart LR
@@ -318,7 +318,7 @@ flowchart LR
 
 ---
 
-### 8.3 Week 5: Model Serving, REST APIs & Docker Containerization
+### 8.3 Model Serving, REST APIs & Docker Containerization
 
 To transition the deep learning models from offline prototypes into an enterprise service, RoadEye implements production REST API endpoints and containerized packaging.
 
@@ -355,7 +355,7 @@ To transition the deep learning models from offline prototypes into an enterpris
 
 ---
 
-### 8.4 Week 6: CI/CD for ML, Performance Tracking & Data/Model Drift
+### 8.4 CI/CD for Machine Learning, Performance Tracking & Data/Model Drift
 
 ```mermaid
 flowchart TD
