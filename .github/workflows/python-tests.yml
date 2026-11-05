@@ -38,7 +38,11 @@ jobs:
       run: |
         python -c "from mlops.drift_monitor import DriftMonitor; monitor = DriftMonitor(); monitor.record_inference(latency_ms=15.0, confidences=[0.8, 0.85], classes=['pothole'], luminance=125.0); report = monitor.evaluate(); assert report.status == 'HEALTHY'; print('✅ Drift Monitor Engine Operational: Status =', report.status)"
 
-    - name: Run Full Automated Unit & Regression Test Suite (64 Tests)
+    - name: Validate Explainable AI & TinyML Edge Engines (CLO2, CLO3)
+      run: |
+        python -c "from mlops.explainability import XAIExplainer, FairnessAuditor; explainer = XAIExplainer(); attr = explainer.explain_detection('pothole', 0.85, [10, 20, 50, 60]); assert len(attr.attributions) == 4; from mlops.edge_optimizer import EdgeOptimizer; opt = EdgeOptimizer(); p = opt.get_quantization_profile(precision='INT8'); assert p.compressed_size_mb < 5.0; print('✅ XAI & TinyML Edge Optimizer Verified')"
+
+    - name: Run Full Automated Unit & Regression Test Suite (77 Tests)
       run: |
         python -m unittest discover tests -v
 
