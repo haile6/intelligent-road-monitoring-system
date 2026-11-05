@@ -1,0 +1,83 @@
+{
+  "road_damage_detector": [
+    {
+      "model_name": "road_damage_detector",
+      "version": "v1.2.0-prod",
+      "task": "pavement_distress",
+      "framework": "Ultralytics YOLOv8",
+      "weights_path": "models\\road_damage_best.pt",
+      "sha256_checksum": "313d88a74cecd465635ce40007f711a777c837bef36c2f8145216ee553179a5b",
+      "size_mb": 18.27,
+      "registered_at": "2026-11-05T20:42:08.710567Z",
+      "metrics": {
+        "mAP50": 0.884,
+        "mAP50_95": 0.621,
+        "precision": 0.892,
+        "recall": 0.854,
+        "latency_ms": 14.2
+      },
+      "parameters": {
+        "imgsz": 640,
+        "batch": 16,
+        "epochs": 120,
+        "optimizer": "AdamW",
+        "lr0": 0.001
+      },
+      "status": "production"
+    }
+  ],
+  "vehicle_detector": [
+    {
+      "model_name": "vehicle_detector",
+      "version": "v1.0.0-prod",
+      "task": "vehicle_detection",
+      "framework": "Ultralytics YOLO11",
+      "weights_path": "models\\yolo11s.pt",
+      "sha256_checksum": "85a76fe86dd8afe384648546b56a7a78580c7cb7b404fc595f97969322d502d5",
+      "size_mb": 18.42,
+      "registered_at": "2026-11-05T20:42:08.720578Z",
+      "metrics": {
+        "mAP50": 0.915,
+        "precision": 0.901,
+        "recall": 0.887,
+        "latency_ms": 12.8
+      },
+      "parameters": {
+        "imgsz": 640,
+        "batch": 32,
+        "epochs": 80,
+        "classes": [
+          "car",
+          "bus",
+          "truck",
+          "motorcycle"
+        ]
+      },
+      "status": "production"
+    }
+  ],
+  "license_plate_detector": [
+    {
+      "model_name": "license_plate_detector",
+      "version": "v1.1.0-prod",
+      "task": "anpr_plate",
+      "framework": "Ultralytics YOLOv8 + EasyOCR",
+      "weights_path": "models\\license_plate_detector.pt",
+      "sha256_checksum": "0aec75976c56eb6f26dfb274c430620ec65137915ff1ae47c3a48c7af8afb7b2",
+      "size_mb": 5.21,
+      "registered_at": "2026-11-05T20:42:08.725043Z",
+      "metrics": {
+        "mAP50": 0.932,
+        "ocr_accuracy": 0.918,
+        "latency_ms": 22.4
+      },
+      "parameters": {
+        "imgsz": 480,
+        "batch": 16,
+        "epochs": 90,
+        "region": "ET"
+      },
+      "status": "production"
+    }
+  ]
+}

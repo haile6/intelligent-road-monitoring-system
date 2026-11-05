@@ -1,0 +1,16 @@
+.git
+.github
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+.vscode
+.idea
+venv/
+env/
+.env
+.gemini/
+outputs/*.mp4
+outputs/*.avi
+*.tmp

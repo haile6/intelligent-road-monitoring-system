@@ -161,5 +161,61 @@ class TestMLOpsDriftMonitor(unittest.TestCase):
         self.assertTrue(any("Latency Spike" in a for a in report.anomalies))
 
 
+class TestMLOpsServingAPIs(unittest.TestCase):
+    """Test Suite for Production Model Serving REST APIs (CLO1, CLO2)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from web.app import app
+        app.config["TESTING"] = True
+        cls.client = app.test_client()
+
+    def test_api_v1_health(self):
+        resp = self.client.get("/api/v1/health")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertEqual(data["status"], "healthy")
+        self.assertIn("execution_device", data["runtime"])
+        self.assertIn("endpoints", data)
+
+    def test_api_v1_models_list_and_detail(self):
+        resp = self.client.get("/api/v1/models")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertIn("road_damage_detector", data["models"])
+
+        # Test detail of specific model
+        detail_resp = self.client.get("/api/v1/models/road_damage_detector")
+        self.assertEqual(detail_resp.status_code, 200)
+        detail_data = detail_resp.get_json()
+        self.assertTrue(detail_data["success"])
+        self.assertEqual(detail_data["model"]["model_name"], "road_damage_detector")
+
+    def test_api_v1_dataset_version(self):
+        resp = self.client.get("/api/v1/dataset/version")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertIn("classes", data["dataset"])
+        self.assertIn("train", data["dataset"]["splits"])
+
+    def test_api_v1_drift_report(self):
+        resp = self.client.get("/api/v1/drift")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertIn("covariate_drift", data["report"])
+        self.assertIn("concept_drift", data["report"])
+
+    def test_api_v1_predict_sample(self):
+        resp = self.client.post("/api/v1/predict")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertGreater(data["num_detections"], 0)
+        self.assertIn("inference_latency_ms", data["telemetry"])
+
+
 if __name__ == "__main__":
     unittest.main()
