@@ -216,6 +216,44 @@ class TestMLOpsServingAPIs(unittest.TestCase):
         self.assertGreater(data["num_detections"], 0)
         self.assertIn("inference_latency_ms", data["telemetry"])
 
+    def test_api_v1_explain(self):
+        resp = self.client.post("/api/v1/explain", json={
+            "class": "pothole",
+            "confidence": 0.88,
+            "bbox": [100, 200, 300, 400]
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["attribution"]["class_name"], "pothole")
+        self.assertIn("attributions", data["attribution"])
+
+    def test_api_v1_fairness_audit(self):
+        resp = self.client.get("/api/v1/fairness/audit")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertIn("compliance_status", data["fairness_audit"])
+        self.assertIn("cohort_metrics", data["fairness_audit"])
+
+    def test_api_v1_privacy_redact(self):
+        resp = self.client.post("/api/v1/privacy/redact", json={
+            "method": "pixelation_mosaic",
+            "bboxes": [[50, 50, 150, 100]]
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertTrue(data["privacy_result"]["anonymized"])
+
+    def test_api_v1_edge_quantize(self):
+        resp = self.client.get("/api/v1/edge/quantize?precision=INT8")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["active_profile"]["target_precision"], "INT8")
+        self.assertIn("Raspberry_Pi_5_Hailo_TPU", data["edge_hardware_benchmarks"])
+
 
 if __name__ == "__main__":
     unittest.main()
