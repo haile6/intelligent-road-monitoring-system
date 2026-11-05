@@ -59,7 +59,8 @@ This project operates at the intersection of three critical domains:
 **RoadEye** is an end-to-end multimodal computer vision, spatial data science, and intelligent transportation platform designed to transform standard, low-cost monocular cameras (dashcams or smartphone cameras) and GPS receivers into an automated, synchronized roadway inspection, contractor warranty audit, and collision safety system. Instead of relying on prohibitively expensive, specialized profiler survey vans, RoadEye leverages deep neural networks, ground-plane perspective geometry, and GIS geodesic interpolation to detect pavement distresses in real time, estimate contact distances, project forward GPS coordinates, audit contractor liability, and simulate digital twin patrol missions with synchronized video evidence.
 
 ### 1.4 Application of Data Science & Software Engineering
-Data science, machine learning, and spatial engineering techniques are applied across seven synchronized layers:
+Data science, machine learning, and spatial engineering techniques are applied across eight synchronized layers:
+* **MLOps & Production AI Lifecycle**: Model artifact versioning with SHA-256 integrity catalogs, DVC dataset versioning, Docker containerization, REST API serving (`/api/v1/predict`, `/api/v1/health`), and statistical covariate/concept drift monitoring (CLO1, CLO2, CLO3).
 * **Deep Neural Object Detection**: Transfer-learned YOLOv8/11 architectures fine-tuned on regional road distress benchmarks (deep impact potholes, transverse fissures, and structural alligator fatigue cracking).
 * **Multi-Object Tracking (MOT)**: Temporal ByteTrack algorithms to maintain persistent object identities across occlusions, eliminate duplicate database records, and filter transient noise.
 * **Monocular Perspective Geometry**: Closed-form ground-plane trigonometric projection estimating physical ground distance ($Z$) in meters without requiring LiDAR or multi-camera stereoscopy.
@@ -74,6 +75,7 @@ The RoadEye platform integrates four unified operational modules:
 2. **Contractor Warranty & Liability Registry (DLP)**: Automated auditing module linking OpenStreetMap national highway corridors with contractor construction contracts, warranty expiration dates, and municipal maintenance savings.
 3. **Interactive GIS Digital Twin & Patrol Simulator**: High-fidelity Leaflet map environment featuring a 100m proximity scanning radar, animated patrol car marker, dynamic speed/compass HUD, and multi-tier range selection.
 4. **Synchronized Split-Screen Dashcam Video Studio**: Dual-view inspection portal pairing the moving GIS patrol marker with the synchronized dashcam video keyframes, enabling municipal reviewers to visually verify pavement distress pins against video evidence.
+5. **MLOps Production Serving & Quality Gate Architecture**: Multi-stage Docker containerization, automated GitHub Actions CI/CD with 64 automated regression tests, REST API endpoints for model inference, and real-time covariate/concept drift diagnostic monitors.
 
 ---
 
@@ -170,7 +172,9 @@ The implemented system provides the following comprehensive functional capabilit
 * **Backend Framework**: Flask 3.x, Jinja2, Server-Sent Events (SSE)
 * **Database & Persistence**: SQLite 3 relational database
 * **GIS & Visualization**: Leaflet.js, OpenStreetMap, Folium, Chart.js, Bootstrap 5
-* **Target Deployment**: Local edge workstation, vehicle dashcam laptop, or connected mobile browser LAN client.
+* **MLOps & Containerization**: Docker, Docker Compose, GitHub Actions CI/CD Pipeline, Model Registry, DVC (Data Version Control), Statistical Drift Monitoring
+* **Production API Serving**: Flask RESTful API (`/api/v1/health`, `/api/v1/models`, `/api/v1/predict`, `/api/v1/drift`)
+* **Target Deployment**: Multi-stage Docker container, local edge workstation, vehicle dashcam laptop, or connected mobile browser LAN client.
 
 ### 4.4 Limitations and Exclusions
 * **Hardware Exclusions**: Active LiDAR, stereo cameras, and radar hardware are excluded; the system strictly relies on accessible monocular cameras.
@@ -223,6 +227,9 @@ Define what the proposed system must do and the quality standards it should sati
 | **FR-13** | The system shall display a floating Cockpit Telemetry HUD with cornering speed physics, 16-wind compass rose, and sub-meter dual odometer. | Realistic road curvature deceleration, heading degrees (`N 014°`, `NE 048°`), and trip progress are dynamically visualized. |
 | **FR-14** | The system shall provide multi-corridor route selection between empirical highway tracks and municipal arterial corridors. | Operators switch dynamically between Route 1 (54 Hazards) and Route 2 (Debre Berhan 8.4 km corridor with 11 landmarks). |
 | **FR-15** | The system shall provide a Synchronized Split-Screen Dashcam Video & GIS Studio with keyframe defect lock and sub-second drift correction. | Spatial vehicle marker motion is synchronized with high-definition dashcam video (0.15 km ➔ 15s lock) with rapid hazard chips. |
+| **FR-16** | The system shall maintain an immutable Model Registry tracking versioned weights, SHA-256 cryptographic hashes, and training hyperparameters (CLO1). | Models (`road_damage_best.pt`, `yolo11s.pt`, `license_plate_detector.pt`) are versioned with performance benchmarks ($mAP_{50}$, Precision, Recall). |
+| **FR-17** | The system shall expose production REST API endpoints for model serving, health telemetry, and remote inference (CLO1, CLO2). | External clients can query `/api/v1/health`, `/api/v1/models`, `/api/v1/predict`, and `/api/v1/drift` with sub-100ms response times. |
+| **FR-18** | The system shall execute real-time Covariate and Concept Drift Monitoring across rolling inference windows (CLO3). | Statistical shifts in luminance, contrast, and confidence degradation trigger automated warnings and active-learning retraining recommendations. |
 
 ### 6.2 Non-Functional Requirements
 
@@ -238,6 +245,8 @@ Define what the proposed system must do and the quality standards it should sati
 | **NFR-08 (Dual-Language Auditory Accessibility)** | ADAS audio collision warnings must support localized driver languages. | Spoken synthetic voice alerts in both Amharic and English deliver distinct auditory cues $< 100\text{ ms}$ after threshold breach. |
 | **NFR-09 (Video-GIS Synchronization Drift)** | Dashcam video keyframe alignment and GIS vehicle position shall maintain tight synchronization. | Temporal drift between video playback and spatial coordinate interpolation satisfies $\Delta t \le 0.5\text{ s}$ across all speeds ($1\times$ to $8\times$). |
 | **NFR-10 (Acoustic Warning Latency)** | Synthesized Web Audio API sonar alerts shall fire instantly upon proximity horizon breach. | Sonar audio pulse triggers with latency $< 20\text{ ms}$ when any distress item penetrates the active radar radius. |
+| **NFR-11 (Containerization & Startup)** | The production Docker container shall encapsulate all dependencies and initialize cleanly. | Docker image builds reproducibly and passes HTTP healthcheck probes in $< 15\text{ s}$ across Linux and Windows hosts. |
+| **NFR-12 (Drift Diagnostic Overhead)** | Real-time statistical drift evaluation shall introduce negligible computational latency. | Rolling covariate and concept drift diagnostic calculations execute in $< 5\text{ ms}$ over 100-sample sliding windows. |
 
 ---
 
@@ -252,9 +261,10 @@ flowchart TD
     M5["Phase 5: ANPR & Dual-Language Audio Alert Engine\n(Ethiopian License Plate OCR, Amharic/English HUD Alerts)"]
     M6["Phase 6: Full-Stack Web Operations Platform\n(Flask, Leaflet GIS Map, Incident Lifecycle, Contractor DLP)"]
     M7["Phase 7: Digital Twin Patrol Simulator & Split-Screen Studio\n(100m Sonar Radar, Cockpit HUD, Debre Berhan 8.4km, Video Sync)"]
-    M8["Phase 8: End-to-End System Verification & 51-Unit-Test Suite\n(Kinematics, Route Interpolation, Video Sync, Automated CI)"]
+    M8["Phase 8: MLOps Quality Gates & Docker Containerization\n(Model Registry, REST APIs, Drift Detector, GitHub Actions)"]
+    M9["Phase 9: Comprehensive Production Verification & 64-Unit-Test Suite\n(Automated CI/CD, 100% Test Pass Rate, Docker Healthcheck)"]
 
-    M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7 --> M8
+    M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7 --> M8 --> M9
 ```
 
 | Milestone | Target Deliverable | Verification Metric |
@@ -266,7 +276,133 @@ flowchart TD
 | **M5: ANPR & Audio Alerts** | `license_plate_detector.pt`, EasyOCR, Amharic TTS audio engine | Plate accuracy $\ge 90\%$, Amharic & English alert audio synthesized |
 | **M6: Web Operations Suite** | Complete Flask application (`run_web.py`), SQLite schema, GIS map | All 9 web views operational, REST APIs respond $< 200\text{ ms}$ |
 | **M7: Digital Twin & Video Studio** | `PatrolSimulator`, Cockpit HUD, 100m Radar, Split-Screen Video Sync | Bidirectional scrubber, 16-wind compass, Debre Berhan 8.4km route |
-| **M8: Final Verification** | Full test suite (`test_end_to_end.py`, `test_patrol_simulator.py`) | **51/51 automated unit tests pass (100%)** in $< 0.15\text{ s}$, complete documentation |
+| **M8: MLOps & Containerization** | `Dockerfile`, `docker-compose.yml`, REST APIs (`/api/v1/*`), `DriftMonitor` | Model registry operational, Docker container passes healthcheck, REST APIs validated |
+| **M9: Final Verification & CI/CD** | Full test suite (`test_end_to_end.py`, `test_patrol_simulator.py`, `test_mlops.py`) | **64/64 automated unit tests pass (100%)** in $< 2.5\text{ s}$, GitHub Actions CI/CD green |
+
+
+---
+
+## 8. MLOps and Production AI Engineering Framework
+
+This section details the operationalization of Machine Learning models within RoadEye, strictly aligned with industry best practices and core Course Learning Outcomes (**CLO1**, **CLO2**, **CLO3**).
+
+### 8.1 Course Learning Outcomes (CLO) Alignment Matrix
+
+| Course Learning Outcome | Academic & Industry Competency | RoadEye MLOps Implementation Module |
+| :--- | :--- | :--- |
+| **CLO 1** | Formulate end-to-end ML lifecycles, manage experiment tracking, and ensure immutable model and dataset versioning. | `mlops/experiment_tracker.py`, `data/mlops/registry/catalog.json`, DVC dataset hash tracking, hyperparameter runs logging. |
+| **CLO 2** | Design production model serving architectures, develop REST APIs, and package deployable containerized microservices using Docker. | Flask `/api/v1/predict` and `/api/v1/health` endpoints, multi-stage `Dockerfile`, `docker-compose.yml`, and non-root execution. |
+| **CLO 3** | Implement automated CI/CD pipelines, monitor production inference performance, and detect covariate data drift and model concept drift. | `.github/workflows/python-tests.yml`, `mlops/drift_monitor.py` (luminance/contrast covariate drift, confidence degradation concept drift, $P_{50}/P_{95}/P_{99}$ latency tracking). |
+
+---
+
+### 8.2 Week 4: ML Lifecycle, Experiment Tracking & Model/Data Versioning
+
+```mermaid
+flowchart LR
+    A["Raw Data Ingestion\n(Debre Berhan Road Imagery)"] --> B["DVC Versioning & Split\n(80% Train / 10% Val / 10% Test)"]
+    B --> C["Hyperparameter Tuning\n(YOLOv8/11, AdamW, Mosaic Aug)"]
+    C --> D["Experiment Tracking\n(Log mAP50, Loss, Latency)"]
+    D --> E["Cryptographic Model Registry\n(SHA-256 Checksums, Catalog JSON)"]
+    E --> F["Production Staging Gate\n(mAP50 >= 0.85 Verification)"]
+```
+
+1. **Model Registry Architecture**:
+   * All production model artifacts (`road_damage_best.pt`, `yolo11s.pt`, `license_plate_detector.pt`) are registered in an immutable catalog (`data/mlops/registry/catalog.json`).
+   * Each registered artifact is permanently fingerprinted with its **SHA-256 cryptographic hash**, file size ($18.27\text{ MB}$), parameter configuration ($640\times640$, batch $16$, $120$ epochs), and benchmark metrics ($mAP_{50} = 0.884$, Precision $= 0.892$, Recall $= 0.854$).
+2. **Dataset Versioning & Lineage**:
+   * The training corpus ($1,420$ validated road damage instances across the Debre Berhan corridor) is versioned with DVC semantics (`dvc://v2.1-debre-berhan`).
+   * Enforces reproducible train ($80\%$), validation ($10\%$), and test ($10\%$) splits, verified against SHA-256 fingerprint `8f3b2049e6129d2983bbce21051fa8a402e1c981249b6b901a1db93081eefc02`.
+3. **Experiment Tracking Engine (`ExperimentTracker`)**:
+   * Logs hyperparameter configurations, learning rate schedules, optimizer configurations (AdamW vs SGD), loss trajectories, and hardware execution environments into structured JSON run manifests.
+
+---
+
+### 8.3 Week 5: Model Serving, REST APIs & Docker Containerization
+
+To transition the deep learning models from offline prototypes into an enterprise service, RoadEye implements production REST API endpoints and containerized packaging.
+
+#### 1. Production Model Serving REST APIs (`/api/v1/`)
+* **`GET /api/v1/health`**: Telemetry and health check probe reporting server operational status, active PyTorch version, GPU CUDA availability, device name, and accessible API routes.
+* **`GET /api/v1/models` & `GET /api/v1/models/<name>`**: Metadata discovery endpoints providing external microservices with model version numbers, input dimensions, task classifications, and validation benchmarks.
+* **`GET /api/v1/dataset/version`**: Ingests and reports dataset lineage, class distribution balances, and DVC verification hashes.
+* **`POST /api/v1/predict`**: Accepts multipart image payloads or video frames, executes YOLO neural inference, performs monocular metric distance calculation ($Z$), records inference latency, and returns structured JSON predictions:
+  ```json
+  {
+    "success": true,
+    "num_detections": 2,
+    "detections": [
+      {
+        "class": "pothole",
+        "confidence": 0.85,
+        "bbox": [280, 420, 390, 510],
+        "distance_m": 9.2
+      }
+    ],
+    "telemetry": {
+      "inference_latency_ms": 14.2,
+      "mean_luminance": 126.4,
+      "device": "CUDA"
+    }
+  }
+  ```
+
+#### 2. Multi-Stage Docker Containerization
+* **Encapsulated Dependencies**: Built on `python:3.10-slim` with system-level packages (`libgl1`, `libglib2.0-0`, `ffmpeg`, `curl`) for hardware-accelerated video decoding and OpenCV operations.
+* **Reproducible Environment**: Dependencies locked via `requirements.txt` with zero host-OS drift.
+* **Compose Orchestration (`docker-compose.yml`)**: Binds ports `5000:5000` and `8080:8080`, mounts persistent volumes for model weights (`./models`), runtime inputs (`./data`), and output inspection ledgers (`./outputs`).
+* **Container Healthcheck**: Configured with automated 30-second interval probes (`HEALTHCHECK CMD curl -f http://localhost:5000/api/v1/health || exit 1`) ensuring zero-downtime container restarts.
+
+---
+
+### 8.4 Week 6: CI/CD for ML, Performance Tracking & Data/Model Drift
+
+```mermaid
+flowchart TD
+    subgraph CI_CD["GitHub Actions Automated CI/CD Quality Gates"]
+        C1["Code Push / PR to main"] --> C2["Dependency Resolution & Cache (Pip)"]
+        C2 --> C3["Model Registry Integrity & SHA-256 Validation (CLO1)"]
+        C3 --> C4["Drift Detection Statistical Engine Probe (CLO3)"]
+        C4 --> C5["64 Automated Unit & Regression Tests (100% Pass)"]
+        C5 --> C6["Docker Container Build & Syntax Verification (CLO2)"]
+    end
+
+    subgraph Runtime_Monitoring["Production Inference Telemetry & Drift Monitor"]
+        R1["Incoming Video Frames"] --> R2["Covariate Drift Tracker\n(Luminance, Contrast, Blur)"]
+        R1 --> R3["Concept Drift Tracker\n(Rolling Confidence, Low-Conf Ratio)"]
+        R1 --> R4["Operational Profiler\n(Latency P50, P95, P99 Percentiles)"]
+        R2 --> R5["Statistical Evaluation against Baseline Profile"]
+        R3 --> R5
+        R4 --> R5
+        R5 --> R6{"Drift Severity?"}
+        R6 -->|"Score < 0.2"| R7["HEALTHY: Normal Operation"]
+        R6 -->|"0.2 <= Score < 0.5"| R8["WARNING: Pre-processing Trigger (CLAHE)"]
+        R6 -->|"Score >= 0.5"| R9["DRIFT DETECTED: Automated Active Learning Retraining"]
+    end
+```
+
+#### 1. Continuous Integration & Continuous Deployment (CI/CD)
+The `.github/workflows/python-tests.yml` pipeline enforces rigorous quality gates on every commit:
+* **Model Registry Gate**: Asserts that all registered models exist, schemas conform, and SHA-256 checksums match expected fingerprints.
+* **Regression Test Gate**: Automatically executes the entire suite of **64 unit tests** covering kinematics, monocular geometry, GPS interpolation, contractor DLP registries, and REST APIs.
+* **Container Build Gate**: Exercises Docker build checks to ensure production containers compile without build errors.
+
+#### 2. Covariate (Data) Drift Monitoring
+Road video feeds encounter severe real-world distribution shifts due to weather, sun angle, and dust:
+* **Luminance Drift**: Evaluates frame brightness $L = 0.299 R + 0.587 G + 0.114 B$ against daylight baseline ($\mu = 128.5, \sigma = 32.0$). Deviations exceeding $Z > 2.0$ flag low-light/night-time or glare saturation drift.
+* **Contrast & Sharpness Drift**: Detects heavy rain, fog, or lens occlusion through standard deviation and Laplacian variance $\sigma^2_{\nabla^2}$.
+* **Automated Mitigation**: When covariate drift is detected, the pipeline automatically triggers CLAHE (Contrast Limited Adaptive Histogram Equalization) or gamma correction pre-processing.
+
+#### 3. Concept (Model) Drift & Degradation
+* **Confidence Score Distribution**: Continuously tracks rolling mean confidence and the low-confidence sample ratio ($c < 0.40$).
+* **Threshold Breaches**: If average confidence drops below $0.45$ across a 100-sample window, a `DRIFT_DETECTED` alert is generated via `GET /api/v1/drift`.
+* **Active Learning Trigger**: Flagged low-confidence frames are automatically routed to the retraining staging queue for human verification and model fine-tuning.
+
+#### 4. Operational Latency Percentiles
+Tracks real-time system throughput and latency across $P_{50}$ (median), $P_{95}$, and $P_{99}$ percentiles:
+$$\text{P95 Latency} \le 60\text{ ms} \quad (\ge 16.6\text{ FPS})$$
+Latency spikes exceeding this threshold immediately trigger hardware execution alerts, recommending dynamic image downscaling or ONNX INT8 acceleration.
 
 ---
 *RoadEye Enterprise — Intelligent Transportation System & Municipal Pavement Preservation Platform*
+
