@@ -360,13 +360,10 @@
                 </div>
                 <div class="card-footer py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary" style="background: var(--color-surface-elevated); border-top: 1px solid var(--color-border);">
                     <div class="d-flex align-items-center gap-3">
-                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #0284c7;"></span><b>Vehicle Position</b> (Live)</span>
+                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #0284c7;"></span><b>Vehicle</b></span>
                         <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #dc2626;"></span><b>Critical Pothole</b></span>
                         <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #f59e0b;"></span><b>Alligator Crack</b></span>
                         <span><span class="d-inline-block me-1" style="width: 14px; height: 3px; background: #2563eb; vertical-align: middle;"></span><b>GPS Corridor</b></span>
-                    </div>
-                    <div>
-                        <span class="font-mono"><i class="bi bi-info-circle me-1 text-primary"></i>Click any hazard marker to jump video directly to timestamp</span>
                     </div>
                 </div>
             </div>
@@ -439,32 +436,28 @@
                         <div class="card-body p-3">
                             <div class="telemetry-grid">
                                 <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Vehicle Speed &amp; Source</div>
+                                    <div class="telemetry-item-label">Vehicle Speed</div>
                                     <div class="telemetry-item-value d-flex align-items-baseline gap-1">
                                         <span id="tel-speed-val">65.0</span> <small style="font-size: 11px;">km/h</small>
                                     </div>
-                                    <div class="metadata-text" id="tel-speed-src">Source: GPS Corridor Track (1.0 Hz)</div>
                                 </div>
                                 <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Nearest Hazard Distance</div>
+                                    <div class="telemetry-item-label">Distance</div>
                                     <div class="telemetry-item-value d-flex align-items-baseline gap-1">
-                                        <span id="tel-dist-val" class="text-primary">6.0</span> <small style="font-size: 11px;">metres</small>
+                                        <span id="tel-dist-val" class="text-primary">6.0</span> <small style="font-size: 11px;">m</small>
                                     </div>
-                                    <div class="metadata-text">Method: Perspective Geometry</div>
                                 </div>
                                 <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Time-to-Collision (TTC)</div>
+                                    <div class="telemetry-item-label">TTC</div>
                                     <div class="telemetry-item-value d-flex align-items-baseline gap-1">
-                                        <span id="tel-ttc-val" class="text-danger">0.33</span> <small style="font-size: 11px;">seconds</small>
+                                        <span id="tel-ttc-val" class="text-danger">0.33</span> <small style="font-size: 11px;">s</small>
                                     </div>
-                                    <div class="metadata-text">Window: Critical Braking Envelope</div>
                                 </div>
                                 <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Current Risk State</div>
+                                    <div class="telemetry-item-label">Risk Level</div>
                                     <div class="telemetry-item-value">
                                         <span class="badge badge-risk-danger" id="tel-risk-val" style="font-size: 12px !important;">IMMEDIATE DANGER</span>
                                     </div>
-                                    <div class="metadata-text" id="tel-risk-sub">In direct vehicle corridor</div>
                                 </div>
                                 <div class="telemetry-item" style="grid-column: span 2;">
                                     <div class="d-flex justify-content-between align-items-center">

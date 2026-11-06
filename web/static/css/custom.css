@@ -665,11 +665,11 @@ main.content-area {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
-    padding: 14px 16px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 98px;
+    min-height: 76px;
     position: relative;
     overflow: hidden;
     transition: transform var(--anim-fast), border-color var(--anim-fast), box-shadow var(--anim-fast);

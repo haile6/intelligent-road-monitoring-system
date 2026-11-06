@@ -94,19 +94,6 @@
         </div>
     </div>
 
-    <!-- Legal Advisory Callout Notice -->
-    <div class="panel-card p-3 mb-4" style="background: var(--bg-surface); border-left: 4px solid var(--success) !important;">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <i data-lucide="shield-check" style="color:var(--success); width:20px; height:20px;"></i>
-                <span class="small text-secondary">
-                    <strong class="text-white">Defects Liability Period (DLP) Enforcement:</strong> Under Ethiopian Roads Administration (ERA) standard FIDIC Clause 11, road defects occurring during active warranty must be rectified by the responsible contractor at zero cost to the government.
-                </span>
-            </div>
-            <span class="badge-status badge-status-success font-mono" style="font-size: 10px;">LEGAL WARRANTY ACTIVE</span>
-        </div>
-    </div>
-
     <!-- ============================================================ -->
     <!-- SUMMARY KPI ROW                                              -->
     <!-- ============================================================ -->
@@ -118,37 +105,33 @@
                 <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
             </div>
             <div class="kpi-number-display">{{ analytics.total_contractors }}</div>
-            <div class="kpi-subtext">36 Corridors ({{ analytics.total_roads_km }} km)</div>
         </div>
 
         <!-- KPI 2: Active Warranties -->
         <div class="kpi-metric-card accent-success">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-success">Active Warranties (DLP)</span>
+                <span class="kpi-label-text text-success">Active Warranties</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="shield-check"></i></div>
             </div>
             <div class="kpi-number-display text-success">{{ analytics.active_warranties }}</div>
-            <div class="kpi-subtext">Contractor Liability Enforced</div>
         </div>
 
         <!-- KPI 3: Defects Under Warranty -->
         <div class="kpi-metric-card accent-danger">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-danger">Warranty Defect Claims</span>
+                <span class="kpi-label-text text-danger">Warranty Claims</span>
                 <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
             </div>
             <div class="kpi-number-display text-danger">{{ analytics.total_defects_in_warranty }}</div>
-            <div class="kpi-subtext">FIDIC Clause 11 eligible</div>
         </div>
 
         <!-- KPI 4: Public Fund Savings -->
         <div class="kpi-metric-card accent-warning">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-warning">Public Funds Protected</span>
+                <span class="kpi-label-text text-warning">Liabilities Transferred</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="coins"></i></div>
             </div>
             <div class="kpi-number-display text-white" style="font-size:20px;">{{ "{:,.0f}".format(analytics.estimated_contractor_savings_etb) }} <small class="text-secondary fs-6">ETB</small></div>
-            <div class="kpi-subtext">Transferred to contractor liabilities</div>
         </div>
     </div>
 
@@ -160,9 +143,8 @@
             <div>
                 <div class="panel-title">
                     <i data-lucide="building-2" style="color:var(--accent-primary);"></i>
-                    <span>Contractor Highway Corridors &amp; Warranty Registry</span>
+                    <span>Contractor Directory</span>
                 </div>
-                <div class="text-secondary small">Comprehensive registry of construction firms, GPS boundaries, warranty liabilities, and quality performance.</div>
             </div>
 
             <!-- Table Filter Controls -->
@@ -173,18 +155,8 @@
                 </div>
                 <select id="warrantyFilterSelect" onchange="filterContractorsTable()" class="form-select form-select-sm" style="width: 170px;">
                     <option value="ALL">All Warranties</option>
-                    <option value="ACTIVE">Active (Under Guarantee)</option>
-                    <option value="EXPIRED">Expired (Municipal)</option>
-                </select>
-            </div>
-        </div>
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" id="contractorSearchInput" onkeyup="filterContractorsTable()" class="form-control border-start-0" placeholder="Search contractor or road...">
-                </div>
-                <select id="warrantyFilterSelect" onchange="filterContractorsTable()" class="form-select form-select-sm" style="width: 170px;">
-                    <option value="ALL">All Warranties</option>
-                    <option value="ACTIVE">Active (Under Guarantee)</option>
-                    <option value="EXPIRED">Expired (Municipal)</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="EXPIRED">Expired</option>
                 </select>
             </div>
         </div>

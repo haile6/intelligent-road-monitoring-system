@@ -36,7 +36,6 @@
     <!-- 2. SUBSYSTEM STATUS TILES (8 MONITORED COMPONENTS)           -->
     <!-- ============================================================ -->
     <div class="kpi-row-grid mb-4">
-
         <!-- 1. Video Input Stream -->
         <div class="kpi-metric-card {% if health.video_input.ok %}accent-success{% else %}accent-danger{% endif %}">
             <div class="kpi-top-meta">
@@ -48,7 +47,6 @@
             <div class="kpi-number-display" style="font-size: 16px; color:{% if health.video_input.ok %}var(--success){% else %}var(--danger){% endif %};">
                 {{ health.video_input.status }}
             </div>
-            <div class="kpi-subtext font-mono">{{ health.video_input.file }}</div>
         </div>
 
         <!-- 2. AI Neural Models -->
@@ -62,13 +60,12 @@
             <div class="kpi-number-display" style="font-size: 16px; color:{% if health.models.ok %}var(--success){% else %}var(--warning){% endif %};">
                 {{ health.models.status }}
             </div>
-            <div class="kpi-subtext">YOLOv11s + YOLO11s MOT</div>
         </div>
 
         <!-- 3. SQLite Database -->
         <div class="kpi-metric-card {% if health.database.ok %}accent-success{% else %}accent-danger{% endif %}">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">3. SQLite Database</span>
+                <span class="kpi-label-text">3. Database</span>
                 <div class="kpi-icon-pill" style="color:{% if health.database.ok %}var(--success){% else %}var(--danger){% endif %};">
                     <i data-lucide="database"></i>
                 </div>
@@ -76,13 +73,12 @@
             <div class="kpi-number-display" style="font-size: 16px; color:{% if health.database.ok %}var(--success){% else %}var(--danger){% endif %};">
                 {{ health.database.status }}
             </div>
-            <div class="kpi-subtext font-mono">{{ health.database.incident_records }} hazards &bull; {{ health.database.plate_records }} plates</div>
         </div>
 
         <!-- 4. GPS Telemetry Provider -->
         <div class="kpi-metric-card {% if health.gps.ok %}accent-success{% else %}accent-warning{% endif %}">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">4. GPS Geodesics</span>
+                <span class="kpi-label-text">4. GPS</span>
                 <div class="kpi-icon-pill" style="color:{% if health.gps.ok %}var(--success){% else %}var(--warning){% endif %};">
                     <i data-lucide="satellite"></i>
                 </div>
@@ -90,55 +86,49 @@
             <div class="kpi-number-display" style="font-size: 16px; color:{% if health.gps.ok %}var(--success){% else %}var(--warning){% endif %};">
                 {{ health.gps.status }}
             </div>
-            <div class="kpi-subtext font-mono">1.0 Hz LERP Synchronized</div>
         </div>
 
         <!-- 5. ANPR / OCR Engine -->
         <div class="kpi-metric-card accent-success">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">5. ANPR Engine</span>
+                <span class="kpi-label-text">5. ANPR</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="car"></i></div>
             </div>
             <div class="kpi-number-display" style="font-size: 16px; color:var(--success);">
                 {{ health.anpr.status }}
             </div>
-            <div class="kpi-subtext font-mono">{{ health.anpr.plates_indexed }} optical events</div>
         </div>
 
         <!-- 6. Auditory Subsystem -->
         <div class="kpi-metric-card accent-success">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">6. Auditory Alert</span>
+                <span class="kpi-label-text">6. Audio</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="volume-2"></i></div>
             </div>
             <div class="kpi-number-display" style="font-size: 16px; color:var(--success);">Operational</div>
-            <div class="kpi-subtext">Amharic &amp; English Synthetic Voice</div>
         </div>
 
         <!-- 7. Disk Storage Usage -->
         <div class="kpi-metric-card accent-primary">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">7. Disk Storage</span>
+                <span class="kpi-label-text">7. Storage</span>
                 <div class="kpi-icon-pill"><i data-lucide="hard-drive"></i></div>
             </div>
             <div class="kpi-number-display" style="font-size: 16px;">
                 {{ health.storage.total_mb }} MB
             </div>
-            <div class="kpi-subtext font-mono">Data: {{ health.storage.data_dir_mb }} MB &bull; Out: {{ health.storage.outputs_dir_mb }} MB</div>
         </div>
 
         <!-- 8. Pipeline Background Queue -->
         <div class="kpi-metric-card accent-indigo">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">8. Active Queue</span>
+                <span class="kpi-label-text">8. Jobs Queue</span>
                 <div class="kpi-icon-pill"><i data-lucide="activity"></i></div>
             </div>
             <div class="kpi-number-display" style="font-size: 16px;">
-                {{ health.active_pipeline_jobs }} Running
+                {{ health.active_pipeline_jobs }}
             </div>
-            <div class="kpi-subtext font-mono">Worker threads healthy</div>
         </div>
-
     </div>
 
     <!-- ============================================================ -->
@@ -148,6 +138,9 @@
         <div class="panel-header py-2.5">
             <div class="panel-title">
                 <i data-lucide="server" style="color:var(--accent-primary);"></i>
+                REST API Directory
+            </div>
+        </div>
                 Production REST API Gateway Endpoints (`/api/v1/*`)
             </div>
             <span class="text-secondary font-mono" style="font-size:11px;">v2.4-ITS Microservice Architecture</span>

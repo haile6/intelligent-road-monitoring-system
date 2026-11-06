@@ -30,38 +30,34 @@
     <div class="kpi-row-grid mb-4">
         <div class="kpi-metric-card accent-primary">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Total Optical Scan Events</span>
+                <span class="kpi-label-text">Total Scans</span>
                 <div class="kpi-icon-pill"><i data-lucide="camera"></i></div>
             </div>
             <div class="kpi-number-display">{{ plates|length }}</div>
-            <div class="kpi-subtext">Total detection &amp; OCR frames processed</div>
         </div>
 
         <div class="kpi-metric-card accent-success">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-success">Successful OCR Readings</span>
+                <span class="kpi-label-text text-success">Resolved Plates</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
             </div>
             <div class="kpi-number-display text-success">{{ ocr_read|length }}</div>
-            <div class="kpi-subtext">Plates resolved with valid registration strings</div>
         </div>
 
         <div class="kpi-metric-card accent-indigo">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Unique Registrations</span>
+                <span class="kpi-label-text">Registrations</span>
                 <div class="kpi-icon-pill"><i data-lucide="file-text"></i></div>
             </div>
             <div class="kpi-number-display">{{ unique_vehicles|length }}</div>
-            <div class="kpi-subtext">Distinct vehicle numbers logged</div>
         </div>
 
         <div class="kpi-metric-card accent-warning">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-warning">Unique Tracked Vehicles</span>
+                <span class="kpi-label-text text-warning">Tracked Vehicles</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="truck"></i></div>
             </div>
             <div class="kpi-number-display" style="color:var(--warning);">{{ unique_vehicles|length }}</div>
-            <div class="kpi-subtext">Multi-vehicle tracking IDs confirmed</div>
         </div>
     </div>
 
@@ -125,10 +121,9 @@
                                     <td class="font-mono fw-bold text-accent">#{{ v.vehicle_id }}</td>
                                     <td>
                                         <div class="font-mono fw-bold text-white fs-6">{{ v.plate_text }}</div>
-                                        <small class="text-secondary font-amharic">ኢትዮጵያ &bull; የሰሌዳ ቁጥር</small>
                                     </td>
                                     <td>
-                                        <span class="badge-status badge-status-info">Federal / Regional</span>
+                                        <span class="badge-status badge-status-info">ET-Standard</span>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-1.5">

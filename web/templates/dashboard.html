@@ -68,10 +68,6 @@
                 <div class="kpi-icon-pill"><i data-lucide="cone"></i></div>
             </div>
             <div class="kpi-number-display">{{ stats.total_hazards or stats.total_incidents or 0 }}</div>
-            <div class="kpi-subtext">
-                <span class="text-danger fw-bold">{{ stats.potholes or 0 }}</span> Potholes &bull;
-                <span class="text-warning fw-bold">{{ stats.cracks or 0 }}</span> Cracks
-            </div>
         </a>
 
         <!-- 2. Immediate Danger -->
@@ -81,33 +77,24 @@
                 <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
             </div>
             <div class="kpi-number-display text-danger">{{ stats.immediate_danger or 0 }}</div>
-            <div class="kpi-subtext">
-                TTC &le; 1.8s in travel corridor
-            </div>
         </a>
 
         <!-- 3. Warning / Caution -->
         <a href="{{ url_for('incidents_view') }}?risk=CAUTION" class="kpi-metric-card accent-warning text-decoration-none">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-warning">Warning / Caution</span>
+                <span class="kpi-label-text text-warning">Warning</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="alert-triangle"></i></div>
             </div>
             <div class="kpi-number-display" style="color:var(--warning);">{{ stats.warning_caution or stats.caution_count or 0 }}</div>
-            <div class="kpi-subtext">
-                TTC &le; 6.0s &bull; Approaching hazards
-            </div>
         </a>
 
         <!-- 4. Safe / Monitoring -->
         <a href="{{ url_for('incidents_view') }}?risk=SAFE" class="kpi-metric-card accent-success text-decoration-none">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text text-success">Safe / Monitoring</span>
+                <span class="kpi-label-text text-success">Safe</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
             </div>
             <div class="kpi-number-display text-success">{{ stats.safe_count or 0 }}</div>
-            <div class="kpi-subtext">
-                Off-corridor / Passing clear
-            </div>
         </a>
 
         <!-- 5. Corridor Coverage -->
@@ -117,9 +104,6 @@
                 <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
             </div>
             <div class="kpi-number-display">8.40 <small class="text-secondary fs-6 fw-normal">km</small></div>
-            <div class="kpi-subtext">
-                Debre Berhan OSM Route A2
-            </div>
         </a>
 
         <!-- 6. Active Work Orders -->
@@ -129,21 +113,15 @@
                 <div class="kpi-icon-pill"><i data-lucide="clipboard-check"></i></div>
             </div>
             <div class="kpi-number-display">{{ stats.active_work_orders or stats.pending_count or stats.total_incidents or 0 }}</div>
-            <div class="kpi-subtext">
-                Pending maintenance dispatch
-            </div>
         </a>
 
         <!-- 7. Contractor DLP Warranties -->
         <a href="{{ url_for('contractors_view') }}" class="kpi-metric-card accent-warning text-decoration-none">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">DLP Warranties</span>
+                <span class="kpi-label-text">Warranties</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="shield-alert"></i></div>
             </div>
             <div class="kpi-number-display" style="color:var(--warning);">{{ stats.active_warranties or 27 }} <small class="text-secondary fs-6 fw-normal">/ {{ stats.total_contractors or 36 }}</small></div>
-            <div class="kpi-subtext">
-                Active FIDIC liability corridors
-            </div>
         </a>
 
     </div>
@@ -175,13 +153,13 @@
 
             <div class="d-flex align-items-center gap-2">
                 <a href="{{ url_for('health_view') }}" class="btn btn-sm btn-outline-secondary">
-                    <i data-lucide="activity" style="width:13px; height:13px;"></i> Health Telemetry
+                    <i data-lucide="activity" style="width:13px; height:13px;"></i> Health
                 </a>
                 <a href="{{ url_for('calibration_view') }}" class="btn btn-sm btn-outline-secondary">
                     <i data-lucide="sliders" style="width:13px; height:13px;"></i> Calibration
                 </a>
                 <a href="{{ url_for('api_v1_health') }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                    <i data-lucide="terminal" style="width:13px; height:13px;"></i> REST API
+                    <i data-lucide="terminal" style="width:13px; height:13px;"></i> API
                 </a>
             </div>
         </div>
@@ -201,9 +179,9 @@
                         Corridor Map
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge-status badge-status-info font-mono" style="font-size:10px;">54 HAZARDS GEOTAGGED</span>
+                        <span class="badge-status badge-status-info font-mono" style="font-size:10px;">54 HAZARDS</span>
                         <a href="{{ url_for('map_view') }}" class="btn btn-sm btn-outline-primary" style="font-size: 11px;">
-                            <i data-lucide="maximize-2" style="width:12px; height:12px;"></i> Expand Full GIS Map
+                            <i data-lucide="maximize-2" style="width:12px; height:12px;"></i> Expand
                         </a>
                     </div>
                 </div>
@@ -211,8 +189,8 @@
                     <div id="corridorMiniMap"></div>
                 </div>
                 <div class="panel-footer d-flex justify-content-between align-items-center font-mono">
-                    <span>Survey Route: Debre Berhan Center &rarr; Northern Outpost (8.40 km)</span>
-                    <span class="text-secondary">GPS Trajectory: Real LERP Synchronized</span>
+                    <span>Route A2 &bull; 8.40 km</span>
+                    <span class="text-secondary">GPS Synced</span>
                 </div>
             </div>
         </div>
@@ -223,9 +201,8 @@
                 <div class="panel-header">
                     <div class="panel-title">
                         <i data-lucide="pie-chart" style="color:var(--warning);"></i>
-                        Operational Risk &amp; Hazard Breakdown
+                        Severity Distribution
                     </div>
-                    <span class="text-secondary font-mono" style="font-size:11px;">Telemetry Validated</span>
                 </div>
                 <div class="panel-body p-3">
                     {% set tot = stats.total_hazards or stats.total_incidents or 1 %}
@@ -239,7 +216,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
                                 <span class="d-flex align-items-center gap-2 text-danger fw-semibold">
                                     <span style="width:8px; height:8px; border-radius:50%; background:var(--danger); display:inline-block;"></span>
-                                    Immediate Danger (TTC &le; 1.8s)
+                                    Immediate Danger
                                 </span>
                                 <span class="font-mono text-white fw-bold">{{ stats.immediate_danger or 0 }} <span class="text-secondary fw-normal">({{ p_danger }}%)</span></span>
                             </div>
@@ -252,7 +229,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
                                 <span class="d-flex align-items-center gap-2 text-warning fw-semibold">
                                     <span style="width:8px; height:8px; border-radius:50%; background:var(--warning); display:inline-block;"></span>
-                                    Caution / Warning (TTC &le; 6.0s)
+                                    Caution
                                 </span>
                                 <span class="font-mono text-white fw-bold">{{ stats.caution_count or 0 }} <span class="text-secondary fw-normal">({{ p_caut }}%)</span></span>
                             </div>
@@ -265,8 +242,14 @@
                             <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
                                 <span class="d-flex align-items-center gap-2 text-success fw-semibold">
                                     <span style="width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;"></span>
-                                    Safe / Monitored (Passing)
+                                    Safe
                                 </span>
+                                <span class="font-mono text-white fw-bold">{{ stats.safe_count or 0 }} <span class="text-secondary fw-normal">({{ p_safe }}%)</span></span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: var(--bg-sunken);">
+                                <div class="progress-bar bg-success" style="width: {{ p_safe }}%;"></div>
+                            </div>
+                        </div>
                                 <span class="font-mono text-white fw-bold">{{ stats.safe_count or 0 }} <span class="text-secondary fw-normal">({{ p_safe }}%)</span></span>
                             </div>
                             <div class="progress" style="height: 6px; background: var(--bg-sunken);">

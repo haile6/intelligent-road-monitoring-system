@@ -28,9 +28,8 @@
         <div class="panel-header py-2.5">
             <div class="panel-title">
                 <i data-lucide="cpu" style="color:var(--accent-primary);"></i>
-                Active Neural Perception Models &bull; Offline Benchmark Metrics
+                Models Benchmark
             </div>
-            <span class="text-secondary font-mono" style="font-size: 11px;">Measured on Debre Berhan CVAT Evaluation Benchmark (109 Images)</span>
         </div>
         <div class="table-container-responsive border-0">
             <table class="enterprise-table">
@@ -88,7 +87,7 @@
                 <div class="panel-header py-2.5">
                     <div class="panel-title">
                         <i data-lucide="camera" style="color:var(--accent-primary);"></i>
-                        Camera Mounting &amp; IPM Photogrammetry
+                        Camera Mounting &amp; IPM
                     </div>
                 </div>
                 <div class="panel-body p-3">
@@ -96,24 +95,20 @@
                         <div class="col-6">
                             <label class="form-label" style="font-size: 12px; font-weight: 600;">Camera Height (H, meters)</label>
                             <input type="number" step="0.05" class="form-control font-mono" id="calCameraHeight" value="{{ calibration_params.camera_height_m }}">
-                            <small class="text-muted" style="font-size: 10.5px;">Survey vehicle dashcam mounting height.</small>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Horizon Row Ratio (Y_H / H)</label>
+                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Horizon Row Ratio</label>
                             <input type="number" step="0.01" class="form-control font-mono" id="calHorizonRatio" value="{{ calibration_params.horizon_ratio }}">
-                            <small class="text-muted" style="font-size: 10.5px;">Perspective vanishing line coordinate ratio.</small>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Focal Length (f_y, pixels)</label>
+                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Focal Length (f_y, px)</label>
                             <input type="number" class="form-control font-mono" id="calFocalLength" value="{{ calibration_params.focal_length_px }}" readonly style="opacity:0.8;">
-                            <small class="text-muted" style="font-size: 10.5px;">Calibrated optical focal length parameter.</small>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Ground-Plane IPM Status</label>
+                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Ground-Plane IPM</label>
                             <div class="form-control font-mono text-success fw-semibold" style="font-size: 11px; background:var(--bg-sunken) !important;">
-                                Active (Trigonometric LERP)
+                                Active (Trigonometric)
                             </div>
-                            <small class="text-muted" style="font-size: 10.5px;">Z = H / tan(theta + alpha)</small>
                         </div>
                     </div>
                 </div>
@@ -126,7 +121,7 @@
                 <div class="panel-header py-2.5">
                     <div class="panel-title">
                         <i data-lucide="gauge" style="color:var(--warning);"></i>
-                        Kinematic Time-To-Collision (TTC) Envelopes
+                        Collision Envelopes (TTC)
                     </div>
                 </div>
                 <div class="panel-body p-3">
@@ -134,22 +129,18 @@
                         <div class="col-6">
                             <label class="form-label" style="font-size: 12px; font-weight: 600;">Immediate Danger Threshold (s)</label>
                             <input type="number" step="0.1" class="form-control font-mono" id="calTtcDanger" value="{{ calibration_params.ttc_danger_s }}">
-                            <small class="text-danger" style="font-size: 10.5px;">TTC &le; {{ calibration_params.ttc_danger_s }}s triggers auditory siren.</small>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Warning Caution Threshold (s)</label>
+                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Warning Threshold (s)</label>
                             <input type="number" step="0.1" class="form-control font-mono" id="calTtcWarning" value="{{ calibration_params.ttc_warning_s }}">
-                            <small class="text-warning" style="font-size: 10.5px;">Approaching hazard caution banner window.</small>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Default Patrol Speed (km/h)</label>
+                            <label class="form-label" style="font-size: 12px; font-weight: 600;">Patrol Speed (km/h)</label>
                             <input type="number" step="1.0" class="form-control font-mono" id="calDefaultSpeed" value="{{ calibration_params.default_speed_kmh }}">
-                            <small class="text-muted" style="font-size: 10.5px;">Fallback velocity when GPS signal is occluded.</small>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-size: 12px; font-weight: 600;">GPS Telemetry Rate</label>
-                            <input type="text" class="form-control font-mono" value="1.0 Hz (Sub-second Interpolated)" readonly style="opacity:0.8;">
-                            <small class="text-muted" style="font-size: 10.5px;">{{ calibration_params.gps_source }}</small>
+                            <label class="form-label" style="font-size: 12px; font-weight: 600;">GPS Rate</label>
+                            <input type="text" class="form-control font-mono" value="1.0 Hz" readonly style="opacity:0.8;">
                         </div>
                     </div>
                 </div>
