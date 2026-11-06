@@ -101,8 +101,8 @@
                 <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-camera-reels text-primary fs-5"></i>
-                        <span class="fw-bold text-dark">Active Inspection Video Source:</span>
-                        <select class="form-select form-select-sm" style="width: auto;" onchange="location.href='/studio?file=' + this.value">
+                        <span class="fw-bold" style="color: var(--color-text-primary);">Active Inspection Video Source:</span>
+                        <select class="form-select form-select-sm" style="width: auto; background-color: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border);" onchange="location.href='/studio?file=' + this.value">
                             {% for v in video_files %}
                             <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
                             {% endfor %}
@@ -125,7 +125,7 @@
                 </div>
 
                 <!-- Persistent ADAS Voice Audio Notification Bar -->
-                <div id="audio-alert-banner" class="py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: #eff6ff; border-bottom: 1px solid #bfdbfe;">
+                <div id="audio-alert-banner" class="py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: rgba(56, 189, 248, 0.08); border-bottom: 1px solid var(--color-border);">
                     <div class="d-flex align-items-center gap-2">
                         <div class="spinner-grow spinner-grow-sm text-danger" role="status">
                             <span class="visually-hidden">Live</span>
@@ -240,11 +240,11 @@
                 <div class="card-footer py-3">
                     <div class="row align-items-center g-3">
                         <div class="col-12 col-md-8 d-flex flex-wrap align-items-center gap-2">
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i> -1</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i> -1</button>
                             <button class="btn btn-sm btn-success px-3 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)"><i class="bi bi-play-fill"></i> Play</button>
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i> +1</button>
-                            <button class="btn btn-sm btn-outline-dark" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i> +1</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
 
                             <!-- Speed Selector Group -->
                             <div class="btn-group btn-group-sm speed-btn-group ms-1 border-start ps-2" role="group" title="Playback Speed">
@@ -269,7 +269,7 @@
 
                             <!-- Language Switcher Dropdown (English 🇬🇧 / አማርኛ 🇪🇹) -->
                             <div class="dropdown d-inline-block ms-1 border-start ps-2">
-                                <button class="btn btn-sm btn-outline-dark dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language / ቋንቋ ይምረጡ">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language / ቋንቋ ይምረጡ">
                                     <span id="current-lang-icon">🇬🇧</span>
                                     <span id="current-lang-label">English</span>
                                 </button>
@@ -288,13 +288,13 @@
                             </div>
 
                             <!-- Fullscreen Button -->
-                            <button class="btn btn-sm btn-outline-dark ms-1" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
+                            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
                                 <i class="bi bi-arrows-fullscreen"></i>
                             </button>
                         </div>
                         <div class="col-12 col-md-4 d-flex align-items-center justify-content-md-end gap-3">
                             <span class="text-secondary small">Timeline:</span>
-                            <span class="badge bg-light text-dark border font-mono fs-6" id="time-display">00:00.00</span>
+                            <span class="badge border font-mono fs-6" style="background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border);" id="time-display">00:00.00</span>
                             <span class="badge bg-secondary font-mono" id="frame-display">Frame: 0</span>
                         </div>
                     </div>
@@ -312,10 +312,10 @@
                     <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 pt-2 border-top text-secondary" style="font-size: 0.72rem;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-keyboard text-primary"></i>
-                            <span><b>Keyboard Controls:</b> <kbd class="bg-light text-dark border">Space</kbd> Play/Pause &bull; <kbd class="bg-light text-dark border">←</kbd> / <kbd class="bg-light text-dark border">→</kbd> Frame Step &bull; <kbd class="bg-light text-dark border">M</kbd> Mute &bull; <kbd class="bg-light text-dark border">C</kbd> Subtitles &bull; <kbd class="bg-light text-dark border">V</kbd> Voice Alert &bull; <kbd class="bg-light text-dark border">F</kbd> Fullscreen</span>
+                            <span><b>Keyboard Controls:</b> <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">Space</kbd> Play/Pause &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">←</kbd> / <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">→</kbd> Frame Step &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">M</kbd> Mute &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">C</kbd> Subtitles &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">V</kbd> Voice Alert &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">F</kbd> Fullscreen</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-light text-secondary border font-mono"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
+                            <span class="badge border font-mono" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
                         </div>
                     </div>
                 </div>
@@ -325,11 +325,11 @@
             <!-- SYNCHRONIZED GIS ROAD MAP (DASHCAM ON TOP, LIVE MAP ON BOTTOM) -->
             <!-- ============================================================ -->
             <div class="card shadow-sm mb-3" id="sync-map-card">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: #f8fafc;">
+                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: var(--color-surface-elevated);">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
                         <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
-                        <span class="fw-bold text-dark small">Synchronized Road Corridor Map (Ethiopia Highway Track):</span>
+                        <span class="fw-bold small" style="color: var(--color-text-primary);">Synchronized Road Corridor Map (Ethiopia Highway Track):</span>
                     </div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
@@ -358,7 +358,7 @@
                         <span id="map-status-text" class="font-mono">LIVE GPS CORRIDOR &bull; POSITION SYNCHRONIZED</span>
                     </div>
                 </div>
-                <div class="card-footer py-2 px-3 bg-light d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary">
+                <div class="card-footer py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary" style="background: var(--color-surface-elevated); border-top: 1px solid var(--color-border);">
                     <div class="d-flex align-items-center gap-3">
                         <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #0284c7;"></span><b>Vehicle Position</b> (Live)</span>
                         <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #dc2626;"></span><b>Critical Pothole</b></span>
@@ -490,7 +490,7 @@
             <div class="card shadow-sm h-100">
                 <div class="card-header py-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0 fw-bold text-dark">
+                        <h6 class="mb-0 fw-bold" style="color: var(--color-text-primary);">
                             <i class="bi bi-crosshair me-2 text-primary"></i>Synchronized Hazard Keyframes
                         </h6>
                         <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
@@ -498,7 +498,7 @@
                     
                     <!-- Quick Risk Filter Pills -->
                     <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-outline-dark active py-0 px-2 filter-btn" onclick="filterHazardCards('all', this)" style="font-size: 0.72rem;">All Events</button>
+                        <button class="btn btn-sm btn-outline-secondary active py-0 px-2 filter-btn" onclick="filterHazardCards('all', this)" style="font-size: 0.72rem;">All Events</button>
                         <button class="btn btn-sm btn-outline-danger py-0 px-2 filter-btn" onclick="filterHazardCards('danger', this)" style="font-size: 0.72rem;">Critical P1</button>
                         <button class="btn btn-sm btn-outline-warning py-0 px-2 filter-btn" onclick="filterHazardCards('warning', this)" style="font-size: 0.72rem;">Warning</button>
                         <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.72rem;">Monitored</button>
@@ -510,7 +510,7 @@
                         {% set risk_cat = 'danger' if ('IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level) else ('warning' if 'WARNING' in inc.max_risk_level else 'safe') %}
                         <div class="card p-2 border hover-shadow cursor-pointer hazard-card" data-risk="{{ risk_cat }}" onclick="seekToTime({{ inc.video_time_s or 0 }}, true)" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold text-dark small">
+                                <span class="fw-bold small" style="color: var(--color-text-primary);">
                                     <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
                                 </span>
                                 {% if risk_cat == 'danger' %}
@@ -1894,9 +1894,10 @@
             scrollWheelZoom: false
         }).setView([startLat, startLon], 16);
 
-        // Free Standard OpenStreetMap Tiles (No API key required)
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        // CartoDB Dark Matter High-Contrast Basemap for Mission-Critical Night/Ops UI
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            subdomains: 'abcd',
             maxZoom: 19
         }).addTo(studioMap);
 
@@ -2180,18 +2181,18 @@
 <!-- Live Stream & Mobile Device Operations Modal -->
 <div class="modal fade" id="liveCameraModal" tabindex="-1" aria-labelledby="liveCameraModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow border-0">
-            <div class="modal-header border-bottom py-3" style="background: #f8fafc;">
+        <div class="modal-content shadow border-0" style="background: var(--color-surface-elevated); color: var(--color-text-primary); border: 1px solid var(--color-border);">
+            <div class="modal-header border-bottom py-3" style="background: var(--color-surface); border-color: var(--color-border) !important;">
                 <div class="d-flex align-items-center gap-2">
                     <div class="p-2 bg-primary bg-opacity-10 text-primary rounded">
                         <i class="bi bi-broadcast fs-5"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title fw-bold text-dark mb-0" id="liveCameraModalLabel">Live Video Feed &amp; Mobile Device Integration</h5>
-                        <p class="text-muted small mb-0">Hardware connectivity for USB cameras, mobile dashcams, and wireless tablet inspection</p>
+                        <h5 class="modal-title fw-bold mb-0" id="liveCameraModalLabel" style="color: var(--color-text-primary);">Live Video Feed &amp; Mobile Device Integration</h5>
+                        <p class="text-secondary small mb-0">Hardware connectivity for USB cameras, mobile dashcams, and wireless tablet inspection</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <ul class="nav nav-pills nav-fill mb-3" id="liveModalTabs" role="tablist">
@@ -2215,17 +2216,17 @@
                 <div class="tab-content pt-2" id="liveModalTabsContent">
                     <!-- Tab 1: Phone as Camera -->
                     <div class="tab-pane fade show active" id="content-phone-cam" role="tabpanel">
-                        <div class="border rounded p-3 mb-3 bg-light">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-wifi text-primary me-2"></i>Wireless Mobile Phone Camera Stream (IP Stream)</h6>
-                            <p class="small text-muted mb-2">Turn any Android phone or iPhone into an active vehicle dashcam transmitting real-time video to the neural detector over Wi-Fi or phone hotspot:</p>
-                            <ol class="small text-dark mb-3 ps-3">
+                        <div class="rounded p-3 mb-3" style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                            <h6 class="fw-bold mb-2" style="color: var(--color-text-primary);"><i class="bi bi-wifi text-primary me-2"></i>Wireless Mobile Phone Camera Stream (IP Stream)</h6>
+                            <p class="small text-secondary mb-2">Turn any Android phone or iPhone into an active vehicle dashcam transmitting real-time video to the neural detector over Wi-Fi or phone hotspot:</p>
+                            <ol class="small mb-3 ps-3 text-secondary">
                                 <li class="mb-1">Install <strong>IP Webcam</strong> (Android) or <strong>DroidCam / Live-Reporter</strong> (iOS/Android).</li>
                                 <li class="mb-1">Connect your phone and PC to the same Wi-Fi network, or enable your phone's Wi-Fi hotspot and connect your computer to it.</li>
                                 <li class="mb-1">In the app, start the camera server. The app displays an address like <code>http://192.168.43.1:8080/video</code> or <code>http://10.18.60.X:8080/video</code>.</li>
                                 <li class="mb-1">On your computer terminal, run the unified telemetry engine with your phone stream URL:</li>
                             </ol>
-                            <div class="bg-dark text-light p-3 rounded font-mono small mb-2">
-                                <span class="text-muted"># Replace with your phone's IP address from the app</span><br>
+                            <div class="p-3 rounded font-mono small mb-2" style="background: #080D16; border: 1px solid var(--color-border); color: #F1F5F9;">
+                                <span class="text-secondary"># Replace with your phone's IP address from the app</span><br>
                                 <span class="text-warning">python run_integrated.py --source "http://&lt;PHONE_IP&gt;:8080/video" --show</span>
                             </div>
                             <span class="badge bg-success-subtle text-success border border-success-subtle small">
@@ -2236,26 +2237,26 @@
 
                     <!-- Tab 2: USB Webcam -->
                     <div class="tab-pane fade" id="content-usb-cam" role="tabpanel">
-                        <div class="border rounded p-3 mb-3 bg-light">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-usb-symbol text-primary me-2"></i>Direct USB Dashcam or Built-in Camera</h6>
-                            <p class="small text-muted mb-2">Direct hardware interface to standard USB video capture devices (UVC protocol):</p>
-                            <ol class="small text-dark mb-3 ps-3">
+                        <div class="rounded p-3 mb-3" style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                            <h6 class="fw-bold mb-2" style="color: var(--color-text-primary);"><i class="bi bi-usb-symbol text-primary me-2"></i>Direct USB Dashcam or Built-in Camera</h6>
+                            <p class="small text-secondary mb-2">Direct hardware interface to standard USB video capture devices (UVC protocol):</p>
+                            <ol class="small mb-3 ps-3 text-secondary">
                                 <li class="mb-1">Plug your USB dashcam or webcam into your computer.</li>
                                 <li class="mb-1">Run device index <code>0</code> (built-in camera) or <code>1</code> (external USB camera) with the <code>--show</code> flag:</li>
                             </ol>
-                            <div class="bg-dark text-light p-3 rounded font-mono small mb-2">
+                            <div class="p-3 rounded font-mono small mb-2" style="background: #080D16; border: 1px solid var(--color-border); color: #F1F5F9;">
                                 <span class="text-warning">python run_integrated.py --source 0 --show</span>
                             </div>
-                            <p class="small text-muted mb-0">Press <strong>Q</strong> in the video window at any time to finish and auto-save the telemetry session.</p>
+                            <p class="small text-secondary mb-0">Press <strong>Q</strong> in the video window at any time to finish and auto-save the telemetry session.</p>
                         </div>
                     </div>
 
                     <!-- Tab 3: Mobile Web Access -->
                     <div class="tab-pane fade" id="content-mobile-web" role="tabpanel">
-                        <div class="border rounded p-3 mb-3 bg-light">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-phone-flip text-primary me-2"></i>Access Web Panel on Mobile Phone Browser</h6>
-                            <p class="small text-muted mb-2">Access the full management panel, GIS map, and telemetry studio from your phone's browser:</p>
-                            <ol class="small text-dark mb-3 ps-3">
+                        <div class="rounded p-3 mb-3" style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                            <h6 class="fw-bold mb-2" style="color: var(--color-text-primary);"><i class="bi bi-phone-flip text-primary me-2"></i>Access Web Panel on Mobile Phone Browser</h6>
+                            <p class="small text-secondary mb-2">Access the full management panel, GIS map, and telemetry studio from your phone's browser:</p>
+                            <ol class="small mb-3 ps-3 text-secondary">
                                 <li class="mb-1">Ensure your phone and this computer are connected to the same Wi-Fi network or phone hotspot.</li>
                                 <li class="mb-1">Open Safari or Chrome on your mobile phone.</li>
                                 <li class="mb-1">Type the following network URL into your mobile address bar:</li>
