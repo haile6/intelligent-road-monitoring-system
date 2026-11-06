@@ -7,14 +7,14 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-/* ── 1. DESIGN TOKENS (MISSION-CRITICAL PALETTE) ───────────────────────────── */
-:root {
-    /* Background Hierarchy */
+/* ── 1. DESIGN TOKENS (MISSION-CRITICAL DUAL-THEME SYSTEM) ──────────────────── */
+:root, [data-theme="dark"] {
+    /* Background Hierarchy - Dark Mode */
     --bg-main:            #080D16;   /* Deepest canvas */
-    --bg-secondary:       #0D1421;   /* Headers, subnav, table head */
+    --bg-secondary:       #0D1421;   /* Headers, sidebar, subnav, table head */
     --bg-surface:         #111C2B;   /* Standard card & panel surface */
     --bg-elevated:        #172438;   /* Elevated hover, modals, dropdowns */
-    --bg-sunken:          #0A101C;   /* Embedded wells, code boxes */
+    --bg-sunken:          #0A101C;   /* Embedded wells, inputs, code boxes */
     --bg-active:          #1C2E46;   /* Active selection highlight */
 
     /* Slate & Blue-Gray Borders */
@@ -66,6 +66,19 @@
     --shadow-lg:          0 12px 28px -4px rgba(0, 0, 0, 0.75), 0 4px 12px -2px rgba(0, 0, 0, 0.5);
     --shadow-glow:        0 0 16px rgba(56, 189, 248, 0.2);
 
+    /* Map Tile Filter (Dark Inversion) */
+    --map-filter:         invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    --card-gradient:      linear-gradient(135deg, #0D1421 0%, #111C2B 100%);
+
+    /* Defect Pill Badges */
+    --pothole-badge-bg:   rgba(239, 68, 68, 0.15);
+    --pothole-badge-color:#F87171;
+    --pothole-badge-border:rgba(239, 68, 68, 0.35);
+
+    --crack-badge-bg:     rgba(245, 158, 11, 0.15);
+    --crack-badge-color:  #FBBF24;
+    --crack-badge-border: rgba(245, 158, 11, 0.35);
+
     /* Dimensions & Radii */
     --sidebar-width:      260px;
     --sidebar-collapsed:  68px;
@@ -83,6 +96,81 @@
     /* Transitions */
     --anim-fast:          120ms cubic-bezier(0.4, 0, 0.2, 1);
     --anim-normal:        200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --anim-smooth:        320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Bright / Light Mode Tokens (Daylight Operations) */
+[data-theme="bright"], [data-theme="light"] {
+    /* Background Hierarchy - Bright Mode */
+    --bg-main:            #F1F5F9;   /* Clean modern slate canvas */
+    --bg-secondary:       #FFFFFF;   /* Pure white sidebar, header, subnav */
+    --bg-surface:         #FFFFFF;   /* Crisp white card surface */
+    --bg-elevated:        #F8FAFC;   /* Hover, modals, elevated surfaces */
+    --bg-sunken:          #E2E8F0;   /* Embedded wells, inputs */
+    --bg-active:          #E0F2FE;   /* Active selection highlight (sky-100) */
+
+    /* Crisp Slate Borders */
+    --border-subtle:      #E2E8F0;   /* Subtle divider */
+    --border-default:     #CBD5E1;   /* Card, table borders */
+    --border-strong:      #94A3B8;   /* Input borders */
+    --border-glow:        rgba(2, 132, 199, 0.3);
+
+    /* Text Hierarchy */
+    --text-primary:       #0F172A;   /* Slate-900 high contrast dark typography */
+    --text-secondary:     #475569;   /* Slate-600 clear secondary text */
+    --text-muted:         #64748B;   /* Slate-500 timestamps & subtle labels */
+    --text-accent:        #0284C7;   /* Deep crisp sky/blue */
+
+    /* Enterprise Accents */
+    --accent-primary:     #0284C7;   /* Deep sky blue for daylight readability */
+    --accent-secondary:   #6366F1;   /* Indigo */
+    --accent-hover:       #0369A1;
+
+    /* Semantic Status Indicators - Tuned for Bright Backgrounds */
+    --danger:             #DC2626;   /* High-visibility red */
+    --danger-bg:          rgba(220, 38, 38, 0.08);
+    --danger-border:      rgba(220, 38, 38, 0.3);
+    --danger-text:        #B91C1C;
+
+    --warning:            #D97706;   /* Amber */
+    --warning-bg:         rgba(217, 119, 6, 0.08);
+    --warning-border:     rgba(217, 119, 6, 0.3);
+    --warning-text:       #B45309;
+
+    --caution:            #D97706;
+    --caution-bg:         rgba(217, 119, 6, 0.08);
+    --caution-border:     rgba(217, 119, 6, 0.3);
+    --caution-text:       #B45309;
+
+    --success:            #16A34A;   /* Emerald */
+    --success-bg:         rgba(22, 163, 74, 0.08);
+    --success-border:     rgba(22, 163, 74, 0.3);
+    --success-text:       #15803D;
+
+    --info:               #0284C7;
+    --info-bg:            rgba(2, 132, 199, 0.08);
+    --info-border:        rgba(2, 132, 199, 0.3);
+    --info-text:          #0369A1;
+
+    /* Elevation & Shadows */
+    --shadow-sm:          0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    --shadow-md:          0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-lg:          0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-glow:        0 0 16px rgba(2, 132, 199, 0.2);
+
+    /* Map Tile Filter (Natural Daytime Rendering - No Filter) */
+    --map-filter:         none;
+    --card-gradient:      linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+
+    /* Defect Pill Badges - Bright Mode */
+    --pothole-badge-bg:   rgba(220, 38, 38, 0.1);
+    --pothole-badge-color:#B91C1C;
+    --pothole-badge-border:rgba(220, 38, 38, 0.3);
+
+    --crack-badge-bg:     rgba(217, 119, 6, 0.1);
+    --crack-badge-color:  #B45309;
+    --crack-badge-border: rgba(217, 119, 6, 0.3);
+}
     --anim-smooth:        320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -210,7 +298,7 @@ aside.sidebar.collapsed .sidebar-collapse-btn i {
     align-items: center;
     gap: 12px;
     height: var(--header-height);
-    background: rgba(13, 20, 33, 0.95);
+    background: var(--bg-secondary);
 }
 
 .brand-badge {
@@ -536,6 +624,44 @@ header.app-header {
     border-radius: 50%;
     background: var(--danger);
     box-shadow: 0 0 6px var(--danger);
+}
+
+/* Theme Toggle Button (Dark / Bright Mode Switcher) */
+.theme-toggle-btn {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--anim-fast);
+}
+.theme-toggle-btn:hover {
+    color: var(--accent-primary);
+    border-color: var(--border-strong);
+    background: var(--bg-elevated);
+}
+
+/* Icon visibility depending on data-theme */
+[data-theme="dark"] .theme-icon-light {
+    display: inline-block;
+}
+[data-theme="dark"] .theme-icon-dark {
+    display: none;
+}
+
+[data-theme="bright"] .theme-icon-light,
+[data-theme="light"] .theme-icon-light {
+    display: none;
+}
+[data-theme="bright"] .theme-icon-dark,
+[data-theme="light"] .theme-icon-dark {
+    display: inline-block;
 }
 
 /* ── 6. MAIN CONTENT WORKSPACE ─────────────────────────────────────────────── */
@@ -959,15 +1085,15 @@ table.enterprise-table tbody tr:hover .row-hover-action {
 }
 
 .badge-defect-pothole {
-    background: rgba(239, 68, 68, 0.15);
-    color: #F87171;
-    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: var(--pothole-badge-bg);
+    color: var(--pothole-badge-color);
+    border: 1px solid var(--pothole-badge-border);
 }
 
 .badge-defect-crack {
-    background: rgba(245, 158, 11, 0.15);
-    color: #FBBF24;
-    border: 1px solid rgba(245, 158, 11, 0.35);
+    background: var(--crack-badge-bg);
+    color: var(--crack-badge-color);
+    border: 1px solid var(--crack-badge-border);
 }
 
 /* ── 12. FILTER CHIPS & PILLS ──────────────────────────────────────────────── */
@@ -1229,50 +1355,51 @@ table.enterprise-table tbody tr:hover .row-hover-action {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* ── 17. LEAFLET DARK MAP OVERRIDES ────────────────────────────────────────── */
+/* ── 17. LEAFLET ADAPTIVE THEME OVERRIDES ─────────────────────────────────── */
 .leaflet-container {
-    background: #080D16 !important;
+    background: var(--bg-main) !important;
 }
 
-/* High-contrast dark filter for OpenStreetMap tiles (Zero API key required, zero watermarks) */
+/* Adaptive filter for OpenStreetMap tiles (Inverted dark mode vs. Natural bright daylight) */
 .leaflet-dark-tiles,
 .leaflet-tile-pane .leaflet-dark-tiles {
-    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) !important;
+    filter: var(--map-filter) !important;
+    transition: filter var(--anim-smooth);
 }
 
 .leaflet-control-zoom a {
-    background-color: #111C2B !important;
-    color: #F1F5F9 !important;
-    border-color: #223247 !important;
+    background-color: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-default) !important;
 }
 
 .leaflet-control-zoom a:hover {
-    background-color: #172438 !important;
-    color: #38BDF8 !important;
+    background-color: var(--bg-elevated) !important;
+    color: var(--accent-primary) !important;
 }
 
 .leaflet-control-attribution {
-    background: rgba(8, 13, 22, 0.85) !important;
-    color: #94A3B8 !important;
-    border: 1px solid #1E293B !important;
+    background: var(--bg-surface) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border-subtle) !important;
     border-radius: 4px !important;
 }
 
 .leaflet-control-attribution a {
-    color: #38BDF8 !important;
+    color: var(--accent-primary) !important;
 }
 
 .leaflet-popup-content-wrapper {
-    background: #111C2B !important;
-    border: 1px solid #223247 !important;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-default) !important;
     border-radius: 6px !important;
-    color: #F1F5F9 !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--shadow-lg) !important;
 }
 
 .leaflet-popup-tip {
-    background: #111C2B !important;
-    border-color: #223247 !important;
+    background: var(--bg-surface) !important;
+    border-color: var(--border-default) !important;
 }
 
 /* ── 18. RESPONSIVE MEDIA QUERIES ──────────────────────────────────────────── */
