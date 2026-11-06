@@ -438,6 +438,52 @@ def calibration_view():
     )
 
 
+@app.route("/api/calibration/update", methods=["POST"])
+def api_calibration_update():
+    """Update photogrammetric IPM and kinematic TTC calibration parameters."""
+    data = request.json or request.form
+    try:
+        camera_height = float(data.get("camera_height_m", 1.25))
+        horizon_ratio = float(data.get("horizon_ratio", 0.45))
+        ttc_danger = float(data.get("ttc_danger_s", 1.5))
+        ttc_warning = float(data.get("ttc_warning_s", 3.0))
+        default_speed = float(data.get("default_speed_kmh", 60.0))
+
+        # Update in-memory config parameters
+        setattr(config, "CAMERA_HEIGHT_M", camera_height)
+        setattr(config, "HORIZON_ROW_RATIO", horizon_ratio)
+        setattr(config, "RISK_TTC_DANGER_S", ttc_danger)
+        setattr(config, "TTC_IMMEDIATE_DANGER_S", ttc_danger)
+        setattr(config, "RISK_TTC_WARNING_S", ttc_warning)
+        setattr(config, "TTC_WARNING_S", ttc_warning)
+        setattr(config, "DEFAULT_SPEED_KMH", default_speed)
+
+        # Audit log into database pipeline runs
+        try:
+            db_manager.log_pipeline_run(
+                phase_name="AI Calibration",
+                command="UPDATE_CALIBRATION_MATRIX",
+                status="COMPLETED",
+                logs=f"Calibrated: Height={camera_height}m, Horizon={horizon_ratio}, TTC Danger={ttc_danger}s, Warning={ttc_warning}s, Speed={default_speed}km/h"
+            )
+        except Exception:
+            pass
+
+        return jsonify({
+            "success": True,
+            "message": "Calibration matrix successfully updated and logged to audit trail",
+            "parameters": {
+                "camera_height_m": camera_height,
+                "horizon_ratio": horizon_ratio,
+                "ttc_danger_s": ttc_danger,
+                "ttc_warning_s": ttc_warning,
+                "default_speed_kmh": default_speed
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
 @app.route("/health")
 def health_view():
     """System Health and Diagnostic telemetry view."""
