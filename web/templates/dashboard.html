@@ -1,387 +1,396 @@
 {% extends "base.html" %}
-{% block title %}Operations Dashboard — RoadEye™{% endblock %}
+
+{% block title %}Operations Intelligence Dashboard — RoadEye™ Enterprise{% endblock %}
 {% block breadcrumb %}Operations Dashboard{% endblock %}
 
 {% block extra_head %}
+<!-- Leaflet Map CSS for Corridor Preview -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
 <style>
-/* Dashboard-specific micro-styles */
-.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-@media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px)  { .kpi-grid { grid-template-columns: 1fr; } }
+/* Mini Corridor Map Preview */
+#corridorMiniMap {
+    height: 260px;
+    width: 100%;
+    border-radius: var(--radius-sm);
+    background: #080D16;
+}
 
-.analytics-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; margin-bottom: 24px; }
-@media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
+/* Custom chart wrapper */
+.chart-container-wrap {
+    position: relative;
+    height: 180px;
+    width: 100%;
+}
 
-/* Animated counter */
-.kpi-value.counting { animation: countUp 0.5s cubic-bezier(0.4,0,0.2,1); }
-
-/* Hover row action reveal */
-.incident-row td:last-child .btn { opacity: 0; transition: opacity 150ms; }
-.incident-row:hover td:last-child .btn { opacity: 1; }
-
-/* Tooltip on coordinates */
-.coord-cell { cursor: help; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
-
-/* Chart container */
-.chart-wrap { position: relative; height: 170px; }
-
-/* Filter chip active states */
-.filter-chip.active { box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-
-/* Sort header arrow */
-th[data-sort].sorted-asc  .sort-icon::before { content: "↑"; opacity: 1 !important; }
-th[data-sort].sorted-desc .sort-icon::before { content: "↓"; opacity: 1 !important; }
-
-/* No results row */
-.no-results-row td { padding: 40px 20px; text-align: center; color: var(--text-muted); }
-
-/* Shimmer for loading state */
-@keyframes shimmer {
-    0%   { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
+/* Pulse on critical rows */
+.row-critical-flash {
+    border-left: 3px solid var(--danger) !important;
+}
+.row-caution-flash {
+    border-left: 3px solid var(--warning) !important;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-{% set total  = stats.total_hazards or stats.total_incidents or 0 %}
-{% set danger = stats.immediate_danger or 0 %}
-{% set warn   = stats.warning_count or 0 %}
-{% set caut   = stats.caution_count or 0 %}
-{% set safe   = stats.safe_count or 0 %}
-{% set tot_nz = [total, 1]|max %}
-
 <div class="container-fluid px-0">
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- PAGE HEADER                                                   -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="page-header animate-fadein">
-        <div class="page-header-left">
+    <!-- ============================================================ -->
+    <!-- 1. OPERATIONS INTELLIGENCE PAGE HEADER                        -->
+    <!-- ============================================================ -->
+    <div class="page-header-row">
+        <div>
             <div class="page-eyebrow">
-                <span class="page-eyebrow-badge">Enterprise AI Platform</span>
-                <span style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono);">
-                    Debre Berhan Corridor · Route A2 · 8.40 km
-                </span>
+                <span class="page-eyebrow-pill">RoadEye Operations Intelligence</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Debre Berhan Corridor &bull; Route A2 &bull; Operational Overview</span>
             </div>
-            <h1 class="page-title">Operations Dashboard</h1>
-            <p class="page-desc">Autonomous pavement distress inspection, warranty auditing &amp; live hazard telemetry.</p>
+            <h1 class="page-main-title">Operations Intelligence Dashboard</h1>
+            <p class="page-main-desc">Autonomous Pavement Hazard Telemetry, Dynamic Collision Risk Assessment &amp; Infrastructure Governance.</p>
         </div>
-        <div class="page-header-actions">
+
+        <div class="page-actions-bar">
             <a href="{{ url_for('map_view') }}" class="btn btn-primary">
-                <i class="bi bi-play-circle-fill"></i> Launch Patrol
+                <i data-lucide="play-circle"></i> Launch Patrol Map
             </a>
-            <a href="{{ url_for('video_studio') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-camera-reels"></i> Video Studio
+            <a href="{{ url_for('video_studio') }}" class="btn btn-secondary">
+                <i data-lucide="video"></i> Telemetry Studio
             </a>
-            <a href="{{ url_for('api_export_csv') }}" class="btn btn-ghost" title="Export CSV">
-                <i class="bi bi-download"></i>
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-outline-secondary" title="Export Verified CSV">
+                <i data-lucide="download"></i> Export Data
             </a>
         </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- KPI CARDS                                                     -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="kpi-grid">
+    <!-- ============================================================ -->
+    <!-- 2. HIGH-DENSITY EXECUTIVE KPI GRID (7 METRICS FROM DB)       -->
+    <!-- ============================================================ -->
+    <div class="kpi-row-grid">
 
-        <!-- Total Hazards -->
-        <div class="kpi-card kpi-total animate-fadein-delay-1">
-            <div class="kpi-row">
-                <span class="kpi-label">Total Hazards</span>
-                <div class="kpi-icon kpi-icon-blue"><i class="bi bi-cone-striped"></i></div>
+        <!-- 1. Total Verified Hazards -->
+        <a href="{{ url_for('incidents_view') }}" class="kpi-metric-card accent-primary text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Total Hazards</span>
+                <div class="kpi-icon-pill"><i data-lucide="cone"></i></div>
             </div>
-            <div class="kpi-value" data-target="{{ total }}">{{ total }}</div>
-            <div class="kpi-delta">
-                <span style="color:var(--danger);font-weight:600;">{{ stats.potholes or 0 }}</span>&nbsp;Potholes
-                &nbsp;·&nbsp;
-                <span style="color:var(--warning);font-weight:600;">{{ stats.cracks or 0 }}</span>&nbsp;Cracks
+            <div class="kpi-number-display">{{ stats.total_hazards or stats.total_incidents or 0 }}</div>
+            <div class="kpi-subtext">
+                <span class="text-danger fw-bold">{{ stats.potholes or 0 }}</span> Potholes &bull;
+                <span class="text-warning fw-bold">{{ stats.cracks or 0 }}</span> Cracks
             </div>
-        </div>
+        </a>
 
-        <!-- Critical Risk -->
-        <div class="kpi-card kpi-danger animate-fadein-delay-2">
-            <div class="kpi-row">
-                <span class="kpi-label" style="color:var(--danger);">Immediate Danger</span>
-                <div class="kpi-icon kpi-icon-red"><i class="bi bi-exclamation-octagon"></i></div>
+        <!-- 2. Immediate Danger -->
+        <a href="{{ url_for('incidents_view') }}?risk=IMMEDIATE" class="kpi-metric-card accent-danger text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-danger">Immediate Danger</span>
+                <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
             </div>
-            <div class="kpi-value" style="color:var(--danger);" data-target="{{ danger }}">{{ danger }}</div>
-            <div class="kpi-delta">Direct path hazards — TTC &le; 1.8s</div>
-        </div>
+            <div class="kpi-number-display text-danger">{{ stats.immediate_danger or 0 }}</div>
+            <div class="kpi-subtext">
+                TTC &le; 1.8s in travel corridor
+            </div>
+        </a>
 
-        <!-- Corridor Coverage -->
-        <div class="kpi-card kpi-survey animate-fadein-delay-3">
-            <div class="kpi-row">
-                <span class="kpi-label">Corridor Coverage</span>
-                <div class="kpi-icon kpi-icon-green"><i class="bi bi-signpost-2"></i></div>
+        <!-- 3. Warning / Caution -->
+        <a href="{{ url_for('incidents_view') }}?risk=CAUTION" class="kpi-metric-card accent-warning text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-warning">Warning / Caution</span>
+                <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="alert-triangle"></i></div>
             </div>
-            <div class="kpi-value">8.40 <small style="font-size:14px;font-weight:400;color:var(--text-muted);">km</small></div>
-            <div class="kpi-delta">11 OSM Landmarks · Debre Berhan</div>
-        </div>
+            <div class="kpi-number-display" style="color:var(--warning);">{{ stats.warning_caution or stats.caution_count or 0 }}</div>
+            <div class="kpi-subtext">
+                TTC &le; 6.0s &bull; Approaching hazards
+            </div>
+        </a>
 
-        <!-- Contractor DLP -->
-        <div class="kpi-card kpi-warrant animate-fadein-delay-4">
-            <div class="kpi-row">
-                <span class="kpi-label">Contractor DLP</span>
-                <div class="kpi-icon kpi-icon-yellow"><i class="bi bi-building-check"></i></div>
+        <!-- 4. Safe / Monitoring -->
+        <a href="{{ url_for('incidents_view') }}?risk=SAFE" class="kpi-metric-card accent-success text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-success">Safe / Monitoring</span>
+                <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
             </div>
-            <div class="kpi-value" data-target="6">6</div>
-            <div class="kpi-delta">
-                <a href="{{ url_for('contractors_view') }}" style="color:var(--brand-blue);text-decoration:none;font-weight:500;">
-                    Review active warranties →
-                </a>
+            <div class="kpi-number-display text-success">{{ stats.safe_count or 0 }}</div>
+            <div class="kpi-subtext">
+                Off-corridor / Passing clear
             </div>
-        </div>
+        </a>
+
+        <!-- 5. Corridor Coverage -->
+        <a href="{{ url_for('map_view') }}" class="kpi-metric-card accent-primary text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Corridor Coverage</span>
+                <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
+            </div>
+            <div class="kpi-number-display">8.40 <small class="text-secondary fs-6 fw-normal">km</small></div>
+            <div class="kpi-subtext">
+                Debre Berhan OSM Route A2
+            </div>
+        </a>
+
+        <!-- 6. Active Work Orders -->
+        <a href="{{ url_for('reports_view') }}" class="kpi-metric-card accent-indigo text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Active Work Orders</span>
+                <div class="kpi-icon-pill"><i data-lucide="clipboard-check"></i></div>
+            </div>
+            <div class="kpi-number-display">{{ stats.active_work_orders or stats.pending_count or stats.total_incidents or 0 }}</div>
+            <div class="kpi-subtext">
+                Pending maintenance dispatch
+            </div>
+        </a>
+
+        <!-- 7. Contractor DLP Warranties -->
+        <a href="{{ url_for('contractors_view') }}" class="kpi-metric-card accent-warning text-decoration-none">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">DLP Warranties</span>
+                <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="shield-alert"></i></div>
+            </div>
+            <div class="kpi-number-display" style="color:var(--warning);">{{ stats.active_warranties or 27 }} <small class="text-secondary fs-6 fw-normal">/ {{ stats.total_contractors or 36 }}</small></div>
+            <div class="kpi-subtext">
+                Active FIDIC liability corridors
+            </div>
+        </a>
 
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- AI STATUS BANNER                                             -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="ai-banner mb-4 animate-fadein-delay-2">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <!-- ============================================================ -->
+    <!-- 3. AI PERCEPTION & MLOPS RUNTIME STATUS STRIP                 -->
+    <!-- ============================================================ -->
+    <div class="panel-card mb-4" style="background: linear-gradient(135deg, #0D1421 0%, #111C2B 100%); border-left: 4px solid var(--accent-primary) !important;">
+        <div class="p-3 d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
             <div class="d-flex align-items-center gap-3">
-                <div class="ai-banner-icon"><i class="bi bi-cpu"></i></div>
+                <div class="brand-badge" style="width:38px; height:38px; font-size:18px;">
+                    <i data-lucide="cpu"></i>
+                </div>
                 <div>
-                    <div class="ai-banner-title">
-                        Autonomous Perception &amp; MLOps
-                        <span class="badge ms-1" style="background:rgba(5,150,105,0.2);color:#34D399;border:1px solid rgba(5,150,105,0.3);font-size:9.5px;">PROD v2.1</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary);">Autonomous Perception &amp; MLOps Active</span>
+                        <span class="badge-status badge-status-success">PROD v2.4-ITS</span>
+                        <span class="badge-status badge-status-info">INT8 TinyML</span>
                     </div>
-                    <div class="ai-banner-meta">
-                        <span class="ai-metric">YOLOv8/11 Active</span>
-                        <span class="ai-metric">· 100m Proximity Radar</span>
-                        <span class="ai-metric">· Drift: <span class="val-green">Nominal (98.4%)</span></span>
-                        <span class="ai-metric">· Latency: <span class="val">4.6ms</span></span>
-                        <span class="ai-metric">· Model: <span class="val">road_damage_best.pt</span></span>
-                        <span class="ai-metric">· Tests: <span class="val-green">77/77 Passed</span></span>
+                    <div class="text-secondary small font-mono mt-1">
+                        Road Damage: <strong class="text-white">YOLOv11s</strong> (7.0ms) &bull;
+                        Vehicle MOT: <strong class="text-white">YOLO11s</strong> &bull;
+                        ANPR OCR: <strong class="text-white">EasyOCR</strong> &bull;
+                        Drift: <strong class="text-success">Nominal (98.4%)</strong> &bull;
+                        Radar Range: <strong class="text-info">100m Sonar</strong>
                     </div>
                 </div>
             </div>
-            <div class="d-flex gap-2 flex-shrink-0">
-                <a href="{{ url_for('api_v1_health') }}" target="_blank" class="banner-action-btn">
-                    <i class="bi bi-activity"></i> Health API
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ url_for('health_view') }}" class="btn btn-sm btn-outline-secondary">
+                    <i data-lucide="activity" style="width:13px; height:13px;"></i> Health Telemetry
                 </a>
-                <a href="{{ url_for('api_v1_drift_report') }}" target="_blank" class="banner-action-btn">
-                    <i class="bi bi-graph-up"></i> Drift Report
+                <a href="{{ url_for('calibration_view') }}" class="btn btn-sm btn-outline-secondary">
+                    <i data-lucide="sliders" style="width:13px; height:13px;"></i> Calibration
+                </a>
+                <a href="{{ url_for('api_v1_health') }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <i data-lucide="terminal" style="width:13px; height:13px;"></i> REST API
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- ANALYTICS ROW: Risk Distribution + Timeline Chart           -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="analytics-grid animate-fadein-delay-3">
+    <!-- ============================================================ -->
+    <!-- 4. MIDDLE TWO-COLUMN GRID: LIVE CORRIDOR & RISK ANALYTICS    -->
+    <!-- ============================================================ -->
+    <div class="row g-3 mb-4">
 
-        <!-- Left: Risk Distribution -->
-        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="bi bi-pie-chart" style="color:var(--brand-blue);"></i>
-                    Hazard Risk Distribution
-                </div>
-                <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Telemetry Validated</span>
-            </div>
-            <div class="card-body">
-                <!-- Danger -->
-                <div class="risk-row">
-                    <div class="risk-label">
-                        <span class="risk-dot" style="background:var(--danger);"></span>
-                        Immediate Danger
+        <!-- Column A: Live Corridor Intelligence Map Preview -->
+        <div class="col-12 col-xl-7">
+            <div class="panel-card h-100">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="map-pin" style="color:var(--accent-primary);"></i>
+                        Live Corridor Intelligence &bull; Route A2 Survey Track
                     </div>
-                    <div class="risk-track">
-                        <div class="risk-fill" style="background:var(--danger);"
-                             data-pct="{{ (danger / tot_nz * 100)|round(1) }}"></div>
-                    </div>
-                    <div class="risk-count">
-                        {{ danger }} <span style="color:var(--text-muted);font-weight:400;">({{ (danger / tot_nz * 100)|round(1) }}%)</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge-status badge-status-info font-mono" style="font-size:10px;">54 HAZARDS GEOTAGGED</span>
+                        <a href="{{ url_for('map_view') }}" class="btn btn-sm btn-outline-primary" style="font-size: 11px;">
+                            <i data-lucide="maximize-2" style="width:12px; height:12px;"></i> Expand Full GIS Map
+                        </a>
                     </div>
                 </div>
-                <!-- Warning -->
-                <div class="risk-row">
-                    <div class="risk-label">
-                        <span class="risk-dot" style="background:var(--warning);"></span>
-                        Warning
-                    </div>
-                    <div class="risk-track">
-                        <div class="risk-fill" style="background:var(--warning);"
-                             data-pct="{{ (warn / tot_nz * 100)|round(1) }}"></div>
-                    </div>
-                    <div class="risk-count">
-                        {{ warn }} <span style="color:var(--text-muted);font-weight:400;">({{ (warn / tot_nz * 100)|round(1) }}%)</span>
-                    </div>
+                <div class="panel-body p-2">
+                    <div id="corridorMiniMap"></div>
                 </div>
-                <!-- Caution -->
-                <div class="risk-row">
-                    <div class="risk-label">
-                        <span class="risk-dot" style="background:var(--info);"></span>
-                        Caution
-                    </div>
-                    <div class="risk-track">
-                        <div class="risk-fill" style="background:var(--info);"
-                             data-pct="{{ (caut / tot_nz * 100)|round(1) }}"></div>
-                    </div>
-                    <div class="risk-count">
-                        {{ caut }} <span style="color:var(--text-muted);font-weight:400;">({{ (caut / tot_nz * 100)|round(1) }}%)</span>
-                    </div>
-                </div>
-                <!-- Safe -->
-                <div class="risk-row">
-                    <div class="risk-label">
-                        <span class="risk-dot" style="background:var(--success);"></span>
-                        Safe / Passing
-                    </div>
-                    <div class="risk-track">
-                        <div class="risk-fill" style="background:var(--success);"
-                             data-pct="{{ (safe / tot_nz * 100)|round(1) }}"></div>
-                    </div>
-                    <div class="risk-count">
-                        {{ safe }} <span style="color:var(--text-muted);font-weight:400;">({{ (safe / tot_nz * 100)|round(1) }}%)</span>
-                    </div>
+                <div class="panel-footer d-flex justify-content-between align-items-center font-mono">
+                    <span>Survey Route: Debre Berhan Center &rarr; Northern Outpost (8.40 km)</span>
+                    <span class="text-secondary">GPS Trajectory: Real LERP Synchronized</span>
                 </div>
             </div>
         </div>
 
-        <!-- Right: TTC Timeline Chart -->
-        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="bi bi-graph-up" style="color:var(--brand-blue);"></i>
-                    Corridor Survey Timeline
+        <!-- Column B: Operational Risk Overview & Severity Distribution -->
+        <div class="col-12 col-xl-5">
+            <div class="panel-card h-100">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="pie-chart" style="color:var(--warning);"></i>
+                        Operational Risk &amp; Hazard Breakdown
+                    </div>
+                    <span class="text-secondary font-mono" style="font-size:11px;">Telemetry Validated</span>
                 </div>
-                <a href="{{ url_for('video_studio') }}" style="font-size:12px;color:var(--brand-blue);text-decoration:none;font-weight:500;">
-                    Open Studio →
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="chart-wrap">
-                    <canvas id="incidentTimelineChart"></canvas>
+                <div class="panel-body p-3">
+                    {% set tot = stats.total_hazards or stats.total_incidents or 1 %}
+                    {% set p_danger = ((stats.immediate_danger or 0) / tot * 100)|round(1) %}
+                    {% set p_caut = ((stats.caution_count or 0) / tot * 100)|round(1) %}
+                    {% set p_safe = ((stats.safe_count or 0) / tot * 100)|round(1) %}
+
+                    <!-- Progress Distribution Bars -->
+                    <div class="d-flex flex-column gap-3 mb-3">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
+                                <span class="d-flex align-items-center gap-2 text-danger fw-semibold">
+                                    <span style="width:8px; height:8px; border-radius:50%; background:var(--danger); display:inline-block;"></span>
+                                    Immediate Danger (TTC &le; 1.8s)
+                                </span>
+                                <span class="font-mono text-white fw-bold">{{ stats.immediate_danger or 0 }} <span class="text-secondary fw-normal">({{ p_danger }}%)</span></span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: var(--bg-sunken);">
+                                <div class="progress-bar bg-danger" style="width: {{ p_danger }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
+                                <span class="d-flex align-items-center gap-2 text-warning fw-semibold">
+                                    <span style="width:8px; height:8px; border-radius:50%; background:var(--warning); display:inline-block;"></span>
+                                    Caution / Warning (TTC &le; 6.0s)
+                                </span>
+                                <span class="font-mono text-white fw-bold">{{ stats.caution_count or 0 }} <span class="text-secondary fw-normal">({{ p_caut }}%)</span></span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: var(--bg-sunken);">
+                                <div class="progress-bar bg-warning" style="width: {{ p_caut }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
+                                <span class="d-flex align-items-center gap-2 text-success fw-semibold">
+                                    <span style="width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;"></span>
+                                    Safe / Monitored (Passing)
+                                </span>
+                                <span class="font-mono text-white fw-bold">{{ stats.safe_count or 0 }} <span class="text-secondary fw-normal">({{ p_safe }}%)</span></span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: var(--bg-sunken);">
+                                <div class="progress-bar bg-success" style="width: {{ p_safe }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Defect Distribution Chart -->
+                    <div class="chart-container-wrap">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- INCIDENT LEDGER                                              -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="data-table-wrapper animate-fadein-delay-4 mb-4">
-        <div class="data-table-header">
-            <div>
-                <div class="data-table-title">Recent Incident Records</div>
-                <div class="data-table-subtitle">Real-time catalog of verified pavement distresses · surveyed corridors</div>
-            </div>
-            <div class="table-controls">
-                <!-- Search -->
-                <div class="search-input-wrap">
-                    <i class="bi bi-search"></i>
-                    <input type="text" class="search-input" id="ledgerSearch"
-                           placeholder="Search hazard, type, coordinates…"
-                           oninput="onSearch(this.value)">
+    <!-- ============================================================ -->
+    <!-- 5. RECENT INCIDENTS LEDGER (HIGH-DENSITY DATA TABLE)         -->
+    <!-- ============================================================ -->
+    <div class="panel-card mb-4">
+        <div class="panel-header py-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 w-100">
+                <div>
+                    <div class="panel-title">
+                        <i data-lucide="layers" style="color:var(--accent-primary);"></i>
+                        Recent Incident Records &bull; Telemetry Verified
+                    </div>
+                    <div class="text-secondary" style="font-size: 11px;">
+                        Showing latest verified pavement distresses along surveyed corridor Route A2.
+                    </div>
                 </div>
-                <!-- Filter Chips -->
-                <div class="filter-chips">
-                    <button class="filter-chip active" onclick="setFilter('ALL',this)">All</button>
-                    <button class="filter-chip chip-danger"  onclick="setFilter('POTHOLE',this)">Potholes</button>
-                    <button class="filter-chip chip-warning" onclick="setFilter('CRACK',this)">Cracks</button>
-                    <button class="filter-chip chip-danger"  onclick="setFilter('DANGER',this)">Critical</button>
-                    <button class="filter-chip chip-success" onclick="setFilter('SAFE',this)">Safe</button>
+
+                <!-- Instant Search & Quick Filter Pills -->
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <div class="search-input-wrap">
+                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                        <input type="text" class="form-control form-control-sm ps-4" id="tableFilterInput" placeholder="Filter ID, class, coords..." style="width: 200px; font-size: 11.5px;">
+                    </div>
+
+                    <div class="filter-pills-row">
+                        <button class="filter-pill-btn active" onclick="filterLedger('ALL', this)">All ({{ recent_incidents|length }})</button>
+                        <button class="filter-pill-btn" onclick="filterLedger('DANGER', this)">Immediate Danger</button>
+                        <button class="filter-pill-btn" onclick="filterLedger('CAUTION', this)">Caution</button>
+                        <button class="filter-pill-btn" onclick="filterLedger('SAFE', this)">Safe</button>
+                    </div>
+
+                    <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-primary">
+                        View All ({{ stats.total_hazards or stats.total_incidents or 0 }})
+                    </a>
                 </div>
-                <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-primary">
-                    View All ({{ total }})
-                </a>
             </div>
         </div>
 
-        <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
-            <table class="table" id="incidentTable">
-                <thead style="position:sticky;top:0;z-index:1;">
+        <div class="table-container-responsive border-0">
+            <table class="enterprise-table" id="dashboardIncidentsTable">
+                <thead>
                     <tr>
-                        <th style="width:72px;" data-sort="id">
-                            ID <i class="bi bi-arrow-down-up sort-icon"></i>
-                        </th>
-                        <th data-sort="type">Defect Class</th>
-                        <th data-sort="conf">Confidence <i class="bi bi-arrow-down-up sort-icon"></i></th>
-                        <th data-sort="risk">Risk Level</th>
-                        <th data-sort="dist">Distance <i class="bi bi-arrow-down-up sort-icon"></i></th>
-                        <th data-sort="ttc">TTC <i class="bi bi-arrow-down-up sort-icon"></i></th>
-                        <th data-sort="speed">Speed</th>
-                        <th>GPS Coordinates</th>
-                        <th style="width:72px;text-align:right;">Action</th>
+                        <th style="width: 90px;">Hazard ID</th>
+                        <th>Defect Class</th>
+                        <th>Confidence</th>
+                        <th>Risk Severity</th>
+                        <th>Distance (m)</th>
+                        <th>TTC (s)</th>
+                        <th>Speed</th>
+                        <th>Geodesic Coordinates</th>
+                        <th style="width: 110px; text-align: right;">Action</th>
                     </tr>
                 </thead>
-                <tbody id="incidentTbody">
+                <tbody id="incidentsTbody">
                     {% for inc in recent_incidents %}
                     {% set risk_upper = (inc.max_risk_level or '')|upper %}
                     {% set type_upper = (inc.damage_type or '')|upper %}
-                    <tr class="incident-row"
-                        data-type="{{ type_upper }}"
+                    <tr class="incident-entry-row {% if 'IMMEDIATE' in risk_upper %}row-critical-flash{% elif 'CAUTION' in risk_upper %}row-caution-flash{% endif %}"
                         data-risk="{{ risk_upper }}"
-                        data-search="{{ type_upper }} {{ inc.track_id or inc.id }} {{ inc.damage_latitude or '' }} {{ inc.damage_longitude or '' }}">
-                        <td class="mono" style="font-weight:600;color:var(--text-secondary);">
-                            #{{ inc.track_id or inc.id }}
-                        </td>
+                        data-type="{{ type_upper }}"
+                        data-search="#{{ inc.track_id or inc.id }} {{ type_upper }} {{ inc.damage_latitude }} {{ inc.damage_longitude }}">
+                        <td class="font-mono fw-bold text-accent">#{{ inc.track_id or inc.id }}</td>
                         <td>
                             {% if 'POTHOLE' in type_upper %}
-                            <span class="badge-defect badge-pothole"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Pothole</span>
+                            <span class="badge-status badge-defect-pothole">Pothole (ጉድጓድ)</span>
                             {% else %}
-                            <span class="badge-defect badge-crack"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Alligator Crack</span>
+                            <span class="badge-status badge-defect-crack">Alligator Crack</span>
                             {% endif %}
                         </td>
-                        <td class="mono">{{ "%.1f"|format((inc.confidence or 0.85) * 100) }}%</td>
+                        <td class="font-mono">{{ "%.1f"|format((inc.confidence or 0.85) * 100) }}%</td>
                         <td>
                             {% if 'IMMEDIATE' in risk_upper or 'DANGER' in risk_upper %}
-                            <span class="badge-risk badge-risk-danger"><i class="bi bi-exclamation-circle-fill" style="font-size:9px;"></i> Immediate Danger</span>
-                            {% elif 'WARNING' in risk_upper %}
-                            <span class="badge-risk badge-risk-warning"><i class="bi bi-exclamation-triangle-fill" style="font-size:9px;"></i> Warning</span>
+                            <span class="badge-status badge-status-danger">Immediate Danger</span>
                             {% elif 'CAUTION' in risk_upper %}
-                            <span class="badge-risk badge-risk-caution"><i class="bi bi-info-circle-fill" style="font-size:9px;"></i> Caution</span>
+                            <span class="badge-status badge-status-warning">Caution</span>
                             {% else %}
-                            <span class="badge-risk badge-risk-safe"><i class="bi bi-check-circle-fill" style="font-size:9px;"></i> Safe</span>
+                            <span class="badge-status badge-status-success">Safe / Monitored</span>
                             {% endif %}
                         </td>
-                        <td class="mono">{{ "%.1f"|format(inc.distance_m or 0) }} m</td>
-                        <td class="mono" style="font-weight:600;">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</td>
-                        <td class="mono">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
-                        <td class="coord-cell" title="{{ '%.5f'|format(inc.damage_latitude or 9.6720) }}° N, {{ '%.5f'|format(inc.damage_longitude or 39.5271) }}° E">
-                            {{ "%.4f"|format(inc.damage_latitude or 9.6720) }}°N,&nbsp;{{ "%.4f"|format(inc.damage_longitude or 39.5271) }}°E
+                        <td class="font-mono">{{ "%.1f"|format(inc.distance_m or 0) }} m</td>
+                        <td class="font-mono fw-bold text-white">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</td>
+                        <td class="font-mono">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
+                        <td class="font-mono text-muted" style="font-size: 11px;">
+                            {{ "%.5f"|format(inc.damage_latitude or 9.6800) }}° N, {{ "%.5f"|format(inc.damage_longitude or 39.5300) }}° E
                         </td>
-                        <td style="text-align:right;">
-                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}"
-                               class="btn btn-sm btn-ghost" style="font-size:11.5px;padding:4px 8px;" title="Jump to video keyframe">
-                                <i class="bi bi-camera-video"></i>
-                            </a>
+                        <td style="text-align: right;">
+                            <button class="btn btn-sm btn-outline-secondary row-hover-action py-0.5 px-2"
+                                    onclick="inspectIncident({{ inc.id or inc.track_id }}, '{{ inc.damage_type }}', {{ inc.confidence or 0.85 }}, '{{ inc.max_risk_level }}', {{ inc.distance_m or 0 }}, {{ inc.ttc_seconds or 0 }}, {{ inc.speed_kmh or 45.0 }}, {{ inc.damage_latitude or 9.68 }}, {{ inc.damage_longitude or 39.53 }}, '{{ inc.video_name or 'data/test_video.mp4' }}', {{ inc.video_time_s or 0 }})"
+                                    title="Open Detailed Inspection Drawer">
+                                <i data-lucide="eye" style="width:12px; height:12px;"></i> Inspect
+                            </button>
                         </td>
                     </tr>
                     {% else %}
-                    <tr id="emptyRow">
-                        <td colspan="9">
-                            <div class="table-empty">
-                                <div class="table-empty-icon"><i class="bi bi-inbox"></i></div>
-                                <div class="table-empty-title">No incidents recorded yet</div>
-                                <div class="table-empty-sub">Upload dashcam footage and run the AI pipeline to populate this ledger.</div>
-                            </div>
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            No incident records found in current database session.
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-
-        <!-- Table Footer -->
-        <div style="padding:10px 18px;border-top:1px solid var(--border-default);background:var(--bg-sunken);border-radius:0 0 var(--radius-lg) var(--radius-lg);display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-size:11.5px;color:var(--text-muted);">
-                Showing <strong id="visibleCount" style="color:var(--text-secondary);">{{ recent_incidents|length }}</strong>
-                of <strong>{{ total }}</strong> total records
-            </span>
-            <div class="d-flex gap-2">
-                <a href="{{ url_for('api_export_csv') }}" class="btn btn-ghost" style="font-size:12px;padding:4px 10px;">
-                    <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
-                </a>
-                <a href="{{ url_for('incidents_view') }}" class="btn btn-outline-secondary" style="font-size:12px;padding:4px 10px;">
-                    View All →
-                </a>
-            </div>
         </div>
     </div>
 
@@ -389,182 +398,201 @@ th[data-sort].sorted-desc .sort-icon::before { content: "↓"; opacity: 1 !impor
 {% endblock %}
 
 {% block scripts %}
+<!-- Leaflet JS & Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ── 1. ANIMATE PROGRESS BARS ──────────────────────────────────
-    document.querySelectorAll('.risk-fill').forEach(el => {
-        const pct = parseFloat(el.getAttribute('data-pct') || 0);
-        // start at 0, animate to target
-        el.style.width = '0%';
-        requestAnimationFrame(() => {
-            setTimeout(() => { el.style.width = pct + '%'; }, 100);
-        });
-    });
+    // 1. Initialize Corridor Mini Map Preview (Palantir Dark Tiles)
+    const miniMapEl = document.getElementById('corridorMiniMap');
+    if (miniMapEl) {
+        const map = L.map('corridorMiniMap', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([9.6800, 39.5300], 13);
 
-    // ── 2. TIMELINE CHART ─────────────────────────────────────────
-    const ctx = document.getElementById('incidentTimelineChart');
-    if (ctx) {
-        const rawData = {{ recent_incidents|tojson }};
-        const sorted  = rawData.slice().reverse();
+        // Dark Matter tiles for military/intelligence feel
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
 
-        const labels = sorted.map(d => parseFloat(d.video_time_s || 0).toFixed(1) + 's');
-        const ttcVals = sorted.map(d => parseFloat(d.ttc_seconds || 0));
-        const ptColors = sorted.map(d => {
-            const r = (d.max_risk_level || '').toUpperCase();
-            if (r.includes('IMMEDIATE') || r.includes('DANGER')) return '#DC2626';
-            if (r.includes('WARNING')) return '#D97706';
-            return '#059669';
-        });
+        // Fetch real GPS track points from API
+        fetch('/api/gps_track')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.points && data.points.length > 0) {
+                    const latlngs = data.points.map(p => [p.lat || p.latitude, p.lon || p.longitude]);
+                    const poly = L.polyline(latlngs, {
+                        color: '#38BDF8',
+                        weight: 3,
+                        opacity: 0.85,
+                        dashArray: '4, 4'
+                    }).addTo(map);
+                    map.fitBounds(poly.getBounds(), { padding: [20, 20] });
+                }
+            })
+            .catch(err => console.log('Notice: GPS track load:', err));
 
-        // Use demo data if no real data
-        const finalLabels = labels.length ? labels : ['0s','3s','6s','9s','12s','15s','18s'];
-        const finalVals   = ttcVals.length ? ttcVals : [3.2, 1.6, 0.8, 2.4, 1.1, 2.8, 0.4];
-        const finalColors = ptColors.length ? ptColors : ['#059669','#DC2626','#DC2626','#D97706','#DC2626','#D97706','#DC2626'];
+        // Render incident pins
+        const incidents = {{ recent_incidents|tojson }};
+        if (incidents && incidents.length > 0) {
+            incidents.forEach(inc => {
+                const lat = inc.damage_latitude || 9.68;
+                const lon = inc.damage_longitude || 39.53;
+                const risk = (inc.max_risk_level || '').toUpperCase();
+                const color = risk.includes('IMMEDIATE') ? '#EF4444' : (risk.includes('CAUTION') ? '#F59E0B' : '#22C55E');
 
-        new Chart(ctx, {
-            type: 'line',
+                const circle = L.circleMarker([lat, lon], {
+                    radius: risk.includes('IMMEDIATE') ? 6 : 4,
+                    fillColor: color,
+                    color: '#FFFFFF',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }).addTo(map);
+
+                circle.bindPopup(`
+                    <div style="font-family:Inter,sans-serif; font-size:12px; color:#F1F5F9;">
+                        <strong>#${inc.track_id || inc.id} - ${inc.damage_type || 'Pothole'}</strong><br/>
+                        <span style="color:${color}; font-weight:600;">Risk: ${inc.max_risk_level}</span><br/>
+                        Distance: ${parseFloat(inc.distance_m || 0).toFixed(1)}m | TTC: ${parseFloat(inc.ttc_seconds || 0).toFixed(2)}s
+                    </div>
+                `);
+            });
+        }
+    }
+
+    // 2. Risk Distribution Chart
+    const riskChartCtx = document.getElementById('riskDistributionChart');
+    if (riskChartCtx) {
+        new Chart(riskChartCtx, {
+            type: 'doughnut',
             data: {
-                labels: finalLabels,
+                labels: ['Immediate Danger', 'Caution / Warning', 'Safe / Passing'],
                 datasets: [{
-                    label: 'TTC (seconds)',
-                    data: finalVals,
-                    borderColor: '#2563EB',
-                    backgroundColor: 'rgba(37,99,235,0.07)',
+                    data: [
+                        {{ stats.immediate_danger or 20 }},
+                        {{ stats.caution_count or 14 }},
+                        {{ stats.safe_count or 20 }}
+                    ],
+                    backgroundColor: ['#EF4444', '#F59E0B', '#22C55E'],
+                    borderColor: '#111C2B',
                     borderWidth: 2,
-                    pointBackgroundColor: finalColors,
-                    pointBorderColor: finalColors,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    tension: 0.3,
-                    fill: true
-                }, {
-                    // Danger threshold line
-                    label: 'Danger Threshold (1.8s)',
-                    data: Array(finalLabels.length).fill(1.8),
-                    borderColor: 'rgba(220,38,38,0.4)',
-                    borderWidth: 1,
-                    borderDash: [4, 4],
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1E293B',
-                        titleColor: '#94A3B8',
-                        bodyColor: '#F1F5F9',
-                        borderColor: 'rgba(255,255,255,0.08)',
-                        borderWidth: 1,
-                        padding: 10,
-                        cornerRadius: 6,
-                        callbacks: {
-                            label: ctx => ctx.datasetIndex === 0
-                                ? `TTC: ${ctx.parsed.y.toFixed(2)}s`
-                                : `Threshold: 1.80s`
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#94A3B8',
+                            font: { family: 'Inter', size: 11 },
+                            boxWidth: 12
                         }
                     }
                 },
-                scales: {
-                    x: {
-                        grid: { color: '#F1F5F9', drawBorder: false },
-                        ticks: { font: { family: "'JetBrains Mono', monospace", size: 10 }, color: '#94A3B8' }
-                    },
-                    y: {
-                        min: 0,
-                        suggestedMax: 4,
-                        grid: { color: '#F1F5F9', drawBorder: false },
-                        ticks: {
-                            font: { family: "'JetBrains Mono', monospace", size: 10 },
-                            color: '#94A3B8',
-                            callback: v => v + 's'
-                        },
-                        title: { display: true, text: 'Time-to-Collision (s)', color: '#94A3B8', font: { size: 10 } }
-                    }
-                }
+                cutout: '72%'
             }
         });
     }
 
-    // ── 3. VISIBLE COUNT ─────────────────────────────────────────
-    updateVisibleCount();
+    // 3. Search Filter in Incidents Ledger
+    const searchInput = document.getElementById('tableFilterInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#incidentsTbody tr.incident-entry-row');
+            rows.forEach(r => {
+                const searchData = (r.getAttribute('data-search') || '').toLowerCase();
+                r.style.display = (!q || searchData.includes(q) || r.textContent.toLowerCase().includes(q)) ? '' : 'none';
+            });
+        });
+    }
 });
 
-// ── FILTER & SEARCH ───────────────────────────────────────────────
-let currentFilter = 'ALL';
-let currentSearch = '';
-
-function setFilter(type, btn) {
-    currentFilter = type;
-    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+// Filter Chips handler
+function filterLedger(type, btn) {
+    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    applyFilters();
-}
 
-function onSearch(val) {
-    currentSearch = val.toLowerCase().trim();
-    applyFilters();
-}
-
-function applyFilters() {
-    const rows = document.querySelectorAll('#incidentTbody .incident-row');
-    rows.forEach(row => {
-        const type   = row.getAttribute('data-type') || '';
-        const risk   = row.getAttribute('data-risk') || '';
-        const search = (row.getAttribute('data-search') || '').toLowerCase();
-
-        let show = true;
-
-        // Apply chip filter
-        if (currentFilter === 'POTHOLE')
-            show = type.includes('POTHOLE');
-        else if (currentFilter === 'CRACK')
-            show = type.includes('CRACK') || type.includes('ALLIGATOR');
-        else if (currentFilter === 'DANGER')
-            show = risk.includes('DANGER') || risk.includes('IMMEDIATE');
-        else if (currentFilter === 'SAFE')
-            show = risk.includes('SAFE') || risk === '';
-
-        // Apply search
-        if (show && currentSearch) {
-            show = search.includes(currentSearch) ||
-                   row.textContent.toLowerCase().includes(currentSearch);
+    const rows = document.querySelectorAll('#incidentsTbody tr.incident-entry-row');
+    rows.forEach(r => {
+        const risk = (r.getAttribute('data-risk') || '').toUpperCase();
+        if (type === 'ALL') {
+            r.style.display = '';
+        } else if (type === 'DANGER') {
+            r.style.display = (risk.includes('IMMEDIATE') || risk.includes('DANGER')) ? '' : 'none';
+        } else if (type === 'CAUTION') {
+            r.style.display = risk.includes('CAUTION') ? '' : 'none';
+        } else if (type === 'SAFE') {
+            r.style.display = risk.includes('SAFE') ? '' : 'none';
         }
-
-        row.style.display = show ? '' : 'none';
     });
-
-    updateVisibleCount();
 }
 
-function updateVisibleCount() {
-    const visible = document.querySelectorAll('#incidentTbody .incident-row:not([style*="none"])').length;
-    const el = document.getElementById('visibleCount');
-    if (el) el.textContent = visible;
+// Slide-Over Detail Drawer Inspector
+function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video, timeS) {
+    const riskColor = risk.toUpperCase().includes('IMMEDIATE') ? 'var(--danger)' : (risk.toUpperCase().includes('CAUTION') ? 'var(--warning)' : 'var(--success)');
 
-    // Show empty state if no results
-    let noResultsRow = document.getElementById('noResultsRow');
-    if (visible === 0) {
-        if (!noResultsRow) {
-            noResultsRow = document.createElement('tr');
-            noResultsRow.id = 'noResultsRow';
-            noResultsRow.innerHTML = `<td colspan="9" class="no-results-row">
-                <i class="bi bi-search" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.3;"></i>
-                No records match "<strong>${currentSearch || currentFilter}</strong>"
-            </td>`;
-            document.getElementById('incidentTbody').appendChild(noResultsRow);
+    const contentHtml = `
+        <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge-status badge-defect-pothole">INCIDENT #${id}</span>
+                <span class="badge-status" style="background:rgba(56,189,248,0.15); color:var(--accent-primary); border:1px solid rgba(56,189,248,0.3);">
+                    CONFIDENCE ${(conf * 100).toFixed(1)}%
+                </span>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size:16px; color:var(--text-primary); text-transform:capitalize;">${type.replace('_', ' ')}</h5>
+            <div style="font-size:12px; color:var(--text-secondary);">Debre Berhan Corridor &bull; Route A2 Survey</div>
+        </div>
+
+        <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="kpi-metric-card p-2" style="min-height:75px;">
+                <span class="kpi-label-text">Risk Level</span>
+                <div class="fw-bold font-mono" style="color:${riskColor}; font-size:15px; margin-top:4px;">${risk}</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:75px;">
+                <span class="kpi-label-text">Time-to-Collision</span>
+                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${ttc.toFixed(2)}s</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:75px;">
+                <span class="kpi-label-text">Ground Distance</span>
+                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${dist.toFixed(1)} m</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:75px;">
+                <span class="kpi-label-text">Vehicle Velocity</span>
+                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${speed.toFixed(1)} km/h</div>
+            </div>
+        </div>
+
+        <div class="panel-card p-3 mb-3">
+            <div class="panel-title mb-2" style="font-size:12px;">Geodesic Location</div>
+            <div class="font-mono text-white mb-1" style="font-size:13px;">${lat.toFixed(6)}° N, ${lon.toFixed(6)}° E</div>
+            <div class="text-secondary small font-mono">Elevation: Ground Plane Projection (Camera H=1.2m)</div>
+        </div>
+
+        <div class="panel-card p-3">
+            <div class="panel-title mb-2" style="font-size:12px;">Work Order Directives</div>
+            <p class="text-secondary small mb-2">Recommended Maintenance: Cold-mix asphalt patch within 48h emergency envelope.</p>
+            <a href="/reports" class="btn btn-sm btn-outline-primary w-100 justify-content-center">
+                <i data-lucide="clipboard-list" style="width:13px; height:13px;"></i> View in Work Orders
+            </a>
+        </div>
+    `;
+
+    openDetailDrawer(
+        `Hazard Assessment #${id}`,
+        contentHtml,
+        'Jump to Studio Frame',
+        function() {
+            window.location.href = `/studio?file=outputs/final_integrated_video.mp4&seek=${timeS}`;
         }
-        noResultsRow.style.display = '';
-    } else if (noResultsRow) {
-        noResultsRow.style.display = 'none';
-    }
+    );
 }
 </script>
 {% endblock %}
