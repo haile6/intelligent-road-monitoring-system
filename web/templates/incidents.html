@@ -1,48 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Hazard Incident Register — RoadEye™{% endblock %}
-{% block breadcrumb %}Hazard Incident Register{% endblock %}
+{% block title %}Hazard Incident Register — RoadEye™ Enterprise{% endblock %}
+{% block breadcrumb %}Incident Ledger{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
 
     <!-- ============================================================ -->
-    <!-- PAGE HEADER                                                  -->
+    <!-- 1. PAGE HEADER                                                -->
     <!-- ============================================================ -->
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+    <div class="page-header-row">
         <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-danger" style="font-size: 10px; letter-spacing: 0.05em;">HAZARD INVENTORY</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor Survey Telemetry Records</span>
+            <div class="page-eyebrow">
+                <span class="page-eyebrow-pill">Municipal Asset Preservation</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor Survey Telemetry Records &bull; Route A2</span>
             </div>
-            <h1 class="page-title mt-1">HAZARD INCIDENT REGISTER</h1>
-            <div class="page-subtitle">Granular Pavement Defect Records, Multi-Sensor Telemetry &amp; Verification Workflow</div>
+            <h1 class="page-main-title">Road Hazard Incident Ledger</h1>
+            <p class="page-main-desc">Granular Pavement Defect Records, Multi-Sensor Telemetry &amp; Verification Workflow.</p>
         </div>
 
-        <!-- Export & Reset Actions -->
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-download"></i>
-                <span>Export Incidents (CSV)</span>
+        <div class="page-actions-bar">
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-secondary">
+                <i data-lucide="download"></i> Export Ledger (CSV)
             </a>
-            <a href="{{ url_for('map_view') }}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-map"></i>
-                <span>View on Road Map</span>
+            <a href="{{ url_for('map_view') }}" class="btn btn-primary">
+                <i data-lucide="map"></i> View on GIS Map
             </a>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- ADVANCED FILTER & SEARCH PANEL                              -->
+    <!-- 2. ADVANCED ENTERPRISE FILTER PANEL                          -->
     <!-- ============================================================ -->
-    <div class="card mb-3">
-        <div class="card-body p-3">
+    <div class="panel-card mb-4">
+        <div class="panel-body p-3">
             <form method="GET" action="{{ url_for('incidents_view') }}" class="row g-2 align-items-center">
                 <!-- Search text -->
                 <div class="col-12 col-md-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                        <input type="text" name="q" class="form-control border-start-0 ps-0" placeholder="Search Hazard ID, notes, crew..." value="{{ search_query }}">
+                    <div class="search-input-wrap">
+                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                        <input type="text" name="q" class="form-control form-control-sm ps-4" placeholder="Search Hazard ID, notes, crew..." value="{{ search_query }}">
                     </div>
                 </div>
 
@@ -85,6 +82,7 @@
                         <option value="Scheduled for Repair" {% if status_filter == 'Scheduled for Repair' %}selected{% endif %}>Scheduled for Repair</option>
                         <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
                         <option value="Repaired" {% if status_filter == 'Repaired' %}selected{% endif %}>Repaired</option>
+                        <option value="Dismissed" {% if status_filter == 'Dismissed' %}selected{% endif %}>Dismissed</option>
                     </select>
                 </div>
 
@@ -94,7 +92,7 @@
                         Filter
                     </button>
                     <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-secondary" title="Reset Filters">
-                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <i data-lucide="rotate-ccw" style="width:12px; height:12px;"></i>
                     </a>
                 </div>
             </form>
@@ -102,119 +100,137 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- DENSE PROFESSIONAL INCIDENT TABLE                           -->
+    <!-- 3. DENSE ENTERPRISE INCIDENT LEDGER TABLE                    -->
     <!-- ============================================================ -->
-    <div class="card">
-        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+    <div class="panel-card mb-4">
+        <div class="panel-header py-2.5">
             <div class="d-flex align-items-center gap-2">
-                <h6 class="card-title mb-0">Road Defect Incident Register</h6>
-                <span class="badge bg-secondary font-mono">{{ incidents|length }} Records</span>
+                <div class="panel-title">
+                    <i data-lucide="clipboard-list" style="color:var(--accent-primary);"></i>
+                    Road Defect Incident Register
+                </div>
+                <span class="badge-status badge-status-info font-mono">{{ incidents|length }} Records</span>
             </div>
-            <span class="metadata-text">Units: Distance (metres) &bull; Speed (km/h) &bull; TTC (seconds)</span>
+            <span class="text-secondary font-mono" style="font-size: 11px;">Units: Distance (m) &bull; Speed (km/h) &bull; TTC (s)</span>
         </div>
-        <div class="table-container border-0">
-            <table class="table table-hover">
+
+        <div class="table-container-responsive border-0">
+            <table class="enterprise-table" id="incidentsMasterTable">
                 <thead>
                     <tr>
-                        <th>Hazard ID</th>
+                        <th style="width: 80px; cursor: pointer;" onclick="sortTable(0)">
+                            Hazard ID <i data-lucide="arrow-up-down" style="width:10px; height:10px;"></i>
+                        </th>
                         <th>Defect Type</th>
-                        <th>Detection Conf.</th>
-                        <th>Severity</th>
-                        <th>Est. Distance</th>
-                        <th>TTC (sec)</th>
-                        <th>Vehicle Speed</th>
+                        <th style="cursor: pointer;" onclick="sortTable(2)">
+                            Confidence <i data-lucide="arrow-up-down" style="width:10px; height:10px;"></i>
+                        </th>
+                        <th>Risk Severity</th>
+                        <th style="cursor: pointer;" onclick="sortTable(4)">
+                            Distance <i data-lucide="arrow-up-down" style="width:10px; height:10px;"></i>
+                        </th>
+                        <th style="cursor: pointer;" onclick="sortTable(5)">
+                            TTC <i data-lucide="arrow-up-down" style="width:10px; height:10px;"></i>
+                        </th>
+                        <th>Speed</th>
                         <th>GPS Latitude / Longitude</th>
                         <th>Video Time</th>
-                        <th>Evidence</th>
-                        <th>Review Status</th>
-                        <th class="text-end">Actions</th>
+                        <th>Workflow Status</th>
+                        <th style="text-align: right; width: 130px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for inc in incidents %}
-                    <tr>
+                    {% set risk_upper = (inc.max_risk_level or '')|upper %}
+                    {% set type_upper = (inc.damage_type or '')|upper %}
+                    <tr class="incident-row">
                         <!-- Hazard ID -->
-                        <td class="font-mono fw-bold">#{{ inc.track_id or inc.id }}</td>
+                        <td class="font-mono fw-bold text-accent">#{{ inc.track_id or inc.id }}</td>
 
                         <!-- Defect Type -->
                         <td>
-                            <span class="fw-semibold text-capitalize text-dark">{{ inc.damage_type }}</span>
+                            {% if 'POTHOLE' in type_upper %}
+                            <span class="badge-status badge-defect-pothole">Pothole (ጉድጓድ)</span>
+                            {% else %}
+                            <span class="badge-status badge-defect-crack">Alligator Crack</span>
+                            {% endif %}
                         </td>
 
                         <!-- Detection Confidence -->
-                        <td>
-                            <span class="font-mono">{{ "%.1f"|format((inc.confidence or 0.85)*100) }}%</span>
-                        </td>
+                        <td class="font-mono">{{ "%.1f"|format((inc.confidence or 0.85) * 100) }}%</td>
 
                         <!-- Severity -->
                         <td>
-                            {% if 'IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '') %}
-                            <span class="badge badge-risk-danger">Immediate Danger</span>
-                            {% elif 'WARNING' in (inc.max_risk_level or '') %}
-                            <span class="badge badge-risk-warning">Warning</span>
-                            {% elif 'CAUTION' in (inc.max_risk_level or '') %}
-                            <span class="badge badge-risk-caution">Caution</span>
+                            {% if 'IMMEDIATE' in risk_upper or 'DANGER' in risk_upper %}
+                            <span class="badge-status badge-status-danger">Immediate Danger</span>
+                            {% elif 'WARNING' in risk_upper %}
+                            <span class="badge-status badge-status-warning">Warning</span>
+                            {% elif 'CAUTION' in risk_upper %}
+                            <span class="badge-status badge-status-caution">Caution</span>
                             {% else %}
-                            <span class="badge badge-risk-safe">Safe / Monitor</span>
+                            <span class="badge-status badge-status-success">Safe / Monitor</span>
                             {% endif %}
                         </td>
 
                         <!-- Estimated Distance -->
-                        <td>
-                            <span class="font-mono">{{ "%.1f"|format(inc.distance_m or 0) }} m</span>
-                            <small class="text-secondary" style="font-size: 10px;">(est)</small>
-                        </td>
+                        <td class="font-mono">{{ "%.1f"|format(inc.distance_m or 0) }} m</td>
 
                         <!-- TTC -->
-                        <td>
-                            <span class="font-mono fw-bold {% if inc.ttc_seconds and inc.ttc_seconds < 1.5 %}text-danger{% elif inc.ttc_seconds and inc.ttc_seconds < 3.0 %}text-warning{% endif %}">
-                                {{ "%.2f"|format(inc.ttc_seconds or 0) }} s
-                            </span>
+                        <td class="font-mono fw-bold {% if inc.ttc_seconds and inc.ttc_seconds <= 1.8 %}text-danger{% elif inc.ttc_seconds and inc.ttc_seconds <= 3.5 %}text-warning{% else %}text-white{% endif %}">
+                            {{ "%.2f"|format(inc.ttc_seconds or 0) }}s
                         </td>
 
                         <!-- Vehicle Speed -->
-                        <td>
-                            <span class="font-mono">{{ "%.1f"|format(inc.speed_kmh or 60.0) }} km/h</span>
-                        </td>
+                        <td class="font-mono">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
 
                         <!-- GPS Coordinates -->
-                        <td>
-                            <span class="font-mono" style="font-size: 11px;">
-                                {{ "%.5f"|format(inc.damage_latitude or 9.0238) }}° N, {{ "%.5f"|format(inc.damage_longitude or 38.7468) }}° E
-                            </span>
+                        <td class="font-mono text-muted" style="font-size: 11px;">
+                            {{ "%.5f"|format(inc.damage_latitude or 9.6800) }}° N, {{ "%.5f"|format(inc.damage_longitude or 39.5300) }}° E
                         </td>
 
                         <!-- Video Timestamp -->
-                        <td>
-                            <span class="font-mono text-secondary">{{ "%.1f"|format(inc.video_time_s or 0) }}s</span>
+                        <td class="font-mono text-secondary" style="font-size: 11.5px;">
+                            {{ "%.1f"|format(inc.video_time_s or 0) }}s
                             <small class="text-muted d-block font-mono">(f:{{ inc.frame_number or 0 }})</small>
-                        </td>
-
-                        <!-- Evidence Keyframe Link -->
-                        <td>
-                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px;">
-                                <i class="bi bi-camera-video me-1"></i> Frame
-                            </a>
                         </td>
 
                         <!-- Review Status -->
                         <td>
-                            <span class="badge {% if inc.status == 'Repaired' %}bg-success{% elif inc.status == 'In Progress' %}bg-warning{% elif inc.status == 'In Review' %}bg-info{% else %}bg-secondary{% endif %}">
-                                {{ inc.status or 'Reported' }}
-                            </span>
+                            {% if inc.status == 'Repaired' %}
+                            <span class="badge-status badge-status-success">Repaired</span>
+                            {% elif inc.status == 'In Progress' %}
+                            <span class="badge-status badge-status-warning">In Progress</span>
+                            {% elif inc.status == 'Scheduled for Repair' %}
+                            <span class="badge-status badge-status-info">Scheduled</span>
+                            {% elif inc.status == 'In Review' %}
+                            <span class="badge-status badge-status-caution">In Review</span>
+                            {% elif inc.status == 'Dismissed' %}
+                            <span class="badge-status" style="background:var(--bg-sunken); color:var(--text-muted); border:1px solid var(--border-default);">Dismissed</span>
+                            {% else %}
+                            <span class="badge-status" style="background:var(--bg-elevated); color:var(--text-secondary); border:1px solid var(--border-default);">Reported</span>
+                            {% endif %}
                         </td>
 
                         <!-- Actions -->
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px;" onclick="openIncidentDrawer({{ inc|tojson|forceescape }})">
-                                Review
-                            </button>
+                        <td style="text-align: right;">
+                            <div class="d-inline-flex gap-1">
+                                <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}"
+                                   class="btn btn-sm btn-outline-secondary py-0.5 px-1.5" title="Jump to Video Keyframe">
+                                    <i data-lucide="video" style="width:12px; height:12px;"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-primary py-0.5 px-2"
+                                        onclick="openIncidentDrawer({{ inc|tojson|forceescape }})"
+                                        title="Verify &amp; Dispatch Incident">
+                                    Verify
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="12" class="text-center py-4 text-secondary">
-                            No matching incident records found.
+                        <td colspan="11" class="text-center py-5 text-muted">
+                            <i data-lucide="inbox" style="width:32px; height:32px; opacity:0.4; margin-bottom:8px; display:block; margin-inline:auto;"></i>
+                            No matching incident records found for the applied filter.
                         </td>
                     </tr>
                     {% endfor %}
@@ -225,63 +241,70 @@
 
 </div>
 
-<!-- Incident Review Detail Modal / Drawer -->
-<div class="modal fade" id="incidentModal" tabindex="-1" aria-labelledby="incidentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-bottom">
-                <h5 class="modal-title fw-bold" id="incidentModalLabel">
-                    <i class="bi bi-shield-exclamation text-danger me-2"></i>Hazard Review &amp; Dispatch
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Incident Review Detail Modal -->
+<div class="modal fade" id="incidentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
+            <div class="modal-header" style="border-color: var(--border-subtle);">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="shield-alert" style="color: var(--danger);"></i>
+                    <h5 class="modal-title fw-bold" style="font-size: 14.5px;">Hazard Verification &amp; Engineering Dispatch</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="modalIncId">
-                <div class="p-3 bg-light rounded border mb-3">
+
+                <div class="p-3 rounded mb-3" style="background: var(--bg-main); border: 1px solid var(--border-default);">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold font-mono text-dark" id="modalTrackId">#--</span>
-                        <span class="badge" id="modalSeverityBadge">--</span>
+                        <span class="fw-bold font-mono text-accent" id="modalTrackId">#--</span>
+                        <span class="badge-status" id="modalSeverityBadge">--</span>
                     </div>
-                    <div class="metadata-text" id="modalGpsLocation">Coordinates: --</div>
+                    <div class="font-mono text-secondary small" id="modalGpsLocation">Coordinates: --</div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Review Status</label>
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Workflow Status</label>
                     <select class="form-select form-select-sm" id="modalStatusSelect">
-                        <option value="Reported">Reported</option>
-                        <option value="In Review">In Review</option>
+                        <option value="Reported">Reported (Logged from Telemetry)</option>
+                        <option value="In Review">In Review (Engineer Assigned)</option>
                         <option value="Scheduled for Repair">Scheduled for Repair</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Repaired">Repaired</option>
-                        <option value="Dismissed">Dismissed</option>
+                        <option value="In Progress">In Progress (Field Crew On-Site)</option>
+                        <option value="Repaired">Repaired (Work Order Complete)</option>
+                        <option value="Dismissed">Dismissed (False Positive / Artifact)</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Assigned Maintenance Crew</label>
-                    <input type="text" class="form-control form-control-sm" id="modalCrewInput" placeholder="e.g. Corridor Maintenance Unit Alpha">
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Assigned Maintenance Unit</label>
+                    <input type="text" class="form-control form-control-sm" id="modalCrewInput" placeholder="e.g. Debre Berhan Highway Maintenance Crew Alpha">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Repair Priority</label>
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Repair Priority Envelope</label>
                     <select class="form-select form-select-sm" id="modalPrioritySelect">
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                        <option value="Critical">Critical</option>
+                        <option value="Critical">Critical (Immediate Hazard - 24h SLA)</option>
+                        <option value="High">High (48h SLA)</option>
+                        <option value="Medium">Medium (Routine Preservative Patching)</option>
+                        <option value="Low">Low (Scheduled Maintenance)</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Engineer Notes</label>
-                    <textarea class="form-control form-control-sm" id="modalNotesInput" rows="2" placeholder="Inspection verification observations..."></textarea>
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Engineering Notes &amp; Observations</label>
+                    <textarea class="form-control form-control-sm" id="modalNotesInput" rows="2" placeholder="Record pavement distress depth, sub-base condition, or repair directives..."></textarea>
                 </div>
             </div>
-            <div class="modal-footer border-top d-flex justify-content-between">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-sm btn-primary" onclick="saveIncidentUpdate()">
-                    Save Verification
-                </button>
+            <div class="modal-footer d-flex justify-content-between" style="border-color: var(--border-subtle); background: var(--bg-secondary);">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="rejectFalsePositive()">
+                        <i data-lucide="x-circle" style="width:12px; height:12px;"></i> Dismiss
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="saveIncidentUpdate()">
+                        <i data-lucide="check" style="width:12px; height:12px;"></i> Save Verification
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -292,20 +315,33 @@
 <script>
 function openIncidentDrawer(inc) {
     document.getElementById('modalIncId').value = inc.id;
-    document.getElementById('modalTrackId').textContent = 'Defect #' + (inc.track_id || inc.id) + ' (' + inc.damage_type + ')';
-    document.getElementById('modalGpsLocation').textContent = 'Location: ' + (inc.damage_latitude ? inc.damage_latitude.toFixed(5) : '9.0238') + '° N, ' + (inc.damage_longitude ? inc.damage_longitude.toFixed(5) : '38.7468') + '° E';
-    
+    document.getElementById('modalTrackId').textContent = 'Defect #' + (inc.track_id || inc.id) + ' (' + (inc.damage_type || 'Pothole') + ')';
+    document.getElementById('modalGpsLocation').textContent = 'Location: ' + (inc.damage_latitude ? inc.damage_latitude.toFixed(5) : '9.6800') + '° N, ' + (inc.damage_longitude ? inc.damage_longitude.toFixed(5) : '39.5300') + '° E';
+
     const badge = document.getElementById('modalSeverityBadge');
     badge.textContent = inc.max_risk_level || 'SAFE';
-    badge.className = 'badge ' + (inc.max_risk_level && inc.max_risk_level.includes('IMMEDIATE') ? 'bg-danger' : 'bg-warning');
+    if (inc.max_risk_level && inc.max_risk_level.includes('IMMEDIATE')) {
+        badge.className = 'badge-status badge-status-danger';
+    } else if (inc.max_risk_level && inc.max_risk_level.includes('CAUTION')) {
+        badge.className = 'badge-status badge-status-warning';
+    } else {
+        badge.className = 'badge-status badge-status-success';
+    }
 
     document.getElementById('modalStatusSelect').value = inc.status || 'Reported';
-    document.getElementById('modalCrewInput').value = inc.assigned_crew || 'Corridor Maintenance Crew Alpha';
+    document.getElementById('modalCrewInput').value = inc.assigned_crew || 'Debre Berhan Highway Maintenance Crew Alpha';
     document.getElementById('modalPrioritySelect').value = inc.repair_priority || 'Medium';
     document.getElementById('modalNotesInput').value = inc.notes || '';
 
     const modal = new bootstrap.Modal(document.getElementById('incidentModal'));
     modal.show();
+    if (window.lucide) lucide.createIcons();
+}
+
+function rejectFalsePositive() {
+    document.getElementById('modalStatusSelect').value = 'Dismissed';
+    document.getElementById('modalNotesInput').value = 'Dismissed as false positive / sensory artifact by engineer review.';
+    saveIncidentUpdate();
 }
 
 function saveIncidentUpdate() {
@@ -328,12 +364,36 @@ function saveIncidentUpdate() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            window.location.reload();
+            showToast('Incident #' + incId + ' verification saved persistently.', 'success');
+            setTimeout(() => window.location.reload(), 600);
         } else {
-            alert('Update error: ' + (data.error || 'Failed to update'));
+            showToast('Update failed: ' + (data.error || 'Server error'), 'danger');
         }
     })
-    .catch(err => alert('Network error: ' + err.message));
+    .catch(err => showToast('Network error: ' + err.message, 'danger'));
+}
+
+// Client-Side Table Column Sorting
+let sortAsc = true;
+function sortTable(columnIndex) {
+    const table = document.getElementById('incidentsMasterTable');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr.incident-row'));
+
+    rows.sort((a, b) => {
+        const aText = a.children[columnIndex].textContent.trim();
+        const bText = b.children[columnIndex].textContent.trim();
+        const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ''));
+        const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ''));
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return sortAsc ? aNum - bNum : bNum - aNum;
+        }
+        return sortAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+
+    sortAsc = !sortAsc;
+    rows.forEach(r => tbody.appendChild(r));
 }
 </script>
 {% endblock %}
