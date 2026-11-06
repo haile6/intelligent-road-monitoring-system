@@ -105,30 +105,25 @@
     <!-- ============================================================ -->
     <div class="page-header-row">
         <div>
-            <div class="page-eyebrow">
-                <span class="page-eyebrow-pill">Infrastructure Lifecycle Management</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Debre Berhan Highway Maintenance Authority</span>
-            </div>
-            <h1 class="page-main-title">Maintenance Work Orders &amp; Directives</h1>
-            <p class="page-main-desc">Standardized Maintenance Workflow: Detected &rarr; Needs Review &rarr; Verified &rarr; Assigned &rarr; Completed.</p>
+            <h1 class="page-main-title">Work Orders</h1>
         </div>
 
         <div class="page-actions-bar no-print">
             <!-- View Switcher (Kanban vs Table) -->
             <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-primary active" id="btnViewKanban" onclick="switchWorkOrderView('kanban')">
-                    <i data-lucide="kanban"></i> Kanban Board
+                    <i data-lucide="kanban"></i> Kanban
                 </button>
                 <button class="btn btn-outline-secondary" id="btnViewTable" onclick="switchWorkOrderView('table')">
-                    <i data-lucide="table"></i> Detailed Ledger
+                    <i data-lucide="table"></i> Table
                 </button>
             </div>
 
             <button onclick="window.print()" class="btn btn-secondary">
-                <i data-lucide="printer"></i> Print Dossier (PDF)
+                <i data-lucide="printer"></i> Print
             </button>
-            <a href="{{ url_for('api_export_csv') }}" class="btn btn-outline-secondary">
-                <i data-lucide="download"></i> Export Orders (CSV)
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-secondary">
+                <i data-lucide="download"></i> Export CSV
             </a>
         </div>
     </div>

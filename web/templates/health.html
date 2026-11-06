@@ -11,23 +11,22 @@
     <!-- ============================================================ -->
     <div class="page-header-row">
         <div>
-            <div class="page-eyebrow">
-                <span class="page-eyebrow-pill">Diagnostic Telemetry</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Continuous Subsystem Monitoring &bull; Watchdog Daemon</span>
-            </div>
-            <h1 class="page-main-title">System Health &amp; Subsystem Telemetry</h1>
-            <p class="page-main-desc">Real-time hardware verification, database integrity, model inference latencies &amp; REST API gateway.</p>
+            <h1 class="page-main-title">System Health</h1>
         </div>
 
         <div class="page-actions-bar">
             <span class="badge-status {% if health.status == 'OPERATIONAL' %}badge-status-success{% else %}badge-status-warning{% endif %} font-mono px-3 py-1.5" style="font-size: 12px;">
                 <span class="status-beacon-dot {% if health.status == 'OPERATIONAL' %}{% else %}danger{% endif %} me-1" style="display:inline-block; vertical-align:middle;"></span>
-                SYSTEM {{ health.status }}
+                {{ health.status }}
             </span>
             <button class="btn btn-secondary" onclick="window.location.reload()">
-                <i data-lucide="rotate-cw"></i> Re-Check Telemetry
+                <i data-lucide="rotate-cw"></i> Refresh
             </button>
             <a href="{{ url_for('api_v1_health') }}" target="_blank" class="btn btn-outline-primary">
+                <i data-lucide="terminal"></i> API Endpoint
+            </a>
+        </div>
+    </div>
                 <i data-lucide="terminal"></i> View Health JSON
             </a>
         </div>

@@ -101,7 +101,7 @@
                 <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-camera-reels text-primary fs-5"></i>
-                        <span class="fw-bold" style="color: var(--color-text-primary);">Active Inspection Video Source:</span>
+                        <span class="fw-bold" style="color: var(--color-text-primary);">Video:</span>
                         <select class="form-select form-select-sm" style="width: auto; background-color: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border);" onchange="location.href='/studio?file=' + this.value">
                             {% for v in video_files %}
                             <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
@@ -131,7 +131,7 @@
                             <span class="visually-hidden">Live</span>
                         </div>
                         <i class="bi bi-megaphone-fill text-primary fs-6"></i>
-                        <span class="fw-bold text-primary small">ADAS Voice Telemetry Channel:</span>
+                        <span class="fw-bold text-primary small">Audio Alerts:</span>
                         <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO SYNCHRONIZED</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
@@ -151,7 +151,7 @@
                     <!-- Live Telemetry Radar Badge -->
                     <div class="cockpit-radar-badge d-flex align-items-center gap-2">
                         <span class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
-                        <span class="fw-bold tracking-wide">ADAS RADAR &bull; CORRIDOR ACTIVE</span>
+                        <span class="fw-bold tracking-wide">ADAS ACTIVE</span>
                         <span class="text-white-50">| 1080p 24FPS</span>
                     </div>
 
@@ -329,7 +329,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
                         <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
-                        <span class="fw-bold small" style="color: var(--color-text-primary);">Synchronized Road Corridor Map (Ethiopia Highway Track):</span>
+                        <span class="fw-bold small" style="color: var(--color-text-primary);">Corridor Track:</span>
                     </div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">

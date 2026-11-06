@@ -156,7 +156,7 @@
 
         <!-- Top Header Navigation -->
         <header class="app-header">
-            <!-- Left Header: Mobile Toggle, Breadcrumb, Corridor Pill -->
+            <!-- Left Header: Mobile Toggle, Clean Breadcrumb -->
             <div class="header-left">
                 <button class="btn btn-sm btn-ghost d-lg-none" id="mobileSidebarToggle" title="Open Menu">
                     <i data-lucide="menu"></i>
@@ -164,30 +164,28 @@
                 <div class="header-breadcrumb">
                     <a href="{{ url_for('dashboard') }}">RoadEye</a>
                     <span class="sep">/</span>
-                    <span class="current">{% block breadcrumb %}Operations Dashboard{% endblock %}</span>
-                </div>
-                <div class="corridor-pill d-none d-md-inline-flex">
-                    <i data-lucide="navigation-2" style="width:12px; height:12px;"></i>
-                    <span>Debre Berhan Corridor · Route A2</span>
+                    <span class="current">{% block breadcrumb %}Operations{% endblock %}</span>
                 </div>
             </div>
 
-            <!-- Right Header: Global Search, Alerts, Status, Clock, Profile -->
+            <!-- Right Header: Global Search, Active Corridor, Status, Profile -->
             <div class="header-right">
                 <!-- Command Palette Trigger -->
                 <button class="cmd-palette-trigger d-none d-sm-flex" id="cmdPaletteOpenBtn">
                     <i data-lucide="search" style="width:14px; height:14px;"></i>
-                    <span>Search or jump to...</span>
+                    <span>Search...</span>
                     <span class="cmd-shortcut-key">Ctrl K</span>
                 </button>
 
-                <!-- Real-Time Local Clock (Africa/Addis_Ababa) -->
-                <div id="liveClockDisplay" title="Africa/Addis_Ababa Timezone (UTC+3)">--:--:--</div>
+                <!-- Subtle Corridor Tag -->
+                <div class="corridor-pill d-none d-md-inline-flex" title="Monitored Highway Corridor">
+                    <i data-lucide="map-pin" style="width:12px; height:12px;"></i>
+                    <span>Route A2</span>
+                </div>
 
-                <!-- Connectivity Status Beacon -->
-                <div class="status-beacon-wrap">
+                <!-- Connectivity Beacon (Minimal Dot) -->
+                <div class="status-beacon-wrap" title="System Live &bull; Connected">
                     <span class="status-beacon-dot"></span>
-                    <span>ONLINE</span>
                 </div>
 
                 <!-- Notification Center Dropdown -->

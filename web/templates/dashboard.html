@@ -36,27 +36,22 @@
 <div class="container-fluid px-0">
 
     <!-- ============================================================ -->
-    <!-- 1. OPERATIONS INTELLIGENCE PAGE HEADER                        -->
+    <!-- 1. OPERATIONS HEADER                                         -->
     <!-- ============================================================ -->
     <div class="page-header-row">
         <div>
-            <div class="page-eyebrow">
-                <span class="page-eyebrow-pill">RoadEye Operations Intelligence</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Debre Berhan Corridor &bull; Route A2 &bull; Operational Overview</span>
-            </div>
-            <h1 class="page-main-title">Operations Intelligence Dashboard</h1>
-            <p class="page-main-desc">Autonomous Pavement Hazard Telemetry, Dynamic Collision Risk Assessment &amp; Infrastructure Governance.</p>
+            <h1 class="page-main-title">Operations</h1>
         </div>
 
         <div class="page-actions-bar">
             <a href="{{ url_for('map_view') }}" class="btn btn-primary">
-                <i data-lucide="play-circle"></i> Launch Patrol Map
+                <i data-lucide="map"></i> Patrol Map
             </a>
             <a href="{{ url_for('video_studio') }}" class="btn btn-secondary">
-                <i data-lucide="video"></i> Telemetry Studio
+                <i data-lucide="video"></i> Video Studio
             </a>
-            <a href="{{ url_for('api_export_csv') }}" class="btn btn-outline-secondary" title="Export Verified CSV">
-                <i data-lucide="download"></i> Export Data
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-secondary" title="Export CSV">
+                <i data-lucide="download"></i> Export CSV
             </a>
         </div>
     </div>
@@ -164,9 +159,9 @@
                 </div>
                 <div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary);">Autonomous Perception &amp; MLOps Active</span>
-                        <span class="badge-status badge-status-success">PROD v2.4-ITS</span>
-                        <span class="badge-status badge-status-info">INT8 TinyML</span>
+                        <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary);">Perception Engine</span>
+                        <span class="badge-status badge-status-success">YOLOv11s</span>
+                        <span class="badge-status badge-status-info">INT8</span>
                     </div>
                     <div class="text-secondary small font-mono mt-1">
                         Road Damage: <strong class="text-white">YOLOv11s</strong> (7.0ms) &bull;
@@ -203,7 +198,7 @@
                 <div class="panel-header">
                     <div class="panel-title">
                         <i data-lucide="map-pin" style="color:var(--accent-primary);"></i>
-                        Live Corridor Intelligence &bull; Route A2 Survey Track
+                        Corridor Map
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge-status badge-status-info font-mono" style="font-size:10px;">54 HAZARDS GEOTAGGED</span>
@@ -299,10 +294,7 @@
                 <div>
                     <div class="panel-title">
                         <i data-lucide="layers" style="color:var(--accent-primary);"></i>
-                        Recent Incident Records &bull; Telemetry Verified
-                    </div>
-                    <div class="text-secondary" style="font-size: 11px;">
-                        Showing latest verified pavement distresses along surveyed corridor Route A2.
+                        Recent Incidents
                     </div>
                 </div>
 

@@ -560,9 +560,9 @@ main.content-area {
 .page-header-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 22px;
-    padding-bottom: 18px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--border-subtle);
     gap: 16px;
     flex-wrap: wrap;

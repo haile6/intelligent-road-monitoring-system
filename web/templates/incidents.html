@@ -11,20 +11,15 @@
     <!-- ============================================================ -->
     <div class="page-header-row">
         <div>
-            <div class="page-eyebrow">
-                <span class="page-eyebrow-pill">Municipal Asset Preservation</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor Survey Telemetry Records &bull; Route A2</span>
-            </div>
-            <h1 class="page-main-title">Road Hazard Incident Ledger</h1>
-            <p class="page-main-desc">Granular Pavement Defect Records, Multi-Sensor Telemetry &amp; Verification Workflow.</p>
+            <h1 class="page-main-title">Incidents</h1>
         </div>
 
         <div class="page-actions-bar">
             <a href="{{ url_for('api_export_csv') }}" class="btn btn-secondary">
-                <i data-lucide="download"></i> Export Ledger (CSV)
+                <i data-lucide="download"></i> Export CSV
             </a>
             <a href="{{ url_for('map_view') }}" class="btn btn-primary">
-                <i data-lucide="map"></i> View on GIS Map
+                <i data-lucide="map"></i> View Map
             </a>
         </div>
     </div>
@@ -107,11 +102,10 @@
             <div class="d-flex align-items-center gap-2">
                 <div class="panel-title">
                     <i data-lucide="clipboard-list" style="color:var(--accent-primary);"></i>
-                    Road Defect Incident Register
+                    Incident Register
                 </div>
                 <span class="badge-status badge-status-info font-mono">{{ incidents|length }} Records</span>
             </div>
-            <span class="text-secondary font-mono" style="font-size: 11px;">Units: Distance (m) &bull; Speed (km/h) &bull; TTC (s)</span>
         </div>
 
         <div class="table-container-responsive border-0">
