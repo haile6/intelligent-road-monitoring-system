@@ -15,6 +15,14 @@
     <!-- Enterprise Custom Design System v8.1 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=8.1">
 
+    <!-- Immediate Theme Initialization (Prevents FOUC) -->
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('roadeye-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
     <meta name="theme-color" content="#080D16">
     <link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
@@ -223,6 +231,12 @@
                     </div>
                 </div>
 
+                <!-- Theme Switcher Button (Dark / Bright Mode) -->
+                <button class="theme-toggle-btn" id="themeToggleBtn" title="Switch Theme Mode (Dark / Bright)" onclick="toggleTheme()" type="button">
+                    <i data-lucide="sun" class="theme-icon-light" style="width:15px; height:15px;"></i>
+                    <i data-lucide="moon" class="theme-icon-dark" style="width:15px; height:15px;"></i>
+                </button>
+
                 <!-- Video Ingest Upload Modal Trigger -->
                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal" title="Ingest Survey Footage">
                     <i data-lucide="upload-cloud" style="width:14px; height:14px;"></i>
@@ -242,6 +256,12 @@
                         <li class="px-2 py-1 border-bottom mb-1" style="border-color: var(--border-subtle) !important;">
                             <div class="fw-bold" style="font-size: 12px; color: var(--text-primary);">Senior Transportation Inspector</div>
                             <div class="text-muted" style="font-size: 10.5px;">Ethiopian Roads Administration (ERA)</div>
+                        </li>
+                        <li>
+                            <button class="dropdown-item py-1.5 d-flex align-items-center justify-content-between" onclick="toggleTheme()" type="button">
+                                <span class="d-flex align-items-center"><i data-lucide="sun-moon" class="me-2" style="width:13px; height:13px;"></i> Theme Mode</span>
+                                <span class="badge-status badge-status-info font-mono" id="dropdownThemeLabel" style="font-size: 9.5px;">DARK</span>
+                            </button>
                         </li>
                         <li><a class="dropdown-item py-1.5" href="{{ url_for('calibration_view') }}"><i data-lucide="sliders" class="me-2" style="width:13px; height:13px;"></i> AI Model Calibration</a></li>
                         <li><a class="dropdown-item py-1.5" href="{{ url_for('health_view') }}"><i data-lucide="activity" class="me-2" style="width:13px; height:13px;"></i> Subsystem Health &amp; APIs</a></li>
@@ -578,7 +598,49 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnUploadOnly = document.getElementById('btnUploadOnly');
     if (btnUploadOnly) btnUploadOnly.addEventListener('click', function(e) { e.preventDefault(); submitUpload(false); });
     if (uploadForm) uploadForm.addEventListener('submit', function(e) { e.preventDefault(); submitUpload(true); });
+
+    // Initialize Theme UI Label
+    updateThemeUI(getTheme());
 });
+
+// ── Theme Switcher Engine (Dark & Bright Mode) ──
+function getTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'dark';
+}
+
+function updateThemeUI(theme) {
+    const isBright = (theme === 'bright' || theme === 'light');
+    const label = document.getElementById('dropdownThemeLabel');
+    if (label) {
+        label.textContent = isBright ? 'BRIGHT' : 'DARK';
+        label.className = isBright ? 'badge-status badge-status-warning font-mono' : 'badge-status badge-status-info font-mono';
+    }
+
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+        metaTheme.setAttribute('content', isBright ? '#FFFFFF' : '#080D16');
+    }
+}
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('roadeye-theme', theme);
+    updateThemeUI(theme);
+
+    // Broadcast global event for Leaflet maps, Plotly, Chart.js
+    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: theme, isBright: (theme === 'bright' || theme === 'light') } }));
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+function toggleTheme() {
+    const current = getTheme();
+    const next = (current === 'bright' || current === 'light') ? 'dark' : 'bright';
+    setTheme(next);
+    showToast(next === 'bright' ? 'Daylight Bright Mode activated' : 'Dark Enterprise Mode activated', 'info');
+}
 
 // Toast notification helper
 function showToast(message, type = 'info') {
