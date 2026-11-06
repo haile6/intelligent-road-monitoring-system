@@ -39,8 +39,12 @@
     <!-- 1. OPERATIONS HEADER                                         -->
     <!-- ============================================================ -->
     <div class="page-header-row">
-        <div>
+        <div class="d-flex align-items-center gap-3">
             <h1 class="page-main-title">Operations</h1>
+            <span class="badge-status badge-status-info font-mono d-none d-md-inline-flex align-items-center gap-1.5" style="font-size: 11px;">
+                <span class="status-beacon-dot" style="width: 6px; height: 6px;"></span>
+                Route A2 &bull; Debre Berhan
+            </span>
         </div>
 
         <div class="page-actions-bar">
@@ -53,6 +57,9 @@
             <a href="{{ url_for('api_export_csv') }}" class="btn btn-secondary" title="Export CSV">
                 <i data-lucide="download"></i> Export CSV
             </a>
+            <button class="btn btn-ghost" onclick="window.location.reload()" title="Refresh Telemetry">
+                <i data-lucide="rotate-cw"></i>
+            </button>
         </div>
     </div>
 
@@ -250,12 +257,6 @@
                                 <div class="progress-bar bg-success" style="width: {{ p_safe }}%;"></div>
                             </div>
                         </div>
-                                <span class="font-mono text-white fw-bold">{{ stats.safe_count or 0 }} <span class="text-secondary fw-normal">({{ p_safe }}%)</span></span>
-                            </div>
-                            <div class="progress" style="height: 6px; background: var(--bg-sunken);">
-                                <div class="progress-bar bg-success" style="width: {{ p_safe }}%;"></div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Defect Distribution Chart -->
@@ -393,6 +394,9 @@ document.addEventListener('DOMContentLoaded', function() {
             maxZoom: 19,
             className: 'leaflet-dark-tiles'
         }).addTo(map);
+
+        setTimeout(() => { map.invalidateSize(); }, 250);
+        window.addEventListener('resize', () => { map.invalidateSize(); });
 
         // Fetch real GPS track points from API
         fetch('/api/gps_track')
