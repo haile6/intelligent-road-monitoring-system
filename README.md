@@ -44,7 +44,25 @@
 <div align="center">
   <img src="docs/demo.gif" alt="RoadEye Real-Time ADAS & Telemetry Video Demo" width="95%" />
   <p><em>Figure 1: Live In-Vehicle ADAS Perception & Collision Avoidance Demo — Real-time driving corridor projection, multi-target vehicle kinematics, closing Time-To-Collision (TTC) estimation, Ethiopian license plate recognition (ANPR), and dual-language (Amharic & English) HUD warnings.</em></p>
+
+  <p>
+    <a href="outputs/annotated_all_features_test_video.mp4"><strong>▶️ Play Full HD Telemetry Demo (MP4)</strong></a> &bull;
+    <a href="outputs/annotated_ethiopian_road_driving_test.mp4"><strong>🛣️ Ethiopian Highway Driving Benchmark (MP4)</strong></a> &bull;
+    <a href="outputs/annotated_gemini_generated_video_dadfa683.mp4"><strong>🎥 Multi-Hazard Dashcam Recording (MP4)</strong></a>
+  </p>
 </div>
+
+<br/>
+
+### 🎬 Video Telemetry Demonstration & Output Benchmarks
+
+The repository includes pre-compiled, fully annotated inspection videos rendered at 30 FPS with complete Head-Up Display (HUD) telemetry overlays:
+
+| Demo Video Asset | Resolution & Duration | Monitored Subsystems & Kinematics | Direct Link |
+| :--- | :---: | :--- | :---: |
+| 🚙 **All-Features Telemetry Run** | 1280×720 (15.0s, 30 FPS) | Dynamic corridor projection, monocular distance, stationary pothole TTC, ANPR vehicle tracking, and spoken Amharic/English audio warnings. | [`outputs/annotated_all_features_test_video.mp4`](outputs/annotated_all_features_test_video.mp4) |
+| 🛣️ **Ethiopian Highway Corridor** | 1280×720 (17.7s, 25 FPS) | Route A2 Debre Berhan asphalt transit drive with GPS interpolation, odometer range tracking, and fatigue cracking classification. | [`outputs/annotated_ethiopian_road_driving_test.mp4`](outputs/annotated_ethiopian_road_driving_test.mp4) |
+| 🎥 **Multi-Hazard Dashcam Ingest** | 1280×720 (30 FPS) | Complete field inspection session with 54 verified potholes and alligator cracks synchronized with GPS track log. | [`outputs/annotated_gemini_generated_video_dadfa683.mp4`](outputs/annotated_gemini_generated_video_dadfa683.mp4) |
 
 <br/>
 
@@ -346,11 +364,20 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 <tr>
 <td width="50%" valign="top">
 
-#### 📊 Operations Dashboard (`/`)
-![Executive KPI Dashboard](docs/screenshots/01_executive_dashboard.png)
-*Responsive 7-metric KPI ribbon, synchronized corridor preview map, severity donut chart, and instant incident search.*
+#### 📊 Operations Dashboard (Dark Enterprise Mode)
+![Operations Dashboard - Dark Mode](docs/screenshots/01_executive_dashboard.png)
+*Full-width 7-metric KPI ribbon, synchronized Route A2 preview map, severity donut distribution, and real-time incident search.*
 
 </td>
+<td width="50%" valign="top">
+
+#### ☀️ Operations Dashboard (Daylight Bright Mode)
+![Operations Dashboard - Bright Mode](docs/screenshots/01b_executive_dashboard_bright.png)
+*High-contrast daylight theme for in-vehicle mobile tablets with natural OpenStreetMap vector tiles and crisp slate typography.*
+
+</td>
+</tr>
+<tr>
 <td width="50%" valign="top">
 
 #### 🎬 Synchronized Telemetry Studio (`/studio`)
@@ -358,8 +385,6 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 *Dual-view dashcam video playback synchronized with real-time Leaflet GIS map, hazard beacons, and laser trajectories.*
 
 </td>
-</tr>
-<tr>
 <td width="50%" valign="top">
 
 #### 🗺️ Interactive GIS Patrol Map (`/map`)
@@ -367,15 +392,15 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 *Vector road corridors with virtual patrol playback simulator, heading compass rose, speed HUD, and hazard markers.*
 
 </td>
+</tr>
+<tr>
 <td width="50%" valign="top">
 
-#### 📋 Incident Ledger (`/incidents`)
+#### 📋 Incident Ledger & Inspector (`/incidents`)
 ![Municipal Incident Ledger](docs/screenshots/04_incident_ledger.png)
 *Maintenance lifecycle management: severity filtering, repair priority weighting, crew assignment, and slide-over inspector.*
 
 </td>
-</tr>
-<tr>
 <td width="50%" valign="top">
 
 #### 🚗 ANPR Vehicle & Plate Gallery (`/plates`)
@@ -383,11 +408,20 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 *Optical evidence registry featuring high-resolution vehicle crops, plate crops, EasyOCR confidence scores, and timestamps.*
 
 </td>
+</tr>
+<tr>
 <td width="50%" valign="top">
 
 #### 📑 Field Work Orders (`/reports`)
 ![Field Work Orders & Inspection Reports](docs/screenshots/06_work_orders_reports.png)
 *Kanban and table work order management tailored for repair crews, with one-click full-dataset CSV export.*
+
+</td>
+<td width="50%" valign="top">
+
+#### 🏗️ Contractor DLP & Warranty Registry (`/contractors`)
+![Contractor DLP & Warranty Registry](docs/screenshots/07_contractor_registry.png)
+*National Ethiopian highway corridor registry covering 36 corridors, Defect Liability Period (DLP) tracking, and FIDIC legal claim dispatch.*
 
 </td>
 </tr>
