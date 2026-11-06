@@ -47,93 +47,57 @@
             </div>
 
             <!-- Scrollable Navigation Area -->
-            <div class="flex-grow-1 overflow-y-auto py-2">
-                <!-- OVERVIEW SECTION -->
-                <div class="sidebar-nav-section-title">OVERVIEW</div>
-                <nav class="nav flex-column">
+            <div class="flex-grow-1 overflow-y-auto py-3 px-2">
+                <!-- MAIN PLATFORM -->
+                <div class="sidebar-nav-section-title px-2 mb-1">MAIN PLATFORM</div>
+                <nav class="nav flex-column gap-1">
                     <a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
-                        <i class="bi bi-speedometer2"></i>
-                        <span>Operations Dashboard</span>
+                        <i class="bi bi-grid-1x2"></i>
+                        <span>Dashboard</span>
                     </a>
-                    <a href="{{ url_for('video_studio') }}?live=1" class="nav-link {% if active_page == 'studio' and request.args.get('live') %}active{% endif %}">
-                        <i class="bi bi-broadcast"></i>
-                        <span>Live Monitoring</span>
-                    </a>
-                    <a href="{{ url_for('map_view') }}" class="nav-link {% if active_page == 'map' and not request.args.get('view') %}active{% endif %}">
+                    <a href="{{ url_for('map_view') }}" class="nav-link {% if active_page == 'map' %}active{% endif %}">
                         <i class="bi bi-map"></i>
-                        <span>Road Network Map</span>
+                        <span>GIS Map &amp; Patrol</span>
+                        <span class="badge bg-primary ms-auto" style="font-size: 9px; padding: 2px 6px;">Live</span>
                     </a>
-                </nav>
-
-                <!-- INTELLIGENCE SECTION -->
-                <div class="sidebar-nav-section-title mt-2">INTELLIGENCE</div>
-                <nav class="nav flex-column">
-                    <a href="{{ url_for('incidents_view') }}?type=pothole" class="nav-link {% if active_page == 'incidents' and request.args.get('type') == 'pothole' %}active{% endif %}">
-                        <i class="bi bi-cone-striped"></i>
-                        <span>Pavement Defects</span>
-                    </a>
-                    <a href="{{ url_for('incidents_view') }}" class="nav-link {% if active_page == 'incidents' and not request.args.get('type') %}active{% endif %}">
+                    <a href="{{ url_for('incidents_view') }}" class="nav-link {% if active_page == 'incidents' %}active{% endif %}">
                         <i class="bi bi-exclamation-triangle"></i>
-                        <span>Hazard Risk Assessment</span>
+                        <span>Incident Ledger</span>
                     </a>
-                    <a href="{{ url_for('plates_gallery') }}?view=vehicles" class="nav-link {% if active_page == 'plates' and request.args.get('view') == 'vehicles' %}active{% endif %}">
-                        <i class="bi bi-truck"></i>
-                        <span>Vehicle Tracking</span>
-                    </a>
-                    <a href="{{ url_for('plates_gallery') }}" class="nav-link {% if active_page == 'plates' and not request.args.get('view') %}active{% endif %}">
-                        <i class="bi bi-card-text"></i>
-                        <span>ANPR &amp; Registration Ledger</span>
-                    </a>
-                    <a href="{{ url_for('plates_gallery') }}?view=evidence" class="nav-link {% if active_page == 'plates' and request.args.get('view') == 'evidence' %}active{% endif %}">
-                        <i class="bi bi-images"></i>
-                        <span>Evidence Archive</span>
+                    <a href="{{ url_for('video_studio') }}" class="nav-link {% if active_page == 'studio' %}active{% endif %}">
+                        <i class="bi bi-camera-reels"></i>
+                        <span>Telemetry Studio</span>
                     </a>
                 </nav>
 
-                <!-- INFRASTRUCTURE SECTION -->
-                <div class="sidebar-nav-section-title mt-2">INFRASTRUCTURE</div>
-                <nav class="nav flex-column">
-                    <a href="{{ url_for('reports_view') }}?view=condition" class="nav-link {% if active_page == 'reports' and request.args.get('view') == 'condition' %}active{% endif %}">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Road Condition Assessment</span>
-                    </a>
-                    <a href="{{ url_for('reports_view') }}" class="nav-link {% if active_page == 'reports' and not request.args.get('view') %}active{% endif %}">
-                        <i class="bi bi-tools"></i>
-                        <span>Maintenance Work Orders</span>
-                    </a>
-                    <a href="{{ url_for('reports_view') }}?view=history" class="nav-link {% if active_page == 'reports' and request.args.get('view') == 'history' %}active{% endif %}">
-                        <i class="bi bi-clock-history"></i>
-                        <span>Maintenance History</span>
-                    </a>
+                <!-- MANAGEMENT & AUDIT -->
+                <div class="sidebar-nav-section-title px-2 mt-3 mb-1">MANAGEMENT &amp; AUDIT</div>
+                <nav class="nav flex-column gap-1">
                     <a href="{{ url_for('contractors_view') }}" class="nav-link {% if active_page == 'contractors' %}active{% endif %}">
                         <i class="bi bi-building-check"></i>
-                        <span>Contractors &amp; Warranty Registry</span>
-                        <span class="badge bg-warning text-dark ms-auto" style="font-size: 9px; padding: 2px 5px;">ERA / DLP</span>
+                        <span>Contractor DLP</span>
+                        <span class="badge bg-warning text-dark ms-auto" style="font-size: 9px; padding: 2px 5px;">Warranty</span>
                     </a>
-                    <a href="{{ url_for('map_view') }}?view=hotspots" class="nav-link {% if active_page == 'map' and request.args.get('view') == 'hotspots' %}active{% endif %}">
-                        <i class="bi bi-geo-alt"></i>
-                        <span>Geographic Hotspots</span>
+                    <a href="{{ url_for('plates_gallery') }}" class="nav-link {% if active_page == 'plates' %}active{% endif %}">
+                        <i class="bi bi-card-text"></i>
+                        <span>Vehicle &amp; ANPR</span>
+                    </a>
+                    <a href="{{ url_for('reports_view') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Work Orders</span>
                     </a>
                 </nav>
 
-                <!-- SYSTEM SECTION -->
-                <div class="sidebar-nav-section-title mt-2">SYSTEM</div>
-                <nav class="nav flex-column">
-                    <a href="{{ url_for('video_studio') }}" class="nav-link {% if active_page == 'studio' and not request.args.get('live') %}active{% endif %}">
-                        <i class="bi bi-camera-reels"></i>
-                        <span>Video Studio</span>
+                <!-- SYSTEM & MLOPS -->
+                <div class="sidebar-nav-section-title px-2 mt-3 mb-1">SYSTEM &amp; MLOPS</div>
+                <nav class="nav flex-column gap-1">
+                    <a href="{{ url_for('health_view') }}" class="nav-link {% if active_page == 'health' %}active{% endif %}">
+                        <i class="bi bi-activity"></i>
+                        <span>System Health &amp; APIs</span>
                     </a>
                     <a href="{{ url_for('calibration_view') }}" class="nav-link {% if active_page == 'calibration' %}active{% endif %}">
-                        <i class="bi bi-cpu"></i>
-                        <span>AI Model &amp; Calibration</span>
-                    </a>
-                    <a href="{{ url_for('health_view') }}" class="nav-link {% if active_page == 'health' %}active{% endif %}">
-                        <i class="bi bi-heart-pulse"></i>
-                        <span>System Health</span>
-                    </a>
-                    <a href="{{ url_for('audit_view') }}" class="nav-link {% if active_page == 'audit' %}active{% endif %}">
-                        <i class="bi bi-journal-text"></i>
-                        <span>Audit Logs</span>
+                        <i class="bi bi-sliders"></i>
+                        <span>Model Calibration</span>
                     </a>
                     <a href="{{ url_for('settings_view') }}" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
                         <i class="bi bi-gear"></i>
@@ -172,65 +136,16 @@
 
                 <!-- Right Side Status & Controls -->
                 <div class="d-flex align-items-center gap-2">
-                    <!-- Video Source Pill -->
-                    <div class="header-pill d-none d-md-flex">
-                        <i class="bi bi-camera-video text-secondary"></i>
-                        <span class="font-mono" style="font-size: 11px;">Target: data/test_video.mp4</span>
-                    </div>
-
                     <!-- Processing Status Indicator -->
                     <div class="header-pill">
                         <span class="status-dot"></span>
-                        <span style="font-size: 11.5px; font-weight: 500;">TELEMETRY ACTIVE</span>
-                    </div>
-
-                    <!-- Local Timezone Clock (Africa/Addis_Ababa UTC+3) -->
-                    <div class="header-pill font-mono d-none d-lg-flex" title="Configured Timezone: Africa/Addis_Ababa (EAT, UTC+3)">
-                        <i class="bi bi-clock text-secondary"></i>
-                        <span id="liveClock" class="fw-semibold">00:00:00</span>
-                        <span class="text-muted" style="font-size: 10px;">EAT</span>
-                    </div>
-
-                    <!-- Notification Centre Dropdown -->
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary position-relative" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notification Centre">
-                            <i class="bi bi-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                                <span class="visually-hidden">Alerts</span>
-                            </span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border p-2" aria-labelledby="notifDropdown" style="min-width: 320px;">
-                            <li class="px-2 py-1 border-bottom">
-                                <span class="fw-semibold" style="font-size: 12px; color: var(--primary-navy);">NOTIFICATIONS &amp; DISPATCH</span>
-                            </li>
-                            <li class="py-2 px-2 border-bottom">
-                                <div class="d-flex align-items-start gap-2">
-                                    <span class="badge bg-danger mt-1">DANGER</span>
-                                    <div>
-                                        <div class="fw-semibold" style="font-size: 12px;">Critical Pothole Detected</div>
-                                        <div class="text-secondary" style="font-size: 11px;">TTC: 0.33s &bull; Ring Road Km 12+400</div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-2 px-2 border-bottom">
-                                <div class="d-flex align-items-start gap-2">
-                                    <span class="badge bg-info mt-1">ANPR</span>
-                                    <div>
-                                        <div class="fw-semibold" style="font-size: 12px;">Plate Verified (ET 2-08492)</div>
-                                        <div class="text-secondary" style="font-size: 11px;">Confidence: 98% &bull; Passenger Car</div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="pt-2 text-center">
-                                <a href="{{ url_for('incidents_view') }}" class="text-decoration-none small text-secondary">View All Operational Events &rarr;</a>
-                            </li>
-                        </ul>
+                        <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.3px;">SYSTEM ONLINE</span>
                     </div>
 
                     <!-- Quick Action: Upload Inspection Video -->
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
-                        <i class="bi bi-cloud-arrow-up"></i>
-                        <span class="d-none d-sm-inline">Upload Video</span>
+                        <i class="bi bi-cloud-arrow-up me-1"></i>
+                        <span class="d-none d-sm-inline">Upload</span>
                     </button>
 
                     <!-- User Profile & Role -->
@@ -239,16 +154,14 @@
                             <i class="bi bi-person-circle text-primary"></i>
                             <span class="d-none d-md-inline" style="font-size: 12px; font-weight: 500;">System Operator</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border p-2" aria-labelledby="userMenuBtn" style="min-width: 240px;">
-                            <li class="px-2 py-1 border-bottom">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border p-2" aria-labelledby="userMenuBtn" style="min-width: 220px;">
+                            <li class="px-2 py-1 border-bottom mb-1">
                                 <div class="fw-semibold" style="font-size: 12px;">RoadEye Operations Admin</div>
-                                <div class="text-secondary" style="font-size: 11px;">Road Infrastructure Directorate</div>
-                                <span class="badge bg-secondary mt-1" style="font-size: 10px;">OPERATIONS AUTHORITY</span>
+                                <div class="text-secondary" style="font-size: 11px;">Operations Authority</div>
                             </li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('calibration_view') }}"><i class="bi bi-cpu me-2"></i>AI Model Calibration</a></li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('health_view') }}"><i class="bi bi-heart-pulse me-2"></i>System Health</a></li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('audit_view') }}"><i class="bi bi-journal-text me-2"></i>Audit Logs</a></li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('settings_view') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item py-1" href="{{ url_for('calibration_view') }}"><i class="bi bi-sliders me-2"></i>AI Calibration</a></li>
+                            <li><a class="dropdown-item py-1" href="{{ url_for('health_view') }}"><i class="bi bi-activity me-2"></i>System Health &amp; APIs</a></li>
+                            <li><a class="dropdown-item py-1" href="{{ url_for('settings_view') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
                         </ul>
                     </div>
                 </div>
