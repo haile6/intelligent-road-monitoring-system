@@ -316,15 +316,15 @@
                                         <span id="patrolDist" class="font-monospace">0.00 / 0.00 km</span>
                                         <span id="patrolRemainingDist" class="patrol-remaining-dist">(-0.00 km)</span>
                                     </div>
-                                    <div class="patrol-badge-pill">
+                                    <div class="patrol-badge-pill d-flex align-items-center gap-1" id="patrolRadarPill" title="360° Proximity Sonar Radar Horizon">
                                         <i class="bi bi-broadcast text-danger"></i>
-                                        <span class="text-white-50" style="font-size: 10px;">RADAR:</span>
-                                        <select class="patrol-range-select" id="patrolRadarRangeSelect" onchange="simulatorSetRadarRange(this.value)" title="Adjust Radar Proximity Horizon">
-                                            <option value="50">50m</option>
-                                            <option value="100" selected>100m</option>
-                                            <option value="150">150m</option>
-                                            <option value="200">200m</option>
-                                        </select>
+                                        <span class="text-white-50" style="font-size: 10px; font-weight: 600;">RADAR:</span>
+                                        <div class="btn-group btn-group-sm patrol-radar-pills" role="group" id="patrolRadarPillsGroup">
+                                            <button type="button" class="btn patrol-btn-range" id="btnRadar25" onclick="simulatorSetRadarRange(25, this)" title="25m Proximity">25m</button>
+                                            <button type="button" class="btn patrol-btn-range" id="btnRadar50" onclick="simulatorSetRadarRange(50, this)" title="50m Proximity">50m</button>
+                                            <button type="button" class="btn patrol-btn-range active" id="btnRadar100" onclick="simulatorSetRadarRange(100, this)" title="100m Standard Horizon">100m</button>
+                                            <button type="button" class="btn patrol-btn-range" id="btnRadar150" onclick="simulatorSetRadarRange(150, this)" title="150m Extended Horizon">150m</button>
+                                        </div>
                                     </div>
                                     <div class="patrol-badge-pill patrol-badge-hazard" id="patrolHazardBadge">
                                         <i class="bi bi-exclamation-triangle-fill"></i>
@@ -1287,9 +1287,17 @@ function simulatorToggleAutoPan(isChecked) {
     }
 }
 
-function simulatorSetRadarRange(meters) {
+function simulatorSetRadarRange(meters, btnEl) {
     if (patrolSimulatorInstance) {
         patrolSimulatorInstance.setRadarRange(meters);
+    }
+    const pills = document.querySelectorAll('#patrolRadarPillsGroup .patrol-btn-range');
+    pills.forEach(b => b.classList.remove('active'));
+    if (btnEl) {
+        btnEl.classList.add('active');
+    } else {
+        const target = document.getElementById('btnRadar' + meters);
+        if (target) target.classList.add('active');
     }
 }
 
