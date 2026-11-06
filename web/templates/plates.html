@@ -1,221 +1,174 @@
 {% extends "base.html" %}
 
-{% block title %}ANPR & Vehicle Registration Ledger — RoadEye™{% endblock %}
-{% block breadcrumb %}ANPR &amp; Vehicle Registration Ledger{% endblock %}
+{% block title %}ANPR &amp; Vehicle Registration Intelligence — RoadEye™ Enterprise{% endblock %}
+{% block breadcrumb %}ANPR Gallery{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
 
     <!-- ============================================================ -->
-    <!-- PAGE HEADER                                                  -->
+    <!-- 1. PAGE HEADER                                                -->
     <!-- ============================================================ -->
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+    <div class="page-header-row">
         <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary" style="font-size: 10px; letter-spacing: 0.05em;">OPTICAL TELEMETRY</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor Survey ANPR Engine</span>
+            <div class="page-eyebrow">
+                <span class="page-eyebrow-pill">Vehicle Intelligence</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Corridor Survey ANPR Engine &bull; EasyOCR Telemetry</span>
             </div>
-            <h1 class="page-title mt-1">VEHICLE REGISTRATION LEDGER</h1>
-            <div class="page-subtitle">Automated Number Plate Recognition (ANPR), Fleet Registry &amp; Multi-Vehicle Tracking</div>
+            <h1 class="page-main-title">Vehicle Registration &amp; ANPR Gallery</h1>
+            <p class="page-main-desc">Automated Number Plate Recognition (ANPR), Ethiopian Regional Formats &amp; Multi-Vehicle MOT Tracking.</p>
         </div>
 
-        <!-- Header Actions -->
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ url_for('api_export_csv') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-download"></i>
-                <span>Export Ledger (CSV)</span>
+        <div class="page-actions-bar">
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-secondary">
+                <i data-lucide="download"></i> Export Records (CSV)
             </a>
-            <a href="{{ url_for('video_studio') }}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-camera-video"></i>
-                <span>Live Studio ANPR</span>
+            <a href="{{ url_for('video_studio') }}" class="btn btn-primary">
+                <i data-lucide="video"></i> Studio Telemetry Sync
             </a>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- 4 SUMMARY METRICS                                            -->
+    <!-- 2. SUMMARY METRICS ROW (4 REAL KPIS)                         -->
     <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
-        <!-- 1. Total Optical Scan Events -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="kpi-card kpi-total">
-                <div class="kpi-label">
-                    <span>Total Optical Scan Events</span>
-                    <i class="bi bi-camera kpi-icon"></i>
-                </div>
-                <div class="kpi-value">{{ plates|length }}</div>
-                <div class="kpi-subtitle">Total detection &amp; OCR frames processed</div>
+    <div class="kpi-row-grid mb-4">
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Total Optical Scan Events</span>
+                <div class="kpi-icon-pill"><i data-lucide="camera"></i></div>
             </div>
+            <div class="kpi-number-display">{{ plates|length }}</div>
+            <div class="kpi-subtext">Total detection &amp; OCR frames processed</div>
         </div>
 
-        <!-- 2. Successful OCR Readings -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="kpi-card kpi-plates">
-                <div class="kpi-label">
-                    <span>Successful OCR Readings</span>
-                    <i class="bi bi-check2-circle text-primary kpi-icon"></i>
-                </div>
-                <div class="kpi-value" style="color: var(--information);">{{ ocr_read|length }}</div>
-                <div class="kpi-subtitle">Plates resolved with valid registration strings</div>
+        <div class="kpi-metric-card accent-success">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-success">Successful OCR Readings</span>
+                <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
             </div>
+            <div class="kpi-number-display text-success">{{ ocr_read|length }}</div>
+            <div class="kpi-subtext">Plates resolved with valid registration strings</div>
         </div>
 
-        <!-- 3. Unique Normalized Registrations -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="kpi-card kpi-vehicles">
-                <div class="kpi-label">
-                    <span>Unique Registrations</span>
-                    <i class="bi bi-card-heading text-dark kpi-icon"></i>
-                </div>
-                <div class="kpi-value">{{ unique_vehicles|length }}</div>
-                <div class="kpi-subtitle">Distinct vehicle numbers logged</div>
+        <div class="kpi-metric-card accent-indigo">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Unique Registrations</span>
+                <div class="kpi-icon-pill"><i data-lucide="file-text"></i></div>
             </div>
+            <div class="kpi-number-display">{{ unique_vehicles|length }}</div>
+            <div class="kpi-subtext">Distinct vehicle numbers logged</div>
         </div>
 
-        <!-- 4. Unique Tracked Vehicles -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="kpi-card kpi-warning">
-                <div class="kpi-label">
-                    <span>Unique Tracked Vehicles</span>
-                    <i class="bi bi-truck text-warning kpi-icon"></i>
-                </div>
-                <div class="kpi-value" style="color: var(--warning);">{{ unique_vehicles|length }}</div>
-                <div class="kpi-subtitle">Multi-vehicle tracking IDs confirmed</div>
+        <div class="kpi-metric-card accent-warning">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-warning">Unique Tracked Vehicles</span>
+                <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="truck"></i></div>
             </div>
+            <div class="kpi-number-display" style="color:var(--warning);">{{ unique_vehicles|length }}</div>
+            <div class="kpi-subtext">Multi-vehicle tracking IDs confirmed</div>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- VIEW SWITCHER TABS & ADVANCED SEARCH CONTROLS                -->
+    <!-- 3. VIEW TABS & ADVANCED SEARCH CONTROLS                      -->
     <!-- ============================================================ -->
-    <div class="card mb-4">
-        <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <ul class="nav nav-tabs card-header-tabs" id="anprTabs" role="tablist">
+    <div class="panel-card mb-4">
+        <div class="panel-header py-2.5">
+            <ul class="nav nav-pills" id="anprTabs" role="tablist" style="gap:6px;">
                 <li class="nav-item">
-                    <button class="nav-link active px-3 py-2 fw-semibold" id="tab-table-btn" data-bs-toggle="tab" data-bs-target="#tab-table" type="button" role="tab">
-                        <i class="bi bi-table me-1"></i> Registration Table ({{ unique_vehicles|length }})
+                    <button class="filter-pill-btn active" id="tab-table-btn" data-bs-toggle="tab" data-bs-target="#tab-table" type="button" role="tab">
+                        <i data-lucide="table" style="width:13px; height:13px;"></i> Registration Table ({{ unique_vehicles|length }})
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link px-3 py-2 fw-semibold" id="tab-evidence-btn" data-bs-toggle="tab" data-bs-target="#tab-evidence" type="button" role="tab">
-                        <i class="bi bi-images me-1"></i> Optical Evidence Gallery ({{ ocr_read|length }})
+                    <button class="filter-pill-btn" id="tab-evidence-btn" data-bs-toggle="tab" data-bs-target="#tab-evidence" type="button" role="tab">
+                        <i data-lucide="images" style="width:13px; height:13px;"></i> Optical Evidence Gallery ({{ ocr_read|length }})
                     </button>
                 </li>
             </ul>
 
             <!-- Filter Controls -->
             <div class="d-flex flex-wrap align-items-center gap-2">
-                <!-- Search input -->
-                <div class="input-group input-group-sm" style="width: 240px;">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="plateSearch" class="form-control border-start-0 ps-0" placeholder="Search registration, track ID..." onkeyup="filterLedger()">
+                <div class="search-input-wrap" style="width: 220px;">
+                    <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                    <input type="text" id="plateSearch" class="form-control form-control-sm ps-4" placeholder="Search registration, track ID..." onkeyup="filterLedger()">
                 </div>
 
-                <!-- Confidence Filter -->
-                <select class="form-select form-select-sm" id="confFilter" style="width: 140px;" onchange="filterLedger()">
+                <select class="form-select form-select-sm" id="confFilter" style="width: 150px;" onchange="filterLedger()">
                     <option value="all">All Confidence</option>
-                    <option value="high">&ge; 90% (High)</option>
-                    <option value="med">&ge; 80% (Medium)</option>
+                    <option value="high">&ge; 90% (High Confidence)</option>
+                    <option value="med">&ge; 80% (Medium Confidence)</option>
                 </select>
             </div>
         </div>
 
-        <div class="card-body p-0">
-            <div class="tab-content" id="anprTabsContent">
+        <div class="panel-body p-0">
+            <div class="tab-content" id="anprTabContent">
 
-                <!-- ==================================================== -->
-                <!-- TAB 1: FORMAL REGISTRATION TABLE                     -->
-                <!-- ==================================================== -->
+                <!-- TAB 1: REGISTRATION TABLE -->
                 <div class="tab-pane fade show active" id="tab-table" role="tabpanel">
-                    <div class="table-container border-0">
-                        <table class="table table-hover" id="ledgerTable">
+                    <div class="table-container-responsive border-0">
+                        <table class="enterprise-table" id="plateTable">
                             <thead>
                                 <tr>
-                                    <th>Registration Number</th>
-                                    <th>Country / Region</th>
-                                    <th>Vehicle Track ID</th>
-                                    <th>Vehicle Class</th>
-                                    <th>First Seen</th>
+                                    <th style="width: 90px;">Track ID</th>
+                                    <th>License Plate Number</th>
+                                    <th>Regional Jurisdiction</th>
+                                    <th>Vehicle Category</th>
+                                    <th>Detection Timestamp</th>
                                     <th>OCR Confidence</th>
-                                    <th>Optical Scans</th>
-                                    <th>Latest Evidence</th>
-                                    <th>Review Status</th>
-                                    <th class="text-end">Actions</th>
+                                    <th>Total Readings</th>
+                                    <th>Optical Crop</th>
+                                    <th>Verification</th>
+                                    <th style="text-align: right; width: 90px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for v in unique_vehicles %}
-                                <tr class="ledger-row" data-plate="{{ v.plate_text|lower }}" data-track="{{ v.vehicle_id }}" data-conf="{{ v.ocr_confidence }}">
-                                    <!-- Registration Number -->
+                                <tr class="plate-row" data-plate="{{ v.plate_text|lower }}" data-track="{{ v.vehicle_id }}" data-conf="{{ v.ocr_confidence or 0.95 }}">
+                                    <td class="font-mono fw-bold text-accent">#{{ v.vehicle_id }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="badge bg-white text-dark border font-mono px-2 py-1" style="font-size: 13px; font-weight: 700; letter-spacing: 0.05em; border-color: var(--borders) !important;">
-                                                {{ v.plate_text }}
-                                            </span>
+                                        <div class="font-mono fw-bold text-white fs-6">{{ v.plate_text }}</div>
+                                        <small class="text-secondary font-amharic">ኢትዮጵያ &bull; የሰሌዳ ቁጥር</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge-status badge-status-info">Federal / Regional</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1.5">
+                                            <i data-lucide="car" style="width:13px; height:13px; color:var(--text-muted);"></i>
+                                            <span class="text-white fw-semibold">{{ v.vehicle_type or 'Motor Vehicle' }}</span>
                                         </div>
                                     </td>
-                                    <!-- Country / Region -->
-                                    <td>
-                                        <span class="text-secondary small">
-                                            {% if 'ET' in v.plate_text %}
-                                            Ethiopia (Federal Code)
-                                            {% elif 'AA' in v.plate_text %}
-                                            Addis Ababa Regional
-                                            {% else %}
-                                            Ethiopia (Standard)
-                                            {% endif %}
-                                        </span>
+                                    <td class="font-mono text-muted" style="font-size: 11px;">
+                                        {{ "%.2f"|format(v.first_seen_s or 0) }}s (F{{ v.first_frame or 0 }})
                                     </td>
-                                    <!-- Vehicle Track ID -->
-                                    <td>
-                                        <span class="font-mono fw-bold">#{{ v.vehicle_id }}</span>
+                                    <td class="font-mono fw-bold text-success">
+                                        {{ "%.1f"|format((v.ocr_confidence or 0.95) * 100) }}%
                                     </td>
-                                    <!-- Vehicle Class -->
-                                    <td>
-                                        <span class="text-dark fw-semibold">{{ v.vehicle_type }}</span>
-                                    </td>
-                                    <!-- First Seen -->
-                                    <td>
-                                        <span class="font-mono text-secondary">{{ "%.1f"|format(v.first_seen_s or 0) }}s</span>
-                                        <small class="text-muted d-block font-mono">(Frame {{ v.first_frame or 0 }})</small>
-                                    </td>
-                                    <!-- OCR Confidence -->
-                                    <td>
-                                        {% set conf = (v.ocr_confidence * 100)|round(1) %}
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="font-mono fw-bold {% if conf >= 90 %}text-success{% else %}text-primary{% endif %}">
-                                                {{ conf }}%
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <!-- Number of Readings -->
-                                    <td>
-                                        <span class="badge bg-secondary font-mono">{{ v.total_scans }} readings</span>
-                                    </td>
-                                    <!-- Latest Evidence Thumbnail -->
+                                    <td class="font-mono">{{ v.total_scans }} hits</td>
                                     <td>
                                         {% if v.crop_filename %}
-                                        <img src="/media/crop/{{ v.crop_filename }}" alt="Crop" class="rounded border" style="height: 28px; width: auto; object-fit: contain; background: #000;" onerror="this.style.display='none'">
+                                        <img src="/media/crop/{{ v.crop_filename }}" alt="Crop" class="rounded border" style="height: 26px; width: auto; object-fit: contain; background: #000;" onerror="this.style.display='none'">
                                         {% else %}
-                                        <span class="text-muted metadata-text">Captured in Stream</span>
+                                        <span class="text-muted font-mono small">In Video Stream</span>
                                         {% endif %}
                                     </td>
-                                    <!-- Review Status -->
                                     <td>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
-                                            <i class="bi bi-check-circle me-1"></i>Verified
+                                        <span class="badge-status badge-status-success">
+                                            <i data-lucide="check" style="width:11px; height:11px;"></i> Verified
                                         </span>
                                     </td>
-                                    <!-- Actions -->
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="inspectVehicle({{ v|tojson|forceescape }})">
-                                            <i class="bi bi-eye"></i> Details
+                                    <td style="text-align: right;">
+                                        <button class="btn btn-sm btn-outline-secondary py-0.5 px-2" onclick="inspectVehicle({{ v|tojson|forceescape }})">
+                                            Inspect
                                         </button>
                                     </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="10" class="text-center py-4 text-secondary">
+                                    <td colspan="10" class="text-center py-5 text-muted">
                                         No registered plate readings available.
                                     </td>
                                 </tr>
@@ -225,34 +178,32 @@
                     </div>
                 </div>
 
-                <!-- ==================================================== -->
-                <!-- TAB 2: EVIDENCE GALLERY                              -->
-                <!-- ==================================================== -->
+                <!-- TAB 2: OPTICAL EVIDENCE GALLERY -->
                 <div class="tab-pane fade" id="tab-evidence" role="tabpanel">
                     <div class="p-3">
                         <div class="row g-3">
                             {% for p in ocr_read %}
                             <div class="col-12 col-sm-6 col-md-4 col-xl-3 evidence-card-col" data-plate="{{ p.plate_text|lower }}" data-track="{{ p.vehicle_id }}">
-                                <div class="card h-100 border">
-                                    <div class="card-header py-1 px-2 d-flex justify-content-between align-items-center">
-                                        <span class="font-mono text-secondary small">Vehicle #{{ p.vehicle_id or p.id }}</span>
-                                        <span class="badge bg-primary font-mono" style="font-size: 10px;">{{ "%.0f"|format((p.ocr_confidence or 0.95)*100) }}% Conf</span>
+                                <div class="panel-card h-100">
+                                    <div class="panel-header py-1.5 px-2">
+                                        <span class="font-mono text-muted small">Vehicle #{{ p.vehicle_id or p.id }}</span>
+                                        <span class="badge-status badge-status-info font-mono" style="font-size: 10px;">{{ "%.0f"|format((p.ocr_confidence or 0.95)*100) }}%</span>
                                     </div>
-                                    <div class="p-2 text-center bg-dark d-flex align-items-center justify-content-center" style="min-height: 80px;">
+                                    <div class="p-2 text-center d-flex align-items-center justify-content-center" style="min-height: 75px; background: var(--bg-sunken);">
                                         {% if p.crop_filename %}
-                                        <img src="/media/crop/{{ p.crop_filename }}" alt="Crop" class="img-fluid rounded border border-secondary" style="max-height: 65px; object-fit: contain;" onerror="this.onerror=null; this.src='/static/icons/plate_placeholder.png';">
+                                        <img src="/media/crop/{{ p.crop_filename }}" alt="Crop" class="img-fluid rounded border" style="max-height: 60px; object-fit: contain; border-color:var(--border-default) !important;" onerror="this.onerror=null; this.src='/static/icons/plate_placeholder.png';">
                                         {% else %}
-                                        <span class="text-white-50 font-mono small">Plate Sensor Optical Crop</span>
+                                        <span class="text-muted font-mono small">Plate Sensor Optical Crop</span>
                                         {% endif %}
                                     </div>
-                                    <div class="card-body p-2">
+                                    <div class="panel-body p-2">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="font-mono fw-bold text-dark" style="font-size: 13px;">{{ p.plate_text }}</span>
-                                            <span class="badge bg-secondary font-mono" style="font-size: 10px;">Frame {{ p.frame }}</span>
+                                            <span class="font-mono fw-bold text-white fs-6">{{ p.plate_text }}</span>
+                                            <span class="badge-status font-mono" style="font-size: 9.5px; background:var(--bg-elevated);">Frame {{ p.frame }}</span>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center metadata-text text-secondary">
+                                        <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 11px;">
                                             <span>Time: {{ "%.2f"|format(p.video_time_s or 0) }}s</span>
-                                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ p.video_time_s or 0 }}" class="text-decoration-none">
+                                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ p.video_time_s or 0 }}" class="text-decoration-none" style="color:var(--accent-primary);">
                                                 Inspect Video &rarr;
                                             </a>
                                         </div>
@@ -270,56 +221,55 @@
 
 </div>
 
-<!-- Vehicle Registration Detail Modal -->
-<div class="modal fade" id="vehicleDetailModal" tabindex="-1" aria-labelledby="vehicleDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-bottom">
-                <h5 class="modal-title fw-bold" id="vehicleDetailModalLabel">
-                    <i class="bi bi-card-text me-2 text-primary"></i>Vehicle Registration Dossier
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Vehicle Registration Dossier Modal -->
+<div class="modal fade" id="vehicleDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
+            <div class="modal-header" style="border-color: var(--border-subtle);">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="car" style="color: var(--accent-primary);"></i>
+                    <h5 class="modal-title fw-bold" style="font-size: 14.5px;">Vehicle Registration Dossier</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border mb-3">
-                    <div>
-                        <div class="metadata-text">OFFICIAL NORMALIZED REGISTRATION</div>
-                        <div class="font-mono fw-bold fs-4 text-dark" id="modalPlateText">--</div>
-                    </div>
-                    <span class="badge bg-success px-2 py-1">VERIFIED OCR</span>
+                <div class="p-3 rounded mb-3" style="background: var(--bg-main); border: 1px solid var(--border-default);">
+                    <div class="text-secondary small font-mono">OFFICIAL NORMALIZED REGISTRATION</div>
+                    <div class="font-mono fw-bold fs-3 text-white" id="modalPlateText">--</div>
+                    <span class="badge-status badge-status-success mt-1">VERIFIED OCR</span>
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <div class="p-2 border rounded bg-white">
-                            <div class="metadata-text">VEHICLE CLASSIFICATION</div>
-                            <div class="fw-semibold text-dark" id="modalVehicleType">--</div>
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                            <div class="text-muted small">CATEGORY</div>
+                            <div class="fw-semibold text-white" id="modalVehicleType">--</div>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="p-2 border rounded bg-white">
-                            <div class="metadata-text">TRACK ID</div>
-                            <div class="fw-bold font-mono text-dark" id="modalVehicleId">--</div>
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                            <div class="text-muted small">TRACK ID</div>
+                            <div class="fw-bold font-mono text-accent" id="modalVehicleTrack">#--</div>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="p-2 border rounded bg-white">
-                            <div class="metadata-text">FIRST SEEN TIMESTAMP</div>
-                            <div class="font-mono text-dark" id="modalFirstSeen">--</div>
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                            <div class="text-muted small">FIRST SEEN</div>
+                            <div class="fw-semibold text-white font-mono" id="modalFirstSeen">--</div>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="p-2 border rounded bg-white">
-                            <div class="metadata-text">TOTAL OPTICAL SCANS</div>
-                            <div class="font-mono text-dark" id="modalTotalScans">--</div>
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                            <div class="text-muted small">TOTAL SCANS</div>
+                            <div class="fw-semibold text-white font-mono" id="modalTotalScans">--</div>
                         </div>
                     </div>
                 </div>
-                <div class="p-2 border rounded bg-dark text-center">
-                    <div class="metadata-text text-white-50 mb-1">OPTICAL EVIDENCE CROP</div>
-                    <img id="modalCropImg" src="" alt="Crop" class="img-fluid rounded border border-secondary" style="max-height: 90px; object-fit: contain;">
+                <div class="p-2 rounded text-center" style="background: #080D16; border: 1px solid var(--border-subtle);" id="modalCropContainer">
+                    <div class="text-secondary small font-mono mb-1">OPTICAL EVIDENCE CROP</div>
+                    <img id="modalCropImg" src="" alt="Crop" class="img-fluid rounded border" style="max-height: 90px; object-fit: contain; background: #000; border-color: var(--border-subtle) !important;">
                 </div>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer" style="border-color: var(--border-subtle); background: var(--bg-secondary);">
                 <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -330,48 +280,50 @@
 {% block scripts %}
 <script>
 function filterLedger() {
-    const q = document.getElementById('plateSearch').value.toLowerCase();
+    const q = document.getElementById('plateSearch').value.toLowerCase().trim();
     const conf = document.getElementById('confFilter').value;
 
-    // Filter table rows
-    document.querySelectorAll('.ledger-row').forEach(row => {
-        const plate = row.getAttribute('data-plate') || '';
-        const track = row.getAttribute('data-track') || '';
-        const rowConf = parseFloat(row.getAttribute('data-conf') || '1');
+    const rows = document.querySelectorAll('#plateTable tbody tr.plate-row');
+    rows.forEach(r => {
+        const plate = (r.getAttribute('data-plate') || '').toLowerCase();
+        const track = r.getAttribute('data-track') || '';
+        const cVal = parseFloat(r.getAttribute('data-conf') || 0);
 
-        let matchText = plate.includes(q) || track.includes(q);
-        let matchConf = true;
-        if (conf === 'high' && rowConf < 0.90) matchConf = false;
-        if (conf === 'med' && rowConf < 0.80) matchConf = false;
+        let matchQ = !q || plate.includes(q) || track.includes(q);
+        let matchC = true;
+        if (conf === 'high') matchC = (cVal >= 0.90);
+        if (conf === 'med') matchC = (cVal >= 0.80);
 
-        row.style.display = (matchText && matchConf) ? '' : 'none';
+        r.style.display = (matchQ && matchC) ? '' : 'none';
     });
 
-    // Filter evidence gallery
-    document.querySelectorAll('.evidence-card-col').forEach(card => {
-        const plate = card.getAttribute('data-plate') || '';
-        const track = card.getAttribute('data-track') || '';
-        card.style.display = (plate.includes(q) || track.includes(q)) ? '' : 'none';
+    const cards = document.querySelectorAll('.evidence-card-col');
+    cards.forEach(c => {
+        const plate = (c.getAttribute('data-plate') || '').toLowerCase();
+        const track = c.getAttribute('data-track') || '';
+        c.style.display = (!q || plate.includes(q) || track.includes(q)) ? '' : 'none';
     });
 }
 
 function inspectVehicle(v) {
     document.getElementById('modalPlateText').textContent = v.plate_text || '--';
-    document.getElementById('modalVehicleType').textContent = v.vehicle_type || 'Passenger Vehicle';
-    document.getElementById('modalVehicleId').textContent = '#' + (v.vehicle_id || '--');
-    document.getElementById('modalFirstSeen').textContent = (v.first_seen_s ? v.first_seen_s.toFixed(1) : '0.0') + 's (Frame ' + (v.first_frame || 0) + ')';
+    document.getElementById('modalVehicleType').textContent = (v.vehicle_type || 'Motor Vehicle');
+    document.getElementById('modalVehicleTrack').textContent = '#' + (v.vehicle_id || '--');
+    document.getElementById('modalFirstSeen').textContent = (v.first_seen_s ? v.first_seen_s.toFixed(2) : '0.00') + 's (Frame ' + (v.first_frame || 0) + ')';
     document.getElementById('modalTotalScans').textContent = (v.total_scans || 1) + ' Optical Scans';
-    
+
     const cropImg = document.getElementById('modalCropImg');
+    const cropContainer = document.getElementById('modalCropContainer');
     if (v.crop_filename) {
         cropImg.src = '/media/crop/' + v.crop_filename;
-        cropImg.style.display = 'inline-block';
+        cropContainer.style.display = 'block';
     } else {
-        cropImg.style.display = 'none';
+        cropContainer.style.display = 'none';
     }
 
     const modal = new bootstrap.Modal(document.getElementById('vehicleDetailModal'));
     modal.show();
+    if (window.lucide) lucide.createIcons();
 }
 </script>
 {% endblock %}
