@@ -186,15 +186,13 @@
         <!-- Map Canvas (Split-Screen / Full Map) -->
         <div class="col-12 col-xl-7" id="patrolMapCol">
             <div class="card h-100 mb-0 shadow-sm">
-                <div class="card-header py-2 d-flex justify-content-between align-items-center bg-light">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-geo-alt-fill text-primary"></i>
-                        <span class="fw-bold text-dark" style="font-size: 13px;">Ethiopian Infrastructure &amp; Pavement Inspection View</span>
+                        <span class="fw-bold" style="font-size: 13px; color: var(--text-primary);">Patrol Map</span>
                     </div>
                     <div class="d-flex align-items-center gap-2 font-mono small text-secondary">
-                        <span>Tile: OpenStreetMap Standard</span>
-                        <span>•</span>
-                        <span id="activeCorridorCount">{{ contractors|length }} Corridors Visible</span>
+                        <span id="activeCorridorCount">{{ contractors|length }} Corridors</span>
                     </div>
                 </div>
                 <div class="card-body p-2 position-relative">
@@ -380,7 +378,7 @@
                 <div class="dashcam-header">
                     <div class="dashcam-title">
                         <i class="bi bi-camera-video-fill text-danger"></i>
-                        <span>DASHCAM AI VISION STREAM</span>
+                        <span>Patrol Video Stream</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;">
@@ -402,7 +400,7 @@
                         <div class="dashcam-hud-top">
                             <div class="dashcam-hud-badge">
                                 <span class="dashcam-hud-sync-pulse"></span>
-                                <span>AI NEURAL DETECTION &bull; YOLOv8</span>
+                                <span>Detection Stream</span>
                             </div>
                             <div class="dashcam-hud-badge text-info" id="dashcamSyncLockBadge">
                                 <i class="bi bi-lock-fill me-1 text-success"></i>SYNC: 0.00 km &bull; 00:00
