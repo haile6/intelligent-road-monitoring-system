@@ -3,258 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}RoadEye™ Enterprise Road Intelligence{% endblock %}</title>
+    <title>{% block title %}RoadEye™ Enterprise — Transportation Intelligence Platform{% endblock %}</title>
 
-    <!-- Bootstrap 5 -->
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Custom Design System -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=7.0">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <meta name="theme-color" content="#0F172A">
+    <!-- Enterprise Custom Design System v8.0 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=8.0">
+
+    <meta name="theme-color" content="#080D16">
     <link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-<div class="d-flex" id="wrapper" style="height:100vh; overflow:hidden;">
+
+<div id="app-shell">
 
     <!-- ============================================================ -->
-    <!-- SIDEBAR                                                       -->
+    <!-- 1. COLLAPSIBLE ENTERPRISE SIDEBAR                             -->
     <!-- ============================================================ -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
 
-        <!-- Brand -->
+        <!-- Brand Identity -->
         <div class="sidebar-brand">
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <div class="brand-logo">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <div>
-                    <div class="brand-name">RoadEye™</div>
-                    <div class="brand-sub">Road Intelligence</div>
-                </div>
+            <div class="brand-badge">
+                <i data-lucide="shield-check"></i>
             </div>
-            <div class="env-pill">Production v2.4-ITS</div>
+            <div class="brand-text">
+                <div class="brand-title">RoadEye™</div>
+                <div class="brand-sub">Road Intelligence</div>
+            </div>
         </div>
 
-        <!-- Navigation -->
-        <div style="flex:1; overflow-y:auto; padding: 8px 0;">
+        <!-- Scrollable Navigation Groups -->
+        <div class="sidebar-nav-container">
 
-            <div class="sidebar-section-label">Operations</div>
-            <div class="sidebar-nav">
+            <!-- Group 1: OPERATIONS -->
+            <div class="sidebar-section-title">Operations</div>
+            <nav class="d-flex flex-column gap-1">
                 <a href="{{ url_for('dashboard') }}"
-                   class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
-                    <i class="bi bi-grid-3x3-gap"></i>
-                    <span>Dashboard</span>
+                   class="nav-link {% if active_page == 'dashboard' %}active{% endif %}"
+                   title="Operations Dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span class="nav-item-label">Operations Dashboard</span>
                 </a>
                 <a href="{{ url_for('map_view') }}"
-                   class="sidebar-link {% if active_page == 'map' %}active{% endif %}">
-                    <i class="bi bi-map"></i>
-                    <span>GIS Patrol Map</span>
-                    <span class="sidebar-badge sidebar-badge-live">Live</span>
+                   class="nav-link {% if active_page == 'map' %}active{% endif %}"
+                   title="GIS Patrol Map">
+                    <i data-lucide="map"></i>
+                    <span class="nav-item-label">GIS Patrol Map</span>
+                    <span class="nav-item-badge nav-badge-live">Live</span>
                 </a>
                 <a href="{{ url_for('incidents_view') }}"
-                   class="sidebar-link {% if active_page == 'incidents' %}active{% endif %}">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <span>Incident Ledger</span>
+                   class="nav-link {% if active_page == 'incidents' %}active{% endif %}"
+                   title="Incident Ledger">
+                    <i data-lucide="alert-triangle"></i>
+                    <span class="nav-item-label">Incident Ledger</span>
                 </a>
                 <a href="{{ url_for('video_studio') }}"
-                   class="sidebar-link {% if active_page == 'studio' %}active{% endif %}">
-                    <i class="bi bi-camera-reels"></i>
-                    <span>Telemetry Studio</span>
+                   class="nav-link {% if active_page == 'studio' %}active{% endif %}"
+                   title="Telemetry Studio">
+                    <i data-lucide="video"></i>
+                    <span class="nav-item-label">Telemetry Studio</span>
                 </a>
-            </div>
+            </nav>
 
-            <div class="sidebar-section-label">Management</div>
-            <div class="sidebar-nav">
+            <!-- Group 2: INFRASTRUCTURE MANAGEMENT -->
+            <div class="sidebar-section-title mt-2">Infrastructure Management</div>
+            <nav class="d-flex flex-column gap-1">
                 <a href="{{ url_for('contractors_view') }}"
-                   class="sidebar-link {% if active_page == 'contractors' %}active{% endif %}">
-                    <i class="bi bi-building-check"></i>
-                    <span>Contractor DLP</span>
-                    <span class="sidebar-badge sidebar-badge-warn">Warranty</span>
+                   class="nav-link {% if active_page == 'contractors' %}active{% endif %}"
+                   title="Contractor DLP">
+                    <i data-lucide="building-2"></i>
+                    <span class="nav-item-label">Contractor DLP</span>
                 </a>
-                <a href="{{ url_for('plates_gallery') }}"
-                   class="sidebar-link {% if active_page == 'plates' %}active{% endif %}">
-                    <i class="bi bi-card-text"></i>
-                    <span>ANPR Gallery</span>
+                <a href="{{ url_for('contractors_view') }}#warranties"
+                   class="nav-link"
+                   title="Warranty Registry">
+                    <i data-lucide="file-check-2"></i>
+                    <span class="nav-item-label">Warranty Registry</span>
+                    <span class="nav-item-badge nav-badge-warn">DLP</span>
                 </a>
                 <a href="{{ url_for('reports_view') }}"
-                   class="sidebar-link {% if active_page == 'reports' %}active{% endif %}">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span>Work Orders</span>
+                   class="nav-link {% if active_page == 'reports' %}active{% endif %}"
+                   title="Work Orders">
+                    <i data-lucide="clipboard-list"></i>
+                    <span class="nav-item-label">Work Orders</span>
                 </a>
-            </div>
+            </nav>
 
-            <div class="sidebar-section-label">System</div>
-            <div class="sidebar-nav">
+            <!-- Group 3: VEHICLE INTELLIGENCE -->
+            <div class="sidebar-section-title mt-2">Vehicle Intelligence</div>
+            <nav class="d-flex flex-column gap-1">
+                <a href="{{ url_for('plates_gallery') }}"
+                   class="nav-link {% if active_page == 'plates' %}active{% endif %}"
+                   title="ANPR Gallery">
+                    <i data-lucide="car"></i>
+                    <span class="nav-item-label">ANPR Gallery</span>
+                </a>
+            </nav>
+
+            <!-- Group 4: SYSTEM MANAGEMENT -->
+            <div class="sidebar-section-title mt-2">System Management</div>
+            <nav class="d-flex flex-column gap-1">
                 <a href="{{ url_for('health_view') }}"
-                   class="sidebar-link {% if active_page == 'health' %}active{% endif %}">
-                    <i class="bi bi-activity"></i>
-                    <span>Health &amp; APIs</span>
+                   class="nav-link {% if active_page == 'health' %}active{% endif %}"
+                   title="Health &amp; APIs">
+                    <i data-lucide="activity"></i>
+                    <span class="nav-item-label">Health &amp; APIs</span>
                 </a>
                 <a href="{{ url_for('calibration_view') }}"
-                   class="sidebar-link {% if active_page == 'calibration' %}active{% endif %}">
-                    <i class="bi bi-sliders"></i>
-                    <span>AI Calibration</span>
+                   class="nav-link {% if active_page == 'calibration' %}active{% endif %}"
+                   title="AI Calibration">
+                    <i data-lucide="sliders"></i>
+                    <span class="nav-item-label">AI Calibration</span>
                 </a>
                 <a href="{{ url_for('audit_view') }}"
-                   class="sidebar-link {% if active_page == 'audit' %}active{% endif %}">
-                    <i class="bi bi-clock-history"></i>
-                    <span>Audit Log</span>
+                   class="nav-link {% if active_page == 'audit' %}active{% endif %}"
+                   title="Audit Log">
+                    <i data-lucide="history"></i>
+                    <span class="nav-item-label">Audit Log</span>
                 </a>
-            </div>
+            </nav>
+
         </div>
 
-        <!-- Footer -->
+        <!-- Sidebar Footer & Collapse Toggle -->
         <div class="sidebar-footer">
-            <div class="sidebar-footer-inner">
-                <div class="sidebar-footer-label">Neural Core</div>
-                <div class="sidebar-footer-val">
-                    YOLOv8/11 &nbsp;·&nbsp; 4.6ms<br>
-                    Debre Berhan Corridor<br>
-                    TZ: Africa/Addis_Ababa
+            <div class="sidebar-footer-content">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">
+                    Neural Engine Online
+                </div>
+                <div class="font-mono text-muted" style="font-size: 10px;">
+                    YOLOv11s · 4.6ms · INT8
                 </div>
             </div>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseToggle" title="Toggle Sidebar (Ctrl+B)">
+                <i data-lucide="chevron-left"></i>
+            </button>
         </div>
 
     </aside>
 
     <!-- ============================================================ -->
-    <!-- MAIN CONTENT                                                  -->
+    <!-- 2. MAIN APPLICATION CONTENT VIEWPORT                          -->
     <!-- ============================================================ -->
-    <div class="main-content flex-grow-1 d-flex flex-column" style="min-width:0; overflow-y:auto;">
+    <div class="main-workspace">
 
-        <!-- Top Header -->
-        <header class="app-header flex-shrink-0">
-            <!-- Breadcrumb -->
-            <div class="header-breadcrumb">
-                <a href="{{ url_for('dashboard') }}"><i class="bi bi-house-door"></i> RoadEye</a>
-                <span class="sep">/</span>
-                <span class="current">{% block breadcrumb %}Dashboard{% endblock %}</span>
+        <!-- Top Header Navigation -->
+        <header class="app-header">
+            <!-- Left Header: Mobile Toggle, Breadcrumb, Corridor Pill -->
+            <div class="header-left">
+                <button class="btn btn-sm btn-ghost d-lg-none" id="mobileSidebarToggle" title="Open Menu">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="header-breadcrumb">
+                    <a href="{{ url_for('dashboard') }}">RoadEye</a>
+                    <span class="sep">/</span>
+                    <span class="current">{% block breadcrumb %}Operations Dashboard{% endblock %}</span>
+                </div>
+                <div class="corridor-pill d-none d-md-inline-flex">
+                    <i data-lucide="navigation-2" style="width:12px; height:12px;"></i>
+                    <span>Debre Berhan Corridor · Route A2</span>
+                </div>
             </div>
 
-            <!-- Right Controls -->
-            <div class="header-actions">
-                <!-- Live Clock -->
-                <span id="liveClock" title="Africa/Addis_Ababa Time">--:--:--</span>
+            <!-- Right Header: Global Search, Alerts, Status, Clock, Profile -->
+            <div class="header-right">
+                <!-- Command Palette Trigger -->
+                <button class="cmd-palette-trigger d-none d-sm-flex" id="cmdPaletteOpenBtn">
+                    <i data-lucide="search" style="width:14px; height:14px;"></i>
+                    <span>Search or jump to...</span>
+                    <span class="cmd-shortcut-key">Ctrl K</span>
+                </button>
 
-                <!-- System Status -->
-                <div class="system-status-pill">
-                    <span class="status-beacon"></span>
+                <!-- Real-Time Local Clock (Africa/Addis_Ababa) -->
+                <div id="liveClockDisplay" title="Africa/Addis_Ababa Timezone (UTC+3)">--:--:--</div>
+
+                <!-- Connectivity Status Beacon -->
+                <div class="status-beacon-wrap">
+                    <span class="status-beacon-dot"></span>
                     <span>ONLINE</span>
                 </div>
 
-                <!-- Upload -->
-                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal" title="Upload inspection footage">
-                    <i class="bi bi-cloud-arrow-up"></i>
-                    <span class="d-none d-sm-inline">Upload</span>
+                <!-- Notification Center Dropdown -->
+                <div class="dropdown">
+                    <button class="notification-btn" id="notificationsDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Operational Alerts">
+                        <i data-lucide="bell" style="width:15px; height:15px;"></i>
+                        <span class="notification-badge-dot"></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow-lg p-0" style="width: 320px; background: var(--bg-surface); border: 1px solid var(--border-default);">
+                        <div class="p-3 border-bottom d-flex align-items-center justify-content-between" style="border-color: var(--border-subtle) !important;">
+                            <span class="fw-bold" style="font-size: 12.5px;">Operational Alerts</span>
+                            <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30" style="font-size: 10px;">3 Active</span>
+                        </div>
+                        <div class="p-2 d-flex flex-column gap-1" style="max-height: 280px; overflow-y: auto;">
+                            <a href="{{ url_for('incidents_view') }}?risk=IMMEDIATE" class="p-2 rounded text-decoration-none" style="background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; display: block;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="badge-status badge-status-danger" style="font-size: 9.5px;">CRITICAL HAZARD</span>
+                                    <span class="text-muted font-mono" style="font-size: 10px;">TTC &le; 1.8s</span>
+                                </div>
+                                <div style="font-size: 11.5px; color: var(--text-secondary);">20 Immediate Danger Potholes flagged on Route A2 corridor.</div>
+                            </a>
+                            <a href="{{ url_for('contractors_view') }}" class="p-2 rounded text-decoration-none" style="background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; display: block;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="badge-status badge-status-warning" style="font-size: 9.5px;">WARRANTY AUDIT</span>
+                                    <span class="text-muted font-mono" style="font-size: 10px;">ERA / FIDIC</span>
+                                </div>
+                                <div style="font-size: 11.5px; color: var(--text-secondary);">27 Active Contractor DLP segments require compliance verification.</div>
+                            </a>
+                            <a href="{{ url_for('health_view') }}" class="p-2 rounded text-decoration-none" style="background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; display: block;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="badge-status badge-status-success" style="font-size: 9.5px;">MLOPS NOMINAL</span>
+                                    <span class="text-muted font-mono" style="font-size: 10px;">77/77 Passed</span>
+                                </div>
+                                <div style="font-size: 11.5px; color: var(--text-secondary);">YOLOv11s defect inference latency nominal at 4.6ms (INT8).</div>
+                            </a>
+                        </div>
+                        <div class="p-2 border-top text-center" style="border-color: var(--border-subtle) !important;">
+                            <a href="{{ url_for('audit_view') }}" class="text-decoration-none" style="font-size: 11.5px; color: var(--accent-primary);">View Audit Trail &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Ingest Upload Modal Trigger -->
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal" title="Ingest Survey Footage">
+                    <i data-lucide="upload-cloud" style="width:14px; height:14px;"></i>
+                    <span class="d-none d-sm-inline">Ingest Video</span>
                 </button>
 
-                <!-- Profile Menu -->
+                <!-- User Profile Dropdown -->
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-ghost d-flex align-items-center gap-2" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        <span style="width:28px;height:28px;border-radius:50%;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94A3B8;">
-                            <i class="bi bi-person-fill"></i>
-                        </span>
-                        <span class="d-none d-md-inline" style="font-size:12.5px;font-weight:500;color:var(--text-secondary);">Operator</span>
-                        <i class="bi bi-chevron-down" style="font-size:10px;color:var(--text-muted);"></i>
+                    <button class="btn btn-sm btn-ghost d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--bg-elevated); border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: center; color: var(--accent-primary); font-size: 11px;">
+                            <i data-lucide="user" style="width:14px; height:14px;"></i>
+                        </div>
+                        <span class="d-none d-md-inline" style="font-size: 12px; font-weight: 500; color: var(--text-primary);">System Operator</span>
+                        <i data-lucide="chevron-down" style="width:12px; height:12px; color: var(--text-muted);"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width:200px;">
-                        <li class="px-3 py-2 border-bottom" style="margin-bottom:4px;">
-                            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">System Operator</div>
-                            <div style="font-size:11.5px;color:var(--text-muted);">Operations Authority</div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg p-2" style="background: var(--bg-surface); border: 1px solid var(--border-default); min-width: 220px;">
+                        <li class="px-2 py-1 border-bottom mb-1" style="border-color: var(--border-subtle) !important;">
+                            <div class="fw-bold" style="font-size: 12px; color: var(--text-primary);">Senior Transportation Inspector</div>
+                            <div class="text-muted" style="font-size: 10.5px;">Ethiopian Roads Administration (ERA)</div>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('calibration_view') }}">
-                                <i class="bi bi-sliders"></i> AI Calibration
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('health_view') }}">
-                                <i class="bi bi-activity"></i> System Health
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('api_v1_health') }}" target="_blank">
-                                <i class="bi bi-box-arrow-up-right"></i> REST API Docs
-                            </a>
-                        </li>
+                        <li><a class="dropdown-item py-1.5" href="{{ url_for('calibration_view') }}"><i data-lucide="sliders" class="me-2" style="width:13px; height:13px;"></i> AI Model Calibration</a></li>
+                        <li><a class="dropdown-item py-1.5" href="{{ url_for('health_view') }}"><i data-lucide="activity" class="me-2" style="width:13px; height:13px;"></i> Subsystem Health &amp; APIs</a></li>
+                        <li><a class="dropdown-item py-1.5" href="{{ url_for('settings_view') }}"><i data-lucide="settings" class="me-2" style="width:13px; height:13px;"></i> Platform Settings</a></li>
+                        <li><hr class="dropdown-divider" style="border-color: var(--border-subtle);"></li>
+                        <li><a class="dropdown-item py-1.5" href="{{ url_for('api_v1_health') }}" target="_blank"><i data-lucide="terminal" class="me-2" style="width:13px; height:13px;"></i> REST API Gateway</a></li>
                     </ul>
                 </div>
             </div>
         </header>
 
-        <!-- Page Content -->
-        <main class="flex-grow-1 p-4" style="min-width:0;">
+        <!-- Main Dynamic Content Workspace -->
+        <main class="content-area">
             {% block content %}{% endblock %}
         </main>
 
-        <!-- Footer -->
-        <footer class="flex-shrink-0 d-flex align-items-center justify-content-between px-4 py-2"
-                style="border-top:1px solid var(--border-default);background:var(--bg-surface);font-size:11.5px;color:var(--text-muted);">
+        <!-- Enterprise Public-Sector Footer -->
+        <footer class="p-3 d-flex flex-column flex-md-row justify-content-between align-items-center" style="border-top: 1px solid var(--border-default); background: var(--bg-secondary); font-size: 11px; color: var(--text-muted); flex-shrink: 0;">
             <div class="d-flex align-items-center gap-2">
-                <span class="status-beacon" style="width:6px;height:6px;"></span>
-                <strong style="color:var(--text-secondary);">RoadEye™ Enterprise</strong>
-                <span>· Ethiopian Roads Administration (ERA)</span>
+                <span class="status-beacon-dot" style="width:6px; height:6px;"></span>
+                <strong style="color: var(--text-secondary);">RoadEye™ Enterprise</strong>
+                <span>&bull; Public-Sector Transportation Asset Management System</span>
             </div>
-            <div style="font-family:var(--font-mono);">Africa/Addis_Ababa · UTC+3</div>
+            <div class="font-mono mt-1 mt-md-0">
+                Authority: Ethiopian Roads Administration (ERA) &bull; Timezone: Africa/Addis_Ababa
+            </div>
         </footer>
 
-    </div><!-- /.main-content -->
-</div><!-- /#wrapper -->
+    </div><!-- /.main-workspace -->
+
+</div><!-- /#app-shell -->
 
 <!-- ============================================================ -->
-<!-- UPLOAD MODAL                                                  -->
+<!-- 3. GLOBAL COMMAND PALETTE (CTRL+K / CMD+K)                    -->
+<!-- ============================================================ -->
+<div class="command-palette-backdrop" id="globalCommandPalette">
+    <div class="command-palette-window">
+        <div class="cmd-search-input-wrap">
+            <i data-lucide="search" style="width: 18px; height: 18px; color: var(--accent-primary);"></i>
+            <input type="text" class="cmd-search-input" id="cmdPaletteSearchInput" placeholder="Type a command, corridor, or incident ID..." autocomplete="off">
+            <span class="cmd-shortcut-key">ESC to close</span>
+        </div>
+        <div class="cmd-results-list" id="cmdResultsList">
+            <div class="cmd-group-label">Quick Navigation</div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('dashboard') }}'">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Operations Dashboard</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('map_view') }}'">
+                <i data-lucide="map"></i>
+                <span>GIS Road Patrol Map</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/map</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('incidents_view') }}'">
+                <i data-lucide="alert-triangle"></i>
+                <span>Incident Ledger</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/incidents</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('video_studio') }}'">
+                <i data-lucide="video"></i>
+                <span>Telemetry Studio</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/studio</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('contractors_view') }}'">
+                <i data-lucide="building-2"></i>
+                <span>Contractor DLP &amp; Warranty Registry</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/contractors</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('reports_view') }}'">
+                <i data-lucide="clipboard-list"></i>
+                <span>Work Orders &amp; Maintenance</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/reports</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('plates_gallery') }}'">
+                <i data-lucide="car"></i>
+                <span>ANPR Vehicle &amp; Plate Gallery</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/plates</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('health_view') }}'">
+                <i data-lucide="activity"></i>
+                <span>System Health &amp; REST APIs</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/health</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('calibration_view') }}'">
+                <i data-lucide="sliders"></i>
+                <span>AI Perception Calibration</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/calibration</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('audit_view') }}'">
+                <i data-lucide="history"></i>
+                <span>System Audit Logs</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/audit</span>
+            </div>
+
+            <div class="cmd-group-label mt-2">Operational Actions</div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('api_export_csv') }}'">
+                <i data-lucide="download"></i>
+                <span>Export Incidents Dataset (CSV)</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">Export</span>
+            </div>
+            <div class="cmd-result-item" onclick="document.getElementById('cmdPaletteCloseBtn').click(); var m = new bootstrap.Modal(document.getElementById('uploadVideoModal')); m.show();">
+                <i data-lucide="upload-cloud"></i>
+                <span>Ingest Inspection Video</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">Upload</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4. SLIDE-OVER DETAIL DRAWER (PALANTIR / LINEAR STYLE)         -->
+<!-- ============================================================ -->
+<div class="detail-drawer-overlay" id="globalDrawerOverlay"></div>
+<aside class="detail-drawer" id="globalDetailDrawer">
+    <div class="drawer-header">
+        <div class="d-flex align-items-center gap-2">
+            <div class="brand-badge" style="width:26px; height:26px; font-size:12px;">
+                <i data-lucide="eye" style="width:14px; height:14px;"></i>
+            </div>
+            <span class="drawer-title" id="drawerTitle">Inspection Record</span>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="drawerCloseBtn" title="Close Drawer (ESC)">
+            <i data-lucide="x" style="width:16px; height:16px;"></i>
+        </button>
+    </div>
+    <div class="drawer-body" id="drawerBody">
+        <!-- Injected via JavaScript dynamically -->
+        <div class="text-center text-muted py-5">
+            <i data-lucide="loader" class="spin mb-2" style="width:24px; height:24px;"></i>
+            <div>Loading record telemetry...</div>
+        </div>
+    </div>
+    <div class="drawer-footer" id="drawerFooter">
+        <button class="btn btn-sm btn-secondary" id="drawerDismissBtn">Close</button>
+        <button class="btn btn-sm btn-primary" id="drawerActionBtn">Open in Studio</button>
+    </div>
+</aside>
+
+<!-- ============================================================ -->
+<!-- 5. TOAST NOTIFICATIONS CONTAINER                              -->
+<!-- ============================================================ -->
+<div id="toast-container"></div>
+
+<!-- ============================================================ -->
+<!-- 6. VIDEO INGEST UPLOAD MODAL                                  -->
 <!-- ============================================================ -->
 <div class="modal fade" id="uploadVideoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-cloud-arrow-up text-primary me-2"></i>Ingest Inspection Footage
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
+            <div class="modal-header" style="border-color: var(--border-subtle);">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="upload-cloud" style="color: var(--accent-primary);"></i>
+                    <h5 class="modal-title fw-bold" style="font-size: 14.5px;">Ingest Inspection Video</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="uploadVideoForm" enctype="multipart/form-data" method="POST" action="/api/video/upload">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label" style="font-size:12.5px;font-weight:600;">Video File <span style="color:var(--danger);">*</span></label>
+                        <label class="form-label" style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Video Footage File (.mp4, .avi, .mov) <span class="text-danger">*</span></label>
                         <input type="file" id="uploadVideoInput" name="video" class="form-control" accept="video/*" required>
-                        <small class="text-muted d-block mt-1" id="videoFileFeedback">Supported: .mp4, .avi, .mov — Standard dashcam or survey footage.</small>
+                        <small class="text-muted d-block mt-1" id="videoFileFeedback">Standard dashcam or highway survey footage.</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" style="font-size:12.5px;font-weight:600;">
-                            GPS Track <span class="badge" style="background:var(--bg-elevated);color:var(--text-muted);font-size:10px;">Optional</span>
+                        <label class="form-label" style="font-size: 12px; font-weight: 600; color: var(--text-primary);">
+                            GPS Telemetry Track (.csv or .gpx) <span class="badge bg-secondary font-mono" style="font-size: 9px;">Optional</span>
                         </label>
                         <input type="file" id="uploadGpsInput" name="gps" class="form-control" accept=".csv,.gpx">
-                        <small class="text-muted d-block mt-1">If omitted, coordinates are synthesized from calibrated speed vectors.</small>
+                        <small class="text-muted d-block mt-1">If omitted, geographic coordinates are synthesized from vehicle speed.</small>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="setAsDefaultCheck" name="set_as_default" value="true" checked>
-                        <label class="form-check-label" for="setAsDefaultCheck" style="font-size:12.5px;">
+                        <label class="form-check-label text-secondary" for="setAsDefaultCheck" style="font-size: 12px;">
                             Set as primary active target <code>data/test_video.mp4</code>
                         </label>
                     </div>
-                    <div id="uploadProgress" class="progress mb-3" style="display:none; height:16px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;font-size:11px;"></div>
+                    <div id="uploadProgress" class="progress mb-3" style="display: none; height: 16px; background: var(--bg-sunken);">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%; font-size: 10px;">0%</div>
                     </div>
-                    <div id="uploadAlert" class="alert py-2 small" style="display:none;"></div>
+                    <div id="uploadAlert" class="alert small py-2" style="display: none;"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-ghost" data-bs-dismiss="modal">Cancel</button>
-                    <div class="d-flex gap-2 ms-auto">
+                <div class="modal-footer" style="border-color: var(--border-subtle); background: var(--bg-secondary);">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="d-flex gap-2">
                         <button type="button" class="btn btn-sm btn-outline-primary" id="btnUploadOnly">
-                            <i class="bi bi-play"></i> Studio Preview
+                            <i data-lucide="play" style="width:12px; height:12px;"></i> Studio Preview
                         </button>
                         <button type="submit" class="btn btn-sm btn-primary" id="btnUploadRun">
-                            <i class="bi bi-cpu"></i> Run AI Pipeline
+                            <i data-lucide="cpu" style="width:12px; height:12px;"></i> Ingest &amp; Run AI
                         </button>
                     </div>
                 </div>
@@ -263,14 +447,20 @@
     </div>
 </div>
 
-<!-- Bootstrap JS -->
+<!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Global Shell Interactive Engine -->
 <script>
-// Live clock — Africa/Addis_Ababa (UTC+3)
-(function() {
-    function tick() {
-        const el = document.getElementById('liveClock');
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Initialize Lucide Icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    // 2. Real-Time Local Clock in Africa/Addis_Ababa (UTC+3)
+    function tickClock() {
+        const el = document.getElementById('liveClockDisplay');
         if (!el) return;
         try {
             el.textContent = new Date().toLocaleTimeString('en-GB', {
@@ -278,39 +468,191 @@
                 hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
         } catch(e) {
-            const n = new Date();
-            el.textContent = [n.getHours(),n.getMinutes(),n.getSeconds()]
-                .map(x=>String(x).padStart(2,'0')).join(':');
+            const now = new Date();
+            el.textContent = [now.getHours(), now.getMinutes(), now.getSeconds()]
+                .map(n => String(n).padStart(2, '0')).join(':');
         }
     }
-    tick();
-    setInterval(tick, 1000);
-})();
+    tickClock();
+    setInterval(tickClock, 1000);
 
-// Upload handler
-document.addEventListener('DOMContentLoaded', function() {
-    const fileInput  = document.getElementById('uploadVideoInput');
-    const feedback   = document.getElementById('videoFileFeedback');
-    const btnOnly    = document.getElementById('btnUploadOnly');
-    const uploadForm = document.getElementById('uploadVideoForm');
+    // 3. Collapsible Sidebar Persistence
+    const sidebar = document.getElementById('mainSidebar');
+    const collapseBtn = document.getElementById('sidebarCollapseToggle');
+    const mobileBtn = document.getElementById('mobileSidebarToggle');
 
-    if (fileInput && feedback) {
-        fileInput.addEventListener('change', function() {
+    const isCollapsed = localStorage.getItem('roadeye_sidebar_collapsed') === 'true';
+    if (isCollapsed && sidebar) {
+        sidebar.classList.add('collapsed');
+    }
+
+    if (collapseBtn && sidebar) {
+        collapseBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('roadeye_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+        });
+    }
+
+    if (mobileBtn && sidebar) {
+        mobileBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('mobile-open');
+        });
+    }
+
+    // 4. Command Palette (Ctrl+K or Cmd+K)
+    const cmdBackdrop = document.getElementById('globalCommandPalette');
+    const cmdInput = document.getElementById('cmdPaletteSearchInput');
+    const cmdOpenBtn = document.getElementById('cmdPaletteOpenBtn');
+
+    function openCommandPalette() {
+        if (!cmdBackdrop) return;
+        cmdBackdrop.classList.add('open');
+        if (cmdInput) {
+            cmdInput.value = '';
+            cmdInput.focus();
+            filterCommandResults('');
+        }
+    }
+
+    function closeCommandPalette() {
+        if (!cmdBackdrop) return;
+        cmdBackdrop.classList.remove('open');
+    }
+
+    if (cmdOpenBtn) cmdOpenBtn.addEventListener('click', openCommandPalette);
+
+    window.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+            e.preventDefault();
+            if (cmdBackdrop && cmdBackdrop.classList.contains('open')) {
+                closeCommandPalette();
+            } else {
+                openCommandPalette();
+            }
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+            e.preventDefault();
+            if (collapseBtn) collapseBtn.click();
+        }
+        if (e.key === 'Escape') {
+            closeCommandPalette();
+            closeDetailDrawer();
+        }
+    });
+
+    if (cmdBackdrop) {
+        cmdBackdrop.addEventListener('click', function(e) {
+            if (e.target === cmdBackdrop) closeCommandPalette();
+        });
+    }
+
+    if (cmdInput) {
+        cmdInput.addEventListener('input', function() {
+            filterCommandResults(this.value.toLowerCase().trim());
+        });
+    }
+
+    function filterCommandResults(query) {
+        const items = document.querySelectorAll('.cmd-result-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = (!query || text.includes(query)) ? 'flex' : 'none';
+        });
+    }
+
+    // 5. Drawer Controls
+    const drawerOverlay = document.getElementById('globalDrawerOverlay');
+    const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+    const drawerDismissBtn = document.getElementById('drawerDismissBtn');
+
+    if (drawerOverlay) drawerOverlay.addEventListener('click', closeDetailDrawer);
+    if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDetailDrawer);
+    if (drawerDismissBtn) drawerDismissBtn.addEventListener('click', closeDetailDrawer);
+
+    // 6. Video Upload Handler
+    const uploadInput = document.getElementById('uploadVideoInput');
+    const uploadFeedback = document.getElementById('videoFileFeedback');
+    if (uploadInput && uploadFeedback) {
+        uploadInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const mb = (this.files[0].size / 1048576).toFixed(1);
-                feedback.innerHTML = '<span style="color:var(--success);font-weight:600;">✓ ' + this.files[0].name + ' (' + mb + ' MB)</span>';
+                uploadFeedback.innerHTML = `<span style="color:var(--success);font-weight:600;">✓ Selected: ${this.files[0].name} (${mb} MB)</span>`;
             }
         });
     }
 
-    if (btnOnly) btnOnly.addEventListener('click', e => { e.preventDefault(); submitUpload(false); });
-    if (uploadForm) uploadForm.addEventListener('submit', e => { e.preventDefault(); submitUpload(true); });
+    const uploadForm = document.getElementById('uploadVideoForm');
+    const btnUploadOnly = document.getElementById('btnUploadOnly');
+    if (btnUploadOnly) btnUploadOnly.addEventListener('click', function(e) { e.preventDefault(); submitUpload(false); });
+    if (uploadForm) uploadForm.addEventListener('submit', function(e) { e.preventDefault(); submitUpload(true); });
 });
 
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'enterprise-toast';
+    let icon = 'info';
+    let color = 'var(--accent-primary)';
+    if (type === 'success') { icon = 'check-circle'; color = 'var(--success)'; }
+    if (type === 'danger' || type === 'error') { icon = 'alert-triangle'; color = 'var(--danger)'; }
+    if (type === 'warning') { icon = 'alert-circle'; color = 'var(--warning)'; }
+
+    toast.innerHTML = `
+        <i data-lucide="${icon}" style="color:${color}; width:16px; height:16px; flex-shrink:0;"></i>
+        <div style="flex:1;">${message}</div>
+    `;
+    container.appendChild(toast);
+    if (window.lucide) lucide.createIcons();
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.2s';
+        setTimeout(() => toast.remove(), 200);
+    }, 3500);
+}
+
+// Slide-Over Detail Drawer Helper
+function openDetailDrawer(title, htmlContent, actionBtnText = null, actionCallback = null) {
+    const drawer = document.getElementById('globalDetailDrawer');
+    const overlay = document.getElementById('globalDrawerOverlay');
+    const titleEl = document.getElementById('drawerTitle');
+    const bodyEl = document.getElementById('drawerBody');
+    const actionBtn = document.getElementById('drawerActionBtn');
+
+    if (titleEl) titleEl.textContent = title;
+    if (bodyEl) bodyEl.innerHTML = htmlContent;
+
+    if (actionBtnText && actionCallback) {
+        actionBtn.style.display = 'inline-flex';
+        actionBtn.textContent = actionBtnText;
+        actionBtn.onclick = actionCallback;
+    } else {
+        actionBtn.style.display = 'none';
+    }
+
+    if (drawer && overlay) {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+    }
+    if (window.lucide) lucide.createIcons();
+}
+
+function closeDetailDrawer() {
+    const drawer = document.getElementById('globalDetailDrawer');
+    const overlay = document.getElementById('globalDrawerOverlay');
+    if (drawer) drawer.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+}
+
+// Ingest video submission
 function submitUpload(autoRun) {
     const fileInput = document.getElementById('uploadVideoInput');
     if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-        alert('Please select a video file.'); return;
+        alert('Please select a video file.');
+        return;
     }
     const fd = new FormData();
     fd.append('video', fileInput.files[0]);
@@ -319,15 +661,15 @@ function submitUpload(autoRun) {
     const gps = document.getElementById('uploadGpsInput');
     if (gps && gps.files && gps.files[0]) fd.append('gps', gps.files[0]);
 
-    const prog   = document.getElementById('uploadProgress');
-    const bar    = prog ? prog.querySelector('.progress-bar') : null;
-    const alert  = document.getElementById('uploadAlert');
+    const prog = document.getElementById('uploadProgress');
+    const bar = prog ? prog.querySelector('.progress-bar') : null;
+    const alertBox = document.getElementById('uploadAlert');
     const btnRun = document.getElementById('btnUploadRun');
     const btnPrv = document.getElementById('btnUploadOnly');
 
     if (prog) prog.style.display = 'block';
-    if (bar)  { bar.style.width = '5%'; bar.textContent = 'Uploading…'; bar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-primary'; }
-    if (alert) alert.style.display = 'none';
+    if (bar) { bar.style.width = '5%'; bar.textContent = 'Uploading...'; }
+    if (alertBox) alertBox.style.display = 'none';
     if (btnRun) btnRun.disabled = true;
     if (btnPrv) btnPrv.disabled = true;
 
@@ -338,7 +680,7 @@ function submitUpload(autoRun) {
         if (e.lengthComputable && bar) {
             const pct = Math.round(e.loaded / e.total * 100);
             bar.style.width = Math.max(pct, 5) + '%';
-            bar.textContent = pct + '% — ' + (e.loaded/1048576).toFixed(1) + '/' + (e.total/1048576).toFixed(1) + ' MB';
+            bar.textContent = pct + '%';
         }
     };
 
@@ -349,28 +691,27 @@ function submitUpload(autoRun) {
             const r = JSON.parse(xhr.responseText);
             if (xhr.status === 200 && r.success) {
                 if (bar) { bar.className = 'progress-bar bg-success'; bar.style.width = '100%'; bar.textContent = 'Complete'; }
-                if (alert) { alert.className = 'alert alert-success py-2 small'; alert.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>' + r.message; alert.style.display = 'block'; }
+                showToast(r.message || 'Video successfully uploaded.', 'success');
                 setTimeout(() => {
                     window.location.href = autoRun ? (r.redirect_url || '/pipeline?autorun=1') : (r.path ? '/studio?file=' + encodeURIComponent(r.path) : '/studio');
-                }, 1200);
+                }, 1000);
             } else {
                 if (bar) { bar.className = 'progress-bar bg-danger'; bar.textContent = 'Failed'; }
-                if (alert) { alert.className = 'alert alert-danger py-2 small'; alert.textContent = r.error || 'Upload failed'; alert.style.display = 'block'; }
+                showToast(r.error || 'Upload failed', 'danger');
             }
         } catch(e) {
-            if (alert) { alert.className = 'alert alert-danger py-2 small'; alert.textContent = 'Invalid server response'; alert.style.display = 'block'; }
+            showToast('Invalid server response', 'danger');
         }
     };
-
     xhr.onerror = function() {
         if (btnRun) btnRun.disabled = false;
         if (btnPrv) btnPrv.disabled = false;
-        if (alert) { alert.className = 'alert alert-danger py-2 small'; alert.textContent = 'Network error during upload.'; alert.style.display = 'block'; }
+        showToast('Network error during upload', 'danger');
     };
-
     xhr.send(fd);
 }
 </script>
+
 {% block scripts %}{% endblock %}
 </body>
 </html>
