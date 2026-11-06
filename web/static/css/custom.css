@@ -1216,6 +1216,34 @@ table.enterprise-table tbody tr:hover .row-hover-action {
     background: #080D16 !important;
 }
 
+/* High-contrast dark filter for OpenStreetMap tiles (Zero API key required, zero watermarks) */
+.leaflet-dark-tiles,
+.leaflet-tile-pane .leaflet-dark-tiles {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) !important;
+}
+
+.leaflet-control-zoom a {
+    background-color: #111C2B !important;
+    color: #F1F5F9 !important;
+    border-color: #223247 !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background-color: #172438 !important;
+    color: #38BDF8 !important;
+}
+
+.leaflet-control-attribution {
+    background: rgba(8, 13, 22, 0.85) !important;
+    color: #94A3B8 !important;
+    border: 1px solid #1E293B !important;
+    border-radius: 4px !important;
+}
+
+.leaflet-control-attribution a {
+    color: #38BDF8 !important;
+}
+
 .leaflet-popup-content-wrapper {
     background: #111C2B !important;
     border: 1px solid #223247 !important;

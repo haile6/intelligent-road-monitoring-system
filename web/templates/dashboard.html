@@ -413,9 +413,10 @@ document.addEventListener('DOMContentLoaded', function() {
             attributionControl: false
         }).setView([9.6800, 39.5300], 13);
 
-        // Dark Matter tiles for military/intelligence feel
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
+        // OpenStreetMap Dark Mode tiles (Zero API key required, zero watermarks)
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            className: 'leaflet-dark-tiles'
         }).addTo(map);
 
         // Fetch real GPS track points from API

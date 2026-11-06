@@ -665,15 +665,21 @@ function initMap() {
     }
     map = L.map('map').setView([centerLat, centerLon], initialZoom);
 
-    // Base tile layers (CartoDB Dark Matter default & OSM standard)
-    window.darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // Base tile layers (Zero API Key required, Zero Watermarks)
+    window.darkTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; CartoDB &copy; OpenStreetMap'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        className: 'leaflet-dark-tiles'
     });
     window.osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
+    window.esriDarkTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+    });
+
     window.currentBasemap = 'dark';
     window.darkTiles.addTo(map);
 
@@ -683,9 +689,15 @@ function initMap() {
             window.osmTiles.addTo(map);
             window.currentBasemap = 'osm';
             const lbl = document.getElementById('basemapLabel');
-            if (lbl) lbl.textContent = 'OSM Light';
-        } else {
+            if (lbl) lbl.textContent = 'OSM Daylight';
+        } else if (window.currentBasemap === 'osm') {
             map.removeLayer(window.osmTiles);
+            window.esriDarkTiles.addTo(map);
+            window.currentBasemap = 'esri';
+            const lbl = document.getElementById('basemapLabel');
+            if (lbl) lbl.textContent = 'Esri Canvas';
+        } else {
+            map.removeLayer(window.esriDarkTiles);
             window.darkTiles.addTo(map);
             window.currentBasemap = 'dark';
             const lbl = document.getElementById('basemapLabel');
