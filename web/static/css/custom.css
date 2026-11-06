@@ -1402,7 +1402,51 @@ table.enterprise-table tbody tr:hover .row-hover-action {
     border-color: var(--border-default) !important;
 }
 
-/* ── 18. RESPONSIVE MEDIA QUERIES ──────────────────────────────────────────── */
+/* ── 18. BRIGHT THEME ADAPTIVE CONTRASTS & OVERRIDES ──────────────────────── */
+[data-theme="bright"] .text-white,
+[data-theme="light"] .text-white {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="bright"] .btn-primary .text-white,
+[data-theme="light"] .btn-primary .text-white,
+[data-theme="bright"] .btn-danger .text-white,
+[data-theme="light"] .btn-danger .text-white,
+[data-theme="bright"] .badge.bg-primary .text-white,
+[data-theme="light"] .badge.bg-primary .text-white,
+[data-theme="bright"] .badge.bg-success .text-white,
+[data-theme="light"] .badge.bg-success .text-white,
+[data-theme="bright"] .badge.bg-danger .text-white,
+[data-theme="light"] .badge.bg-danger .text-white,
+[data-theme="bright"] .brand-badge,
+[data-theme="light"] .brand-badge {
+    color: #FFFFFF !important;
+}
+
+[data-theme="bright"] .sidebar-nav-container .nav-link.active,
+[data-theme="light"] .sidebar-nav-container .nav-link.active {
+    color: var(--accent-primary) !important;
+    background: var(--bg-active) !important;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--accent-primary);
+}
+
+[data-theme="bright"] .gis-road-tooltip,
+[data-theme="light"] .gis-road-tooltip {
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="bright"] .form-control,
+[data-theme="bright"] .form-select,
+[data-theme="light"] .form-control,
+[data-theme="light"] .form-select {
+    background-color: #FFFFFF !important;
+    border-color: var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ── 19. RESPONSIVE MEDIA QUERIES ──────────────────────────────────────────── */
 @media (max-width: 992px) {
     aside.sidebar {
         position: fixed;
