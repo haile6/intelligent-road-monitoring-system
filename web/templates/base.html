@@ -3,414 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}RoadEye™ Enterprise Road Intelligence Platform{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>{% block title %}RoadEye™ Enterprise Road Intelligence{% endblock %}</title>
+
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts: Inter, Noto Sans Ethiopic, JetBrains Mono -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=6.0">
-    <!-- PWA & Mobile Meta Tags -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=7.0">
+
+    <meta name="theme-color" content="#0F172A">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#142B45">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="RoadEye Enterprise">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <div class="d-flex" id="wrapper">
-        <!-- ============================================================ -->
-        <!-- A. LEFT NAVIGATION SIDEBAR (250px)                           -->
-        <!-- ============================================================ -->
-        <aside class="sidebar d-flex flex-column" style="width: 250px; min-height: 100vh;">
-            <!-- Header: Logo, Subtitle, Environment Status -->
-            <div class="sidebar-brand d-flex flex-column gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="brand-badge">
-                        <i class="bi bi-shield-check"></i>
-                    </div>
-                    <div>
-                        <div class="brand-title">RoadEye™</div>
-                        <div class="brand-subtitle">ROAD INTELLIGENCE</div>
-                    </div>
+<div class="d-flex" id="wrapper" style="height:100vh; overflow:hidden;">
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR                                                       -->
+    <!-- ============================================================ -->
+    <aside class="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <div class="brand-logo">
+                    <i class="bi bi-shield-check"></i>
                 </div>
-                <div class="d-flex align-items-center justify-content-between pt-1 border-top border-white border-opacity-10">
-                    <span class="env-badge">DEVELOPMENT</span>
-                    <span class="text-white-50 font-mono" style="font-size: 10px;">v2.4-ITS</span>
+                <div>
+                    <div class="brand-name">RoadEye™</div>
+                    <div class="brand-sub">Road Intelligence</div>
                 </div>
             </div>
+            <div class="env-pill">Production v2.4-ITS</div>
+        </div>
 
-            <!-- Scrollable Navigation Area -->
-            <div class="flex-grow-1 overflow-y-auto py-3 px-2">
-                <!-- MAIN PLATFORM -->
-                <div class="sidebar-nav-section-title px-2 mb-1">MAIN PLATFORM</div>
-                <nav class="nav flex-column gap-1">
-                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
-                        <i class="bi bi-grid-1x2"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="{{ url_for('map_view') }}" class="nav-link {% if active_page == 'map' %}active{% endif %}">
-                        <i class="bi bi-map"></i>
-                        <span>GIS Map &amp; Patrol</span>
-                        <span class="badge bg-primary ms-auto" style="font-size: 9px; padding: 2px 6px;">Live</span>
-                    </a>
-                    <a href="{{ url_for('incidents_view') }}" class="nav-link {% if active_page == 'incidents' %}active{% endif %}">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <span>Incident Ledger</span>
-                    </a>
-                    <a href="{{ url_for('video_studio') }}" class="nav-link {% if active_page == 'studio' %}active{% endif %}">
-                        <i class="bi bi-camera-reels"></i>
-                        <span>Telemetry Studio</span>
-                    </a>
-                </nav>
+        <!-- Navigation -->
+        <div style="flex:1; overflow-y:auto; padding: 8px 0;">
 
-                <!-- MANAGEMENT & AUDIT -->
-                <div class="sidebar-nav-section-title px-2 mt-3 mb-1">MANAGEMENT &amp; AUDIT</div>
-                <nav class="nav flex-column gap-1">
-                    <a href="{{ url_for('contractors_view') }}" class="nav-link {% if active_page == 'contractors' %}active{% endif %}">
-                        <i class="bi bi-building-check"></i>
-                        <span>Contractor DLP</span>
-                        <span class="badge bg-warning text-dark ms-auto" style="font-size: 9px; padding: 2px 5px;">Warranty</span>
-                    </a>
-                    <a href="{{ url_for('plates_gallery') }}" class="nav-link {% if active_page == 'plates' %}active{% endif %}">
-                        <i class="bi bi-card-text"></i>
-                        <span>Vehicle &amp; ANPR</span>
-                    </a>
-                    <a href="{{ url_for('reports_view') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
-                        <i class="bi bi-file-earmark-text"></i>
-                        <span>Work Orders</span>
-                    </a>
-                </nav>
-
-                <!-- SYSTEM & MLOPS -->
-                <div class="sidebar-nav-section-title px-2 mt-3 mb-1">SYSTEM &amp; MLOPS</div>
-                <nav class="nav flex-column gap-1">
-                    <a href="{{ url_for('health_view') }}" class="nav-link {% if active_page == 'health' %}active{% endif %}">
-                        <i class="bi bi-activity"></i>
-                        <span>System Health &amp; APIs</span>
-                    </a>
-                    <a href="{{ url_for('calibration_view') }}" class="nav-link {% if active_page == 'calibration' %}active{% endif %}">
-                        <i class="bi bi-sliders"></i>
-                        <span>Model Calibration</span>
-                    </a>
-                    <a href="{{ url_for('settings_view') }}" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </nav>
+            <div class="sidebar-section-label">Operations</div>
+            <div class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}"
+                   class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('map_view') }}"
+                   class="sidebar-link {% if active_page == 'map' %}active{% endif %}">
+                    <i class="bi bi-map"></i>
+                    <span>GIS Patrol Map</span>
+                    <span class="sidebar-badge sidebar-badge-live">Live</span>
+                </a>
+                <a href="{{ url_for('incidents_view') }}"
+                   class="sidebar-link {% if active_page == 'incidents' %}active{% endif %}">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Incident Ledger</span>
+                </a>
+                <a href="{{ url_for('video_studio') }}"
+                   class="sidebar-link {% if active_page == 'studio' %}active{% endif %}">
+                    <i class="bi bi-camera-reels"></i>
+                    <span>Telemetry Studio</span>
+                </a>
             </div>
 
-            <!-- Footer: System Telemetry Status -->
-            <div class="sidebar-footer-card">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-white-50" style="font-size: 11px;">Neural Core</span>
-                    <span class="badge bg-success" style="font-size: 9px; padding: 2px 5px;">YOLOv8x</span>
-                </div>
-                <div class="text-white-50 font-mono" style="font-size: 10.5px;">Corridor: Addis Ababa</div>
-                <div class="text-white-50 font-mono" style="font-size: 10px;">TZ: Africa/Addis_Ababa</div>
+            <div class="sidebar-section-label">Management</div>
+            <div class="sidebar-nav">
+                <a href="{{ url_for('contractors_view') }}"
+                   class="sidebar-link {% if active_page == 'contractors' %}active{% endif %}">
+                    <i class="bi bi-building-check"></i>
+                    <span>Contractor DLP</span>
+                    <span class="sidebar-badge sidebar-badge-warn">Warranty</span>
+                </a>
+                <a href="{{ url_for('plates_gallery') }}"
+                   class="sidebar-link {% if active_page == 'plates' %}active{% endif %}">
+                    <i class="bi bi-card-text"></i>
+                    <span>ANPR Gallery</span>
+                </a>
+                <a href="{{ url_for('reports_view') }}"
+                   class="sidebar-link {% if active_page == 'reports' %}active{% endif %}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span>Work Orders</span>
+                </a>
             </div>
-        </aside>
 
-        <!-- ============================================================ -->
-        <!-- MAIN APPLICATION CONTAINER                                  -->
-        <!-- ============================================================ -->
-        <div class="main-content flex-grow-1 d-flex flex-column" style="min-width: 0; min-height: 100vh;">
-            <!-- ============================================================ -->
-            <!-- B. TOP APPLICATION HEADER                                   -->
-            <!-- ============================================================ -->
-            <header class="app-header">
-                <!-- Breadcrumbs & Page Context -->
-                <div class="d-flex align-items-center gap-3">
-                    <div class="header-breadcrumb font-mono">
-                        <a href="{{ url_for('dashboard') }}"><i class="bi bi-house-door"></i> RoadEye</a>
-                        <span>/</span>
-                        <span class="text-dark fw-semibold">{% block breadcrumb %}Operations Dashboard{% endblock %}</span>
-                    </div>
+            <div class="sidebar-section-label">System</div>
+            <div class="sidebar-nav">
+                <a href="{{ url_for('health_view') }}"
+                   class="sidebar-link {% if active_page == 'health' %}active{% endif %}">
+                    <i class="bi bi-activity"></i>
+                    <span>Health &amp; APIs</span>
+                </a>
+                <a href="{{ url_for('calibration_view') }}"
+                   class="sidebar-link {% if active_page == 'calibration' %}active{% endif %}">
+                    <i class="bi bi-sliders"></i>
+                    <span>AI Calibration</span>
+                </a>
+                <a href="{{ url_for('audit_view') }}"
+                   class="sidebar-link {% if active_page == 'audit' %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Audit Log</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-inner">
+                <div class="sidebar-footer-label">Neural Core</div>
+                <div class="sidebar-footer-val">
+                    YOLOv8/11 &nbsp;·&nbsp; 4.6ms<br>
+                    Debre Berhan Corridor<br>
+                    TZ: Africa/Addis_Ababa
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT                                                  -->
+    <!-- ============================================================ -->
+    <div class="main-content flex-grow-1 d-flex flex-column" style="min-width:0; overflow-y:auto;">
+
+        <!-- Top Header -->
+        <header class="app-header flex-shrink-0">
+            <!-- Breadcrumb -->
+            <div class="header-breadcrumb">
+                <a href="{{ url_for('dashboard') }}"><i class="bi bi-house-door"></i> RoadEye</a>
+                <span class="sep">/</span>
+                <span class="current">{% block breadcrumb %}Dashboard{% endblock %}</span>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="header-actions">
+                <!-- Live Clock -->
+                <span id="liveClock" title="Africa/Addis_Ababa Time">--:--:--</span>
+
+                <!-- System Status -->
+                <div class="system-status-pill">
+                    <span class="status-beacon"></span>
+                    <span>ONLINE</span>
                 </div>
 
-                <!-- Right Side Status & Controls -->
-                <div class="d-flex align-items-center gap-2">
-                    <!-- Processing Status Indicator -->
-                    <div class="header-pill">
-                        <span class="status-dot"></span>
-                        <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.3px;">SYSTEM ONLINE</span>
-                    </div>
+                <!-- Upload -->
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal" title="Upload inspection footage">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span class="d-none d-sm-inline">Upload</span>
+                </button>
 
-                    <!-- Quick Action: Upload Inspection Video -->
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
-                        <i class="bi bi-cloud-arrow-up me-1"></i>
-                        <span class="d-none d-sm-inline">Upload</span>
+                <!-- Profile Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-ghost d-flex align-items-center gap-2" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <span style="width:28px;height:28px;border-radius:50%;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94A3B8;">
+                            <i class="bi bi-person-fill"></i>
+                        </span>
+                        <span class="d-none d-md-inline" style="font-size:12.5px;font-weight:500;color:var(--text-secondary);">Operator</span>
+                        <i class="bi bi-chevron-down" style="font-size:10px;color:var(--text-muted);"></i>
                     </button>
-
-                    <!-- User Profile & Role -->
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle text-primary"></i>
-                            <span class="d-none d-md-inline" style="font-size: 12px; font-weight: 500;">System Operator</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border p-2" aria-labelledby="userMenuBtn" style="min-width: 220px;">
-                            <li class="px-2 py-1 border-bottom mb-1">
-                                <div class="fw-semibold" style="font-size: 12px;">RoadEye Operations Admin</div>
-                                <div class="text-secondary" style="font-size: 11px;">Operations Authority</div>
-                            </li>
-                            <li><a class="dropdown-item py-1" href="{{ url_for('calibration_view') }}"><i class="bi bi-sliders me-2"></i>AI Calibration</a></li>
-                            <li><a class="dropdown-item py-1" href="{{ url_for('health_view') }}"><i class="bi bi-activity me-2"></i>System Health &amp; APIs</a></li>
-                            <li><a class="dropdown-item py-1" href="{{ url_for('settings_view') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
-                        </ul>
-                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width:200px;">
+                        <li class="px-3 py-2 border-bottom" style="margin-bottom:4px;">
+                            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">System Operator</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);">Operations Authority</div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('calibration_view') }}">
+                                <i class="bi bi-sliders"></i> AI Calibration
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('health_view') }}">
+                                <i class="bi bi-activity"></i> System Health
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('api_v1_health') }}" target="_blank">
+                                <i class="bi bi-box-arrow-up-right"></i> REST API Docs
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-            </header>
-
-            <!-- ============================================================ -->
-            <!-- C. MAIN CONTENT WORKSPACE                                    -->
-            <!-- ============================================================ -->
-            <main class="p-3 p-md-4 flex-grow-1">
-                {% block content %}{% endblock %}
-            </main>
-
-            <!-- Enterprise Public-Sector Footer -->
-            <footer class="py-2 px-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background: #FFFFFF; border-top: 1px solid var(--borders); font-size: 11.5px; color: var(--secondary-text);">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="status-dot"></span>
-                    <span class="fw-semibold text-dark">RoadEye™ Enterprise Road Intelligence Platform</span>
-                    <span>&bull; Public-Sector Transportation Management System</span>
-                </div>
-                <div class="font-mono mt-1 mt-md-0">
-                    Authority: Ethiopian Roads Administration (ERA) &bull; Timezone: Africa/Addis_Ababa
-                </div>
-            </footer>
-        </div>
-    </div>
-
-    <!-- Upload Video Modal -->
-    <div class="modal fade" id="uploadVideoModal" tabindex="-1" aria-labelledby="uploadVideoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-bold" id="uploadVideoModalLabel">
-                        <i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Ingest Inspection Footage
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="uploadVideoForm" enctype="multipart/form-data" method="POST" action="/api/video/upload">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Video Source File (.mp4, .avi, .mov)</label>
-                            <input type="file" id="uploadVideoInput" name="video" class="form-control" accept="video/*" required>
-                            <small class="text-secondary d-block mt-1" id="videoFileFeedback">Standard dashcam or highway survey video.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">
-                                GPS Telemetry Track (.csv or .gpx) <span class="badge bg-secondary font-mono">Optional</span>
-                            </label>
-                            <input type="file" id="uploadGpsInput" name="gps" class="form-control" accept=".csv,.gpx">
-                            <small class="text-secondary d-block mt-1">If omitted, geographic corridor coordinates are synthesized based on calibrated speed.</small>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="setAsDefaultCheck" name="set_as_default" value="true" checked>
-                            <label class="form-check-label small text-secondary" for="setAsDefaultCheck">
-                                <span class="fw-semibold text-dark">Set as primary active target (`data/test_video.mp4`)</span>
-                            </label>
-                        </div>
-                        <div id="uploadProgress" class="progress mb-3" style="display: none; height: 18px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%; font-size: 11px;">0%</div>
-                        </div>
-                        <div id="uploadAlert" class="alert small py-2" style="display: none;"></div>
-                    </div>
-                    <div class="modal-footer border-top d-flex justify-content-between">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnUploadOnly">
-                                <i class="bi bi-play me-1"></i> Studio Preview
-                            </button>
-                            <button type="submit" class="btn btn-sm btn-primary" id="btnUploadRun">
-                                <i class="bi bi-cpu me-1"></i> Ingest &amp; Run AI Pipeline
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-grow-1 p-4" style="min-width:0;">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="flex-shrink-0 d-flex align-items-center justify-content-between px-4 py-2"
+                style="border-top:1px solid var(--border-default);background:var(--bg-surface);font-size:11.5px;color:var(--text-muted);">
+            <div class="d-flex align-items-center gap-2">
+                <span class="status-beacon" style="width:6px;height:6px;"></span>
+                <strong style="color:var(--text-secondary);">RoadEye™ Enterprise</strong>
+                <span>· Ethiopian Roads Administration (ERA)</span>
+            </div>
+            <div style="font-family:var(--font-mono);">Africa/Addis_Ababa · UTC+3</div>
+        </footer>
+
+    </div><!-- /.main-content -->
+</div><!-- /#wrapper -->
+
+<!-- ============================================================ -->
+<!-- UPLOAD MODAL                                                  -->
+<!-- ============================================================ -->
+<div class="modal fade" id="uploadVideoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-cloud-arrow-up text-primary me-2"></i>Ingest Inspection Footage
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="uploadVideoForm" enctype="multipart/form-data" method="POST" action="/api/video/upload">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12.5px;font-weight:600;">Video File <span style="color:var(--danger);">*</span></label>
+                        <input type="file" id="uploadVideoInput" name="video" class="form-control" accept="video/*" required>
+                        <small class="text-muted d-block mt-1" id="videoFileFeedback">Supported: .mp4, .avi, .mov — Standard dashcam or survey footage.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12.5px;font-weight:600;">
+                            GPS Track <span class="badge" style="background:var(--bg-elevated);color:var(--text-muted);font-size:10px;">Optional</span>
+                        </label>
+                        <input type="file" id="uploadGpsInput" name="gps" class="form-control" accept=".csv,.gpx">
+                        <small class="text-muted d-block mt-1">If omitted, coordinates are synthesized from calibrated speed vectors.</small>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="setAsDefaultCheck" name="set_as_default" value="true" checked>
+                        <label class="form-check-label" for="setAsDefaultCheck" style="font-size:12.5px;">
+                            Set as primary active target <code>data/test_video.mp4</code>
+                        </label>
+                    </div>
+                    <div id="uploadProgress" class="progress mb-3" style="display:none; height:16px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;font-size:11px;"></div>
+                    </div>
+                    <div id="uploadAlert" class="alert py-2 small" style="display:none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    <div class="d-flex gap-2 ms-auto">
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnUploadOnly">
+                            <i class="bi bi-play"></i> Studio Preview
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-primary" id="btnUploadRun">
+                            <i class="bi bi-cpu"></i> Run AI Pipeline
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Upload Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('uploadVideoInput');
-            const feedback = document.getElementById('videoFileFeedback');
-            if (fileInput && feedback) {
-                fileInput.addEventListener('change', function() {
-                    if (fileInput.files && fileInput.files[0]) {
-                        const file = fileInput.files[0];
-                        const mb = (file.size / (1024 * 1024)).toFixed(1);
-                        feedback.innerHTML = '<span class="badge bg-success text-white me-1">Selected: ' + file.name + ' (' + mb + ' MB)</span>';
-                    }
-                });
-            }
-
-            const btnOnly = document.getElementById('btnUploadOnly');
-            const uploadForm = document.getElementById('uploadVideoForm');
-
-            if (btnOnly) {
-                btnOnly.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    submitVideoUpload(false);
-                });
-            }
-
-            if (uploadForm) {
-                uploadForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    submitVideoUpload(true);
-                });
-            }
-
-            // Real-time clock in Africa/Addis_Ababa (UTC+3)
-            function updateClock() {
-                const el = document.getElementById('liveClock');
-                if (!el) return;
-                const now = new Date();
-                // Format in Africa/Addis_Ababa
-                try {
-                    const timeStr = now.toLocaleTimeString('en-GB', {
-                        timeZone: 'Africa/Addis_Ababa',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false
-                    });
-                    el.textContent = timeStr;
-                } catch (e) {
-                    const h = String(now.getHours()).padStart(2,'0');
-                    const m = String(now.getMinutes()).padStart(2,'0');
-                    const s = String(now.getSeconds()).padStart(2,'0');
-                    el.textContent = `${h}:${m}:${s}`;
-                }
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
-        });
-
-        function submitVideoUpload(autoRunPipeline) {
-            try {
-                const fileInput = document.getElementById('uploadVideoInput');
-                if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-                    alert('Please select a video file.');
-                    return;
-                }
-
-                const file = fileInput.files[0];
-                const formData = new FormData();
-                formData.append('video', file);
-                
-                const checkTarget = document.getElementById('setAsDefaultCheck');
-                formData.append('set_as_default', (checkTarget && checkTarget.checked) ? 'true' : 'false');
-
-                const gpsInput = document.getElementById('uploadGpsInput');
-                if (gpsInput && gpsInput.files && gpsInput.files.length > 0) {
-                    formData.append('gps', gpsInput.files[0]);
-                }
-
-                const progressCont = document.getElementById('uploadProgress');
-                const progressBar = progressCont ? progressCont.querySelector('.progress-bar') : null;
-                const alertBox = document.getElementById('uploadAlert');
-                const btnRun = document.getElementById('btnUploadRun');
-                const btnOnly = document.getElementById('btnUploadOnly');
-
-                if (progressCont) progressCont.style.display = 'block';
-                if (progressBar) {
-                    progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-primary';
-                    progressBar.style.width = '5%';
-                    progressBar.textContent = 'Uploading...';
-                }
-                if (alertBox) alertBox.style.display = 'none';
-
-                if (btnRun) btnRun.disabled = true;
-                if (btnOnly) btnOnly.disabled = true;
-
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/api/video/upload', true);
-
-                xhr.upload.onprogress = function(e) {
-                    if (e.lengthComputable && progressBar) {
-                        const percent = Math.round((e.loaded / e.total) * 100);
-                        progressBar.style.width = Math.max(percent, 5) + '%';
-                        const mbLoaded = (e.loaded / (1024 * 1024)).toFixed(1);
-                        const mbTotal = (e.total / (1024 * 1024)).toFixed(1);
-                        progressBar.textContent = percent + '% (' + mbLoaded + ' / ' + mbTotal + ' MB)';
-                    }
-                };
-
-                xhr.onload = function() {
-                    if (btnRun) btnRun.disabled = false;
-                    if (btnOnly) btnOnly.disabled = false;
-
-                    try {
-                        const res = JSON.parse(xhr.responseText);
-                        if (xhr.status === 200 && res.success) {
-                            if (progressBar) {
-                                progressBar.className = 'progress-bar bg-success';
-                                progressBar.style.width = '100%';
-                                progressBar.textContent = 'Complete (100%)';
-                            }
-                            if (alertBox) {
-                                alertBox.className = 'alert alert-success small py-2';
-                                alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + res.message;
-                                alertBox.style.display = 'block';
-                            }
-
-                            setTimeout(function() {
-                                if (autoRunPipeline) {
-                                    window.location.href = res.redirect_url || '/pipeline?autorun=1';
-                                } else {
-                                    window.location.href = res.path ? ('/studio?file=' + encodeURIComponent(res.path)) : '/studio';
-                                }
-                            }, 1200);
-                        } else {
-                            if (progressBar) {
-                                progressBar.className = 'progress-bar bg-danger';
-                                progressBar.textContent = 'Failed';
-                            }
-                            if (alertBox) {
-                                alertBox.className = 'alert alert-danger small py-2';
-                                alertBox.textContent = res.error || 'Upload failed';
-                                alertBox.style.display = 'block';
-                            }
-                        }
-                    } catch (err) {
-                        if (alertBox) {
-                            alertBox.className = 'alert alert-danger small py-2';
-                            alertBox.textContent = 'Invalid server response';
-                            alertBox.style.display = 'block';
-                        }
-                    }
-                };
-
-                xhr.onerror = function() {
-                    if (btnRun) btnRun.disabled = false;
-                    if (btnOnly) btnOnly.disabled = false;
-                    if (alertBox) {
-                        alertBox.className = 'alert alert-danger small py-2';
-                        alertBox.textContent = 'Network error during upload.';
-                        alertBox.style.display = 'block';
-                    }
-                };
-
-                xhr.send(formData);
-            } catch (err) {
-                console.error(err);
-            }
+<script>
+// Live clock — Africa/Addis_Ababa (UTC+3)
+(function() {
+    function tick() {
+        const el = document.getElementById('liveClock');
+        if (!el) return;
+        try {
+            el.textContent = new Date().toLocaleTimeString('en-GB', {
+                timeZone: 'Africa/Addis_Ababa',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            });
+        } catch(e) {
+            const n = new Date();
+            el.textContent = [n.getHours(),n.getMinutes(),n.getSeconds()]
+                .map(x=>String(x).padStart(2,'0')).join(':');
         }
-    </script>
-    {% block scripts %}{% endblock %}
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
+
+// Upload handler
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput  = document.getElementById('uploadVideoInput');
+    const feedback   = document.getElementById('videoFileFeedback');
+    const btnOnly    = document.getElementById('btnUploadOnly');
+    const uploadForm = document.getElementById('uploadVideoForm');
+
+    if (fileInput && feedback) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const mb = (this.files[0].size / 1048576).toFixed(1);
+                feedback.innerHTML = '<span style="color:var(--success);font-weight:600;">✓ ' + this.files[0].name + ' (' + mb + ' MB)</span>';
+            }
+        });
+    }
+
+    if (btnOnly) btnOnly.addEventListener('click', e => { e.preventDefault(); submitUpload(false); });
+    if (uploadForm) uploadForm.addEventListener('submit', e => { e.preventDefault(); submitUpload(true); });
+});
+
+function submitUpload(autoRun) {
+    const fileInput = document.getElementById('uploadVideoInput');
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+        alert('Please select a video file.'); return;
+    }
+    const fd = new FormData();
+    fd.append('video', fileInput.files[0]);
+    const chk = document.getElementById('setAsDefaultCheck');
+    fd.append('set_as_default', (chk && chk.checked) ? 'true' : 'false');
+    const gps = document.getElementById('uploadGpsInput');
+    if (gps && gps.files && gps.files[0]) fd.append('gps', gps.files[0]);
+
+    const prog   = document.getElementById('uploadProgress');
+    const bar    = prog ? prog.querySelector('.progress-bar') : null;
+    const alert  = document.getElementById('uploadAlert');
+    const btnRun = document.getElementById('btnUploadRun');
+    const btnPrv = document.getElementById('btnUploadOnly');
+
+    if (prog) prog.style.display = 'block';
+    if (bar)  { bar.style.width = '5%'; bar.textContent = 'Uploading…'; bar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-primary'; }
+    if (alert) alert.style.display = 'none';
+    if (btnRun) btnRun.disabled = true;
+    if (btnPrv) btnPrv.disabled = true;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/video/upload', true);
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable && bar) {
+            const pct = Math.round(e.loaded / e.total * 100);
+            bar.style.width = Math.max(pct, 5) + '%';
+            bar.textContent = pct + '% — ' + (e.loaded/1048576).toFixed(1) + '/' + (e.total/1048576).toFixed(1) + ' MB';
+        }
+    };
+
+    xhr.onload = function() {
+        if (btnRun) btnRun.disabled = false;
+        if (btnPrv) btnPrv.disabled = false;
+        try {
+            const r = JSON.parse(xhr.responseText);
+            if (xhr.status === 200 && r.success) {
+                if (bar) { bar.className = 'progress-bar bg-success'; bar.style.width = '100%'; bar.textContent = 'Complete'; }
+                if (alert) { alert.className = 'alert alert-success py-2 small'; alert.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>' + r.message; alert.style.display = 'block'; }
+                setTimeout(() => {
+                    window.location.href = autoRun ? (r.redirect_url || '/pipeline?autorun=1') : (r.path ? '/studio?file=' + encodeURIComponent(r.path) : '/studio');
+                }, 1200);
+            } else {
+                if (bar) { bar.className = 'progress-bar bg-danger'; bar.textContent = 'Failed'; }
+                if (alert) { alert.className = 'alert alert-danger py-2 small'; alert.textContent = r.error || 'Upload failed'; alert.style.display = 'block'; }
+            }
+        } catch(e) {
+            if (alert) { alert.className = 'alert alert-danger py-2 small'; alert.textContent = 'Invalid server response'; alert.style.display = 'block'; }
+        }
+    };
+
+    xhr.onerror = function() {
+        if (btnRun) btnRun.disabled = false;
+        if (btnPrv) btnPrv.disabled = false;
+        if (alert) { alert.className = 'alert alert-danger py-2 small'; alert.textContent = 'Network error during upload.'; alert.style.display = 'block'; }
+    };
+
+    xhr.send(fd);
+}
+</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

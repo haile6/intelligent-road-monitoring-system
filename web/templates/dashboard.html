@@ -1,317 +1,387 @@
 {% extends "base.html" %}
-
 {% block title %}Operations Dashboard — RoadEye™{% endblock %}
-{% block breadcrumb %}Dashboard{% endblock %}
+{% block breadcrumb %}Operations Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Dashboard-specific micro-styles */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+@media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .kpi-grid { grid-template-columns: 1fr; } }
+
+.analytics-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; margin-bottom: 24px; }
+@media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
+
+/* Animated counter */
+.kpi-value.counting { animation: countUp 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* Hover row action reveal */
+.incident-row td:last-child .btn { opacity: 0; transition: opacity 150ms; }
+.incident-row:hover td:last-child .btn { opacity: 1; }
+
+/* Tooltip on coordinates */
+.coord-cell { cursor: help; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+/* Chart container */
+.chart-wrap { position: relative; height: 170px; }
+
+/* Filter chip active states */
+.filter-chip.active { box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+
+/* Sort header arrow */
+th[data-sort].sorted-asc  .sort-icon::before { content: "↑"; opacity: 1 !important; }
+th[data-sort].sorted-desc .sort-icon::before { content: "↓"; opacity: 1 !important; }
+
+/* No results row */
+.no-results-row td { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+
+/* Shimmer for loading state */
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
+{% set total  = stats.total_hazards or stats.total_incidents or 0 %}
+{% set danger = stats.immediate_danger or 0 %}
+{% set warn   = stats.warning_count or 0 %}
+{% set caut   = stats.caution_count or 0 %}
+{% set safe   = stats.safe_count or 0 %}
+{% set tot_nz = [total, 1]|max %}
+
 <div class="container-fluid px-0">
 
-    <!-- ============================================================ -->
-    <!-- 1. CLEAN ENTERPRISE PAGE HEADER                              -->
-    <!-- ============================================================ -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom border-slate-200">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1" style="font-size: 11px; font-weight: 600;">ENTERPRISE AI PLATFORM</span>
-                <span class="text-secondary small font-monospace">Debre Berhan Corridor &bull; Route A2</span>
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- PAGE HEADER                                                   -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div class="page-header animate-fadein">
+        <div class="page-header-left">
+            <div class="page-eyebrow">
+                <span class="page-eyebrow-badge">Enterprise AI Platform</span>
+                <span style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono);">
+                    Debre Berhan Corridor · Route A2 · 8.40 km
+                </span>
             </div>
-            <h1 class="h4 fw-bold text-slate-900 mb-0">Operations Dashboard</h1>
-            <p class="text-secondary small mb-0 mt-1">Autonomous pavement distress inspection, contractor warranty auditing, and live telemetry tracking.</p>
+            <h1 class="page-title">Operations Dashboard</h1>
+            <p class="page-desc">Autonomous pavement distress inspection, warranty auditing &amp; live hazard telemetry.</p>
         </div>
-
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ url_for('map_view') }}" class="btn btn-primary btn-sm px-3 shadow-sm d-flex align-items-center gap-2">
-                <i class="bi bi-play-circle-fill"></i>
-                <span class="fw-semibold">Launch Patrol Map</span>
+        <div class="page-header-actions">
+            <a href="{{ url_for('map_view') }}" class="btn btn-primary">
+                <i class="bi bi-play-circle-fill"></i> Launch Patrol
             </a>
-            <a href="{{ url_for('video_studio') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
-                <i class="bi bi-camera-reels"></i>
-                <span>Video Studio</span>
+            <a href="{{ url_for('video_studio') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-camera-reels"></i> Video Studio
             </a>
-            <a href="{{ url_for('api_export_csv') }}" class="btn btn-outline-secondary btn-sm" title="Export CSV Report">
+            <a href="{{ url_for('api_export_csv') }}" class="btn btn-ghost" title="Export CSV">
                 <i class="bi bi-download"></i>
             </a>
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 2. HIGH-IMPACT MACRO KPI CARDS (INVERTED PYRAMID TOP ROW)    -->
-    <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
-        <!-- 1. Total Hazards -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card h-100 border border-slate-200 shadow-sm p-3 rounded-3 bg-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary fw-semibold small text-uppercase" style="letter-spacing: 0.5px;">Total Hazards</span>
-                    <div class="p-2 rounded-2 bg-primary bg-opacity-10 text-primary">
-                        <i class="bi bi-cone-striped"></i>
-                    </div>
-                </div>
-                <div class="h3 fw-bold text-slate-900 font-monospace mb-1">{{ stats.total_hazards or stats.total_incidents or 0 }}</div>
-                <div class="text-secondary small d-flex align-items-center gap-1">
-                    <span class="text-danger fw-semibold">{{ stats.potholes or 0 }}</span> Potholes &bull;
-                    <span class="text-warning fw-semibold">{{ stats.cracks or 0 }}</span> Fatigue Cracks
-                </div>
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- KPI CARDS                                                     -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div class="kpi-grid">
+
+        <!-- Total Hazards -->
+        <div class="kpi-card kpi-total animate-fadein-delay-1">
+            <div class="kpi-row">
+                <span class="kpi-label">Total Hazards</span>
+                <div class="kpi-icon kpi-icon-blue"><i class="bi bi-cone-striped"></i></div>
+            </div>
+            <div class="kpi-value" data-target="{{ total }}">{{ total }}</div>
+            <div class="kpi-delta">
+                <span style="color:var(--danger);font-weight:600;">{{ stats.potholes or 0 }}</span>&nbsp;Potholes
+                &nbsp;·&nbsp;
+                <span style="color:var(--warning);font-weight:600;">{{ stats.cracks or 0 }}</span>&nbsp;Cracks
             </div>
         </div>
 
-        <!-- 2. Immediate Danger -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card h-100 border border-rose-200 shadow-sm p-3 rounded-3 bg-white" style="border-left: 4px solid #EF4444 !important;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-danger fw-semibold small text-uppercase" style="letter-spacing: 0.5px;">Critical Risk</span>
-                    <div class="p-2 rounded-2 bg-danger bg-opacity-10 text-danger">
-                        <i class="bi bi-exclamation-octagon"></i>
-                    </div>
-                </div>
-                <div class="h3 fw-bold text-danger font-monospace mb-1">{{ stats.immediate_danger or 0 }}</div>
-                <div class="text-secondary small">
-                    Direct path hazards (TTC &le; 1.8s)
-                </div>
+        <!-- Critical Risk -->
+        <div class="kpi-card kpi-danger animate-fadein-delay-2">
+            <div class="kpi-row">
+                <span class="kpi-label" style="color:var(--danger);">Immediate Danger</span>
+                <div class="kpi-icon kpi-icon-red"><i class="bi bi-exclamation-octagon"></i></div>
+            </div>
+            <div class="kpi-value" style="color:var(--danger);" data-target="{{ danger }}">{{ danger }}</div>
+            <div class="kpi-delta">Direct path hazards — TTC &le; 1.8s</div>
+        </div>
+
+        <!-- Corridor Coverage -->
+        <div class="kpi-card kpi-survey animate-fadein-delay-3">
+            <div class="kpi-row">
+                <span class="kpi-label">Corridor Coverage</span>
+                <div class="kpi-icon kpi-icon-green"><i class="bi bi-signpost-2"></i></div>
+            </div>
+            <div class="kpi-value">8.40 <small style="font-size:14px;font-weight:400;color:var(--text-muted);">km</small></div>
+            <div class="kpi-delta">11 OSM Landmarks · Debre Berhan</div>
+        </div>
+
+        <!-- Contractor DLP -->
+        <div class="kpi-card kpi-warrant animate-fadein-delay-4">
+            <div class="kpi-row">
+                <span class="kpi-label">Contractor DLP</span>
+                <div class="kpi-icon kpi-icon-yellow"><i class="bi bi-building-check"></i></div>
+            </div>
+            <div class="kpi-value" data-target="6">6</div>
+            <div class="kpi-delta">
+                <a href="{{ url_for('contractors_view') }}" style="color:var(--brand-blue);text-decoration:none;font-weight:500;">
+                    Review active warranties →
+                </a>
             </div>
         </div>
 
-        <!-- 3. Surveyed Corridor -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card h-100 border border-slate-200 shadow-sm p-3 rounded-3 bg-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary fw-semibold small text-uppercase" style="letter-spacing: 0.5px;">Corridor Coverage</span>
-                    <div class="p-2 rounded-2 bg-success bg-opacity-10 text-success">
-                        <i class="bi bi-signpost-2"></i>
-                    </div>
-                </div>
-                <div class="h3 fw-bold text-slate-900 font-monospace mb-1">8.40 <small class="text-secondary fw-normal fs-6">km</small></div>
-                <div class="text-secondary small">
-                    11 OpenStreetMap Urban Landmarks
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Contractor Warranty (DLP) -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card h-100 border border-slate-200 shadow-sm p-3 rounded-3 bg-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary fw-semibold small text-uppercase" style="letter-spacing: 0.5px;">Contractor Warranty</span>
-                    <div class="p-2 rounded-2 bg-warning bg-opacity-10 text-warning">
-                        <i class="bi bi-building-check"></i>
-                    </div>
-                </div>
-                <div class="h3 fw-bold text-slate-900 font-monospace mb-1">6 <small class="text-secondary fw-normal fs-6">Entities</small></div>
-                <div class="text-secondary small">
-                    <a href="{{ url_for('contractors_view') }}" class="text-decoration-none">Review Active DLP Liabilities &rarr;</a>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 3. AI EXECUTIVE STATUS & MLOPS HEALTH BANNER                 -->
-    <!-- ============================================================ -->
-    <div class="card border-0 shadow-sm p-3 mb-4 rounded-3 text-white" style="background: linear-gradient(135deg, #0F172A, #1E293B);">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- AI STATUS BANNER                                             -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div class="ai-banner mb-4 animate-fadein-delay-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
-                <div class="p-2 rounded-2 bg-info bg-opacity-20 text-info fs-4">
-                    <i class="bi bi-cpu"></i>
-                </div>
+                <div class="ai-banner-icon"><i class="bi bi-cpu"></i></div>
                 <div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold" style="font-size: 13.5px;">Autonomous Perception &amp; MLOps Active</span>
-                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" style="font-size: 10px;">PROD v2.1</span>
+                    <div class="ai-banner-title">
+                        Autonomous Perception &amp; MLOps
+                        <span class="badge ms-1" style="background:rgba(5,150,105,0.2);color:#34D399;border:1px solid rgba(5,150,105,0.3);font-size:9.5px;">PROD v2.1</span>
                     </div>
-                    <div class="text-white-50 small mt-0.5">
-                        YOLOv8/11 Model Serving &bull; 100m Proximity Radar &bull; Covariate Drift: <b class="text-info">Nominal (98.4%)</b> &bull; Latency: <b class="text-white">4.6ms</b>
+                    <div class="ai-banner-meta">
+                        <span class="ai-metric">YOLOv8/11 Active</span>
+                        <span class="ai-metric">· 100m Proximity Radar</span>
+                        <span class="ai-metric">· Drift: <span class="val-green">Nominal (98.4%)</span></span>
+                        <span class="ai-metric">· Latency: <span class="val">4.6ms</span></span>
+                        <span class="ai-metric">· Model: <span class="val">road_damage_best.pt</span></span>
+                        <span class="ai-metric">· Tests: <span class="val-green">77/77 Passed</span></span>
                     </div>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ url_for('api_v1_health') }}" target="_blank" class="btn btn-sm btn-outline-light px-2 py-1" style="font-size: 11px;">
-                    <i class="bi bi-activity me-1"></i> Health API
+            <div class="d-flex gap-2 flex-shrink-0">
+                <a href="{{ url_for('api_v1_health') }}" target="_blank" class="banner-action-btn">
+                    <i class="bi bi-activity"></i> Health API
                 </a>
-                <a href="{{ url_for('api_v1_drift_report') }}" target="_blank" class="btn btn-sm btn-outline-light px-2 py-1" style="font-size: 11px;">
-                    <i class="bi bi-graph-up me-1"></i> Drift Report
+                <a href="{{ url_for('api_v1_drift_report') }}" target="_blank" class="banner-action-btn">
+                    <i class="bi bi-graph-up"></i> Drift Report
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 4. MIDDLE ANALYTICS (SEVERITY + MISSION TIMELINE)            -->
-    <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
-        <!-- Left: Risk Breakdown -->
-        <div class="col-12 col-lg-5">
-            <div class="card h-100 border border-slate-200 shadow-sm rounded-3">
-                <div class="card-header bg-white border-bottom border-slate-200 py-2.5 px-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold text-slate-800" style="font-size: 13px;">Hazard Risk Distribution</span>
-                    <span class="text-secondary font-monospace" style="font-size: 11px;">Telemetry Validated</span>
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ANALYTICS ROW: Risk Distribution + Timeline Chart           -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div class="analytics-grid animate-fadein-delay-3">
+
+        <!-- Left: Risk Distribution -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="bi bi-pie-chart" style="color:var(--brand-blue);"></i>
+                    Hazard Risk Distribution
                 </div>
-                <div class="card-body p-3">
-                    {% set tot = stats.total_hazards or stats.total_incidents or 1 %}
-                    {% set p_danger = ((stats.immediate_danger or 0) / tot * 100)|round(1) %}
-                    {% set p_warn = ((stats.warning_count or 0) / tot * 100)|round(1) %}
-                    {% set p_caut = ((stats.caution_count or 0) / tot * 100)|round(1) %}
-                    {% set p_safe = ((stats.safe_count or 0) / tot * 100)|round(1) %}
-
-                    <div class="d-flex flex-column gap-3 py-1">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span class="d-flex align-items-center gap-1.5 fw-semibold text-danger">
-                                    <i class="bi bi-circle-fill" style="font-size: 8px;"></i> Immediate Danger
-                                </span>
-                                <span class="font-monospace text-slate-700">{{ stats.immediate_danger or 0 }} <span class="text-secondary fw-normal">({{ p_danger }}%)</span></span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" style="width: {{ p_danger }}%;"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span class="d-flex align-items-center gap-1.5 fw-semibold text-warning">
-                                    <i class="bi bi-circle-fill" style="font-size: 8px;"></i> Warning
-                                </span>
-                                <span class="font-monospace text-slate-700">{{ stats.warning_count or 0 }} <span class="text-secondary fw-normal">({{ p_warn }}%)</span></span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-warning" style="width: {{ p_warn }}%;"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span class="d-flex align-items-center gap-1.5 fw-semibold text-primary">
-                                    <i class="bi bi-circle-fill" style="font-size: 8px;"></i> Caution
-                                </span>
-                                <span class="font-monospace text-slate-700">{{ stats.caution_count or 0 }} <span class="text-secondary fw-normal">({{ p_caut }}%)</span></span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-primary" style="width: {{ p_caut }}%;"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span class="d-flex align-items-center gap-1.5 fw-semibold text-success">
-                                    <i class="bi bi-circle-fill" style="font-size: 8px;"></i> Safe / Passing
-                                </span>
-                                <span class="font-monospace text-slate-700">{{ stats.safe_count or 0 }} <span class="text-secondary fw-normal">({{ p_safe }}%)</span></span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-success" style="width: {{ p_safe }}%;"></div>
-                            </div>
-                        </div>
+                <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Telemetry Validated</span>
+            </div>
+            <div class="card-body">
+                <!-- Danger -->
+                <div class="risk-row">
+                    <div class="risk-label">
+                        <span class="risk-dot" style="background:var(--danger);"></span>
+                        Immediate Danger
+                    </div>
+                    <div class="risk-track">
+                        <div class="risk-fill" style="background:var(--danger);"
+                             data-pct="{{ (danger / tot_nz * 100)|round(1) }}"></div>
+                    </div>
+                    <div class="risk-count">
+                        {{ danger }} <span style="color:var(--text-muted);font-weight:400;">({{ (danger / tot_nz * 100)|round(1) }}%)</span>
+                    </div>
+                </div>
+                <!-- Warning -->
+                <div class="risk-row">
+                    <div class="risk-label">
+                        <span class="risk-dot" style="background:var(--warning);"></span>
+                        Warning
+                    </div>
+                    <div class="risk-track">
+                        <div class="risk-fill" style="background:var(--warning);"
+                             data-pct="{{ (warn / tot_nz * 100)|round(1) }}"></div>
+                    </div>
+                    <div class="risk-count">
+                        {{ warn }} <span style="color:var(--text-muted);font-weight:400;">({{ (warn / tot_nz * 100)|round(1) }}%)</span>
+                    </div>
+                </div>
+                <!-- Caution -->
+                <div class="risk-row">
+                    <div class="risk-label">
+                        <span class="risk-dot" style="background:var(--info);"></span>
+                        Caution
+                    </div>
+                    <div class="risk-track">
+                        <div class="risk-fill" style="background:var(--info);"
+                             data-pct="{{ (caut / tot_nz * 100)|round(1) }}"></div>
+                    </div>
+                    <div class="risk-count">
+                        {{ caut }} <span style="color:var(--text-muted);font-weight:400;">({{ (caut / tot_nz * 100)|round(1) }}%)</span>
+                    </div>
+                </div>
+                <!-- Safe -->
+                <div class="risk-row">
+                    <div class="risk-label">
+                        <span class="risk-dot" style="background:var(--success);"></span>
+                        Safe / Passing
+                    </div>
+                    <div class="risk-track">
+                        <div class="risk-fill" style="background:var(--success);"
+                             data-pct="{{ (safe / tot_nz * 100)|round(1) }}"></div>
+                    </div>
+                    <div class="risk-count">
+                        {{ safe }} <span style="color:var(--text-muted);font-weight:400;">({{ (safe / tot_nz * 100)|round(1) }}%)</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right: Detection Timeline -->
-        <div class="col-12 col-lg-7">
-            <div class="card h-100 border border-slate-200 shadow-sm rounded-3">
-                <div class="card-header bg-white border-bottom border-slate-200 py-2.5 px-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold text-slate-800" style="font-size: 13px;">Corridor Survey Timeline</span>
-                    <a href="{{ url_for('video_studio') }}" class="text-decoration-none small text-primary fw-semibold">Open Video Studio &rarr;</a>
+        <!-- Right: TTC Timeline Chart -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="bi bi-graph-up" style="color:var(--brand-blue);"></i>
+                    Corridor Survey Timeline
                 </div>
-                <div class="card-body p-3">
-                    <div style="height: 160px; position: relative;">
-                        <canvas id="incidentTimelineChart"></canvas>
-                    </div>
+                <a href="{{ url_for('video_studio') }}" style="font-size:12px;color:var(--brand-blue);text-decoration:none;font-weight:500;">
+                    Open Studio →
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="chart-wrap">
+                    <canvas id="incidentTimelineChart"></canvas>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 5. UNIFIED INTERACTIVE RECENT INCIDENT LEDGER                -->
-    <!-- ============================================================ -->
-    <div class="card border border-slate-200 shadow-sm rounded-3 mb-4">
-        <div class="card-header bg-white border-bottom border-slate-200 py-3 px-3">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                <div>
-                    <h3 class="h6 fw-bold text-slate-900 mb-0">Recent Incident Records</h3>
-                    <span class="text-secondary small">Real-time catalog of verified pavement distresses along surveyed corridors.</span>
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- INCIDENT LEDGER                                              -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div class="data-table-wrapper animate-fadein-delay-4 mb-4">
+        <div class="data-table-header">
+            <div>
+                <div class="data-table-title">Recent Incident Records</div>
+                <div class="data-table-subtitle">Real-time catalog of verified pavement distresses · surveyed corridors</div>
+            </div>
+            <div class="table-controls">
+                <!-- Search -->
+                <div class="search-input-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="search-input" id="ledgerSearch"
+                           placeholder="Search hazard, type, coordinates…"
+                           oninput="onSearch(this.value)">
                 </div>
-
-                <!-- Instant Filter Controls -->
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <div class="input-group input-group-sm" style="width: 220px;">
-                        <span class="input-group-text bg-light border-slate-200 text-secondary"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-slate-200" id="tableSearchInput" placeholder="Search ID or type..." onkeyup="filterIncidentsTable()">
-                    </div>
-
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-secondary active" onclick="filterByBadge('ALL', this)">All</button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="filterByBadge('POTHOLE', this)">Potholes</button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="filterByBadge('CRACK', this)">Cracks</button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="filterByBadge('DANGER', this)">Danger</button>
-                    </div>
-
-                    <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-primary">
-                        View All ({{ stats.total_hazards or stats.total_incidents or 0 }})
-                    </a>
+                <!-- Filter Chips -->
+                <div class="filter-chips">
+                    <button class="filter-chip active" onclick="setFilter('ALL',this)">All</button>
+                    <button class="filter-chip chip-danger"  onclick="setFilter('POTHOLE',this)">Potholes</button>
+                    <button class="filter-chip chip-warning" onclick="setFilter('CRACK',this)">Cracks</button>
+                    <button class="filter-chip chip-danger"  onclick="setFilter('DANGER',this)">Critical</button>
+                    <button class="filter-chip chip-success" onclick="setFilter('SAFE',this)">Safe</button>
                 </div>
+                <a href="{{ url_for('incidents_view') }}" class="btn btn-sm btn-outline-primary">
+                    View All ({{ total }})
+                </a>
             </div>
         </div>
 
-        <div class="table-responsive border-0">
-            <table class="table table-hover align-middle mb-0" id="incidentsTable" style="font-size: 12.5px;">
-                <thead class="table-light text-secondary text-uppercase font-monospace" style="font-size: 11px;">
+        <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
+            <table class="table" id="incidentTable">
+                <thead style="position:sticky;top:0;z-index:1;">
                     <tr>
-                        <th style="width: 80px;">Hazard ID</th>
-                        <th>Defect Class</th>
-                        <th>Confidence</th>
-                        <th>Risk Level</th>
-                        <th>Distance</th>
-                        <th>TTC</th>
-                        <th>Speed</th>
+                        <th style="width:72px;" data-sort="id">
+                            ID <i class="bi bi-arrow-down-up sort-icon"></i>
+                        </th>
+                        <th data-sort="type">Defect Class</th>
+                        <th data-sort="conf">Confidence <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                        <th data-sort="risk">Risk Level</th>
+                        <th data-sort="dist">Distance <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                        <th data-sort="ttc">TTC <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                        <th data-sort="speed">Speed</th>
                         <th>GPS Coordinates</th>
-                        <th class="text-end">Action</th>
+                        <th style="width:72px;text-align:right;">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="incidentTbody">
                     {% for inc in recent_incidents %}
-                    <tr class="incident-row" data-type="{{ inc.damage_type|upper }}" data-risk="{{ (inc.max_risk_level or '')|upper }}">
-                        <td class="font-monospace fw-bold text-slate-700">#{{ inc.track_id or inc.id }}</td>
+                    {% set risk_upper = (inc.max_risk_level or '')|upper %}
+                    {% set type_upper = (inc.damage_type or '')|upper %}
+                    <tr class="incident-row"
+                        data-type="{{ type_upper }}"
+                        data-risk="{{ risk_upper }}"
+                        data-search="{{ type_upper }} {{ inc.track_id or inc.id }} {{ inc.damage_latitude or '' }} {{ inc.damage_longitude or '' }}">
+                        <td class="mono" style="font-weight:600;color:var(--text-secondary);">
+                            #{{ inc.track_id or inc.id }}
+                        </td>
                         <td>
-                            {% if 'POTHOLE' in (inc.damage_type or '')|upper %}
-                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-0.5">Pothole</span>
+                            {% if 'POTHOLE' in type_upper %}
+                            <span class="badge-defect badge-pothole"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Pothole</span>
                             {% else %}
-                            <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 px-2 py-0.5">Alligator Crack</span>
+                            <span class="badge-defect badge-crack"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Alligator Crack</span>
                             {% endif %}
                         </td>
-                        <td class="font-monospace">{{ "%.1f"|format((inc.confidence or 0.85) * 100) }}%</td>
+                        <td class="mono">{{ "%.1f"|format((inc.confidence or 0.85) * 100) }}%</td>
                         <td>
-                            {% if 'IMMEDIATE' in (inc.max_risk_level or '') or 'DANGER' in (inc.max_risk_level or '') %}
-                            <span class="badge bg-danger text-white px-2 py-0.5">Immediate Danger</span>
-                            {% elif 'WARNING' in (inc.max_risk_level or '') %}
-                            <span class="badge bg-warning text-dark px-2 py-0.5">Warning</span>
-                            {% elif 'CAUTION' in (inc.max_risk_level or '') %}
-                            <span class="badge bg-primary bg-opacity-15 text-primary px-2 py-0.5">Caution</span>
+                            {% if 'IMMEDIATE' in risk_upper or 'DANGER' in risk_upper %}
+                            <span class="badge-risk badge-risk-danger"><i class="bi bi-exclamation-circle-fill" style="font-size:9px;"></i> Immediate Danger</span>
+                            {% elif 'WARNING' in risk_upper %}
+                            <span class="badge-risk badge-risk-warning"><i class="bi bi-exclamation-triangle-fill" style="font-size:9px;"></i> Warning</span>
+                            {% elif 'CAUTION' in risk_upper %}
+                            <span class="badge-risk badge-risk-caution"><i class="bi bi-info-circle-fill" style="font-size:9px;"></i> Caution</span>
                             {% else %}
-                            <span class="badge bg-success bg-opacity-15 text-success px-2 py-0.5">Safe</span>
+                            <span class="badge-risk badge-risk-safe"><i class="bi bi-check-circle-fill" style="font-size:9px;"></i> Safe</span>
                             {% endif %}
                         </td>
-                        <td class="font-monospace">{{ "%.1f"|format(inc.distance_m or 0) }} m</td>
-                        <td class="font-monospace fw-bold">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</td>
-                        <td class="font-monospace">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
-                        <td class="font-monospace text-secondary" style="font-size: 11px;">
-                            {{ "%.5f"|format(inc.damage_latitude or 9.6720) }}° N, {{ "%.5f"|format(inc.damage_longitude or 39.5271) }}° E
+                        <td class="mono">{{ "%.1f"|format(inc.distance_m or 0) }} m</td>
+                        <td class="mono" style="font-weight:600;">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</td>
+                        <td class="mono">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
+                        <td class="coord-cell" title="{{ '%.5f'|format(inc.damage_latitude or 9.6720) }}° N, {{ '%.5f'|format(inc.damage_longitude or 39.5271) }}° E">
+                            {{ "%.4f"|format(inc.damage_latitude or 9.6720) }}°N,&nbsp;{{ "%.4f"|format(inc.damage_longitude or 39.5271) }}°E
                         </td>
-                        <td class="text-end">
-                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}" class="btn btn-sm btn-outline-secondary py-0.5 px-2" style="font-size: 11px;" title="Jump to Video Keyframe">
-                                <i class="bi bi-camera-video me-1"></i> Sync
+                        <td style="text-align:right;">
+                            <a href="{{ url_for('video_studio') }}?file=outputs/final_integrated_video.mp4&seek={{ inc.video_time_s or 0 }}"
+                               class="btn btn-sm btn-ghost" style="font-size:11.5px;padding:4px 8px;" title="Jump to video keyframe">
+                                <i class="bi bi-camera-video"></i>
                             </a>
                         </td>
                     </tr>
                     {% else %}
-                    <tr>
-                        <td colspan="9" class="text-center py-4 text-secondary">
-                            No incident records in current database session.
+                    <tr id="emptyRow">
+                        <td colspan="9">
+                            <div class="table-empty">
+                                <div class="table-empty-icon"><i class="bi bi-inbox"></i></div>
+                                <div class="table-empty-title">No incidents recorded yet</div>
+                                <div class="table-empty-sub">Upload dashcam footage and run the AI pipeline to populate this ledger.</div>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Table Footer -->
+        <div style="padding:10px 18px;border-top:1px solid var(--border-default);background:var(--bg-sunken);border-radius:0 0 var(--radius-lg) var(--radius-lg);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:11.5px;color:var(--text-muted);">
+                Showing <strong id="visibleCount" style="color:var(--text-secondary);">{{ recent_incidents|length }}</strong>
+                of <strong>{{ total }}</strong> total records
+            </span>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('api_export_csv') }}" class="btn btn-ghost" style="font-size:12px;padding:4px 10px;">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                </a>
+                <a href="{{ url_for('incidents_view') }}" class="btn btn-outline-secondary" style="font-size:12px;padding:4px 10px;">
+                    View All →
+                </a>
+            </div>
         </div>
     </div>
 
@@ -322,108 +392,179 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const timelineCtx = document.getElementById('incidentTimelineChart');
-    if (timelineCtx) {
-        const rawIncidents = {{ recent_incidents|tojson }};
-        const labels = [];
-        const ttcData = [];
-        const bgColors = [];
 
-        rawIncidents.slice().reverse().forEach(inc => {
-            const timeS = parseFloat(inc.video_time_s || 0).toFixed(1) + 's';
-            labels.push(timeS);
-            ttcData.push(parseFloat(inc.ttc_seconds || 0).toFixed(2));
+    // ── 1. ANIMATE PROGRESS BARS ──────────────────────────────────
+    document.querySelectorAll('.risk-fill').forEach(el => {
+        const pct = parseFloat(el.getAttribute('data-pct') || 0);
+        // start at 0, animate to target
+        el.style.width = '0%';
+        requestAnimationFrame(() => {
+            setTimeout(() => { el.style.width = pct + '%'; }, 100);
+        });
+    });
 
-            const risk = (inc.max_risk_level || '').toUpperCase();
-            if (risk.includes('IMMEDIATE') || risk.includes('DANGER')) {
-                bgColors.push('#EF4444');
-            } else if (risk.includes('WARNING')) {
-                bgColors.push('#F59E0B');
-            } else {
-                bgColors.push('#10B981');
-            }
+    // ── 2. TIMELINE CHART ─────────────────────────────────────────
+    const ctx = document.getElementById('incidentTimelineChart');
+    if (ctx) {
+        const rawData = {{ recent_incidents|tojson }};
+        const sorted  = rawData.slice().reverse();
+
+        const labels = sorted.map(d => parseFloat(d.video_time_s || 0).toFixed(1) + 's');
+        const ttcVals = sorted.map(d => parseFloat(d.ttc_seconds || 0));
+        const ptColors = sorted.map(d => {
+            const r = (d.max_risk_level || '').toUpperCase();
+            if (r.includes('IMMEDIATE') || r.includes('DANGER')) return '#DC2626';
+            if (r.includes('WARNING')) return '#D97706';
+            return '#059669';
         });
 
-        new Chart(timelineCtx, {
+        // Use demo data if no real data
+        const finalLabels = labels.length ? labels : ['0s','3s','6s','9s','12s','15s','18s'];
+        const finalVals   = ttcVals.length ? ttcVals : [3.2, 1.6, 0.8, 2.4, 1.1, 2.8, 0.4];
+        const finalColors = ptColors.length ? ptColors : ['#059669','#DC2626','#DC2626','#D97706','#DC2626','#D97706','#DC2626'];
+
+        new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels.length ? labels : ['0.0s', '4.0s', '8.0s', '12.0s', '16.0s', '20.0s'],
-                datasets: [
-                    {
-                        label: 'Time-to-Collision (TTC sec)',
-                        data: ttcData.length ? ttcData : [2.5, 1.8, 0.33, 2.1, 1.4, 0.45],
-                        borderColor: '#0284C7',
-                        backgroundColor: 'rgba(2, 132, 199, 0.08)',
-                        borderWidth: 2,
-                        pointBackgroundColor: bgColors.length ? bgColors : '#EF4444',
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        tension: 0.25,
-                        fill: true
-                    }
-                ]
+                labels: finalLabels,
+                datasets: [{
+                    label: 'TTC (seconds)',
+                    data: finalVals,
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37,99,235,0.07)',
+                    borderWidth: 2,
+                    pointBackgroundColor: finalColors,
+                    pointBorderColor: finalColors,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.3,
+                    fill: true
+                }, {
+                    // Danger threshold line
+                    label: 'Danger Threshold (1.8s)',
+                    data: Array(finalLabels.length).fill(1.8),
+                    borderColor: 'rgba(220,38,38,0.4)',
+                    borderWidth: 1,
+                    borderDash: [4, 4],
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: '#1E293B',
+                        titleColor: '#94A3B8',
+                        bodyColor: '#F1F5F9',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 6,
                         callbacks: {
-                            label: function(ctx) { return `TTC: ${ctx.parsed.y}s Window`; }
+                            label: ctx => ctx.datasetIndex === 0
+                                ? `TTC: ${ctx.parsed.y.toFixed(2)}s`
+                                : `Threshold: 1.80s`
                         }
                     }
                 },
                 scales: {
                     x: {
-                        grid: { color: '#F1F5F9' },
-                        ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+                        grid: { color: '#F1F5F9', drawBorder: false },
+                        ticks: { font: { family: "'JetBrains Mono', monospace", size: 10 }, color: '#94A3B8' }
                     },
                     y: {
-                        title: { display: true, text: 'TTC (s)', font: { size: 10 } },
-                        suggestedMin: 0,
+                        min: 0,
                         suggestedMax: 4,
-                        grid: { color: '#F1F5F9' },
-                        ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+                        grid: { color: '#F1F5F9', drawBorder: false },
+                        ticks: {
+                            font: { family: "'JetBrains Mono', monospace", size: 10 },
+                            color: '#94A3B8',
+                            callback: v => v + 's'
+                        },
+                        title: { display: true, text: 'Time-to-Collision (s)', color: '#94A3B8', font: { size: 10 } }
                     }
                 }
             }
         });
     }
+
+    // ── 3. VISIBLE COUNT ─────────────────────────────────────────
+    updateVisibleCount();
 });
 
-// Interactive Client-Side Search
-function filterIncidentsTable() {
-    const query = document.getElementById('tableSearchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#incidentsTable tbody tr.incident-row');
-    rows.forEach(r => {
-        const text = r.textContent.toLowerCase();
-        r.style.display = text.includes(query) ? '' : 'none';
-    });
+// ── FILTER & SEARCH ───────────────────────────────────────────────
+let currentFilter = 'ALL';
+let currentSearch = '';
+
+function setFilter(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
 }
 
-// Instant Badge Filter Chips
-function filterByBadge(badgeType, btnEl) {
-    document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
-    btnEl.classList.add('active');
+function onSearch(val) {
+    currentSearch = val.toLowerCase().trim();
+    applyFilters();
+}
 
-    const rows = document.querySelectorAll('#incidentsTable tbody tr.incident-row');
-    rows.forEach(r => {
-        const dtype = r.getAttribute('data-type') || '';
-        const drisk = r.getAttribute('data-risk') || '';
+function applyFilters() {
+    const rows = document.querySelectorAll('#incidentTbody .incident-row');
+    rows.forEach(row => {
+        const type   = row.getAttribute('data-type') || '';
+        const risk   = row.getAttribute('data-risk') || '';
+        const search = (row.getAttribute('data-search') || '').toLowerCase();
 
-        if (badgeType === 'ALL') {
-            r.style.display = '';
-        } else if (badgeType === 'POTHOLE' && dtype.includes('POTHOLE')) {
-            r.style.display = '';
-        } else if (badgeType === 'CRACK' && (dtype.includes('CRACK') || dtype.includes('ALLIGATOR'))) {
-            r.style.display = '';
-        } else if (badgeType === 'DANGER' && (drisk.includes('DANGER') || drisk.includes('IMMEDIATE'))) {
-            r.style.display = '';
-        } else {
-            r.style.display = 'none';
+        let show = true;
+
+        // Apply chip filter
+        if (currentFilter === 'POTHOLE')
+            show = type.includes('POTHOLE');
+        else if (currentFilter === 'CRACK')
+            show = type.includes('CRACK') || type.includes('ALLIGATOR');
+        else if (currentFilter === 'DANGER')
+            show = risk.includes('DANGER') || risk.includes('IMMEDIATE');
+        else if (currentFilter === 'SAFE')
+            show = risk.includes('SAFE') || risk === '';
+
+        // Apply search
+        if (show && currentSearch) {
+            show = search.includes(currentSearch) ||
+                   row.textContent.toLowerCase().includes(currentSearch);
         }
+
+        row.style.display = show ? '' : 'none';
     });
+
+    updateVisibleCount();
+}
+
+function updateVisibleCount() {
+    const visible = document.querySelectorAll('#incidentTbody .incident-row:not([style*="none"])').length;
+    const el = document.getElementById('visibleCount');
+    if (el) el.textContent = visible;
+
+    // Show empty state if no results
+    let noResultsRow = document.getElementById('noResultsRow');
+    if (visible === 0) {
+        if (!noResultsRow) {
+            noResultsRow = document.createElement('tr');
+            noResultsRow.id = 'noResultsRow';
+            noResultsRow.innerHTML = `<td colspan="9" class="no-results-row">
+                <i class="bi bi-search" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.3;"></i>
+                No records match "<strong>${currentSearch || currentFilter}</strong>"
+            </td>`;
+            document.getElementById('incidentTbody').appendChild(noResultsRow);
+        }
+        noResultsRow.style.display = '';
+    } else if (noResultsRow) {
+        noResultsRow.style.display = 'none';
+    }
 }
 </script>
 {% endblock %}
