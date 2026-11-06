@@ -15,10 +15,12 @@
     <!-- Enterprise Custom Design System v8.1 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=8.1">
 
-    <!-- Immediate Theme Initialization (Prevents FOUC) -->
+    <!-- Immediate Theme Initialization (Prevents FOUC & Supports ?theme= URL query) -->
     <script>
         (function() {
-            var savedTheme = localStorage.getItem('roadeye-theme') || 'dark';
+            var urlParams = new URLSearchParams(window.location.search);
+            var themeFromUrl = urlParams.get('theme');
+            var savedTheme = themeFromUrl || localStorage.getItem('roadeye-theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>
