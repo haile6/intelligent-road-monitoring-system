@@ -39,12 +39,8 @@
     <!-- 1. OPERATIONS HEADER                                         -->
     <!-- ============================================================ -->
     <div class="page-header-row">
-        <div class="d-flex align-items-center gap-3">
+        <div>
             <h1 class="page-main-title">Operations</h1>
-            <span class="badge-status badge-status-info font-mono d-none d-md-inline-flex align-items-center gap-1.5" style="font-size: 11px;">
-                <span class="status-beacon-dot" style="width: 6px; height: 6px;"></span>
-                Route A2 &bull; Debre Berhan
-            </span>
         </div>
 
         <div class="page-actions-bar">
@@ -134,46 +130,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 3. AI PERCEPTION & MLOPS RUNTIME STATUS STRIP                 -->
-    <!-- ============================================================ -->
-    <div class="panel-card mb-4" style="background: var(--card-gradient); border-left: 4px solid var(--accent-primary) !important;">
-        <div class="p-3 d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="brand-badge" style="width:38px; height:38px; font-size:18px;">
-                    <i data-lucide="cpu"></i>
-                </div>
-                <div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary);">Perception Engine</span>
-                        <span class="badge-status badge-status-success">YOLOv11s</span>
-                        <span class="badge-status badge-status-info">INT8</span>
-                    </div>
-                    <div class="text-secondary small font-mono mt-1">
-                        Road Damage: <strong class="text-white">YOLOv11s</strong> (7.0ms) &bull;
-                        Vehicle MOT: <strong class="text-white">YOLO11s</strong> &bull;
-                        ANPR OCR: <strong class="text-white">EasyOCR</strong> &bull;
-                        Drift: <strong class="text-success">Nominal (98.4%)</strong> &bull;
-                        Radar Range: <strong class="text-info">100m Sonar</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ url_for('health_view') }}" class="btn btn-sm btn-outline-secondary">
-                    <i data-lucide="activity" style="width:13px; height:13px;"></i> Health
-                </a>
-                <a href="{{ url_for('calibration_view') }}" class="btn btn-sm btn-outline-secondary">
-                    <i data-lucide="sliders" style="width:13px; height:13px;"></i> Calibration
-                </a>
-                <a href="{{ url_for('api_v1_health') }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                    <i data-lucide="terminal" style="width:13px; height:13px;"></i> API
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- 4. MIDDLE TWO-COLUMN GRID: LIVE CORRIDOR & RISK ANALYTICS    -->
+    <!-- 3. MIDDLE TWO-COLUMN GRID: LIVE CORRIDOR & RISK ANALYTICS    -->
     <!-- ============================================================ -->
     <div class="row g-3 mb-4">
 
@@ -196,7 +153,7 @@
                     <div id="corridorMiniMap"></div>
                 </div>
                 <div class="panel-footer d-flex justify-content-between align-items-center font-mono">
-                    <span>Route A2 &bull; 8.40 km</span>
+                    <span>8.40 km Surveyed</span>
                     <span class="text-secondary">GPS Synced</span>
                 </div>
             </div>
@@ -544,7 +501,7 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
                 </span>
             </div>
             <h5 class="fw-bold mb-1" style="font-size:16px; color:var(--text-primary); text-transform:capitalize;">${type.replace('_', ' ')}</h5>
-            <div style="font-size:12px; color:var(--text-secondary);">Debre Berhan Corridor &bull; Route A2 Survey</div>
+            <div class="text-secondary small font-mono">Survey Verification</div>
         </div>
 
         <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
