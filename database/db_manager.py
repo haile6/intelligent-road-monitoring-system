@@ -602,6 +602,15 @@ def get_dashboard_stats():
     cursor.execute("SELECT COUNT(*) FROM plate_readings WHERE plate_text IS NOT NULL AND plate_text != 'UNREADABLE / LOW CONF' AND plate_text != ''")
     successful_plates = cursor.fetchone()[0]
 
+    cursor.execute("SELECT COUNT(*) FROM road_contractors WHERE warranty_status = 'Active'")
+    active_warranties = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM road_contractors")
+    total_contractors = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM incidents WHERE status != 'Repaired'")
+    active_work_orders = cursor.fetchone()[0]
+
     warning_caution = warning_count + caution_count
 
     conn.close()
@@ -619,6 +628,10 @@ def get_dashboard_stats():
         "cracks": cracks,
         "repaired_count": repaired_count,
         "pending_count": pending_count,
+        "active_work_orders": active_work_orders,
+        "active_warranties": active_warranties,
+        "total_contractors": total_contractors,
+        "corridor_coverage_km": 8.40,
         "total_plates": total_plates,
         "unique_vehicles": unique_vehicles,
         "successful_plates": successful_plates,
