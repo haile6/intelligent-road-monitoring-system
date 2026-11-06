@@ -107,97 +107,89 @@
     </div>
 
     <!-- Legal Advisory Callout Notice -->
-    <div class="alert alert-secondary border py-2 px-3 mb-4 d-flex align-items-center justify-content-between" style="border-color: var(--borders) !important; background-color: #F8FAFC !important;">
-        <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-shield-check text-success fs-5"></i>
-            <span class="small text-secondary">
-                <strong class="text-dark">Defects Liability Period (DLP) Enforcement:</strong> Under Ethiopian Roads Administration (ERA) standard contract clauses, road defects occurring during the active warranty period must be rectified by the responsible contractor at zero cost to the government.
-            </span>
+    <div class="panel-card p-3 mb-4" style="background: var(--bg-surface); border-left: 4px solid var(--success) !important;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <i data-lucide="shield-check" style="color:var(--success); width:20px; height:20px;"></i>
+                <span class="small text-secondary">
+                    <strong class="text-white">Defects Liability Period (DLP) Enforcement:</strong> Under Ethiopian Roads Administration (ERA) standard FIDIC Clause 11, road defects occurring during active warranty must be rectified by the responsible contractor at zero cost to the government.
+                </span>
+            </div>
+            <span class="badge-status badge-status-success font-mono" style="font-size: 10px;">LEGAL WARRANTY ACTIVE</span>
         </div>
-        <span class="badge bg-success font-mono" style="font-size: 10px;">LEGAL WARRANTY ACTIVE</span>
     </div>
 
     <!-- ============================================================ -->
     <!-- SUMMARY KPI ROW                                              -->
     <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
+    <div class="kpi-row-grid mb-4">
         <!-- KPI 1: Monitored Corridors -->
-        <div class="col-6 col-lg-3">
-            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="stat-label">Monitored Corridors</span>
-                    <i class="bi bi-signpost-split text-primary fs-5"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <span class="fs-3 fw-bold text-dark">{{ analytics.total_contractors }}</span>
-                    <span class="small text-secondary">Segments ({{ analytics.total_roads_km }} km)</span>
-                </div>
-                <div class="small text-muted mt-1" style="font-size: 11px;">National &amp; Municipal Network</div>
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Monitored Corridors</span>
+                <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
             </div>
+            <div class="kpi-number-display">{{ analytics.total_contractors }}</div>
+            <div class="kpi-subtext">36 Corridors ({{ analytics.total_roads_km }} km)</div>
         </div>
 
         <!-- KPI 2: Active Warranties -->
-        <div class="col-6 col-lg-3">
-            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="stat-label">Active Warranties (DLP)</span>
-                    <i class="bi bi-shield-fill-check text-success fs-5"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <span class="fs-3 fw-bold text-success">{{ analytics.active_warranties }}</span>
-                    <span class="badge bg-success" style="font-size: 10px;">100% Contractor Liability</span>
-                </div>
-                <div class="small text-muted mt-1" style="font-size: 11px;">Zero municipal repair expense</div>
+        <div class="kpi-metric-card accent-success">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-success">Active Warranties (DLP)</span>
+                <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="shield-check"></i></div>
             </div>
+            <div class="kpi-number-display text-success">{{ analytics.active_warranties }}</div>
+            <div class="kpi-subtext">Contractor Liability Enforced</div>
         </div>
 
         <!-- KPI 3: Defects Under Warranty -->
-        <div class="col-6 col-lg-3">
-            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="stat-label">Warranty Defect Claims</span>
-                    <i class="bi bi-exclamation-octagon text-danger fs-5"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <span class="fs-3 fw-bold text-danger">{{ analytics.total_defects_in_warranty }}</span>
-                    <span class="small text-secondary">Billable to Contractors</span>
-                </div>
-                <div class="small text-muted mt-1" style="font-size: 11px;">Official claim notices generated</div>
+        <div class="kpi-metric-card accent-danger">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-danger">Warranty Defect Claims</span>
+                <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
             </div>
+            <div class="kpi-number-display text-danger">{{ analytics.total_defects_in_warranty }}</div>
+            <div class="kpi-subtext">FIDIC Clause 11 eligible</div>
         </div>
 
         <!-- KPI 4: Public Fund Savings -->
-        <div class="col-6 col-lg-3">
-            <div class="card p-3 h-100 border bg-white contractor-card" style="border-color: var(--borders) !important;">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="stat-label">Public Funds Protected</span>
-                    <i class="bi bi-piggy-bank text-warning fs-5"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <span class="fs-3 fw-bold text-dark">{{ "{:,.0f}".format(analytics.estimated_contractor_savings_etb) }}</span>
-                    <span class="small text-secondary font-mono">ETB</span>
-                </div>
-                <div class="small text-success mt-1" style="font-size: 11px;">Transferred to contractor accounts</div>
+        <div class="kpi-metric-card accent-warning">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text text-warning">Public Funds Protected</span>
+                <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="coins"></i></div>
             </div>
+            <div class="kpi-number-display text-white" style="font-size:20px;">{{ "{:,.0f}".format(analytics.estimated_contractor_savings_etb) }} <small class="text-secondary fs-6">ETB</small></div>
+            <div class="kpi-subtext">Transferred to contractor liabilities</div>
         </div>
     </div>
 
     <!-- ============================================================ -->
     <!-- MAIN CONTRACTORS DIRECTORY TABLE                             -->
     <!-- ============================================================ -->
-    <div class="card border mb-4" style="border-color: var(--borders) !important;">
-        <div class="card-header bg-white py-3 px-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 border-bottom">
+    <div class="panel-card mb-4" id="warranties">
+        <div class="panel-header py-3 px-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <div>
-                <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-building text-primary"></i>
+                <div class="panel-title">
+                    <i data-lucide="building-2" style="color:var(--accent-primary);"></i>
                     <span>Contractor Highway Corridors &amp; Warranty Registry</span>
-                </h5>
+                </div>
                 <div class="text-secondary small">Comprehensive registry of construction firms, GPS boundaries, warranty liabilities, and quality performance.</div>
             </div>
 
             <!-- Table Filter Controls -->
             <div class="d-flex align-items-center gap-2 no-print">
-                <div class="input-group input-group-sm" style="width: 240px;">
+                <div class="search-input-wrap" style="width: 240px;">
+                    <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                    <input type="text" id="contractorSearchInput" onkeyup="filterContractorsTable()" class="form-control form-control-sm ps-4" placeholder="Search contractor or road...">
+                </div>
+                <select id="warrantyFilterSelect" onchange="filterContractorsTable()" class="form-select form-select-sm" style="width: 170px;">
+                    <option value="ALL">All Warranties</option>
+                    <option value="ACTIVE">Active (Under Guarantee)</option>
+                    <option value="EXPIRED">Expired (Municipal)</option>
+                </select>
+            </div>
+        </div>
                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
                     <input type="text" id="contractorSearchInput" onkeyup="filterContractorsTable()" class="form-control border-start-0" placeholder="Search contractor or road...">
                 </div>
