@@ -447,7 +447,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. Risk Distribution Chart
     const riskChartCtx = document.getElementById('riskDistributionChart');
     if (riskChartCtx) {
-        new Chart(riskChartCtx, {
+        const isBrightInitial = document.documentElement.getAttribute('data-theme') === 'bright';
+        window.riskChartInstance = new Chart(riskChartCtx, {
             type: 'doughnut',
             data: {
                 labels: ['Immediate Danger', 'Caution / Warning', 'Safe / Passing'],
@@ -458,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         {{ stats.safe_count or 20 }}
                     ],
                     backgroundColor: ['#EF4444', '#F59E0B', '#22C55E'],
-                    borderColor: '#111C2B',
+                    borderColor: isBrightInitial ? '#FFFFFF' : '#111C2B',
                     borderWidth: 2,
                     hoverOffset: 4
                 }]
@@ -470,13 +471,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     legend: {
                         position: 'right',
                         labels: {
-                            color: '#94A3B8',
+                            color: isBrightInitial ? '#475569' : '#94A3B8',
                             font: { family: 'Inter', size: 11 },
                             boxWidth: 12
                         }
                     }
                 },
                 cutout: '72%'
+            }
+        });
+
+        // Adaptive chart colors on theme toggle
+        window.addEventListener('themeChanged', function(e) {
+            const isBright = e.detail && e.detail.isBright;
+            if (window.riskChartInstance) {
+                window.riskChartInstance.data.datasets[0].borderColor = isBright ? '#FFFFFF' : '#111C2B';
+                if (window.riskChartInstance.options.plugins.legend) {
+                    window.riskChartInstance.options.plugins.legend.labels.color = isBright ? '#475569' : '#94A3B8';
+                }
+                window.riskChartInstance.update();
+            }
+            if (map) {
+                map.invalidateSize();
             }
         });
     }

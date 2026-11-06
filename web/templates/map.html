@@ -699,6 +699,13 @@ function initMap() {
         }
     };
 
+    // Auto-sync map on theme change (Dark & Bright)
+    window.addEventListener('themeChanged', function(e) {
+        if (map) {
+            map.invalidateSize();
+        }
+    });
+
     // Layer Groups
     contractorLayerGroup = L.layerGroup().addTo(map);
     osmLayerGroup = L.layerGroup().addTo(map);
