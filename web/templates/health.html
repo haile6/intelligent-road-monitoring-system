@@ -1,133 +1,243 @@
 {% extends "base.html" %}
 
-{% block title %}System Health & Diagnostics — RoadEye™{% endblock %}
-{% block breadcrumb %}System Health &amp; Subsystem Diagnostics{% endblock %}
+{% block title %}System Health &amp; Subsystem Telemetry — RoadEye™ Enterprise{% endblock %}
+{% block breadcrumb %}Health &amp; APIs{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
 
     <!-- ============================================================ -->
-    <!-- PAGE HEADER                                                  -->
+    <!-- 1. PAGE HEADER                                                -->
     <!-- ============================================================ -->
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--borders) !important;">
+    <div class="page-header-row">
         <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary" style="font-size: 10px; letter-spacing: 0.05em;">DIAGNOSTIC TELEMETRY</span>
-                <span class="text-secondary font-mono" style="font-size: 11px;">Subsystem Health Daemon</span>
+            <div class="page-eyebrow">
+                <span class="page-eyebrow-pill">Diagnostic Telemetry</span>
+                <span class="text-secondary font-mono" style="font-size: 11px;">Continuous Subsystem Monitoring &bull; Watchdog Daemon</span>
             </div>
-            <h1 class="page-title mt-1">SYSTEM HEALTH &amp; TELEMETRY STATUS</h1>
-            <div class="page-subtitle">Real Subsystem Health Verifications, Sensor Connectivity &amp; Storage Capacity</div>
+            <h1 class="page-main-title">System Health &amp; Subsystem Telemetry</h1>
+            <p class="page-main-desc">Real-time hardware verification, database integrity, model inference latencies &amp; REST API gateway.</p>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge {% if health.status == 'OPERATIONAL' %}bg-success{% else %}bg-warning{% endif %} font-mono px-3 py-2" style="font-size: 12px;">
-                <span class="status-dot {% if health.status == 'OPERATIONAL' %}safe{% else %}warning{% endif %} me-1"></span>
+        <div class="page-actions-bar">
+            <span class="badge-status {% if health.status == 'OPERATIONAL' %}badge-status-success{% else %}badge-status-warning{% endif %} font-mono px-3 py-1.5" style="font-size: 12px;">
+                <span class="status-beacon-dot {% if health.status == 'OPERATIONAL' %}{% else %}danger{% endif %} me-1" style="display:inline-block; vertical-align:middle;"></span>
                 SYSTEM {{ health.status }}
             </span>
-            <button class="btn btn-sm btn-outline-secondary" onclick="window.location.reload()">
-                <i class="bi bi-arrow-clockwise"></i> Re-check
+            <button class="btn btn-secondary" onclick="window.location.reload()">
+                <i data-lucide="rotate-cw"></i> Re-Check Telemetry
             </button>
+            <a href="{{ url_for('api_v1_health') }}" target="_blank" class="btn btn-outline-primary">
+                <i data-lucide="terminal"></i> View Health JSON
+            </a>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- 8 SUBSYSTEM STATUS TILES                                     -->
+    <!-- 2. SUBSYSTEM STATUS TILES (8 MONITORED COMPONENTS)           -->
     <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
-        <!-- 1. Video Input -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">1. Video Input Stream</span>
-                    <span class="status-dot {% if health.video_input.ok %}safe{% else %}danger{% endif %}"></span>
+    <div class="kpi-row-grid mb-4">
+
+        <!-- 1. Video Input Stream -->
+        <div class="kpi-metric-card {% if health.video_input.ok %}accent-success{% else %}accent-danger{% endif %}">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">1. Video Ingest</span>
+                <div class="kpi-icon-pill" style="color:{% if health.video_input.ok %}var(--success){% else %}var(--danger){% endif %};">
+                    <i data-lucide="video"></i>
                 </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.video_input.status }}</div>
-                <div class="font-mono text-secondary" style="font-size: 11px;">File: {{ health.video_input.file }}</div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px; color:{% if health.video_input.ok %}var(--success){% else %}var(--danger){% endif %};">
+                {{ health.video_input.status }}
+            </div>
+            <div class="kpi-subtext font-mono">{{ health.video_input.file }}</div>
         </div>
 
-        <!-- 2. Neural Models -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">2. AI Neural Models</span>
-                    <span class="status-dot {% if health.models.ok %}safe{% else %}warning{% endif %}"></span>
+        <!-- 2. AI Neural Models -->
+        <div class="kpi-metric-card {% if health.models.ok %}accent-success{% else %}accent-warning{% endif %}">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">2. Neural Core</span>
+                <div class="kpi-icon-pill" style="color:{% if health.models.ok %}var(--success){% else %}var(--warning){% endif %};">
+                    <i data-lucide="cpu"></i>
                 </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.models.status }}</div>
-                <div class="text-secondary" style="font-size: 11px;">YOLOv8x + Damage Detector</div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px; color:{% if health.models.ok %}var(--success){% else %}var(--warning){% endif %};">
+                {{ health.models.status }}
+            </div>
+            <div class="kpi-subtext">YOLOv11s + YOLO11s MOT</div>
         </div>
 
         <!-- 3. SQLite Database -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">3. SQLite Database</span>
-                    <span class="status-dot {% if health.database.ok %}safe{% else %}danger{% endif %}"></span>
+        <div class="kpi-metric-card {% if health.database.ok %}accent-success{% else %}accent-danger{% endif %}">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">3. SQLite Database</span>
+                <div class="kpi-icon-pill" style="color:{% if health.database.ok %}var(--success){% else %}var(--danger){% endif %};">
+                    <i data-lucide="database"></i>
                 </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.database.status }}</div>
-                <div class="font-mono text-secondary" style="font-size: 11px;">{{ health.database.incident_records }} incidents &bull; {{ health.database.plate_records }} plates</div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px; color:{% if health.database.ok %}var(--success){% else %}var(--danger){% endif %};">
+                {{ health.database.status }}
+            </div>
+            <div class="kpi-subtext font-mono">{{ health.database.incident_records }} hazards &bull; {{ health.database.plate_records }} plates</div>
         </div>
 
-        <!-- 4. GPS Provider -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">4. GPS Telemetry Service</span>
-                    <span class="status-dot {% if health.gps.ok %}safe{% else %}warning{% endif %}"></span>
+        <!-- 4. GPS Telemetry Provider -->
+        <div class="kpi-metric-card {% if health.gps.ok %}accent-success{% else %}accent-warning{% endif %}">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">4. GPS Geodesics</span>
+                <div class="kpi-icon-pill" style="color:{% if health.gps.ok %}var(--success){% else %}var(--warning){% endif %};">
+                    <i data-lucide="satellite"></i>
                 </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.gps.status }}</div>
-                <div class="font-mono text-secondary" style="font-size: 11px;">Track: {{ health.gps.file }}</div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px; color:{% if health.gps.ok %}var(--success){% else %}var(--warning){% endif %};">
+                {{ health.gps.status }}
+            </div>
+            <div class="kpi-subtext font-mono">1.0 Hz LERP Synchronized</div>
         </div>
 
-        <!-- 5. ANPR / OCR -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">5. ANPR / OCR Engine</span>
-                    <span class="status-dot safe"></span>
-                </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.anpr.status }}</div>
-                <div class="font-mono text-secondary" style="font-size: 11px;">{{ health.anpr.plates_indexed }} Plate Readings Indexed</div>
+        <!-- 5. ANPR / OCR Engine -->
+        <div class="kpi-metric-card accent-success">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">5. ANPR Engine</span>
+                <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="car"></i></div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px; color:var(--success);">
+                {{ health.anpr.status }}
+            </div>
+            <div class="kpi-subtext font-mono">{{ health.anpr.plates_indexed }} optical events</div>
         </div>
 
-        <!-- 6. Audio Subsystem -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">6. Audio Output Subsystem</span>
-                    <span class="status-dot safe"></span>
-                </div>
-                <div class="fw-bold fs-6 text-dark mb-1">Operational</div>
-                <div class="text-secondary" style="font-size: 11px;">Bilingual: English &bull; አማርኛ (Amharic)</div>
+        <!-- 6. Auditory Subsystem -->
+        <div class="kpi-metric-card accent-success">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">6. Auditory Alert</span>
+                <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="volume-2"></i></div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px; color:var(--success);">Operational</div>
+            <div class="kpi-subtext">Amharic &amp; English Synthetic Voice</div>
         </div>
 
-        <!-- 7. Storage Capacity -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">7. Disk Storage Usage</span>
-                    <span class="status-dot safe"></span>
-                </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.storage.total_mb }} MB Used</div>
-                <div class="font-mono text-secondary" style="font-size: 11px;">Data: {{ health.storage.data_dir_mb }} MB &bull; Outputs: {{ health.storage.outputs_dir_mb }} MB</div>
+        <!-- 7. Disk Storage Usage -->
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">7. Disk Storage</span>
+                <div class="kpi-icon-pill"><i data-lucide="hard-drive"></i></div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px;">
+                {{ health.storage.total_mb }} MB
+            </div>
+            <div class="kpi-subtext font-mono">Data: {{ health.storage.data_dir_mb }} MB &bull; Out: {{ health.storage.outputs_dir_mb }} MB</div>
         </div>
 
-        <!-- 8. Pipeline Thread Queue -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="text-uppercase text-secondary fw-semibold small">8. Active Process Queue</span>
-                    <span class="status-dot info"></span>
-                </div>
-                <div class="fw-bold fs-6 text-dark mb-1">{{ health.active_pipeline_jobs }} Active Jobs</div>
-                <div class="text-secondary" style="font-size: 11px;">Last Poll: {{ health.last_check_timestamp }}</div>
+        <!-- 8. Pipeline Background Queue -->
+        <div class="kpi-metric-card accent-indigo">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">8. Active Queue</span>
+                <div class="kpi-icon-pill"><i data-lucide="activity"></i></div>
             </div>
+            <div class="kpi-number-display" style="font-size: 16px;">
+                {{ health.active_pipeline_jobs }} Running
+            </div>
+            <div class="kpi-subtext font-mono">Worker threads healthy</div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. PRODUCTION REST API DIRECTORY TABLE                       -->
+    <!-- ============================================================ -->
+    <div class="panel-card mb-4">
+        <div class="panel-header py-2.5">
+            <div class="panel-title">
+                <i data-lucide="server" style="color:var(--accent-primary);"></i>
+                Production REST API Gateway Endpoints (`/api/v1/*`)
+            </div>
+            <span class="text-secondary font-mono" style="font-size:11px;">v2.4-ITS Microservice Architecture</span>
+        </div>
+        <div class="table-container-responsive border-0">
+            <table class="enterprise-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Method</th>
+                        <th>API Endpoint</th>
+                        <th>Subsystem Function</th>
+                        <th>Target Payload</th>
+                        <th>Expected Response</th>
+                        <th style="text-align: right; width: 100px;">Probe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge-status badge-status-info">GET</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/health</td>
+                        <td>Complete system health status &amp; hardware accelerator checks</td>
+                        <td class="font-mono text-muted">None</td>
+                        <td class="font-mono text-success">200 OK (JSON)</td>
+                        <td style="text-align: right;">
+                            <a href="/api/v1/health" target="_blank" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono">Test</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-status badge-status-info">GET</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/models</td>
+                        <td>List cataloged model versions and production stages</td>
+                        <td class="font-mono text-muted">None</td>
+                        <td class="font-mono text-success">200 OK (Catalog)</td>
+                        <td style="text-align: right;">
+                            <a href="/api/v1/models" target="_blank" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono">Test</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-status badge-status-warning">POST</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/predict</td>
+                        <td>Synchronous image road defect detection &amp; coordinates</td>
+                        <td class="font-mono text-muted">image_base64</td>
+                        <td class="font-mono text-success">200 OK (BBoxes)</td>
+                        <td style="text-align: right;">
+                            <span class="badge-status badge-status-info">Ready</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-status badge-status-info">GET</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/drift</td>
+                        <td>Covariate drift statistical audit (KS-test, Chi2, PSI)</td>
+                        <td class="font-mono text-muted">None / Query params</td>
+                        <td class="font-mono text-success">200 OK (Drift Report)</td>
+                        <td style="text-align: right;">
+                            <a href="/api/v1/drift" target="_blank" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono">Test</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-status badge-status-info">GET</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/explain</td>
+                        <td>Explainable AI (XAI) feature saliency attribution heatmap</td>
+                        <td class="font-mono text-muted">None / Image</td>
+                        <td class="font-mono text-success">200 OK (Saliency Map)</td>
+                        <td style="text-align: right;">
+                            <a href="/api/v1/explain" target="_blank" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono">Test</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-status badge-status-info">GET</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/fairness/audit</td>
+                        <td>Subgroup performance parity audit across weather and road types</td>
+                        <td class="font-mono text-muted">None</td>
+                        <td class="font-mono text-success">200 OK (Parity Report)</td>
+                        <td style="text-align: right;">
+                            <a href="/api/v1/fairness/audit" target="_blank" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono">Test</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-status badge-status-info">GET</span></td>
+                        <td class="font-mono fw-bold text-white">/api/v1/edge/quantize</td>
+                        <td>INT8 TinyML Edge quantization profiles (RK3588, Hailo, Jetson)</td>
+                        <td class="font-mono text-muted">None</td>
+                        <td class="font-mono text-success">200 OK (Edge Benchmarks)</td>
+                        <td style="text-align: right;">
+                            <a href="/api/v1/edge/quantize" target="_blank" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono">Test</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
