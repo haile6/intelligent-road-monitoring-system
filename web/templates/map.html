@@ -90,8 +90,8 @@
         <div class="d-flex flex-wrap align-items-center gap-2">
             <!-- Jump to Region Dropdown -->
             <div class="input-group input-group-sm" style="width: auto;">
-                <span class="input-group-text bg-white text-secondary"><i class="bi bi-compass"></i></span>
-                <select class="form-select form-select-sm fw-semibold" id="regionJumpSelect" onchange="jumpToRegion(this.value)" style="width: auto;">
+                <span class="input-group-text text-secondary" style="background:var(--bg-surface); border-color:var(--border-default);"><i class="bi bi-compass"></i></span>
+                <select class="form-select form-select-sm fw-semibold" id="regionJumpSelect" onchange="jumpToRegion(this.value)" style="width: auto; background-color: var(--bg-surface) !important; color: var(--text-primary); border-color: var(--border-default);">
                     <option value="videotrack" selected>🎥 Dashcam Video Patrol Track (54 Defects)</option>
                     <option value="all">🇪🇹 All Ethiopia (መላው ኢትዮጵያ)</option>
                     <option value="addis" selected>🏙️ Addis Ababa &amp; Corridors (አዲስ አበባ)</option>
@@ -105,9 +105,9 @@
             </div>
 
             <!-- Severity Filter -->
-            <div class="d-flex align-items-center gap-1 bg-white border rounded px-2 py-1">
+            <div class="d-flex align-items-center gap-1 rounded px-2 py-1" style="background:var(--bg-surface); border: 1px solid var(--border-default);">
                 <span class="text-secondary small fw-semibold" style="font-size: 11.5px;">Hazards:</span>
-                <select class="form-select form-select-sm border-0 py-0 ps-1 pe-4 text-dark fw-semibold" id="mapSeverityFilter" style="font-size: 12px; width: auto; background-color: transparent !important;" onchange="filterMapMarkers()">
+                <select class="form-select form-select-sm border-0 py-0 ps-1 pe-4 fw-semibold" id="mapSeverityFilter" style="font-size: 12px; width: auto; background-color: transparent !important; color: var(--text-primary) !important;" onchange="filterMapMarkers()">
                     <option value="all" selected>All Severities</option>
                     <option value="danger">Immediate Danger</option>
                     <option value="warning">Warning</option>
@@ -148,35 +148,40 @@
     </div>
 
     <!-- Quick Layer Toggle Toolbar -->
-    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 p-2 bg-white border rounded shadow-xs">
-        <span class="small fw-bold text-dark font-mono"><i class="bi bi-layers-half text-primary me-1"></i>MAP LAYERS:</span>
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 p-2 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
+        <span class="small fw-bold text-white font-mono"><i class="bi bi-layers-half text-primary me-1"></i>MAP LAYERS:</span>
         <div class="form-check form-check-inline mb-0">
             <input class="form-check-input" type="checkbox" id="toggleContractors" checked onchange="toggleLayer('contractors', this.checked)">
-            <label class="form-check-label small fw-semibold" for="toggleContractors">
+            <label class="form-check-label small fw-semibold text-secondary" for="toggleContractors">
                 <span class="gis-legend-line" style="background: #10B981;"></span>
-                <span>National Highway Corridors ({{ contractors|length }})</span>
+                <span>National Corridors ({{ contractors|length }})</span>
             </label>
         </div>
         <div class="form-check form-check-inline mb-0">
             <input class="form-check-input" type="checkbox" id="toggleOsm" checked onchange="toggleLayer('osm', this.checked)">
-            <label class="form-check-label small fw-semibold" for="toggleOsm">
+            <label class="form-check-label small fw-semibold text-secondary" for="toggleOsm">
                 <span class="gis-legend-line" style="background: #0284C7;"></span>
-                <span>Debre Berhan OSM Roads (66)</span>
+                <span>Debre Berhan OSM (66)</span>
             </label>
         </div>
         <div class="form-check form-check-inline mb-0">
             <input class="form-check-input" type="checkbox" id="toggleGps" checked onchange="toggleLayer('gps', this.checked)">
-            <label class="form-check-label small fw-semibold" for="toggleGps">
-                <span class="gis-legend-line" style="background: #2563A6;"></span>
-                <span>GPS Vehicle Trajectory</span>
+            <label class="form-check-label small fw-semibold text-secondary" for="toggleGps">
+                <span class="gis-legend-line" style="background: #38BDF8;"></span>
+                <span>GPS Trajectory</span>
             </label>
         </div>
         <div class="form-check form-check-inline mb-0">
             <input class="form-check-input" type="checkbox" id="toggleHazards" checked onchange="toggleLayer('hazards', this.checked)">
-            <label class="form-check-label small fw-semibold" for="toggleHazards">
+            <label class="form-check-label small fw-semibold text-secondary" for="toggleHazards">
                 <span class="gis-legend-dot" style="background: #EF4444;"></span>
                 <span>Detected Hazards ({{ incidents|length }})</span>
             </label>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:11px;" id="toggleBasemapBtn" onclick="toggleBasemapStyle()">
+                <i class="bi bi-moon-stars me-1"></i> Basemap: <span id="basemapLabel">Dark</span>
+            </button>
         </div>
     </div>
 
@@ -660,11 +665,33 @@ function initMap() {
     }
     map = L.map('map').setView([centerLat, centerLon], initialZoom);
 
-    // Standard Free OpenStreetMap Tiles
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
+    // Base tile layers (CartoDB Dark Matter default & OSM standard)
+    window.darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '&copy; CartoDB &copy; OpenStreetMap'
+    });
+    window.osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    });
+    window.currentBasemap = 'dark';
+    window.darkTiles.addTo(map);
+
+    window.toggleBasemapStyle = function() {
+        if (window.currentBasemap === 'dark') {
+            map.removeLayer(window.darkTiles);
+            window.osmTiles.addTo(map);
+            window.currentBasemap = 'osm';
+            const lbl = document.getElementById('basemapLabel');
+            if (lbl) lbl.textContent = 'OSM Light';
+        } else {
+            map.removeLayer(window.osmTiles);
+            window.darkTiles.addTo(map);
+            window.currentBasemap = 'dark';
+            const lbl = document.getElementById('basemapLabel');
+            if (lbl) lbl.textContent = 'Dark GIS';
+        }
+    };
 
     // Layer Groups
     contractorLayerGroup = L.layerGroup().addTo(map);
