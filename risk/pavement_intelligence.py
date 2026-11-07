@@ -561,8 +561,8 @@ class CorridorPavementSegmenter:
                 prev_lat = enriched_points[-1]["lat"]
                 prev_lon = enriched_points[-1]["lon"]
                 d = cls.haversine_distance_m(prev_lat, prev_lon, lat, lon)
-                # Filter out GPS jump anomalies (> 150m between 1s samples)
-                if d < 150.0:
+                # Filter out extreme GPS jump anomalies (> 10 km between consecutive samples)
+                if d < 10000.0:
                     cumulative_m += d
             enriched_points.append({
                 "lat": lat,
