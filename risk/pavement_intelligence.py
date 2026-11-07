@@ -268,3 +268,236 @@ class InternationalRoughnessIndex:
             "segment_length_km": seg_km
         })
         return result
+
+
+
+# ==============================================================================
+# 2. ERA SCHEDULE OF RATES & ASPHALT BUDGET ESTIMATOR
+# ==============================================================================
+
+class AsphaltBudgetEstimator:
+    """
+    Ethiopian Roads Administration (ERA) Standard Specifications & Schedule of Rates
+    Asphalt Resurfacing & Rehabilitation Budget Estimator.
+    
+    Computes required maintenance treatments, Material Quantities (HMA tonnes, 
+    Bitumen Emulsion liters), and Bill of Quantities (BoQ) in ETB and USD.
+    """
+
+    # Exchange Rate: 1 USD ≈ 128 ETB (Commercial Bank of Ethiopia / National Bank)
+    ETB_TO_USD_RATE = 128.0
+
+    # ERA Schedule of Unit Rates (ETB)
+    RATE_POTHOLE_COLD_PATCH_PER_M2 = 2850.0      # Cold-mix asphalt patching & compaction
+    RATE_CRACK_SEALING_PER_M = 480.0             # Hot-poured elastomeric polymer sealant
+    RATE_MILLING_50MM_PER_M2 = 420.0             # Cold planar milling 50mm depth
+    RATE_TACK_COAT_PER_M2 = 180.0                # Bitumen emulsion tack coat (0.55 L/m2)
+    RATE_ASPHALT_OVERLAY_50MM_PER_M2 = 2650.0    # 50mm Hot Mix Asphalt Wearing Course
+    RATE_FULL_RECONSTRUCTION_PER_M2 = 7800.0     # Sub-base, DBM binder 60mm & wearing 50mm
+
+    # Material Constants
+    DENSITY_HMA_TONNES_PER_M3 = 2.40             # Compacted Hot Mix Asphalt density
+    DENSITY_COLD_PATCH_TONNES_PER_M3 = 2.20      # Cold Mix Asphalt density
+    TACK_COAT_APPLICATION_RATE_L_M2 = 0.55       # Liters of emulsion per m2
+    STANDARD_LANE_WIDTH_M = 3.50                 # 1 Lane width
+    STANDARD_CORRIDOR_WIDTH_M = 7.00             # 2-lane carriageway width
+
+    @classmethod
+    def estimate_segment_budget(cls, 
+                                pci_score: float, 
+                                iri_score: float, 
+                                potholes_count: int, 
+                                cracks_count: int, 
+                                segment_length_m: float = 250.0,
+                                carriageway_width_m: float = 7.0) -> Dict[str, Any]:
+        """
+        Generate detailed Bill of Quantities (BoQ), treatment recommendations,
+        and material estimates for a road segment based on PCI and IRI condition.
+        """
+        seg_len = max(10.0, float(segment_length_m))
+        road_width = max(3.0, float(carriageway_width_m))
+        total_surface_area_m2 = seg_len * road_width
+
+        # Estimated distressed patch areas
+        # Average pothole size: ~0.45 m2 surface area, depth ~0.06m
+        pothole_repair_area_m2 = potholes_count * 0.45
+        # Average crack length per detection: ~3.5 linear meters
+        crack_sealing_meters = cracks_count * 3.5
+
+        boq_items: List[Dict[str, Any]] = []
+        treatment_en = ""
+        treatment_am = ""
+        urgency = "Scheduled Maintenance"
+        intervention_level = "PREVENTIVE"
+
+        # Determine Intervention Level based on ASTM D6433 & ERA triggers:
+        # 1. PCI < 40 or IRI >= 7.0: Heavy Structural Failure -> Full-Depth Reconstruction
+        # 2. 40 <= PCI < 70 or 4.0 <= IRI < 7.0: Functional Impairment -> Mill & 50mm Overlay
+        # 3. 70 <= PCI < 85: Satisfactory -> Localized Patching & Crack Sealing
+        # 4. PCI >= 85: Good -> Routine Preservation
+
+        if pci_score < 40.0 or iri_score >= 7.0:
+            intervention_level = "FULL_RECONSTRUCTION"
+            treatment_en = "Full-Depth Carriageway Reconstruction (Crushed Rock Base + DBM + 50mm AC)"
+            treatment_am = "ሙሉ የመንገድ መሰረት መልሶ ግንባታ (ሰብ-ቤዝ + ባይንደር + 50ሚሜ አስፋልት)"
+            urgency = "Critical (Immediate Priority)"
+
+            # Reconstruction of entire segment carriageway
+            qty_reconstruct = total_surface_area_m2
+            cost_reconstruct = qty_reconstruct * cls.RATE_FULL_RECONSTRUCTION_PER_M2
+
+            boq_items.append({
+                "item_code": "ERA-REC-01",
+                "description": "Full-Depth Carriageway Reconstruction (Stabilized base + DBM + AC)",
+                "unit": "m²",
+                "quantity": round(qty_reconstruct, 1),
+                "unit_rate_etb": cls.RATE_FULL_RECONSTRUCTION_PER_M2,
+                "total_etb": round(cost_reconstruct, 2)
+            })
+
+            # Materials
+            asphalt_tonnes = total_surface_area_m2 * 0.11 * cls.DENSITY_HMA_TONNES_PER_M3  # 60mm DBM + 50mm AC
+            tack_coat_liters = total_surface_area_m2 * cls.TACK_COAT_APPLICATION_RATE_L_M2 * 2
+            cold_patch_tonnes = 0.0
+
+        elif pci_score < 70.0 or iri_score >= 4.0:
+            intervention_level = "MILL_AND_OVERLAY"
+            treatment_en = "Cold Planar Milling (50mm) + Tack Coat + 50mm Asphalt Concrete Overlay"
+            treatment_am = "ሚሊንግ (50ሚሜ) + ታክ ኮት + 50ሚሜ የአስፋልት ኮንክሪት ሽፋን"
+            urgency = "High (Quarterly Remediation)"
+
+            cost_milling = total_surface_area_m2 * cls.RATE_MILLING_50MM_PER_M2
+            cost_tack = total_surface_area_m2 * cls.RATE_TACK_COAT_PER_M2
+            cost_overlay = total_surface_area_m2 * cls.RATE_ASPHALT_OVERLAY_50MM_PER_M2
+
+            boq_items.append({
+                "item_code": "ERA-MIL-01",
+                "description": "Cold Milling of Existing Asphalt Surfacing (50mm depth)",
+                "unit": "m²",
+                "quantity": round(total_surface_area_m2, 1),
+                "unit_rate_etb": cls.RATE_MILLING_50MM_PER_M2,
+                "total_etb": round(cost_milling, 2)
+            })
+            boq_items.append({
+                "item_code": "ERA-TC-02",
+                "description": "Bituminous Emulsion Tack Coat (K1-60 @ 0.55 L/m²)",
+                "unit": "m²",
+                "quantity": round(total_surface_area_m2, 1),
+                "unit_rate_etb": cls.RATE_TACK_COAT_PER_M2,
+                "total_etb": round(cost_tack, 2)
+            })
+            boq_items.append({
+                "item_code": "ERA-AC-03",
+                "description": "50mm Hot-Mix Asphalt Concrete Wearing Course (AC 60/70)",
+                "unit": "m²",
+                "quantity": round(total_surface_area_m2, 1),
+                "unit_rate_etb": cls.RATE_ASPHALT_OVERLAY_50MM_PER_M2,
+                "total_etb": round(cost_overlay, 2)
+            })
+
+            asphalt_tonnes = total_surface_area_m2 * 0.05 * cls.DENSITY_HMA_TONNES_PER_M3
+            tack_coat_liters = total_surface_area_m2 * cls.TACK_COAT_APPLICATION_RATE_L_M2
+            cold_patch_tonnes = 0.0
+
+        elif pci_score < 85.0 or potholes_count > 0 or cracks_count > 0:
+            intervention_level = "LOCALIZED_REPAIR"
+            treatment_en = "Emergency Cold-Mix Pothole Patching & Polymer Crack Sealing"
+            treatment_am = "የጉድጓድ አስፋልት ማጣፊያ እና የስንጥቅ ማሸጊያ ጥገና"
+            urgency = "Standard (Maintenance Patrol)"
+
+            total_patch_cost = 0.0
+            total_crack_cost = 0.0
+
+            if pothole_repair_area_m2 > 0:
+                cost_patch = max(pothole_repair_area_m2, 1.0) * cls.RATE_POTHOLE_COLD_PATCH_PER_M2
+                total_patch_cost += cost_patch
+                boq_items.append({
+                    "item_code": "ERA-PTH-01",
+                    "description": f"Cold-Mix Asphalt Pothole Patching ({potholes_count} verified potholes)",
+                    "unit": "m²",
+                    "quantity": round(max(pothole_repair_area_m2, 1.0), 2),
+                    "unit_rate_etb": cls.RATE_POTHOLE_COLD_PATCH_PER_M2,
+                    "total_etb": round(cost_patch, 2)
+                })
+
+            if crack_sealing_meters > 0:
+                cost_crack = crack_sealing_meters * cls.RATE_CRACK_SEALING_PER_M
+                total_crack_cost += cost_crack
+                boq_items.append({
+                    "item_code": "ERA-CRK-02",
+                    "description": f"Polymer-Modified Bitumen Crack Sealing ({cracks_count} cracks)",
+                    "unit": "m",
+                    "quantity": round(crack_sealing_meters, 1),
+                    "unit_rate_etb": cls.RATE_CRACK_SEALING_PER_M,
+                    "total_etb": round(cost_crack, 2)
+                })
+
+            asphalt_tonnes = 0.0
+            tack_coat_liters = pothole_repair_area_m2 * cls.TACK_COAT_APPLICATION_RATE_L_M2
+            cold_patch_tonnes = pothole_repair_area_m2 * 0.06 * cls.DENSITY_COLD_PATCH_TONNES_PER_M3
+
+        else:
+            intervention_level = "PRESERVATION"
+            treatment_en = "Routine Pavement Preservation & Drainage Clearing"
+            treatment_am = "መደበኛ የውሃ ማፍሰሻ ማጽዳት እና ጥበቃ"
+            urgency = "Routine (Quarterly Monitoring)"
+
+            # Baseline monitoring fee per 250m
+            baseline_fee = 18500.0
+            boq_items.append({
+                "item_code": "ERA-MON-00",
+                "description": "Routine Corridor Inspection, Drainage Flushing & Edge Sweep",
+                "unit": "segment",
+                "quantity": 1.0,
+                "unit_rate_etb": baseline_fee,
+                "total_etb": baseline_fee
+            })
+
+            asphalt_tonnes = 0.0
+            tack_coat_liters = 0.0
+            cold_patch_tonnes = 0.0
+
+        # Sum total ETB and USD
+        total_etb = sum(item["total_etb"] for item in boq_items)
+        total_usd = total_etb / cls.ETB_TO_USD_RATE
+
+        # Recommend construction machinery fleet
+        equipment = []
+        if intervention_level in ["FULL_RECONSTRUCTION", "MILL_AND_OVERLAY"]:
+            equipment = [
+                "Wirtgen Cold Milling Machine (2.0m drum)",
+                "Vögele Super 1800-3 Asphalt Paver",
+                "HAMM HD+ 90i Tandem Vibratory Roller (9 tonnes)",
+                "HAMM GRW 280 Pneumatic Tyre Roller",
+                "Bitumen Emulsion Pressure Distributor (5000L)",
+                "Heavy-Duty Tri-Axle Tipper Trucks (18m³)"
+            ]
+        elif intervention_level == "LOCALIZED_REPAIR":
+            equipment = [
+                "Walk-Behind Vibratory Compactor (Bomag 65cm)",
+                "Asphalt Road Saw / Concrete Cutter",
+                "Hot Air Lance for Crack Cleaning & Drying",
+                "Rapid Cold-Mix Asphalt Patch Truck with Emulsion Wand"
+            ]
+        else:
+            equipment = [
+                "Inspection Drone / Patrol Vehicle Telemetry Unit",
+                "Street Sweeper & Drainage Jetter"
+            ]
+
+        return {
+            "intervention_level": intervention_level,
+            "recommended_treatment": treatment_en,
+            "recommended_treatment_am": treatment_am,
+            "urgency": urgency,
+            "total_surface_area_m2": round(total_surface_area_m2, 1),
+            "total_cost_etb": round(total_etb, 2),
+            "total_cost_usd": round(total_usd, 2),
+            "materials": {
+                "hot_mix_asphalt_tonnes": round(asphalt_tonnes, 1),
+                "cold_patch_tonnes": round(cold_patch_tonnes, 2),
+                "tack_coat_liters": round(tack_coat_liters, 1)
+            },
+            "equipment_fleet": equipment,
+            "boq_items": boq_items
+        }
