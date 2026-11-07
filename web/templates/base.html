@@ -116,6 +116,13 @@
             <!-- Group 3: VEHICLE INTELLIGENCE -->
             <div class="sidebar-section-title mt-2">Vehicle Intelligence</div>
             <nav class="d-flex flex-column gap-1">
+                <a href="{{ url_for('fleet_view') }}"
+                   class="nav-link {% if active_page == 'fleet' %}active{% endif %}"
+                   title="Fleet Crowdsourcing &amp; De-duplication">
+                    <i data-lucide="radio"></i>
+                    <span class="nav-item-label">Fleet Crowdsourcing</span>
+                    <span class="nav-item-badge nav-badge-live">FLEET</span>
+                </a>
                 <a href="{{ url_for('plates_gallery') }}"
                    class="nav-link {% if active_page == 'plates' %}active{% endif %}"
                    title="ANPR Gallery">
@@ -336,6 +343,11 @@
                 <i data-lucide="car"></i>
                 <span>ANPR Vehicle &amp; Plate Gallery</span>
                 <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/plates</span>
+            </div>
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('fleet_view') }}'">
+                <i data-lucide="radio"></i>
+                <span>Fleet Crowdsourcing &amp; De-duplication</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/fleet</span>
             </div>
             <div class="cmd-result-item" onclick="location.href='{{ url_for('health_view') }}'">
                 <i data-lucide="activity"></i>
