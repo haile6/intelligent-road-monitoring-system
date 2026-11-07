@@ -852,11 +852,22 @@ def match_incident_to_contractor(lat, lon):
     return None, min_dist
 
 
-def get_contractor_analytics():
+def get_contractor_analytics(pothole_unit_cost: float = 28000.0, crack_unit_cost: float = 18000.0):
     """
     Aggregates incident records per contractor road segment,
     calculates defect rates, warranty liability, and quality ratings.
+    Supports customizable unit repair rates for potholes and structural cracks.
     """
+    try:
+        p_cost = float(pothole_unit_cost) if pothole_unit_cost is not None else 28000.0
+    except (ValueError, TypeError):
+        p_cost = 28000.0
+
+    try:
+        c_cost = float(crack_unit_cost) if crack_unit_cost is not None else 18000.0
+    except (ValueError, TypeError):
+        c_cost = 18000.0
+
     contractors = get_all_contractors()
     incidents = get_all_incidents()
 
@@ -904,8 +915,8 @@ def get_contractor_analytics():
             grade = "D"
             grade_color = "danger"
 
-        # Repair cost estimation (average ETB 28,000 per pothole repair, ETB 15,000 per crack sealing)
-        repair_cost_etb = (potholes * 28000) + (cracks * 15000)
+        # Repair cost estimation (configurable by municipal engineer)
+        repair_cost_etb = (potholes * p_cost) + (cracks * c_cost)
 
         is_under = c.get("is_under_warranty", False)
         if is_under:
@@ -923,6 +934,8 @@ def get_contractor_analytics():
             "quality_grade": grade,
             "grade_color": grade_color,
             "repair_cost_etb": repair_cost_etb,
+            "pothole_unit_rate": p_cost,
+            "crack_unit_rate": c_cost,
             "liability_party": "Contractor (Free Repair under Warranty)" if is_under else "Municipality (City Budget)"
         })
 
@@ -933,6 +946,8 @@ def get_contractor_analytics():
         "active_warranties": active_warranty_count,
         "total_defects_in_warranty": total_defects_in_warranty,
         "estimated_contractor_savings_etb": estimated_contractor_cost_etb,
+        "pothole_unit_rate": p_cost,
+        "crack_unit_rate": c_cost,
         "unassigned_incidents": len(unassigned)
     }
 

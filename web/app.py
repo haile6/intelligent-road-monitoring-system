@@ -348,25 +348,46 @@ def reports_view():
 
 @app.route("/contractors")
 def contractors_view():
-    """Road Contractors & Warranty Accountability Registry."""
-    analytics = db_manager.get_contractor_analytics()
+    """Road Contractors & Warranty Accountability Registry with customizable unit repair rates."""
+    try:
+        pothole_rate = float(request.args.get("pothole_rate", 28000))
+    except (ValueError, TypeError):
+        pothole_rate = 28000.0
+    try:
+        crack_rate = float(request.args.get("crack_rate", 18000))
+    except (ValueError, TypeError):
+        crack_rate = 18000.0
+
+    analytics = db_manager.get_contractor_analytics(pothole_unit_cost=pothole_rate, crack_unit_cost=crack_rate)
     contractors = analytics["contractors"]
     return render_template(
         "contractors.html",
         contractors=contractors,
         analytics=analytics,
+        pothole_rate=pothole_rate,
+        crack_rate=crack_rate,
         active_page="contractors"
     )
 
 
 @app.route("/api/contractors", methods=["GET", "POST"])
 def api_contractors():
-    """API for fetching or creating road contractor segments."""
+    """API for fetching or creating road contractor segments with configurable repair rates."""
     if request.method == "POST":
         data = request.get_json() or request.form.to_dict()
         cid = db_manager.add_contractor(data)
         return jsonify({"success": True, "id": cid, "message": "Contractor segment registered successfully."})
-    analytics = db_manager.get_contractor_analytics()
+
+    try:
+        pothole_rate = float(request.args.get("pothole_rate", 28000))
+    except (ValueError, TypeError):
+        pothole_rate = 28000.0
+    try:
+        crack_rate = float(request.args.get("crack_rate", 18000))
+    except (ValueError, TypeError):
+        crack_rate = 18000.0
+
+    analytics = db_manager.get_contractor_analytics(pothole_unit_cost=pothole_rate, crack_unit_cost=crack_rate)
     return jsonify({"success": True, "data": analytics})
 
 
@@ -379,15 +400,27 @@ def api_delete_contractor(cid):
 
 @app.route("/api/contractors/<int:cid>/claim-notice")
 def api_contractor_claim_notice(cid):
-    """Generate official printable warranty claim notice for a contractor."""
+    """Generate official printable warranty claim notice for a contractor with custom rates."""
     contractor = db_manager.get_contractor_by_id(cid)
     if not contractor:
         return jsonify({"success": False, "error": "Contractor not found"}), 404
-    analytics = db_manager.get_contractor_analytics()
+
+    try:
+        pothole_rate = float(request.args.get("pothole_rate", 28000))
+    except (ValueError, TypeError):
+        pothole_rate = 28000.0
+    try:
+        crack_rate = float(request.args.get("crack_rate", 18000))
+    except (ValueError, TypeError):
+        crack_rate = 18000.0
+
+    analytics = db_manager.get_contractor_analytics(pothole_unit_cost=pothole_rate, crack_unit_cost=crack_rate)
     enriched = next((c for c in analytics["contractors"] if c["id"] == cid), contractor)
     return jsonify({
         "success": True,
         "contractor": enriched,
+        "pothole_unit_rate": pothole_rate,
+        "crack_unit_rate": crack_rate,
         "generated_at": datetime.now().strftime("%B %d, %Y"),
         "reference_no": f"ERA-DLP-2026-{cid:04d}",
         "legal_basis": "ERA Standard Technical Specifications / FIDIC Defects Liability Clause 11",

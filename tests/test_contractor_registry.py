@@ -93,6 +93,31 @@ class TestContractorRegistry(unittest.TestCase):
         self.assertIn("authority", data)
         self.assertIn("contractor", data)
 
+    def test_custom_unit_repair_rates(self):
+        """Verify that user-configured unit repair rates recalculate liabilities dynamically."""
+        # 1. Test database manager accepts custom rates
+        custom_pothole = 35000.0
+        custom_crack = 22000.0
+        analytics = db_manager.get_contractor_analytics(pothole_unit_cost=custom_pothole, crack_unit_cost=custom_crack)
+        self.assertEqual(analytics["pothole_unit_rate"], custom_pothole)
+        self.assertEqual(analytics["crack_unit_rate"], custom_crack)
+
+        # 2. Test API accepts query parameters
+        res = self.client.get(f"/api/contractors?pothole_rate={custom_pothole}&crack_rate={custom_crack}")
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data["data"]["pothole_unit_rate"], custom_pothole)
+        self.assertEqual(data["data"]["crack_unit_rate"], custom_crack)
+
+        # 3. Test claim notice endpoint with custom rates
+        contractors = analytics["contractors"]
+        first_id = contractors[0]["id"]
+        res_claim = self.client.get(f"/api/contractors/{first_id}/claim-notice?pothole_rate={custom_pothole}&crack_rate={custom_crack}")
+        self.assertEqual(res_claim.status_code, 200)
+        claim_data = json.loads(res_claim.data)
+        self.assertEqual(claim_data["pothole_unit_rate"], custom_pothole)
+        self.assertEqual(claim_data["crack_unit_rate"], custom_crack)
+
     def test_web_routes_render_success(self):
         """Verify web HTML templates render correctly without errors."""
         res_contractors = self.client.get("/contractors")
