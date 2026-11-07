@@ -41,6 +41,11 @@ from risk.fleet_crowdsourcing import (
     SpatialDeDuplicationEngine,
     FleetVehicleManager
 )
+from risk.predictive_deterioration import (
+    MarkovPavementDeteriorationEngine,
+    CostOfInactionForecaster,
+    CLIMATE_SEASONS
+)
 
 app = Flask(
     __name__,
@@ -582,6 +587,84 @@ def api_fleet_deduplicate_trigger():
     req_data = request.get_json() or {}
     eps = float(req_data.get("epsilon_m") or 8.0)
     data = get_fleet_crowdsourcing_cache(epsilon_m=eps)
+    return jsonify(data)
+
+
+# ============================================================
+# PREDICTIVE DETERIORATION & RAINY SEASON FORECAST ENGINE
+# ============================================================
+
+def get_forecast_simulation_cache(season: str = "KIREMT", days_horizon: int = 60):
+    """Compute corridor predictive deterioration and Cost of Inaction (COI)."""
+    try:
+        s_arg = request.args.get("season")
+        if s_arg:
+            season = s_arg.upper()
+        d_arg = request.args.get("days")
+        if d_arg:
+            days_horizon = int(d_arg)
+    except Exception:
+        pass
+
+    incidents = db_manager.get_all_incidents()
+    # Compute baseline corridor PCI from pavement intelligence
+    pavement_summary = get_pavement_assessment_cache()
+    current_pci = float(pavement_summary.get("average_pci") or 64.0)
+
+    return CostOfInactionForecaster.evaluate_corridor_coi(
+        incidents=incidents,
+        current_pci=current_pci,
+        season=season,
+        days_horizon=days_horizon
+    )
+
+
+@app.route("/forecast")
+def forecast_view():
+    """Predictive Deterioration & Rainy Season Simulator Dashboard."""
+    forecast_data = get_forecast_simulation_cache()
+    stats = db_manager.get_dashboard_stats()
+    now_str = datetime.now().strftime("%B %d, %Y - %H:%M")
+    return render_template(
+        "forecast.html",
+        forecast_data=forecast_data,
+        seasons=CLIMATE_SEASONS,
+        stats=stats,
+        report_date=now_str,
+        active_page="forecast"
+    )
+
+
+@app.route("/api/forecast/summary")
+def api_forecast_summary():
+    """Return executive pavement deterioration forecast and Cost of Inaction ROI metrics."""
+    data = get_forecast_simulation_cache()
+    return jsonify({
+        "success": True,
+        "corridor": data["corridor"],
+        "evaluated_season": data["evaluated_season"],
+        "season_details": data["season_details"],
+        "days_horizon": data["days_horizon"],
+        "current_pci": data["current_pci"],
+        "total_defects_evaluated": data["total_defects_evaluated"],
+        "total_cost_today_etb": data["total_cost_today_etb"],
+        "total_cost_today_usd": data["total_cost_today_usd"],
+        "total_cost_inaction_etb": data["total_cost_inaction_etb"],
+        "total_cost_inaction_usd": data["total_cost_inaction_usd"],
+        "total_savings_etb": data["total_savings_etb"],
+        "total_savings_usd": data["total_savings_usd"],
+        "roi_savings_multiplier": data["roi_savings_multiplier"],
+        "markov_forecast": data["markov_forecast"]
+    })
+
+
+@app.route("/api/forecast/simulate", methods=["POST"])
+def api_forecast_simulate():
+    """Trigger ad-hoc deterioration simulation with custom climate and temporal horizon."""
+    req = request.get_json() or {}
+    season = str(req.get("season") or "KIREMT").upper()
+    days = int(req.get("days_horizon") or 60)
+    data = get_forecast_simulation_cache(season=season, days_horizon=days)
     return jsonify(data)
 
 
