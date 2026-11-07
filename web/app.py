@@ -32,6 +32,10 @@ from risk.pavement_intelligence import (
     InternationalRoughnessIndex,
     AsphaltBudgetEstimator
 )
+from risk.volumetric_estimator import (
+    Pothole3DDepthEstimator,
+    PotholeVolumetricCalculator
+)
 
 app = Flask(
     __name__,
@@ -795,6 +799,48 @@ def api_incident_update(incident_id):
     if not updated:
         return jsonify({"success": False, "error": "Failed to update incident"}), 400
     return jsonify({"success": True, "incident": updated})
+
+
+@app.route("/api/incidents/<int:incident_id>/volumetric")
+def api_incident_volumetric(incident_id):
+    """Compute 3D depth, cavity volume, and asphalt repair requirements for an incident."""
+    inc = db_manager.get_incident_by_id(incident_id)
+    if not inc:
+        return jsonify({"success": False, "error": "Incident not found"}), 404
+
+    dist_m = float(inc.get("distance_m") or 3.5)
+    risk_lvl = str(inc.get("max_risk_level") or "CAUTION")
+    conf = float(inc.get("confidence") or 0.85)
+    dtype = str(inc.get("damage_type") or "pothole")
+
+    # If crack, adjust depth profile
+    package = PotholeVolumetricCalculator.estimate_repair_package(
+        distance_m=dist_m,
+        risk_level=risk_lvl,
+        confidence=conf
+    )
+    package["incident_id"] = incident_id
+    package["damage_type"] = dtype
+    package["track_id"] = inc.get("track_id") or incident_id
+    return jsonify(package)
+
+
+@app.route("/api/volumetric/estimate", methods=["POST"])
+def api_volumetric_estimate():
+    """Ad-hoc 3D depth and asphalt material calculation from arbitrary detection inputs."""
+    data = request.get_json() or {}
+    bbox = data.get("bbox")
+    dist_m = float(data.get("distance_m") or 3.5)
+    risk_lvl = str(data.get("risk_level") or "CAUTION")
+    conf = float(data.get("confidence") or 0.85)
+
+    package = PotholeVolumetricCalculator.estimate_repair_package(
+        bbox=bbox,
+        distance_m=dist_m,
+        risk_level=risk_lvl,
+        confidence=conf
+    )
+    return jsonify(package)
 
 
 @app.route("/api/gps_track")
