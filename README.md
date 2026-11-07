@@ -325,6 +325,38 @@ $$\lambda_2 = \lambda_1 + \arctan2\left(\sin(\beta)\sin(\delta)\cos(\phi_1),\, \
 
 This calculates the exact forward coordinates ($\text{Lat}_2, \text{Lon}_2$) of the hazard, ensuring municipal road maintenance crews are dispatched to the exact road defect rather than the vehicle's position.
 
+---
+
+### 4. ASTM D6433 Pavement Condition Index (PCI) & World Bank HDM-4 IRI
+
+The platform incorporates the international standard **ASTM D6433-20** to transform raw computer vision distress detections into a standardized 0–100 Pavement Condition Index ($PCI$):
+
+1. **Distress Density Calculation**:
+   For sample segment area $A_s$ ($\text{m}^2$):
+   $$D_{ij} = \frac{\text{Quantity of Distress } i \text{ at Severity } j}{A_s} \times 100\%$$
+
+2. **Deduct Value ($DV$) Curves**:
+   Parameterized power-law formulations calibrated from ASTM D6433 deduction curves:
+   $$DV_{\text{pothole, high}} = \min\left(95,\, 38 \cdot D^{0.45}\right), \quad DV_{\text{pothole, med}} = \min\left(70,\, 24 \cdot D^{0.40}\right)$$
+   $$DV_{\text{crack, high}} = \min\left(85,\, 28 \cdot D^{0.42}\right), \quad DV_{\text{crack, med}} = \min\left(60,\, 16 \cdot D^{0.38}\right)$$
+
+3. **Corrected Deduct Value ($CDV$) & Final PCI**:
+   Total Deduct Value $TDV = \sum DV_{ij}$. For $q$ deducts $> 5.0$, ASTM multi-distress interaction is adjusted by:
+   $$CDV = TDV \times \max\left(0.55,\, 1.0 - (q - 1) \cdot 0.085\right)$$
+   $$PCI = \max\left(0,\, \min(100,\, 100 - CDV)\right)$$
+
+4. **World Bank HDM-4 International Roughness Index ($IRI$)**:
+   Correlates visual surface irregularities with cumulative vertical dynamic bump displacement ($\text{m/km}$):
+   $$IRI = IRI_0 + \frac{\sum (n_{\text{high}} \cdot 0.32 + n_{\text{med}} \cdot 0.16 + n_{\text{low}} \cdot 0.07)}{L_{\text{km}}} + \frac{\sum (c_{\text{high}} \cdot 0.12 + c_{\text{other}} \cdot 0.05)}{L_{\text{km}}}$$
+   *(where newly paved baseline $IRI_0 \approx 1.8\text{ m/km}$)*.
+
+5. **ERA Schedule of Rates Asphalt Resurfacing Budget Estimator (የአስፋልት በጀት አስሊ)**:
+   Triggered dynamically according to ASTM condition and IRI deterioration thresholds:
+   * **Full-Depth Reconstruction** ($PCI < 40$ or $IRI \ge 7.0$): Crushed rock base + DBM 60mm + 50mm AC ($7,800\text{ ETB/m}^2$, $\approx \$60.90\text{ USD/m}^2$).
+   * **Mill & 50mm Overlay** ($40 \le PCI < 70$ or $4.0 \le IRI < 7.0$): Cold milling 50mm + Tack coat + 50mm AC wearing course ($3,250\text{ ETB/m}^2$, $\approx \$25.40\text{ USD/m}^2$).
+   * **Localized Patch & Seal** ($70 \le PCI < 85$): Cold-mix patching ($2,850\text{ ETB/m}^2$) + polymer crack sealing ($480\text{ ETB/m}$).
+   * **Routine Preservation** ($PCI \ge 85$): Corridor inspection and drainage flush ($18,500\text{ ETB/block}$).
+
 <br/>
 
 ---
@@ -346,6 +378,7 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 | 📊 **Operations Dashboard** | `/` | Responsive 7-metric KPI ribbon, live corridor map preview, severity donut chart, and interactive incident ledger. |
 | 🎬 **Telemetry Studio** | `/studio` | Synchronized dashcam video playback coupled with live Leaflet map, pulsing hazard beacons, and laser trajectories. |
 | 🗺️ **GIS Patrol Map** | `/map` | Vector corridor polylines for 36 national highways, virtual patrol playback simulator, heading compass, and speed HUD. |
+| 🛣️ **Pavement Health (PCI/IRI)** | `/pavement` | ASTM D6433 0-100 Pavement Condition Index, World Bank IRI roughness heatmap, and ERA Schedule of Rates asphalt rehabilitation budget estimator. |
 | 📋 **Incident Ledger** | `/incidents` | Complete defect lifecycle: filter by severity, assign maintenance teams, inspect GPS coordinates, and export datasets. |
 | 🚗 **ANPR Plate Gallery** | `/plates` | High-resolution vehicular optical crops, plate crops, OCR confidence percentages, and timestamps. |
 | 📑 **Work Orders** | `/reports` | Kanban and tabular maintenance work order board with printable inspection sheets and CSV export. |
@@ -524,6 +557,9 @@ RoadEye exposes high-performance RESTful API endpoints for edge-to-cloud integra
 | `POST` | `/api/v1/fairness/audit` | Performs multi-condition subgroup fairness evaluation across environmental slices. | `200 OK` |
 | `POST` | `/api/v1/privacy/redact` | Automatically redacts detected license plates and faces returning privacy-safe imagery. | `200 OK` |
 | `POST` | `/api/v1/edge/quantize` | Generates edge-optimized INT8/FP16 deployment profiles and benchmark predictions. | `200 OK` |
+| `GET` | `/api/pavement/summary` | Executive summary of corridor PCI, average IRI, and total resurfacing budget in ETB/USD. | `200 OK` |
+| `GET` | `/api/pavement/segments` | Segment-by-segment GIS polylines with localized PCI, IRI, distress count, and itemized BoQ. | `200 OK` |
+| `GET` | `/api/pavement/export` | Downloadable CSV Bill of Quantities (BoQ) formatted for Ethiopian Roads Administration engineers. | `200 OK` |
 
 <br/>
 
