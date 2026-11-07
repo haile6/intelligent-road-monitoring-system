@@ -257,6 +257,46 @@
                     <div class="font-mono text-secondary small" id="modalGpsLocation">Coordinates: --</div>
                 </div>
 
+                <!-- 3D Pothole Depth & Volumetric Estimation Spec -->
+                <div class="p-3 rounded mb-3" id="modalVolumetricCard" style="background: var(--bg-main); border: 1px solid var(--border-default);">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold d-flex align-items-center gap-1" style="font-size: 12px; color: var(--accent-primary);">
+                            <i data-lucide="box" style="width:13px; height:13px;"></i> 3D Depth &amp; Volumetric Repair Spec
+                        </span>
+                        <span class="badge-status badge-status-info font-mono" id="modalDepthTierBadge" style="font-size: 9.5px;">--</span>
+                    </div>
+
+                    <div class="row g-2 mb-2 font-mono" style="font-size: 11.5px;">
+                        <div class="col-4">
+                            <span class="text-secondary small">Dimensions:</span>
+                            <div class="text-white fw-bold" id="modalDimensionsText">-- × -- cm</div>
+                        </div>
+                        <div class="col-4">
+                            <span class="text-secondary small">Max Depth:</span>
+                            <div class="text-warning fw-bold" id="modalDepthText">-- cm</div>
+                        </div>
+                        <div class="col-4">
+                            <span class="text-secondary small">Cavity Volume:</span>
+                            <div class="text-info fw-bold" id="modalVolumeText">-- L</div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 11px;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary">Cold Patch Required:</span>
+                            <span class="text-white fw-bold font-mono" id="modalBagsText">-- Bags (25kg)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary">Tack Coat &amp; Compaction:</span>
+                            <span class="text-secondary font-mono" id="modalTackText">-- L / Bulking 1.22×</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-secondary">Estimated Patch Cost:</span>
+                            <span class="text-success fw-bold font-mono" id="modalCostText">-- ETB</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label" style="font-size: 12px; font-weight: 600;">Workflow Status</label>
                     <select class="form-select form-select-sm" id="modalStatusSelect">
@@ -326,6 +366,26 @@ function openIncidentDrawer(inc) {
     document.getElementById('modalCrewInput').value = inc.assigned_crew || 'Debre Berhan Highway Maintenance Crew Alpha';
     document.getElementById('modalPrioritySelect').value = inc.repair_priority || 'Medium';
     document.getElementById('modalNotesInput').value = inc.notes || '';
+
+    // Fetch and populate real-time 3D depth and volumetric calculation
+    fetch('/api/incidents/' + inc.id + '/volumetric')
+        .then(r => r.json())
+        .then(v => {
+            if (v.success) {
+                document.getElementById('modalDimensionsText').textContent = `${v.physical_dimensions.major_axis_cm}×${v.physical_dimensions.minor_axis_cm} cm`;
+                document.getElementById('modalDepthText').textContent = `${v.depth_profile.depth_max_cm} cm`;
+                const tierBadge = document.getElementById('modalDepthTierBadge');
+                tierBadge.textContent = v.depth_profile.depth_tier;
+                tierBadge.style.color = v.depth_profile.severity_color;
+                tierBadge.style.borderColor = v.depth_profile.severity_color;
+                document.getElementById('modalVolumeText').textContent = `${v.cavity_volume.volume_liters} L`;
+                document.getElementById('modalBagsText').textContent = `${v.materials_quantification.bags_25kg_count}× 25kg (${v.materials_quantification.loose_mass_kg} kg)`;
+                document.getElementById('modalTackText').textContent = `${v.materials_quantification.tack_coat_liters} L tack • ${v.materials_quantification.estimated_repair_time_mins} mins`;
+                document.getElementById('modalCostText').textContent = `${v.materials_quantification.cost_etb.toLocaleString()} ETB ($${v.materials_quantification.cost_usd})`;
+                if (window.lucide) lucide.createIcons();
+            }
+        })
+        .catch(err => console.warn('Volumetric calculation load notice:', err));
 
     const modal = new bootstrap.Modal(document.getElementById('incidentModal'));
     modal.show();
