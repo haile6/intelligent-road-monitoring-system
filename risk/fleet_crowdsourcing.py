@@ -213,3 +213,143 @@ class SpatialDeDuplicationEngine:
             })
 
         return canonical_hazards
+
+
+
+# ==============================================================================
+# 2. FLEET VEHICLE TELEMETRY & SIGHTING HISTORY AGGREGATOR
+# ==============================================================================
+
+class FleetVehicleManager:
+    """
+    Manages municipal patrol fleet units, maps vehicles to observations,
+    and aggregates multi-vehicle crowdsourced road intelligence.
+    """
+
+    # Municipal & Highway Patrol Fleet Profiles (Route A2 Addis Ababa - Debre Berhan)
+    STANDARD_FLEET = [
+        {
+            "vehicle_id": "ERA-PATROL-01",
+            "vehicle_name": "ERA Survey Hilux #01",
+            "vehicle_type": "Pavement Inspection 4WD",
+            "agency": "Ethiopian Roads Administration (ERA)",
+            "driver": "Ins. Haile Sintayehu",
+            "hardware": "Jetson Orin Nano + Sony IMX477 (70° FOV)",
+            "status": "ONLINE",
+            "color": "#38bdf8"
+        },
+        {
+            "vehicle_id": "ERA-PATROL-02",
+            "vehicle_name": "ERA Heavy Patrol Truck #02",
+            "vehicle_type": "Mobile Maintenance Rig",
+            "agency": "Ethiopian Roads Administration (ERA)",
+            "driver": "Eng. Bekele Tadesse",
+            "hardware": "Intel NUC + Dual USB3 Road Camera",
+            "status": "ONLINE",
+            "color": "#10b981"
+        },
+        {
+            "vehicle_id": "MUNI-TRANSIT-14",
+            "vehicle_name": "Debre Berhan Public Transit #14",
+            "vehicle_type": "Municipal Transit Bus",
+            "agency": "Debre Berhan Municipal Transport",
+            "driver": "Ato Girma Wolde",
+            "hardware": "Edge ADAS Dashcam Unit",
+            "status": "ONLINE",
+            "color": "#f59e0b"
+        },
+        {
+            "vehicle_id": "POLICE-CRUISER-07",
+            "vehicle_name": "Federal Highway Cruiser #07",
+            "vehicle_type": "Federal Highway Police Patrol",
+            "agency": "Federal Police Commission",
+            "driver": "Cmd. Daniel Alemu",
+            "hardware": "On-Board Highway Video Radar",
+            "status": "ONLINE",
+            "color": "#818cf8"
+        }
+    ]
+
+    @classmethod
+    def get_registered_fleet(cls) -> List[Dict[str, Any]]:
+        """Return list of active patrol fleet vehicles."""
+        return list(cls.STANDARD_FLEET)
+
+    @classmethod
+    def process_fleet_crowdsourcing(cls, 
+                                    incidents: List[Dict[str, Any]], 
+                                    epsilon_m: float = 8.0) -> Dict[str, Any]:
+        """
+        Synthesize multi-vehicle crowdsourcing observations, cluster duplicates,
+        and generate comprehensive fleet telemetry metrics.
+        """
+        fleet = cls.get_registered_fleet()
+        raw_count = len(incidents)
+
+        # Assign realistic fleet metadata to incidents based on their track_id/index
+        enriched_incidents = []
+        for idx, inc in enumerate(incidents):
+            v_idx = idx % len(fleet)
+            assigned_vehicle = fleet[v_idx]
+
+            # Construct observation record
+            enriched = dict(inc)
+            enriched["vehicle_id"] = inc.get("vehicle_id") or assigned_vehicle["vehicle_id"]
+            enriched["vehicle_name"] = assigned_vehicle["vehicle_name"]
+            enriched["vehicle_type"] = assigned_vehicle["vehicle_type"]
+            enriched["agency"] = assigned_vehicle["agency"]
+            enriched["vehicle_color"] = assigned_vehicle["color"]
+
+            # Timestamp simulation if missing
+            if not enriched.get("created_at"):
+                mins_ago = (len(incidents) - idx) * 14
+                enriched["observation_time"] = f"{mins_ago // 60:02d}:{mins_ago % 60:02d} ago"
+            else:
+                enriched["observation_time"] = str(enriched.get("created_at"))
+
+            enriched_incidents.append(enriched)
+
+        # Run Spatial Clustering & Bayesian Fusion
+        canonical_hazards = SpatialDeDuplicationEngine.cluster_raw_incidents(
+            raw_incidents=enriched_incidents,
+            epsilon_m=epsilon_m
+        )
+
+        unique_count = len(canonical_hazards)
+        dedup_count = max(0, raw_count - unique_count)
+        dedup_savings_pct = round((dedup_count / max(1, raw_count)) * 100.0, 1)
+
+        # Multi-vehicle verified hazards
+        multi_sighting_count = sum(1 for h in canonical_hazards if h["sightings_count"] > 1)
+        multi_sighting_pct = round((multi_sighting_count / max(1, unique_count)) * 100.0, 1)
+
+        # Average Bayesian Confidence
+        avg_fused_conf = 0.0
+        avg_gain = 0.0
+        if canonical_hazards:
+            avg_fused_conf = sum(h["bayesian_fusion"]["fused_confidence"] for h in canonical_hazards) / len(canonical_hazards)
+            avg_gain = sum(h["bayesian_fusion"]["confidence_gain"] for h in canonical_hazards) / len(canonical_hazards)
+
+        # Vehicle activity breakdown
+        vehicle_stats = {v["vehicle_id"]: {"vehicle": v, "sightings_count": 0} for v in fleet}
+        for inc in enriched_incidents:
+            vid = inc["vehicle_id"]
+            if vid in vehicle_stats:
+                vehicle_stats[vid]["sightings_count"] += 1
+
+        return {
+            "success": True,
+            "corridor": "Route A2 · Addis Ababa - Debre Berhan Highway",
+            "total_raw_observations": raw_count,
+            "canonical_unique_hazards": unique_count,
+            "duplicate_observations_eliminated": dedup_count,
+            "deduplication_savings_percentage": dedup_savings_pct,
+            "multi_sighting_hazards_count": multi_sighting_count,
+            "corroboration_percentage": multi_sighting_pct,
+            "average_fused_confidence_pct": round(avg_fused_conf * 100.0, 1),
+            "average_confidence_gain_pct": round(avg_gain * 100.0, 1),
+            "active_fleet_count": len(fleet),
+            "fleet_vehicles": fleet,
+            "vehicle_contributions": list(vehicle_stats.values()),
+            "canonical_hazards": canonical_hazards
+        }
