@@ -386,6 +386,24 @@ When a road defect is detected by the neural perception engine, municipal asphal
      $$\text{Bags}_{25\text{kg}} = \left\lceil \frac{M_{\text{loose}}}{25} \right\rceil, \quad \text{Bags}_{50\text{kg}} = \left\lceil \frac{M_{\text{loose}}}{50} \right\rceil$$
    * **Tack Coat Bonding**: $0.65\text{ L/m}^2$ of K1-60 bitumen emulsion over bottom and wetted cavity perimeter.
 
+---
+
+### 6. Multi-Vehicle Fleet Crowdsourcing & Bayesian Confidence Fusion
+
+When multiple patrol vehicles (police cruisers, municipal transit buses, ERA inspection trucks) traverse the same highway corridor, spatial GPS jitter ($\pm 3\text{–}5\text{ m}$) creates duplicate hazard sightings. RoadEye applies a two-stage de-duplication and probability fusion pipeline:
+
+1. **Spatio-Temporal Spatial Radius Clustering**:
+   Raw detections within geodesic distance $\epsilon \le 8.0\text{ meters}$ matching the defect family are merged into a single canonical hazard.
+
+2. **Confidence-Weighted Geodesic Centroid**:
+   Refines true defect coordinates $(\bar{\phi}, \bar{\lambda})$ using individual detector confidence weights $w_i$:
+   $$\bar{\phi} = \frac{\sum_{i=1}^k w_i \phi_i}{\sum_{i=1}^k w_i}, \quad \bar{\lambda} = \frac{\sum_{i=1}^k w_i \lambda_i}{\sum_{i=1}^k w_i}$$
+
+3. **Bayesian Multi-Observation Probability Fusion**:
+   Under independent observation passes, the probability of simultaneous false positive errors decays exponentially:
+   $$P(\text{Defect} \mid O_1, O_2, \dots, O_k) = 1.0 - \prod_{i=1}^k (1.0 - c_i)$$
+   *(clamped to a statistical ceiling of $99.9\%$)*. Two corroborated $75\%$ detections achieve $93.75\%$ certainty, while three passes exceed $98.4\%$, eliminating sensor false alarms and municipal dispatch overhead.
+
 <br/>
 
 ---
@@ -410,6 +428,7 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 | 🛣️ **Pavement Health (PCI/IRI)** | `/pavement` | ASTM D6433 0-100 Pavement Condition Index, World Bank IRI roughness heatmap, and ERA Schedule of Rates asphalt rehabilitation budget estimator. |
 | 📋 **Incident Ledger** | `/incidents` | Complete defect lifecycle: filter by severity, assign maintenance teams, inspect GPS coordinates, and export datasets. |
 | 🚗 **ANPR Plate Gallery** | `/plates` | High-resolution vehicular optical crops, plate crops, OCR confidence percentages, and timestamps. |
+| 🛰️ **Fleet Crowdsourcing** | `/fleet` | Multi-vehicle patrol telemetry, spatial radius clustering de-duplication, and Bayesian multi-pass confidence fusion. |
 | 📑 **Work Orders** | `/reports` | Kanban and tabular maintenance work order board with printable inspection sheets and CSV export. |
 | 🏗️ **Contractor DLP** | `/contractors` | Contractor Defect Liability Period (DLP) warranty tracking, legal compliance audits, and FIDIC legal claim dispatch. |
 | ⚡ **AI Pipeline Runner** | `/pipeline` | In-browser executor for individual phases or the unified pipeline with Server-Sent Events (SSE) console logs. |
@@ -591,6 +610,9 @@ RoadEye exposes high-performance RESTful API endpoints for edge-to-cloud integra
 | `GET` | `/api/pavement/export` | Downloadable CSV Bill of Quantities (BoQ) formatted for Ethiopian Roads Administration engineers. | `200 OK` |
 | `GET` | `/api/incidents/<id>/volumetric` | Calculates 3D pothole depth, cavity volume in Liters, and exact 25kg cold-patch bags needed. | `200 OK` |
 | `POST` | `/api/volumetric/estimate` | Ad-hoc photogrammetric 3D depth and asphalt material calculation from arbitrary detection inputs. | `200 OK` |
+| `GET` | `/api/fleet/summary` | Multi-vehicle fleet crowdsourcing stats, de-duplication savings %, and reporting units. | `200 OK` |
+| `GET` | `/api/fleet/hazards` | Canonical verified hazards with individual multi-vehicle sighting timelines. | `200 OK` |
+| `POST` | `/api/fleet/deduplicate` | Triggers spatial radius clustering de-duplication with custom epsilon parameter. | `200 OK` |
 
 <br/>
 
