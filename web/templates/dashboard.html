@@ -534,6 +534,41 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
             <div class="text-secondary small font-mono">Elevation: Ground Plane Projection (Camera H=1.2m)</div>
         </div>
 
+        <!-- 3D Pothole Depth & Volumetric Cavity Spec -->
+        <div class="panel-card p-3 mb-3" id="drawerVolumetricCard">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="panel-title" style="font-size:12px;">
+                    <i data-lucide="box" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                    3D Depth &amp; Volumetric Repair Spec
+                </div>
+                <span class="badge-status badge-status-info font-mono" id="drawerDepthBadge" style="font-size:9.5px;">Estimating...</span>
+            </div>
+            <div class="row g-2 mb-2 font-mono" style="font-size:11.5px;">
+                <div class="col-4">
+                    <span class="text-secondary small">Dimensions:</span>
+                    <div class="text-white fw-bold" id="drawerDimVal">-- × -- cm</div>
+                </div>
+                <div class="col-4">
+                    <span class="text-secondary small">Max Depth:</span>
+                    <div class="text-warning fw-bold" id="drawerDepthVal">-- cm</div>
+                </div>
+                <div class="col-4">
+                    <span class="text-secondary small">Cavity Vol:</span>
+                    <div class="text-info fw-bold" id="drawerVolVal">-- L</div>
+                </div>
+            </div>
+            <div class="p-2 rounded" style="background:var(--bg-sunken); font-size:11px;">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-secondary">Cold Patch Required:</span>
+                    <span class="text-white fw-bold font-mono" id="drawerBagsVal">-- Bags</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-secondary">Est. Repair Budget:</span>
+                    <span class="text-success fw-bold font-mono" id="drawerCostVal">-- ETB</span>
+                </div>
+            </div>
+        </div>
+
         <div class="panel-card p-3">
             <div class="panel-title mb-2" style="font-size:12px;">Work Order Directives</div>
             <p class="text-secondary small mb-2">Recommended Maintenance: Cold-mix asphalt patch within 48h emergency envelope.</p>
@@ -551,6 +586,32 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
             window.location.href = `/studio?file=outputs/final_integrated_video.mp4&seek=${timeS}`;
         }
     );
+
+    // Fetch and populate 3D Volumetric depth and asphalt bag calculation
+    fetch('/api/incidents/' + id + '/volumetric')
+        .then(r => r.json())
+        .then(v => {
+            if (v.success) {
+                const b = document.getElementById('drawerDepthBadge');
+                if (b) {
+                    b.textContent = v.depth_profile.depth_tier;
+                    b.style.color = v.depth_profile.severity_color;
+                    b.style.borderColor = v.depth_profile.severity_color;
+                }
+                const dDim = document.getElementById('drawerDimVal');
+                if (dDim) dDim.textContent = `${v.physical_dimensions.major_axis_cm}×${v.physical_dimensions.minor_axis_cm} cm`;
+                const dDep = document.getElementById('drawerDepthVal');
+                if (dDep) dDep.textContent = `${v.depth_profile.depth_max_cm} cm`;
+                const dVol = document.getElementById('drawerVolVal');
+                if (dVol) dVol.textContent = `${v.cavity_volume.volume_liters} L`;
+                const dBags = document.getElementById('drawerBagsVal');
+                if (dBags) dBags.textContent = `${v.materials_quantification.bags_25kg_count}×25kg (${v.materials_quantification.loose_mass_kg} kg)`;
+                const dCost = document.getElementById('drawerCostVal');
+                if (dCost) dCost.textContent = `${v.materials_quantification.cost_etb.toLocaleString()} ETB ($${v.materials_quantification.cost_usd})`;
+                if (window.lucide) lucide.createIcons();
+            }
+        })
+        .catch(err => console.warn('Volumetric drawer notice:', err));
 }
 </script>
 {% endblock %}
