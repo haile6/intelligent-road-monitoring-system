@@ -44,6 +44,9 @@
         </div>
 
         <div class="page-actions-bar">
+            <a href="{{ url_for('pavement_view') }}" class="btn btn-secondary" title="ASTM D6433 Pavement Health & Resurfacing Budget">
+                <i data-lucide="gauge"></i> Pavement Health
+            </a>
             <a href="{{ url_for('map_view') }}" class="btn btn-primary">
                 <i data-lucide="map"></i> Patrol Map
             </a>
@@ -154,7 +157,9 @@
                 </div>
                 <div class="panel-footer d-flex justify-content-between align-items-center font-mono">
                     <span>8.40 km Surveyed</span>
-                    <span class="text-secondary">GPS Synced</span>
+                    <a href="{{ url_for('pavement_view') }}" class="text-decoration-none" style="font-size: 11px; color: var(--accent-primary);">
+                        <i data-lucide="gauge" style="width:12px; height:12px; display:inline-block; vertical-align:-1px;"></i> PCI Heatmap &amp; Resurfacing Budget &rarr;
+                    </a>
                 </div>
             </div>
         </div>
