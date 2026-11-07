@@ -404,6 +404,46 @@ When multiple patrol vehicles (police cruisers, municipal transit buses, ERA ins
    $$P(\text{Defect} \mid O_1, O_2, \dots, O_k) = 1.0 - \prod_{i=1}^k (1.0 - c_i)$$
    *(clamped to a statistical ceiling of $99.9\%$)*. Two corroborated $75\%$ detections achieve $93.75\%$ certainty, while three passes exceed $98.4\%$, eliminating sensor false alarms and municipal dispatch overhead.
 
+---
+
+### 7. Markov-Chain Pavement Deterioration & Rainy Season (Kiremt) Forecast
+
+Pavement defects never stay static: water infiltration, seasonal torrential rainfall, and heavy freight axle loading trigger non-linear structural degradation. RoadEye integrates a discrete-time Markov chain deterioration model parameterized for Ethiopian seasonal climate regimes:
+
+1. **Discrete Pavement Deterioration State Space ($\mathcal{S}$)**:
+   $$\mathcal{S} = \{S_0: \text{Intact/Good (PCI 85–100)},\, S_1: \text{Minor Cracking (PCI 70–84)},\, S_2: \text{Moderate Fatigue (PCI 50–69)},\, S_3: \text{Severe Pothole (PCI 25–49)},\, S_4: \text{Sub-base Collapse (PCI 0–24)}\}$$
+
+2. **Base Daily Stochastic Transition Probability Matrix ($\mathbf{P}_0$)**:
+   Each row satisfies the Markov row-stochasticity criterion $\sum_{j} P_{ij} = 1.0$:
+   $$\mathbf{P}_0 = \begin{pmatrix}
+   0.9965 & 0.0035 & 0.0000 & 0.0000 & 0.0000 \\
+   0.0000 & 0.9920 & 0.0080 & 0.0000 & 0.0000 \\
+   0.0000 & 0.0000 & 0.9850 & 0.0150 & 0.0000 \\
+   0.0000 & 0.0000 & 0.0000 & 0.9700 & 0.0300 \\
+   0.0000 & 0.0000 & 0.0000 & 0.0000 & 1.0000
+   \end{pmatrix}$$
+
+3. **Ethiopian Seasonal Rain Multipliers ($\gamma_{\text{season}}$)**:
+   * **Kiremt (ክረምት - June to September)**: Torrential highland monsoon rains with deep sub-base water infiltration: $\gamma = 4.2\times$ distress acceleration.
+   * **Belg (በልግ - February to May)**: Moderate intermittent seasonal showers: $\gamma = 1.8\times$ distress acceleration.
+   * **Bega (በጋ - October to January)**: Dry, sunny weather with baseline oxidation and UV exposure: $\gamma = 1.0\times$.
+
+4. **Freight Axle Load Adjustment (ESAL $\omega_{\text{truck}}$)**:
+   Calibrated from heavy truck traffic (e.g. Route A2 freight corridor):
+   $$\mathbf{P}_{\text{eff}}(i, j) = \mathbf{P}_0(i, j) \times \gamma_{\text{season}} \times (1.0 + 0.85 \cdot \omega_{\text{truck}}) \quad (i \neq j)$$
+   with diagonal self-transition renormalized as $\mathbf{P}_{\text{eff}}(i, i) = 1.0 - \sum_{j \neq i} \mathbf{P}_{\text{eff}}(i, j)$.
+
+5. **Multi-Horizon Markov Projection ($t$ Days Horizon)**:
+   The condition vector $\boldsymbol{\pi}(t)$ is projected using the $t$-step transition matrix:
+   $$\boldsymbol{\pi}(t) = \boldsymbol{\pi}(0) \cdot \mathbf{P}_{\text{eff}}^t$$
+   $$\text{PCI}(t) = \sum_{s=0}^4 \boldsymbol{\pi}_s(t) \cdot \text{Score}(s), \quad \text{where } \text{Score} = [95, 75, 55, 30, 10]$$
+
+6. **Economic Cost of Inaction (COI) & Municipal ROI Forecaster**:
+   Quantifies the financial consequence of deferring routine maintenance across the monsoon season:
+   $$\text{Cost}_{\text{today}} = A_{\text{pothole}} \cdot 2,850\text{ ETB/m}^2 + L_{\text{crack}} \cdot 480\text{ ETB/m}$$
+   $$\text{Cost}_{\text{future}}(t) = A_{\text{pothole}} \cdot \left(1 + \frac{t}{30} \cdot 0.28 \cdot \gamma_{\text{season}}\right) \cdot 7,800\text{ ETB/m}^2$$
+   $$\text{COI Multiplier} = \frac{\text{Cost}_{\text{future}}(t)}{\text{Cost}_{\text{today}}} \quad (\approx 8.5\times\text{ to } 12.0\times \text{ in Kiremt})$$
+
 <br/>
 
 ---
@@ -426,6 +466,7 @@ RoadEye provides a responsive enterprise operations suite inspired by the design
 | 🎬 **Telemetry Studio** | `/studio` | Synchronized dashcam video playback coupled with live Leaflet map, pulsing hazard beacons, and laser trajectories. |
 | 🗺️ **GIS Patrol Map** | `/map` | Vector corridor polylines for 36 national highways, virtual patrol playback simulator, heading compass, and speed HUD. |
 | 🛣️ **Pavement Health (PCI/IRI)** | `/pavement` | ASTM D6433 0-100 Pavement Condition Index, World Bank IRI roughness heatmap, and ERA Schedule of Rates asphalt rehabilitation budget estimator. |
+| 🌧️ **Predictive Deterioration** | `/forecast` | Markov-chain road deterioration curves, Ethiopian rainy season (Kiremt/Belg/Bega) degradation simulation, and Cost of Inaction (COI) ROI forecaster. |
 | 📋 **Incident Ledger** | `/incidents` | Complete defect lifecycle: filter by severity, assign maintenance teams, inspect GPS coordinates, and export datasets. |
 | 🚗 **ANPR Plate Gallery** | `/plates` | High-resolution vehicular optical crops, plate crops, OCR confidence percentages, and timestamps. |
 | 🛰️ **Fleet Crowdsourcing** | `/fleet` | Multi-vehicle patrol telemetry, spatial radius clustering de-duplication, and Bayesian multi-pass confidence fusion. |
@@ -613,6 +654,8 @@ RoadEye exposes high-performance RESTful API endpoints for edge-to-cloud integra
 | `GET` | `/api/fleet/summary` | Multi-vehicle fleet crowdsourcing stats, de-duplication savings %, and reporting units. | `200 OK` |
 | `GET` | `/api/fleet/hazards` | Canonical verified hazards with individual multi-vehicle sighting timelines. | `200 OK` |
 | `POST` | `/api/fleet/deduplicate` | Triggers spatial radius clustering de-duplication with custom epsilon parameter. | `200 OK` |
+| `GET` | `/api/forecast/summary` | Executive summary of Markov degradation projections, critical sections, and 90-day Cost of Inaction ROI. | `200 OK` |
+| `POST` | `/api/forecast/simulate` | Simulates multi-day deterioration given custom time horizon ($t$), Ethiopian season, and truck load. | `200 OK` |
 
 <br/>
 
@@ -718,24 +761,28 @@ jupyter notebook integrated2.ipynb
 
 ## 🧪 Automated Testing & Verification
 
-The repository includes a comprehensive, production-grade test suite of **77 automated tests (100% passing)** verifying distance geometry, GPS interpolation, TTC kinematics, database transactions, contractor DLP warranties, OSM GIS corridors, virtual patrol radar, MLOps registry, drift detection, explainability, and edge TinyML quantization:
+The repository includes a comprehensive, production-grade test suite of **113 automated tests (100% passing)** verifying distance geometry, GPS interpolation, TTC kinematics, database transactions, contractor DLP warranties, OSM GIS corridors, virtual patrol radar, MLOps registry, drift detection, explainability, edge TinyML quantization, ASTM D6433 PCI condition, 3D cavity volumetric estimation, fleet de-duplication, and Markov-chain deterioration forecasting:
 
 ```bash
-# Run the complete 77-test suite across all subsystems
+# Run the complete 113-test suite across all subsystems
 python -m unittest discover tests -v
 
 # Or run individual specialized test suites:
-python -m unittest tests/test_end_to_end.py          # 20 tests: End-to-end geometry, kinematics, DB
-python -m unittest tests/test_contractor_registry.py  # 9 tests: DLP warranty & contractor claims
-python -m unittest tests/test_gis_corridors.py       # 10 tests: OSM Debre Berhan vector corridors
-python -m unittest tests/test_patrol_simulator.py    # 10 tests: Virtual patrol & proximity radar
-python -m unittest tests/test_mlops.py               # 10 tests: Registry, drift, and experiment tracking
-python -m unittest tests/test_xai_fairness.py        # 9 tests: Saliency attribution & fairness audit
-python -m unittest tests/test_edge_privacy.py        # 9 tests: Edge quantization & privacy redaction
+python -m unittest tests/test_end_to_end.py               # 20 tests: End-to-end geometry, kinematics, DB
+python -m unittest tests/test_pavement_condition.py       # 15 tests: ASTM D6433 PCI, World Bank IRI & ERA budget
+python -m unittest tests/test_contractor_registry.py       # 9 tests: DLP warranty & contractor claims
+python -m unittest tests/test_gis_corridors.py            # 10 tests: OSM Debre Berhan vector corridors
+python -m unittest tests/test_patrol_simulator.py         # 10 tests: Virtual patrol & proximity radar
+python -m unittest tests/test_mlops.py                    # 10 tests: Registry, drift, and experiment tracking
+python -m unittest tests/test_xai_fairness.py             # 9 tests: Saliency attribution & fairness audit
+python -m unittest tests/test_edge_privacy.py             # 9 tests: Edge quantization & privacy redaction
+python -m unittest tests/test_volumetric_estimator.py     # 7 tests: 3D depth, paraboloid volume & asphalt bags
+python -m unittest tests/test_fleet_crowdsourcing.py      # 7 tests: Spatial clustering & Bayesian fusion
+python -m unittest tests/test_predictive_deterioration.py # 7 tests: Markov matrix & Cost of Inaction
 ```
 
 > [!TIP]
-> All **77 automated tests** execute in under **3.5 seconds**, ensuring total mathematical fidelity, API stability, and zero regressions across continuous development.
+> All **113 automated tests** execute in under **6.5 seconds**, ensuring total mathematical fidelity, API stability, and zero regressions across continuous development.
 
 <br/>
 
@@ -781,7 +828,11 @@ intelligent-road-monitoring-system/
 │   ├── ttc_calculator.py       # Dynamic Time-to-Collision evaluation
 │   ├── risk_analyzer.py        # Multi-factor hazard classification
 │   ├── priority_weight.py      # Municipal repair priority scoring algorithm
-│   └── severity_estimator.py   # Pavement surface degradation metric
+│   ├── severity_estimator.py   # Pavement surface degradation metric
+│   ├── pavement_condition.py   # ASTM D6433 PCI & World Bank HDM-4 IRI engine
+│   ├── volumetric_estimator.py # Monocular 3D depth, volume & asphalt bags
+│   ├── fleet_crowdsourcing.py  # Spatial clustering & Bayesian confidence fusion
+│   └── predictive_deterioration.py # Markov chain deterioration & Cost of Inaction
 │
 ├── gps/                      # Spatial GIS & Telemetry Synchronization
 │   ├── gps_reader.py           # Synchronized CSV/NMEA telemetry reader
@@ -814,14 +865,18 @@ intelligent-road-monitoring-system/
 │   ├── gps_track.csv           # Synchronized test drive telemetry track
 │   └── *.mp4                   # Highway and urban test videos
 │
-├── tests/                    # 77-Test Automated Verification Suite
+├── tests/                    # 113-Test Automated Verification Suite
 │   ├── test_end_to_end.py      # 20 tests: End-to-end geometry, kinematics, DB
+│   ├── test_pavement_condition.py # 15 tests: ASTM D6433 PCI, World Bank IRI & ERA budget
 │   ├── test_contractor_registry.py # 9 tests: DLP warranty & contractor claims
 │   ├── test_gis_corridors.py   # 10 tests: OSM Debre Berhan vector corridors
 │   ├── test_patrol_simulator.py # 10 tests: Virtual patrol & proximity radar
 │   ├── test_mlops.py           # 10 tests: Registry, drift, and experiment tracking
 │   ├── test_xai_fairness.py    # 9 tests: Saliency attribution & fairness audit
-│   └── test_edge_privacy.py    # 9 tests: Edge quantization & privacy redaction
+│   ├── test_edge_privacy.py    # 9 tests: Edge quantization & privacy redaction
+│   ├── test_volumetric_estimator.py # 7 tests: 3D depth, volume & asphalt packaging
+│   ├── test_fleet_crowdsourcing.py # 7 tests: Spatial clustering & Bayesian fusion
+│   └── test_predictive_deterioration.py # 7 tests: Markov matrix & Cost of Inaction
 │
 ├── outputs/                  # Export Artifacts, Annotated Videos, and Evidence Crops
 ├── web/                      # Enterprise Flask Operations Suite (Templates, Static, APIs)
