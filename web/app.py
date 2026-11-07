@@ -36,6 +36,11 @@ from risk.volumetric_estimator import (
     Pothole3DDepthEstimator,
     PotholeVolumetricCalculator
 )
+from risk.fleet_crowdsourcing import (
+    BayesianConfidenceFusion,
+    SpatialDeDuplicationEngine,
+    FleetVehicleManager
+)
 
 app = Flask(
     __name__,
@@ -506,6 +511,78 @@ def api_pavement_export_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+
+# ============================================================
+# MULTI-VEHICLE FLEET CROWDSOURCING & DE-DUPLICATION
+# ============================================================
+
+def get_fleet_crowdsourcing_cache(epsilon_m: float = 8.0):
+    """Compute multi-vehicle crowdsourcing de-duplication across active database incidents."""
+    try:
+        eps_arg = request.args.get("epsilon")
+        if eps_arg:
+            epsilon_m = float(eps_arg)
+    except Exception:
+        pass
+    incidents = db_manager.get_all_incidents()
+    return FleetVehicleManager.process_fleet_crowdsourcing(incidents=incidents, epsilon_m=epsilon_m)
+
+
+@app.route("/fleet")
+def fleet_view():
+    """Multi-Vehicle Fleet Crowdsourcing & Automatic De-duplication Dashboard."""
+    fleet_data = get_fleet_crowdsourcing_cache()
+    stats = db_manager.get_dashboard_stats()
+    now_str = datetime.now().strftime("%B %d, %Y - %H:%M")
+    return render_template(
+        "fleet.html",
+        fleet_data=fleet_data,
+        stats=stats,
+        report_date=now_str,
+        active_page="fleet"
+    )
+
+
+@app.route("/api/fleet/summary")
+def api_fleet_summary():
+    """Return executive multi-vehicle fleet crowdsourcing and de-duplication statistics."""
+    data = get_fleet_crowdsourcing_cache()
+    return jsonify({
+        "success": True,
+        "corridor": data["corridor"],
+        "total_raw_observations": data["total_raw_observations"],
+        "canonical_unique_hazards": data["canonical_unique_hazards"],
+        "duplicate_observations_eliminated": data["duplicate_observations_eliminated"],
+        "deduplication_savings_percentage": data["deduplication_savings_percentage"],
+        "multi_sighting_hazards_count": data["multi_sighting_hazards_count"],
+        "corroboration_percentage": data["corroboration_percentage"],
+        "average_fused_confidence_pct": data["average_fused_confidence_pct"],
+        "average_confidence_gain_pct": data["average_confidence_gain_pct"],
+        "active_fleet_count": data["active_fleet_count"],
+        "fleet_vehicles": data["fleet_vehicles"],
+        "vehicle_contributions": data["vehicle_contributions"]
+    })
+
+
+@app.route("/api/fleet/hazards")
+def api_fleet_hazards():
+    """Return all de-duplicated canonical hazards with individual vehicle sighting histories."""
+    data = get_fleet_crowdsourcing_cache()
+    return jsonify({
+        "success": True,
+        "count": len(data["canonical_hazards"]),
+        "canonical_hazards": data["canonical_hazards"]
+    })
+
+
+@app.route("/api/fleet/deduplicate", methods=["POST"])
+def api_fleet_deduplicate_trigger():
+    """Trigger ad-hoc spatial clustering de-duplication with custom epsilon parameter."""
+    req_data = request.get_json() or {}
+    eps = float(req_data.get("epsilon_m") or 8.0)
+    data = get_fleet_crowdsourcing_cache(epsilon_m=eps)
+    return jsonify(data)
 
 
 @app.route("/calibration")
