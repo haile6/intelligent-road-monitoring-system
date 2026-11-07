@@ -1,0 +1,753 @@
+{% extends "base.html" %}
+
+{% block title %}Pavement Condition &amp; Rehabilitation Budget — RoadEye™ Enterprise{% endblock %}
+{% block breadcrumb %}Pavement Health (PCI / IRI){% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet GIS CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+/* Pavement Heatmap Layout */
+#pavementGisMap {
+    height: 480px;
+    width: 100%;
+    border-radius: var(--radius-sm);
+    background: #080D16;
+}
+
+.pci-score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.boq-table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.boq-table th {
+    background: var(--bg-sunken);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border-default);
+}
+.boq-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+}
+
+.rating-pill-sm {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- ============================================================ -->
+    <!-- 1. OPERATIONS HEADER                                         -->
+    <!-- ============================================================ -->
+    <div class="page-header-row mb-3">
+        <div>
+            <h1 class="page-main-title">Pavement Health &amp; Rehabilitation Budget</h1>
+            <div class="text-secondary small font-mono">
+                ASTM D6433 Pavement Condition Index • World Bank HDM-4 IRI • ERA Schedule of Rates
+            </div>
+        </div>
+
+        <div class="page-actions-bar">
+            <!-- Block Size Selector -->
+            <div class="btn-group btn-group-sm">
+                <a href="?block_size=50" class="btn btn-secondary {% if request.args.get('block_size', '50') == '50' %}active{% endif %}" title="50m Fine Resolution">50m Blocks</a>
+                <a href="?block_size=100" class="btn btn-secondary {% if request.args.get('block_size') == '100' %}active{% endif %}" title="100m Standard Resolution">100m Blocks</a>
+                <a href="?block_size=250" class="btn btn-secondary {% if request.args.get('block_size') == '250' %}active{% endif %}" title="250m Engineering Blocks">250m Blocks</a>
+            </div>
+
+            <!-- Export BoQ CSV -->
+            <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-primary" title="Export ERA Schedule of Rates BoQ">
+                <i data-lucide="download"></i> Export BoQ CSV
+            </a>
+
+            <button class="btn btn-ghost" onclick="window.location.reload()" title="Refresh Telemetry">
+                <i data-lucide="rotate-cw"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. HIGH-DENSITY EXECUTIVE KPI GRID                           -->
+    <!-- ============================================================ -->
+    <div class="kpi-row-grid">
+
+        <!-- 1. Corridor Average PCI -->
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Overall Corridor PCI</span>
+                <div class="kpi-icon-pill" style="color: {{ assessment.pci_color }};">
+                    <i data-lucide="gauge"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-baseline gap-2">
+                <div class="kpi-number-display" style="color: {{ assessment.pci_color }};">{{ assessment.average_pci }}</div>
+                <span class="badge-status" style="background: rgba(255,255,255,0.06); color: {{ assessment.pci_color }}; border: 1px solid {{ assessment.pci_color }}; font-size: 10px;">
+                    {{ assessment.pci_rating|upper }} ({{ assessment.pci_rating_am }})
+                </span>
+            </div>
+        </div>
+
+        <!-- 2. World Bank Average IRI -->
+        <div class="kpi-metric-card accent-warning">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Roughness (IRI)</span>
+                <div class="kpi-icon-pill" style="color: {{ assessment.iri_color }};">
+                    <i data-lucide="activity"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-baseline gap-2">
+                <div class="kpi-number-display" style="color: {{ assessment.iri_color }};">{{ assessment.average_iri }}</div>
+                <small class="text-secondary font-mono" style="font-size: 11px;">m/km</small>
+                <span class="badge-status" style="background: rgba(255,255,255,0.06); color: {{ assessment.iri_color }}; font-size: 9.5px;">
+                    {{ assessment.iri_rating }}
+                </span>
+            </div>
+        </div>
+
+        <!-- 3. Total Resurfacing Budget (ETB) -->
+        <div class="kpi-metric-card accent-danger">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Rehabilitation Budget (ETB)</span>
+                <div class="kpi-icon-pill" style="color: var(--danger);"><i data-lucide="coins"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono" style="font-size: 20px;">
+                {{ "{:,.0f}".format(assessment.total_rehabilitation_cost_etb) }}
+                <small class="text-secondary fs-6 fw-normal">ETB</small>
+            </div>
+        </div>
+
+        <!-- 4. Resurfacing Budget (USD) -->
+        <div class="kpi-metric-card accent-indigo">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Rehabilitation Budget (USD)</span>
+                <div class="kpi-icon-pill" style="color: #6366f1;"><i data-lucide="dollar-sign"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono" style="font-size: 20px; color: #818cf8;">
+                ${{ "{:,.0f}".format(assessment.total_rehabilitation_cost_usd) }}
+                <small class="text-secondary fs-6 fw-normal">USD</small>
+            </div>
+        </div>
+
+        <!-- 5. Hot-Mix Asphalt Required -->
+        <div class="kpi-metric-card accent-warning">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Required HMA Asphalt</span>
+                <div class="kpi-icon-pill" style="color: var(--warning);"><i data-lucide="truck"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono">
+                {{ "{:,.1f}".format(assessment.materials_summary.total_hot_mix_asphalt_tonnes) }}
+                <small class="text-secondary fs-6 fw-normal">Tonnes</small>
+            </div>
+        </div>
+
+        <!-- 6. Bitumen Tack Coat -->
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Tack Coat Emulsion</span>
+                <div class="kpi-icon-pill" style="color: var(--accent-primary);"><i data-lucide="droplet"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono">
+                {{ "{:,.0f}".format(assessment.materials_summary.total_tack_coat_liters) }}
+                <small class="text-secondary fs-6 fw-normal">Liters</small>
+            </div>
+        </div>
+
+        <!-- 7. Evaluated Blocks & Hotspots -->
+        <div class="kpi-metric-card accent-danger">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Critical Hotspots</span>
+                <div class="kpi-icon-pill" style="color: var(--danger);"><i data-lucide="alert-octagon"></i></div>
+            </div>
+            <div class="kpi-number-display text-danger">
+                {{ assessment.critical_hotspots_count }}
+                <small class="text-secondary fs-6 fw-normal">/ {{ assessment.total_segments }} Blocks</small>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. INTERACTIVE GIS HEATMAP & RATING BREAKDOWN                 -->
+    <!-- ============================================================ -->
+    <div class="row g-3 mb-4">
+
+        <!-- Column A: Leaflet Segmented Heatmap -->
+        <div class="col-12 col-xl-8">
+            <div class="panel-card h-100">
+                <div class="panel-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="panel-title">
+                        <i data-lucide="map" style="color:var(--accent-primary);"></i>
+                        Corridor Heatmap · Route A2 Debre Berhan
+                    </div>
+
+                    <!-- Heatmap Metric Toggle & Legend -->
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="btn-group btn-group-sm" id="heatmapModeToggle">
+                            <button class="btn btn-sm btn-outline-primary active" id="btnModePci" onclick="switchHeatmapMetric('PCI')">PCI Health</button>
+                            <button class="btn btn-sm btn-outline-primary" id="btnModeIri" onclick="switchHeatmapMetric('IRI')">IRI Roughness</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:11px;" id="toggleBasemapBtn" onclick="toggleBasemapStyle()">
+                            <span id="basemapLabel">Tiles</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-body p-2 position-relative">
+                    <div id="pavementGisMap"></div>
+
+                    <!-- Interactive Legend Strip Overlay -->
+                    <div style="position: absolute; bottom: 18px; left: 18px; z-index: 1000; background: rgba(8, 13, 22, 0.90); backdrop-filter: blur(8px); border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px;">
+                        <div class="fw-bold mb-1 text-white" id="legendTitle" style="font-size: 10.5px; text-transform: uppercase;">ASTM D6433 PCI Condition</div>
+                        <div class="d-flex align-items-center gap-3 font-mono" id="legendItems">
+                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#10b981; border-radius:2px; display:inline-block;"></span> Good (85-100)</div>
+                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#84cc16; border-radius:2px; display:inline-block;"></span> Satisfactory</div>
+                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#eab308; border-radius:2px; display:inline-block;"></span> Fair (55-69)</div>
+                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#f97316; border-radius:2px; display:inline-block;"></span> Poor (40-54)</div>
+                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#ef4444; border-radius:2px; display:inline-block;"></span> Critical (&lt;40)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer d-flex justify-content-between align-items-center font-mono">
+                    <span>{{ assessment.total_segments }} Surveyed Blocks ({{ assessment.total_length_km }} km)</span>
+                    <span class="text-secondary">Click any road block for detailed BoQ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column B: Strategy Distribution & Cost Breakdown -->
+        <div class="col-12 col-xl-4">
+            <div class="panel-card h-100 d-flex flex-column justify-content-between">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="pie-chart" style="color:var(--warning);"></i>
+                        Pavement Condition Distribution
+                    </div>
+                </div>
+
+                <div class="panel-body p-3">
+                    <!-- Chart Canvas -->
+                    <div style="position: relative; height: 190px; width: 100%; margin-bottom: 16px;">
+                        <canvas id="pciDistributionChart"></canvas>
+                    </div>
+
+                    <!-- ERA Treatment Matrix Summary -->
+                    <div class="sidebar-section-title mb-2">ERA Standardized Intervention Triggers</div>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #7f1d1d;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Full Reconstruction</span>
+                                <span class="badge bg-danger text-white font-mono" style="font-size: 9px;">PCI &lt; 40 / IRI &ge; 7.0</span>
+                            </div>
+                            <div class="text-muted small mt-1">Crushed rock base + DBM + 50mm AC (7,800 ETB/m²)</div>
+                        </div>
+
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #f97316;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Mill &amp; 50mm Overlay</span>
+                                <span class="badge bg-warning text-dark font-mono" style="font-size: 9px;">40 &le; PCI &lt; 70</span>
+                            </div>
+                            <div class="text-muted small mt-1">Cold milling 50mm + Tack + Wearing Course (3,250 ETB/m²)</div>
+                        </div>
+
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #eab308;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Localized Patch &amp; Seal</span>
+                                <span class="badge bg-info text-dark font-mono" style="font-size: 9px;">70 &le; PCI &lt; 85</span>
+                            </div>
+                            <div class="text-muted small mt-1">Cold-mix patch (2,850 ETB/m²) + Crack sealant (480 ETB/m)</div>
+                        </div>
+
+                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #10b981;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Routine Preservation</span>
+                                <span class="badge bg-success text-white font-mono" style="font-size: 9px;">PCI &ge; 85</span>
+                            </div>
+                            <div class="text-muted small mt-1">Corridor inspection &amp; drainage clearance (18,500 ETB/block)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer font-mono text-muted text-center" style="font-size: 11px;">
+                    Authority: Ethiopian Roads Administration (ERA) Standard Specifications
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 4. DETAILED ROAD SEGMENTS & BILL OF QUANTITIES (BOQ) TABLE   -->
+    <!-- ============================================================ -->
+    <div class="panel-card mb-4">
+        <div class="panel-header py-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 w-100">
+                <div>
+                    <div class="panel-title">
+                        <i data-lucide="layers" style="color:var(--accent-primary);"></i>
+                        Corridor Segment Assessment Ledger
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <div class="search-input-wrap">
+                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                        <input type="text" class="form-control form-control-sm ps-4" id="segmentFilterInput" placeholder="Filter ID, chainage..." style="width: 180px; font-size: 11.5px;">
+                    </div>
+
+                    <div class="filter-pills-row">
+                        <button class="filter-pill-btn active" onclick="filterSegments('ALL', this)">All ({{ assessment.segments|length }})</button>
+                        <button class="filter-pill-btn" onclick="filterSegments('CRITICAL', this)">Critical (&lt;40)</button>
+                        <button class="filter-pill-btn" onclick="filterSegments('POOR', this)">Poor (40-54)</button>
+                        <button class="filter-pill-btn" onclick="filterSegments('FAIR', this)">Fair (55-69)</button>
+                        <button class="filter-pill-btn" onclick="filterSegments('GOOD', this)">Good (70+)</button>
+                    </div>
+
+                    <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-sm btn-outline-secondary">
+                        <i data-lucide="download" style="width:12px; height:12px;"></i> CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container-responsive border-0">
+            <table class="enterprise-table" id="pavementSegmentsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 85px;">Block ID</th>
+                        <th>Chainage (KP)</th>
+                        <th>Length</th>
+                        <th>PCI Score</th>
+                        <th>ASTM Rating</th>
+                        <th>IRI Roughness</th>
+                        <th>Defects</th>
+                        <th>Recommended Intervention</th>
+                        <th>Budget (ETB)</th>
+                        <th>Budget (USD)</th>
+                        <th style="width: 100px; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="segmentsTbody">
+                    {% for seg in assessment.segments %}
+                    <tr class="segment-entry-row"
+                        data-pci="{{ seg.pci }}"
+                        data-rating="{{ seg.pci_rating|upper }}"
+                        data-search="{{ seg.segment_id }} {{ seg.chainage_label }} {{ seg.pci_rating }} {{ seg.treatment }}">
+                        <td class="font-mono fw-bold text-accent">{{ seg.segment_id }}</td>
+                        <td class="font-mono text-white fw-semibold">{{ seg.chainage_label }}</td>
+                        <td class="font-mono">{{ seg.length_m }} m</td>
+                        <td>
+                            <span class="pci-score-badge" style="background: rgba(255,255,255,0.05); color: {{ seg.color }}; border: 1px solid {{ seg.color }};">
+                                {{ seg.pci }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-status" style="background: {{ seg.color_rgba }}; color: white;">
+                                {{ seg.pci_rating }}
+                            </span>
+                        </td>
+                        <td class="font-mono">
+                            <span style="color: {% if seg.iri >= 7.0 %}#ef4444{% elif seg.iri >= 4.0 %}#f97316{% else %}#10b981{% endif %}; font-weight: 700;">
+                                {{ seg.iri }}
+                            </span>
+                            <small class="text-secondary">m/km</small>
+                        </td>
+                        <td class="font-mono">
+                            <span class="text-danger fw-bold" title="Potholes">{{ seg.potholes_count }} PTH</span> &bull; 
+                            <span class="text-warning fw-bold" title="Cracks">{{ seg.cracks_count }} CRK</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-white" style="font-size: 11.5px;">{{ seg.treatment }}</div>
+                            <div class="text-secondary font-mono" style="font-size: 10px;">{{ seg.urgency }}</div>
+                        </td>
+                        <td class="font-mono fw-bold" style="color: var(--accent-primary);">
+                            {{ "{:,.0f}".format(seg.cost_etb) }} ETB
+                        </td>
+                        <td class="font-mono text-muted">
+                            ${{ "{:,.0f}".format(seg.cost_usd) }}
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn btn-sm btn-outline-primary row-hover-action py-0.5 px-2"
+                                    onclick="inspectSegmentDetails({{ seg.segment_index - 1 }})"
+                                    title="Open Full Engineering BoQ">
+                                <i data-lucide="file-spreadsheet" style="width:12px; height:12px;"></i> BoQ
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- 5. JAVASCRIPT: MAP, HEATMAP SWITCHER & CHARTS                -->
+<!-- ============================================================ -->
+<script>
+const corridorData = {{ assessment|tojson }};
+const segmentsList = corridorData.segments || [];
+
+let pavementMap = null;
+let polylineLayers = [];
+let currentMetric = 'PCI';
+
+document.addEventListener('DOMContentLoaded', function() {
+    initPavementMap();
+    initDistributionChart();
+    initTableSearch();
+});
+
+// Initialize Leaflet Map
+function initPavementMap() {
+    if (!segmentsList || segmentsList.length === 0) return;
+
+    const startPt = segmentsList[0].start_coords || [9.123456, 39.123456];
+    pavementMap = L.map('pavementGisMap', {
+        zoomControl: true,
+        scrollWheelZoom: true
+    }).setView(startPt, 16);
+
+    // Standard OpenStreetMap tiles with dynamic dark filter
+    window.darkTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+        className: 'leaflet-dark-tiles'
+    });
+    window.osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    });
+
+    window.currentBasemap = 'dark';
+    window.darkTiles.addTo(pavementMap);
+
+    renderSegmentPolylines();
+
+    // Fit map bounds to encompass full corridor
+    const allCoords = [];
+    segmentsList.forEach(s => {
+        if (s.polyline) {
+            s.polyline.forEach(c => allCoords.push(c));
+        }
+    });
+    if (allCoords.length > 0) {
+        pavementMap.fitBounds(allCoords, { padding: [30, 30] });
+    }
+}
+
+// Render Segment Polylines
+function renderSegmentPolylines() {
+    // Clear existing layers
+    polylineLayers.forEach(l => pavementMap.removeLayer(l));
+    polylineLayers = [];
+
+    segmentsList.forEach((seg, idx) => {
+        if (!seg.polyline || seg.polyline.length < 2) return;
+
+        let strokeColor = seg.color;
+        if (currentMetric === 'IRI') {
+            if (seg.iri < 2.5) strokeColor = '#10b981';
+            else if (seg.iri < 4.0) strokeColor = '#84cc16';
+            else if (seg.iri < 5.5) strokeColor = '#eab308';
+            else if (seg.iri < 7.5) strokeColor = '#f97316';
+            else strokeColor = '#ef4444';
+        }
+
+        const line = L.polyline(seg.polyline, {
+            color: strokeColor,
+            weight: 7,
+            opacity: 0.90,
+            lineCap: 'round',
+            lineJoin: 'round'
+        }).addTo(pavementMap);
+
+        // Tooltip hover
+        line.bindTooltip(`<b>${seg.segment_id} (${seg.chainage_label})</b><br>${currentMetric === 'PCI' ? 'PCI: ' + seg.pci + ' (' + seg.pci_rating + ')' : 'IRI: ' + seg.iri + ' m/km'}<br>Budget: ${seg.cost_etb.toLocaleString()} ETB`, {
+            sticky: true,
+            className: 'pavement-map-tooltip'
+        });
+
+        // Click handler to open detailed drawer
+        line.on('click', function() {
+            inspectSegmentDetails(idx);
+        });
+
+        polylineLayers.push(line);
+    });
+}
+
+// Switch between PCI and IRI mode
+function switchHeatmapMetric(metric) {
+    currentMetric = metric;
+    const btnPci = document.getElementById('btnModePci');
+    const btnIri = document.getElementById('btnModeIri');
+    const title = document.getElementById('legendTitle');
+    const items = document.getElementById('legendItems');
+
+    if (metric === 'PCI') {
+        btnPci.classList.add('active');
+        btnIri.classList.remove('active');
+        title.textContent = 'ASTM D6433 PCI Condition';
+        items.innerHTML = `
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#10b981; border-radius:2px; display:inline-block;"></span> Good (85-100)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#84cc16; border-radius:2px; display:inline-block;"></span> Satisfactory</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#eab308; border-radius:2px; display:inline-block;"></span> Fair (55-69)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#f97316; border-radius:2px; display:inline-block;"></span> Poor (40-54)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#ef4444; border-radius:2px; display:inline-block;"></span> Critical (&lt;40)</div>
+        `;
+    } else {
+        btnIri.classList.add('active');
+        btnPci.classList.remove('active');
+        title.textContent = 'World Bank HDM-4 IRI Roughness (m/km)';
+        items.innerHTML = `
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#10b981; border-radius:2px; display:inline-block;"></span> &lt; 2.5 (Smooth)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#84cc16; border-radius:2px; display:inline-block;"></span> 2.5 - 4.0 (Good)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#eab308; border-radius:2px; display:inline-block;"></span> 4.0 - 5.5 (Fair)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#f97316; border-radius:2px; display:inline-block;"></span> 5.5 - 7.5 (Rough)</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#ef4444; border-radius:2px; display:inline-block;"></span> &gt; 7.5 (Severe)</div>
+        `;
+    }
+    renderSegmentPolylines();
+}
+
+// Basemap toggle
+window.toggleBasemapStyle = function() {
+    if (window.currentBasemap === 'dark') {
+        pavementMap.removeLayer(window.darkTiles);
+        window.osmTiles.addTo(pavementMap);
+        window.currentBasemap = 'osm';
+        document.getElementById('basemapLabel').textContent = 'OSM Daylight';
+    } else {
+        pavementMap.removeLayer(window.osmTiles);
+        window.darkTiles.addTo(pavementMap);
+        window.currentBasemap = 'dark';
+        document.getElementById('basemapLabel').textContent = 'Dark Tiles';
+    }
+};
+
+// Inspect Segment Details in Slide-in Drawer
+function inspectSegmentDetails(index) {
+    const seg = segmentsList[index];
+    if (!seg) return;
+
+    let boqRows = '';
+    (seg.boq_items || []).forEach(item => {
+        boqRows += `
+            <tr>
+                <td class="font-mono text-accent">${item.item_code}</td>
+                <td>${item.description}</td>
+                <td class="font-mono">${item.quantity} ${item.unit}</td>
+                <td class="font-mono text-end">${item.unit_rate_etb.toLocaleString()}</td>
+                <td class="font-mono text-end fw-bold text-white">${item.total_etb.toLocaleString()}</td>
+            </tr>
+        `;
+    });
+
+    let fleetItems = '';
+    (seg.equipment_fleet || []).forEach(eq => {
+        fleetItems += `<li class="small text-secondary mb-1">&bull; ${eq}</li>`;
+    });
+
+    const contentHtml = `
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge-status" style="background:${seg.color_rgba}; color:white; font-size:11px;">
+                    ${seg.pci_rating} • PCI ${seg.pci}
+                </span>
+                <span class="font-mono text-secondary small">${seg.chainage_label} (${seg.length_m} m)</span>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size:16px; color:var(--text-primary);">${seg.treatment}</h5>
+            <div class="text-secondary small font-mono">${seg.treatment_am}</div>
+        </div>
+
+        <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">PCI Index</span>
+                <div class="fw-bold font-mono" style="color:${seg.color}; font-size:18px;">${seg.pci} <small class="text-secondary fs-6">/100</small></div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">World Bank IRI</span>
+                <div class="fw-bold font-mono text-white" style="font-size:18px;">${seg.iri} <small class="text-secondary fs-6">m/km</small></div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">Verified Potholes</span>
+                <div class="fw-bold font-mono text-danger" style="font-size:18px;">${seg.potholes_count}</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">Alligator Cracks</span>
+                <div class="fw-bold font-mono text-warning" style="font-size:18px;">${seg.cracks_count}</div>
+            </div>
+        </div>
+
+        <!-- Material Requirements -->
+        <div class="panel-card p-3 mb-3">
+            <div class="panel-title mb-2" style="font-size:12px;">Required Material Quantities</div>
+            <div class="row g-2 font-mono" style="font-size:12px;">
+                <div class="col-6">
+                    <span class="text-secondary">Hot-Mix Asphalt:</span>
+                    <div class="text-white fw-bold">${seg.materials.hot_mix_asphalt_tonnes} Tonnes</div>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary">Bitumen Tack Coat:</span>
+                    <div class="text-white fw-bold">${seg.materials.tack_coat_liters} Liters</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bill of Quantities -->
+        <div class="panel-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="panel-title" style="font-size:12px;">ERA Schedule of Rates (BoQ)</div>
+                <div class="font-mono fw-bold" style="color:var(--accent-primary); font-size:13px;">${seg.cost_etb.toLocaleString()} ETB ($${seg.cost_usd.toLocaleString()})</div>
+            </div>
+            <div class="table-responsive">
+                <table class="boq-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Description</th>
+                            <th>Qty</th>
+                            <th class="text-end">Rate (ETB)</th>
+                            <th class="text-end">Total (ETB)</th>
+                        </tr>
+                    </thead>
+                    <tbody>${boqRows}</tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Equipment Fleet -->
+        <div class="panel-card p-3">
+            <div class="panel-title mb-2" style="font-size:12px;">Required Construction Fleet</div>
+            <ul class="list-unstyled mb-0">${fleetItems}</ul>
+        </div>
+    `;
+
+    openDetailDrawer(
+        `Block ${seg.segment_id} Engineering Assessment`,
+        contentHtml,
+        'View on Map',
+        function() {
+            if (pavementMap && seg.midpoint) {
+                pavementMap.setView(seg.midpoint, 18);
+            }
+        }
+    );
+}
+
+// Donut Chart for PCI Distribution
+function initDistributionChart() {
+    const ctx = document.getElementById('pciDistributionChart');
+    if (!ctx) return;
+
+    const counts = corridorData.condition_distribution || {};
+    const labels = Object.keys(counts);
+    const values = Object.values(counts);
+
+    const colorMap = {
+        'Good': '#10b981',
+        'Satisfactory': '#84cc16',
+        'Fair': '#eab308',
+        'Poor': '#f97316',
+        'Very Poor': '#ef4444',
+        'Serious': '#b91c1c',
+        'Failed': '#7f1d1d'
+    };
+
+    const bgColors = labels.map(l => colorMap[l] || '#2563eb');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: bgColors,
+                borderWidth: 2,
+                borderColor: 'var(--bg-surface)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#94a3b8',
+                        font: { size: 10, family: 'Inter' },
+                        boxWidth: 10
+                    }
+                }
+            },
+            cutout: '68%'
+        }
+    });
+}
+
+// Table Filter
+function filterSegments(tier, btn) {
+    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const rows = document.querySelectorAll('.segment-entry-row');
+    rows.forEach(r => {
+        const pci = parseFloat(r.getAttribute('data-pci'));
+        if (tier === 'ALL') {
+            r.style.display = '';
+        } else if (tier === 'CRITICAL' && pci < 40.0) {
+            r.style.display = '';
+        } else if (tier === 'POOR' && pci >= 40.0 && pci < 55.0) {
+            r.style.display = '';
+        } else if (tier === 'FAIR' && pci >= 55.0 && pci < 70.0) {
+            r.style.display = '';
+        } else if (tier === 'GOOD' && pci >= 70.0) {
+            r.style.display = '';
+        } else {
+            r.style.display = 'none';
+        }
+    });
+}
+
+function initTableSearch() {
+    const input = document.getElementById('segmentFilterInput');
+    if (!input) return;
+    input.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('.segment-entry-row').forEach(r => {
+            const txt = (r.getAttribute('data-search') || '').toLowerCase();
+            r.style.display = txt.includes(q) ? '' : 'none';
+        });
+    });
+}
+</script>
+{% endblock %}
