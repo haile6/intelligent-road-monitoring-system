@@ -215,3 +215,168 @@ class MarkovPavementDeteriorationEngine:
             "season_details": season_info,
             "projections": projections
         }
+
+
+
+# ==============================================================================
+# 2. COST OF INACTION (COI) & ECONOMIC ROI FORECASTER
+# ==============================================================================
+
+class CostOfInactionForecaster:
+    """
+    Computes the Economic Cost of Inaction (COI) for road maintenance deferral.
+    Demonstrates municipal capital savings achieved by immediate preventive sealing
+    versus delayed post-monsoon structural reconstruction.
+    """
+
+    ETB_TO_USD_RATE = 128.0
+
+    @classmethod
+    def estimate_defect_growth_trajectory(cls, 
+                                          incident: Dict[str, Any], 
+                                          season: str = "KIREMT", 
+                                          days_horizon: int = 60) -> Dict[str, Any]:
+        """
+        Predict dimensional and volumetric expansion of an individual pavement defect.
+        """
+        dtype = (incident.get("damage_type") or "pothole").lower()
+        risk = str(incident.get("max_risk_level") or "CAUTION").upper()
+        climate = CLIMATE_SEASONS.get(season.upper(), CLIMATE_SEASONS["KIREMT"])
+        m = climate["deterioration_multiplier"]
+
+        # Base current dimensions
+        is_pothole = "pothole" in dtype
+        current_width_cm = 45.0 if is_pothole else 12.0
+        current_depth_cm = 5.2 if is_pothole else 1.5
+        current_vol_liters = 5.5 if is_pothole else 0.8
+
+        # Infiltration expansion rate: t / 30 months equivalent
+        t_months = days_horizon / 30.0
+
+        if is_pothole:
+            # Potholes expand in area and deepen through traffic churning
+            growth_mult = (1.0 + 0.35 * m * t_months)
+            future_width_cm = round(min(180.0, current_width_cm * growth_mult), 1)
+            future_depth_cm = round(min(18.0, current_depth_cm * (1.0 + 0.28 * m * t_months)), 1)
+            future_vol_liters = round(current_vol_liters * (growth_mult ** 1.8), 2)
+            
+            # Transition description
+            if future_depth_cm >= 8.0 or future_width_cm >= 100.0:
+                future_state = "Structural Base Course Intrusion"
+                future_state_am = "የመንገድ መሰረት መደርመስ (ከባድ አደጋ)"
+            elif future_depth_cm >= 4.5:
+                future_state = "Deep Impact Crater"
+                future_state_am = "ጥልቅ የጎማ ሰባሪ ጉድጓድ"
+            else:
+                future_state = "Moderate Pothole"
+                future_state_am = "መካከለኛ ጉድጓድ"
+        else:
+            # Cracks branch out into alligator cracking and spall into potholes
+            crack_growth_mult = (1.0 + 0.45 * m * t_months)
+            future_width_cm = round(min(120.0, current_width_cm * crack_growth_mult), 1)
+            future_depth_cm = round(min(7.0, current_depth_cm * (1.0 + 0.40 * m * t_months)), 1)
+            future_vol_liters = round(current_vol_liters * (crack_growth_mult ** 2.1), 2)
+
+            if future_depth_cm >= 4.0:
+                future_state = "Burst into Active Pothole"
+                future_state_am = "ወደ ከባድ ጉድጓድነት የተቀየረ ስንጥቅ"
+            else:
+                future_state = "Dense Alligator Crack Web"
+                future_state_am = "የተስፋፋ የአዞ ቆዳ ስንጥቅ"
+
+        # Economic Cost of Inaction calculation
+        # Repair Today: localized cold patch or crack seal
+        if is_pothole:
+            cost_today_etb = 1850.0
+            # If delayed through Kiremt: requires asphalt saw-cut, base re-compaction, 50mm overlay
+            cost_inaction_etb = round(cost_today_etb * (2.8 + 0.95 * m * t_months), 2)
+        else:
+            cost_today_etb = 480.0  # Crack seal
+            # If delayed: becomes a pothole requiring deep patching
+            cost_inaction_etb = round(cost_today_etb * (4.2 + 1.20 * m * t_months), 2)
+
+        cost_today_usd = round(cost_today_etb / cls.ETB_TO_USD_RATE, 2)
+        cost_inaction_usd = round(cost_inaction_etb / cls.ETB_TO_USD_RATE, 2)
+        savings_etb = round(cost_inaction_etb - cost_today_etb, 2)
+        savings_usd = round(cost_inaction_usd - cost_today_usd, 2)
+        roi_multiplier = round(cost_inaction_etb / max(1.0, cost_today_etb), 1)
+
+        return {
+            "incident_id": incident.get("id") or incident.get("track_id"),
+            "damage_type": dtype,
+            "current_severity": risk,
+            "days_horizon": days_horizon,
+            "current_dimensions": {
+                "width_cm": current_width_cm,
+                "depth_cm": current_depth_cm,
+                "volume_liters": current_vol_liters
+            },
+            "projected_dimensions": {
+                "width_cm": future_width_cm,
+                "depth_cm": future_depth_cm,
+                "volume_liters": future_vol_liters
+            },
+            "projected_state": future_state,
+            "projected_state_am": future_state_am,
+            "cost_today_etb": cost_today_etb,
+            "cost_today_usd": cost_today_usd,
+            "cost_inaction_etb": cost_inaction_etb,
+            "cost_inaction_usd": cost_inaction_usd,
+            "savings_etb": savings_etb,
+            "savings_usd": savings_usd,
+            "roi_multiplier": roi_multiplier
+        }
+
+    @classmethod
+    def evaluate_corridor_coi(cls, 
+                              incidents: List[Dict[str, Any]], 
+                              current_pci: float = 64.0, 
+                              season: str = "KIREMT", 
+                              days_horizon: int = 60) -> Dict[str, Any]:
+        """
+        Aggregate total corridor Cost of Inaction (COI) and return full forecast portfolio.
+        """
+        defect_trajectories = []
+        total_cost_today_etb = 0.0
+        total_cost_inaction_etb = 0.0
+
+        for inc in incidents:
+            traj = cls.estimate_defect_growth_trajectory(
+                incident=inc,
+                season=season,
+                days_horizon=days_horizon
+            )
+            defect_trajectories.append(traj)
+            total_cost_today_etb += traj["cost_today_etb"]
+            total_cost_inaction_etb += traj["cost_inaction_etb"]
+
+        total_savings_etb = round(total_cost_inaction_etb - total_cost_today_etb, 2)
+        total_savings_usd = round(total_savings_etb / cls.ETB_TO_USD_RATE, 2)
+        overall_roi = round(total_cost_inaction_etb / max(1.0, total_cost_today_etb), 2)
+
+        # Markov projections
+        markov = MarkovPavementDeteriorationEngine.forecast_corridor_deterioration(
+            current_pci=current_pci,
+            incidents_count=len(incidents),
+            season=season,
+            horizons=[30, 60, 90, 180]
+        )
+
+        return {
+            "success": True,
+            "corridor": "Route A2 · Addis Ababa - Debre Berhan Highway",
+            "evaluated_season": season.upper(),
+            "season_details": CLIMATE_SEASONS.get(season.upper(), CLIMATE_SEASONS["KIREMT"]),
+            "days_horizon": days_horizon,
+            "current_pci": current_pci,
+            "total_defects_evaluated": len(incidents),
+            "total_cost_today_etb": round(total_cost_today_etb, 2),
+            "total_cost_today_usd": round(total_cost_today_etb / cls.ETB_TO_USD_RATE, 2),
+            "total_cost_inaction_etb": round(total_cost_inaction_etb, 2),
+            "total_cost_inaction_usd": round(total_cost_inaction_etb / cls.ETB_TO_USD_RATE, 2),
+            "total_savings_etb": total_savings_etb,
+            "total_savings_usd": total_savings_usd,
+            "roi_savings_multiplier": overall_roi,
+            "markov_forecast": markov,
+            "defect_trajectories": defect_trajectories
+        }
