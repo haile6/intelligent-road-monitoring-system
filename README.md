@@ -357,6 +357,35 @@ The platform incorporates the international standard **ASTM D6433-20** to transf
    * **Localized Patch & Seal** ($70 \le PCI < 85$): Cold-mix patching ($2,850\text{ ETB/m}^2$) + polymer crack sealing ($480\text{ ETB/m}$).
    * **Routine Preservation** ($PCI \ge 85$): Corridor inspection and drainage flush ($18,500\text{ ETB/block}$).
 
+---
+
+### 5. Monocular 3D Pothole Depth & Volumetric Cavity Estimator
+
+When a road defect is detected by the neural perception engine, municipal asphalt patching crews require volumetric repair quantities rather than simple 2D pixel bounding boxes. The platform applies a physics-informed photogrammetric cavity model:
+
+1. **Ground Dimension Scaling via Inverse Perspective Projection**:
+   Given horizontal focal length $f_x$, camera tilt pitch $\theta$, and calculated ground distance $d$:
+   $$W_m = \Delta x_{\text{px}} \cdot \frac{d}{f_x}, \quad L_m = \Delta y_{\text{px}} \cdot \frac{d}{f_y \cdot \sin(\theta + \alpha)} \cdot 0.75$$
+   Major axis diameter $a = \max(W_m, L_m) \times 100\text{ cm}$, Minor axis $b = \min(W_m, L_m) \times 100\text{ cm}$.
+   Elliptical surface area: $A = \pi \cdot \frac{W_m}{2} \cdot \frac{L_m}{2}\text{ (m}^2\text{)}$.
+
+2. **Monocular 3D Cavity Depth Formulation**:
+   Depth is estimated from equivalent circular diameter $\sqrt{W_m \cdot L_m}$ and optical shadow degradation contrast $S$:
+   $$D_{\text{max}} = \min\left(18.0\text{ cm},\, \max\left(1.5\text{ cm},\, k_d \cdot \sqrt{W_m \cdot L_m} \cdot (1.0 + 0.65 \cdot S)\right)\right)$$
+   where $k_d \approx 8.5\text{ cm/m}^{0.5}$ (calibrated for weathered asphalt), and $D_{\text{avg}} = 0.62 \cdot D_{\text{max}}$.
+
+3. **Truncated Paraboloid 3D Cavity Volume**:
+   Cavity volume $V$ (Liters) integrated over the elliptical concave depression:
+   $$V_{\text{cavity}} = \frac{1}{2} \cdot A \cdot \frac{D_{\text{max}}}{100} \times 1000 \quad (\text{Liters})$$
+
+4. **Asphalt Material Quantification & Packaging (የአስፋልት መጠን አስሊ)**:
+   * **Compacted Density**: $\rho_{\text{cold}} = 2,200\text{ kg/m}^3$, $\rho_{\text{HMA}} = 2,400\text{ kg/m}^3$.
+   * **Compaction Bulking Factor**: Loose asphalt requires $1.22\times$ surcharge before rolling:
+     $$M_{\text{loose}} = V_{\text{cavity}} \cdot 2.20 \cdot 1.22 \quad (\text{kg})$$
+   * **Bag Units for Maintenance Trucks**:
+     $$\text{Bags}_{25\text{kg}} = \left\lceil \frac{M_{\text{loose}}}{25} \right\rceil, \quad \text{Bags}_{50\text{kg}} = \left\lceil \frac{M_{\text{loose}}}{50} \right\rceil$$
+   * **Tack Coat Bonding**: $0.65\text{ L/m}^2$ of K1-60 bitumen emulsion over bottom and wetted cavity perimeter.
+
 <br/>
 
 ---
@@ -560,6 +589,8 @@ RoadEye exposes high-performance RESTful API endpoints for edge-to-cloud integra
 | `GET` | `/api/pavement/summary` | Executive summary of corridor PCI, average IRI, and total resurfacing budget in ETB/USD. | `200 OK` |
 | `GET` | `/api/pavement/segments` | Segment-by-segment GIS polylines with localized PCI, IRI, distress count, and itemized BoQ. | `200 OK` |
 | `GET` | `/api/pavement/export` | Downloadable CSV Bill of Quantities (BoQ) formatted for Ethiopian Roads Administration engineers. | `200 OK` |
+| `GET` | `/api/incidents/<id>/volumetric` | Calculates 3D pothole depth, cavity volume in Liters, and exact 25kg cold-patch bags needed. | `200 OK` |
+| `POST` | `/api/volumetric/estimate` | Ad-hoc photogrammetric 3D depth and asphalt material calculation from arbitrary detection inputs. | `200 OK` |
 
 <br/>
 
