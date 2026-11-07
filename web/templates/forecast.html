@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}Predictive Deterioration &amp; Rainy Season Forecast — RoadEye™ Enterprise{% endblock %}
+{% block breadcrumb %}Predictive Deterioration{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+.season-pill-btn {
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.season-pill-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+.season-pill-btn.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.horizon-pill-btn {
+    padding: 3px 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+.horizon-pill-btn.active {
+    background: var(--bg-elevated);
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    font-weight: 700;
+}
+
+.trajectory-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: 14px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- ============================================================ -->
+    <!-- 1. OPERATIONS HEADER                                         -->
+    <!-- ============================================================ -->
+    <div class="page-header-row mb-3">
+        <div>
+            <h1 class="page-main-title">Predictive Deterioration &amp; Rainy Season Forecast</h1>
+            <div class="text-secondary small font-mono">
+                Markov Pavement Degradation • Ethiopian Climate Seasons (ክረምት / በጋ) • Cost of Inaction (COI)
+            </div>
+        </div>
+
+        <div class="page-actions-bar">
+            <!-- Ethiopian Climate Season Selector -->
+            <div class="d-flex align-items-center gap-1">
+                <a href="?season=KIREMT&days={{ forecast_data.days_horizon }}" class="season-pill-btn {% if forecast_data.evaluated_season == 'KIREMT' %}active{% endif %}" style="border-left: 3px solid #ef4444;" title="Heavy Monsoon Rains (Jun-Sep)">
+                    🌧️ Kiremt (ክረምት)
+                </a>
+                <a href="?season=BELG&days={{ forecast_data.days_horizon }}" class="season-pill-btn {% if forecast_data.evaluated_season == 'BELG' %}active{% endif %}" style="border-left: 3px solid #f59e0b;" title="Moderate Autumn Rains (Mar-May)">
+                    🌦️ Belg (በልግ)
+                </a>
+                <a href="?season=BEGA&days={{ forecast_data.days_horizon }}" class="season-pill-btn {% if forecast_data.evaluated_season == 'BEGA' %}active{% endif %}" style="border-left: 3px solid #10b981;" title="Dry Sunny Season (Oct-Feb)">
+                    ☀️ Bega (በጋ)
+                </a>
+            </div>
+
+            <!-- Forecast Horizon Selector -->
+            <div class="btn-group btn-group-sm ms-2">
+                <a href="?season={{ forecast_data.evaluated_season }}&days=30" class="btn btn-secondary {% if forecast_data.days_horizon == 30 %}active{% endif %}">30d</a>
+                <a href="?season={{ forecast_data.evaluated_season }}&days=60" class="btn btn-secondary {% if forecast_data.days_horizon == 60 %}active{% endif %}">60d</a>
+                <a href="?season={{ forecast_data.evaluated_season }}&days=90" class="btn btn-secondary {% if forecast_data.days_horizon == 90 %}active{% endif %}">90d</a>
+                <a href="?season={{ forecast_data.evaluated_season }}&days=180" class="btn btn-secondary {% if forecast_data.days_horizon == 180 %}active{% endif %}">180d</a>
+            </div>
+
+            <button class="btn btn-ghost" onclick="window.location.reload()" title="Refresh Telemetry">
+                <i data-lucide="rotate-cw"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. HIGH-DENSITY EXECUTIVE KPI GRID (7 METRICS)               -->
+    <!-- ============================================================ -->
+    <div class="kpi-row-grid">
+
+        <!-- 1. Current Corridor PCI -->
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Current Corridor PCI</span>
+                <div class="kpi-icon-pill"><i data-lucide="gauge"></i></div>
+            </div>
+            <div class="kpi-number-display">{{ forecast_data.current_pci }} <small class="text-secondary fs-6">/100</small></div>
+        </div>
+
+        <!-- 2. Projected PCI Drop -->
+        {% set markov_first = forecast_data.markov_forecast.projections[1] if forecast_data.markov_forecast.projections|length > 1 else forecast_data.markov_forecast.projections[0] %}
+        <div class="kpi-metric-card accent-danger">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">{{ forecast_data.days_horizon }}d Projected PCI</span>
+                <div class="kpi-icon-pill" style="color: var(--danger);"><i data-lucide="trending-down"></i></div>
+            </div>
+            <div class="d-flex align-items-baseline gap-2">
+                <div class="kpi-number-display text-danger">{{ markov_first.projected_pci }}</div>
+                <span class="text-danger small font-mono fw-bold">(-{{ markov_first.pci_drop }})</span>
+            </div>
+        </div>
+
+        <!-- 3. Immediate Repair Budget Today -->
+        <div class="kpi-metric-card accent-success">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Repair Cost Today</span>
+                <div class="kpi-icon-pill" style="color: var(--success);"><i data-lucide="check-circle-2"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono text-success" style="font-size:19px;">
+                {{ "{:,.0f}".format(forecast_data.total_cost_today_etb) }}
+                <small class="text-secondary fs-6 fw-normal">ETB</small>
+            </div>
+        </div>
+
+        <!-- 4. Cost of Inaction (COI) -->
+        <div class="kpi-metric-card accent-danger">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Cost of Delay ({{ forecast_data.days_horizon }}d)</span>
+                <div class="kpi-icon-pill" style="color: var(--danger);"><i data-lucide="alert-triangle"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono text-danger" style="font-size:19px;">
+                {{ "{:,.0f}".format(forecast_data.total_cost_inaction_etb) }}
+                <small class="text-secondary fs-6 fw-normal">ETB</small>
+            </div>
+        </div>
+
+        <!-- 5. Economic ROI Capital Savings -->
+        <div class="kpi-metric-card accent-primary">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Capital Savings (ROI)</span>
+                <div class="kpi-icon-pill" style="color: var(--accent-primary);"><i data-lucide="piggy-bank"></i></div>
+            </div>
+            <div class="d-flex align-items-baseline gap-2">
+                <div class="kpi-number-display text-accent" style="font-size:19px;">{{ forecast_data.roi_savings_multiplier }}×</div>
+                <small class="text-success font-mono fw-bold">+{{ "{:,.0f}".format(forecast_data.total_savings_etb) }} ETB</small>
+            </div>
+        </div>
+
+        <!-- 6. Pore-Water Infiltration Risk -->
+        <div class="kpi-metric-card accent-warning">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Water Stripping Risk</span>
+                <div class="kpi-icon-pill" style="color: {{ forecast_data.season_details.color }};"><i data-lucide="cloud-rain"></i></div>
+            </div>
+            <div class="d-flex align-items-baseline gap-2">
+                <div class="kpi-number-display" style="color: {{ forecast_data.season_details.color }}; font-size: 19px;">
+                    {{ forecast_data.season_details.water_stripping_risk }}
+                </div>
+                <span class="font-mono text-secondary small">{{ forecast_data.season_details.deterioration_multiplier }}× rate</span>
+            </div>
+        </div>
+
+        <!-- 7. Evaluated Corridor Defects -->
+        <div class="kpi-metric-card accent-indigo">
+            <div class="kpi-top-meta">
+                <span class="kpi-label-text">Corridor Hazards</span>
+                <div class="kpi-icon-pill" style="color: #6366f1;"><i data-lucide="layers"></i></div>
+            </div>
+            <div class="kpi-number-display font-mono" style="color:#818cf8;">{{ forecast_data.total_defects_evaluated }}</div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. DEGRADATION TRAJECTORY CHART & ENVIRONMENTAL RADAR        -->
+    <!-- ============================================================ -->
+    <div class="row g-3 mb-4">
+
+        <!-- Column A: Markov Degradation Curve -->
+        <div class="col-12 col-xl-8">
+            <div class="panel-card h-100">
+                <div class="panel-header d-flex justify-content-between align-items-center">
+                    <div class="panel-title">
+                        <i data-lucide="trending-down" style="color:var(--danger);"></i>
+                        Pavement Deterioration Curve: Immediate Action vs. Inaction
+                    </div>
+                    <span class="badge-status" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); font-size: 10px;">
+                        {{ forecast_data.evaluated_season }} ACCELERATION
+                    </span>
+                </div>
+
+                <div class="panel-body p-3">
+                    <div style="position: relative; height: 260px; width: 100%;">
+                        <canvas id="degradationChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel-footer d-flex justify-content-between align-items-center font-mono" style="font-size:11px;">
+                    <span>Markov-Chain 5-State Transition Model</span>
+                    <span class="text-secondary">Simulated for {{ forecast_data.days_horizon }} Days Horizon</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column B: Environmental Pore-Water Mechanics -->
+        <div class="col-12 col-xl-4">
+            <div class="panel-card h-100 d-flex flex-column justify-content-between">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="droplet" style="color:var(--accent-primary);"></i>
+                        Monsoon Pore-Water Mechanics
+                    </div>
+                </div>
+
+                <div class="panel-body p-3 d-flex flex-column gap-3">
+                    <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Average Monthly Rainfall</span>
+                            <span class="font-mono text-accent fw-bold">{{ forecast_data.season_details.rainfall_mm_month }} mm</span>
+                        </div>
+                        <div class="text-muted small">Water saturates sub-base through unsealed surface cracks.</div>
+                    </div>
+
+                    <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Hydrodynamic Stripping</span>
+                            <span class="font-mono text-danger fw-bold">{{ forecast_data.season_details.deterioration_multiplier }}× Factor</span>
+                        </div>
+                        <div class="text-muted small">Heavy truck tire rolling pressure pumps water into asphalt voids.</div>
+                    </div>
+
+                    <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Heavy Freight Traffic (Route A2)</span>
+                            <span class="font-mono text-warning fw-bold">24% Freight Trucks</span>
+                        </div>
+                        <div class="text-muted small">High ESAL loading causes rapid shear punch-through of softened sub-base.</div>
+                    </div>
+                </div>
+
+                <div class="panel-footer font-mono text-muted text-center" style="font-size: 11px;">
+                    ERA Maintenance Directive: Seal Cracks Prior to Monsoon Arrival
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 4. DEFECT EXPANSION & COST OF INACTION (COI) TABLE           -->
+    <!-- ============================================================ -->
+    <div class="panel-card mb-4">
+        <div class="panel-header py-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 w-100">
+                <div>
+                    <div class="panel-title">
+                        <i data-lucide="layers" style="color:var(--accent-primary);"></i>
+                        Pavement Defect Expansion &amp; Cost of Inaction Ledger ({{ forecast_data.days_horizon }} Days)
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="d-flex align-items-center gap-2">
+                    <div class="search-input-wrap">
+                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                        <input type="text" class="form-control form-control-sm ps-4" id="forecastSearchInput" placeholder="Filter defect ID, state..." style="width: 200px; font-size: 11.5px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container-responsive border-0">
+            <table class="enterprise-table" id="forecastDefectsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 90px;">Hazard ID</th>
+                        <th>Defect Class</th>
+                        <th>Current Footprint</th>
+                        <th>{{ forecast_data.days_horizon }}d Projected State</th>
+                        <th>Projected Footprint</th>
+                        <th>Repair Today (ETB)</th>
+                        <th>Cost If Delayed (ETB)</th>
+                        <th>Capital Savings (ROI)</th>
+                        <th style="width: 100px; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="forecastTbody">
+                    {% for d in forecast_data.defect_trajectories %}
+                    <tr class="forecast-entry-row"
+                        data-search="#{{ d.incident_id }} {{ d.damage_type }} {{ d.projected_state }}">
+                        <td class="font-mono fw-bold text-accent">#{{ d.incident_id }}</td>
+                        <td>
+                            {% if 'pothole' in d.damage_type %}
+                            <span class="badge-status badge-defect-pothole">Pothole (ጉድጓድ)</span>
+                            {% else %}
+                            <span class="badge-status badge-defect-crack">Alligator Crack</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-mono text-muted small">
+                            {{ d.current_dimensions.width_cm }}cm &bull; {{ d.current_dimensions.depth_cm }}cm ({{ d.current_dimensions.volume_liters }}L)
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-white" style="font-size: 11.5px;">{{ d.projected_state }}</div>
+                            <div class="text-secondary font-mono" style="font-size: 10px;">{{ d.projected_state_am }}</div>
+                        </td>
+                        <td class="font-mono text-danger fw-bold small">
+                            {{ d.projected_dimensions.width_cm }}cm &bull; {{ d.projected_dimensions.depth_cm }}cm ({{ d.projected_dimensions.volume_liters }}L)
+                        </td>
+                        <td class="font-mono text-success fw-bold">
+                            {{ "{:,.0f}".format(d.cost_today_etb) }} ETB
+                        </td>
+                        <td class="font-mono text-danger fw-bold">
+                            {{ "{:,.0f}".format(d.cost_inaction_etb) }} ETB
+                        </td>
+                        <td class="font-mono">
+                            <span class="badge-status badge-status-success font-mono">
+                                +{{ "{:,.0f}".format(d.savings_etb) }} ETB ({{ d.roi_multiplier }}×)
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn btn-sm btn-outline-primary row-hover-action py-0.5 px-2"
+                                    onclick="inspectTrajectory({{ loop.index0 }})"
+                                    title="Open Defect Deterioration Trajectory">
+                                Trajectory
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- 5. JAVASCRIPT: CHARTS & TRAJECTORY DRAWER                    -->
+<!-- ============================================================ -->
+<script>
+const forecastData = {{ forecast_data|tojson }};
+const trajectories = forecastData.defect_trajectories || [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initDegradationChart();
+    initForecastSearch();
+});
+
+function initDegradationChart() {
+    const ctx = document.getElementById('degradationChart');
+    if (!ctx) return;
+
+    const projections = (forecastData.markov_forecast && forecastData.markov_forecast.projections) || [];
+    const labels = ['Today', ...projections.map(p => p.days_horizon + ' Days')];
+
+    // Inaction PCI curve
+    const inactionData = [forecastData.current_pci, ...projections.map(p => p.projected_pci)];
+
+    // Preventive timely sealed curve (gradual slight aging only)
+    const preventiveData = [forecastData.current_pci, 82.0, 80.5, 79.0, 76.5];
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Unrepaired / Inaction (Monsoon Pore Infiltration)',
+                    data: inactionData,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#ef4444',
+                    pointRadius: 5
+                },
+                {
+                    label: 'Timely Preventive Sealing (Routine Patching Today)',
+                    data: preventiveData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2.5,
+                    borderDash: [5, 5],
+                    pointBackgroundColor: '#10b981',
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+                    title: { display: true, text: 'Pavement Condition Index (PCI 0-100)', color: '#94a3b8', font: { size: 11 } },
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: { color: '#94a3b8' }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#e2e8f0', font: { size: 11, family: 'Inter' } }
+                }
+            }
+        }
+    });
+}
+
+function inspectTrajectory(index) {
+    const d = trajectories[index];
+    if (!d) return;
+
+    const contentHtml = `
+        <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge-status badge-defect-pothole">HAZARD #${d.incident_id}</span>
+                <span class="badge-status badge-status-danger font-mono">${d.current_severity}</span>
+            </div>
+            <h5 class="fw-bold mb-1 text-white text-capitalize" style="font-size:16px;">${d.damage_type.replace('_', ' ')}</h5>
+            <div class="text-secondary small font-mono">${d.projected_state_am}</div>
+        </div>
+
+        <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">Repair Cost Today</span>
+                <div class="fw-bold font-mono text-success" style="font-size:17px;">${d.cost_today_etb.toLocaleString()} ETB</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">Cost If Delayed</span>
+                <div class="fw-bold font-mono text-danger" style="font-size:17px;">${d.cost_inaction_etb.toLocaleString()} ETB</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">Net Savings</span>
+                <div class="fw-bold font-mono text-accent" style="font-size:17px;">+${d.savings_etb.toLocaleString()} ETB</div>
+            </div>
+            <div class="kpi-metric-card p-2" style="min-height:70px;">
+                <span class="kpi-label-text">Cost Multiplier</span>
+                <div class="fw-bold font-mono text-warning" style="font-size:17px;">${d.roi_multiplier}× Increase</div>
+            </div>
+        </div>
+
+        <!-- Dimensional Expansion Comparison -->
+        <div class="panel-card p-3 mb-3">
+            <div class="panel-title mb-2" style="font-size:12px;">Dimensional Expansion Under Monsoon Rains</div>
+            <div class="row g-2 font-mono small text-white">
+                <div class="col-6">
+                    <span class="text-secondary">Current Footprint:</span>
+                    <div>${d.current_dimensions.width_cm} cm × ${d.current_dimensions.depth_cm} cm</div>
+                    <div class="text-info">${d.current_dimensions.volume_liters} Liters</div>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary">${d.days_horizon}d Projected Footprint:</span>
+                    <div class="text-danger fw-bold">${d.projected_dimensions.width_cm} cm × ${d.projected_dimensions.depth_cm} cm</div>
+                    <div class="text-danger fw-bold">${d.projected_dimensions.volume_liters} Liters</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engineering Recommendation -->
+        <div class="panel-card p-3">
+            <div class="panel-title mb-2" style="font-size:12px;">Preventive Maintenance Action</div>
+            <p class="text-secondary small mb-2">Immediate cold-mix patch or polymer crack seal before heavy Kiremt rains prevents sub-base water saturation and saves ${d.savings_etb.toLocaleString()} ETB.</p>
+            <a href="/reports" class="btn btn-sm btn-outline-primary w-100 justify-content-center">
+                <i data-lucide="clipboard-list" style="width:13px; height:13px;"></i> Dispatch Work Order
+            </a>
+        </div>
+    `;
+
+    openDetailDrawer(
+        `Hazard #${d.incident_id} Deterioration Trajectory`,
+        contentHtml,
+        'View in Work Orders',
+        function() {
+            window.location.href = '/reports';
+        }
+    );
+}
+
+function initForecastSearch() {
+    const input = document.getElementById('forecastSearchInput');
+    if (!input) return;
+    input.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('#forecastTbody tr.forecast-entry-row').forEach(r => {
+            const txt = (r.getAttribute('data-search') || '').toLowerCase();
+            r.style.display = txt.includes(q) ? '' : 'none';
+        });
+    });
+}
+</script>
+{% endblock %}
