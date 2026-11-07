@@ -172,6 +172,13 @@
                 <span>Detected Hazards ({{ incidents|length }})</span>
             </label>
         </div>
+        <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="checkbox" id="togglePciHeatmap" onchange="toggleLayer('pci', this.checked)">
+            <label class="form-check-label small fw-semibold text-secondary" for="togglePciHeatmap">
+                <span class="gis-legend-dot" style="background: linear-gradient(90deg, #10b981, #eab308, #ef4444);"></span>
+                <span>PCI Heatmap</span>
+            </label>
+        </div>
         <div class="ms-auto d-flex align-items-center gap-2">
             <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:11px;" id="toggleBasemapBtn" onclick="toggleBasemapStyle()">
                 <i class="bi bi-moon-stars me-1"></i> Basemap: <span id="basemapLabel">Dark</span>
@@ -975,6 +982,34 @@ function toggleLayer(layerName, isChecked) {
     } else if (layerName === 'hazards') {
         if (isChecked) map.addLayer(markerLayerGroup);
         else map.removeLayer(markerLayerGroup);
+    } else if (layerName === 'pci') {
+        if (!window.pciLayerGroup) {
+            window.pciLayerGroup = L.layerGroup();
+            fetch('/api/pavement/segments')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.segments) {
+                        data.segments.forEach(seg => {
+                            if (seg.polyline && seg.polyline.length > 1) {
+                                const line = L.polyline(seg.polyline, {
+                                    color: seg.color,
+                                    weight: 8,
+                                    opacity: 0.88,
+                                    lineCap: 'round',
+                                    lineJoin: 'round'
+                                });
+                                line.bindTooltip(`<b>${seg.segment_id} (${seg.chainage_label})</b><br>PCI: <b>${seg.pci}</b> (${seg.pci_rating})<br>Treatment: ${seg.treatment}<br><a href="/pavement" style="color:#38bdf8;">Open BoQ &rarr;</a>`, { sticky: true });
+                                window.pciLayerGroup.addLayer(line);
+                            }
+                        });
+                        if (isChecked) map.addLayer(window.pciLayerGroup);
+                    }
+                })
+                .catch(err => console.warn('PCI heatmap layer notice:', err));
+        } else {
+            if (isChecked) map.addLayer(window.pciLayerGroup);
+            else map.removeLayer(window.pciLayerGroup);
+        }
     }
 }
 
