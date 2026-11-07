@@ -26,6 +26,12 @@ if BASE_DIR not in sys.path:
 
 from database import db_manager
 import config
+from risk.pavement_intelligence import (
+    CorridorPavementSegmenter,
+    PavementConditionIndex,
+    InternationalRoughnessIndex,
+    AsphaltBudgetEstimator
+)
 
 app = Flask(
     __name__,
@@ -373,6 +379,129 @@ def api_contractor_claim_notice(cid):
         "legal_basis": "ERA Standard Technical Specifications / FIDIC Defects Liability Clause 11",
         "authority": "Ethiopian Roads Administration & Municipal Infrastructure Division"
     })
+
+
+
+# ============================================================
+# PAVEMENT INTELLIGENCE & REHABILITATION BUDGET (PCI / IRI)
+# ============================================================
+
+def get_pavement_assessment_cache(block_size: float = 50.0):
+    """Retrieve or compute corridor pavement intelligence metrics."""
+    try:
+        bs_arg = request.args.get("block_size")
+        if bs_arg:
+            block_size = float(bs_arg)
+    except Exception:
+        pass
+    gps_pts = db_manager.get_gps_track_points()
+    incidents = db_manager.get_all_incidents()
+    return CorridorPavementSegmenter.segment_corridor(
+        gps_points=gps_pts,
+        incidents=incidents,
+        target_segment_length_m=block_size
+    )
+
+
+@app.route("/pavement")
+def pavement_view():
+    """Pavement Condition Index (PCI) & International Roughness Index (IRI) Heatmap Engine."""
+    assessment = get_pavement_assessment_cache()
+    stats = db_manager.get_dashboard_stats()
+    now_str = datetime.now().strftime("%B %d, %Y - %H:%M")
+    return render_template(
+        "pavement.html",
+        assessment=assessment,
+        stats=stats,
+        report_date=now_str,
+        active_page="pavement"
+    )
+
+
+@app.route("/api/pavement/summary")
+def api_pavement_summary():
+    """Return executive pavement condition index and asphalt rehabilitation budget summary."""
+    assessment = get_pavement_assessment_cache()
+    return jsonify({
+        "success": True,
+        "corridor_name": assessment["corridor_name"],
+        "authority": assessment["authority"],
+        "total_length_km": assessment["total_length_km"],
+        "total_segments": assessment["total_segments"],
+        "average_pci": assessment["average_pci"],
+        "pci_rating": assessment["pci_rating"],
+        "pci_rating_am": assessment["pci_rating_am"],
+        "pci_color": assessment["pci_color"],
+        "average_iri": assessment["average_iri"],
+        "iri_rating": assessment["iri_rating"],
+        "iri_rating_am": assessment["iri_rating_am"],
+        "iri_color": assessment["iri_color"],
+        "total_rehabilitation_cost_etb": assessment["total_rehabilitation_cost_etb"],
+        "total_rehabilitation_cost_usd": assessment["total_rehabilitation_cost_usd"],
+        "materials_summary": assessment["materials_summary"],
+        "condition_distribution": assessment["condition_distribution"],
+        "critical_hotspots_count": assessment["critical_hotspots_count"]
+    })
+
+
+@app.route("/api/pavement/segments")
+def api_pavement_segments():
+    """Return all segmented road sections with polyline GIS coordinates, PCI, IRI, and BoQ."""
+    assessment = get_pavement_assessment_cache()
+    return jsonify({
+        "success": True,
+        "total_segments": len(assessment["segments"]),
+        "segments": assessment["segments"]
+    })
+
+
+@app.route("/api/pavement/export")
+def api_pavement_export_csv():
+    """Export ASTM D6433 Pavement Condition & Rehabilitation Budget BoQ to CSV."""
+    assessment = get_pavement_assessment_cache()
+    segments = assessment["segments"]
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow([
+        "Segment ID", "Chainage", "Length (m)", "PCI (0-100)", "ASTM Rating",
+        "ASTM Rating (Amharic)", "IRI (m/km)", "Roughness Rating", "Potholes Count",
+        "Cracks Count", "Total Defects", "Critical Hazards", "Intervention Level",
+        "Recommended Treatment", "Urgency", "Cost (ETB)", "Cost (USD)",
+        "Hot-Mix Asphalt (Tonnes)", "Tack Coat (Liters)"
+    ])
+
+    for s in segments:
+        writer.writerow([
+            s["segment_id"],
+            s["chainage_label"],
+            s["length_m"],
+            s["pci"],
+            s["pci_rating"],
+            s["pci_rating_am"],
+            s["iri"],
+            s["iri_rating"],
+            s["potholes_count"],
+            s["cracks_count"],
+            s["total_defects"],
+            s["critical_hazards"],
+            s["intervention_level"],
+            s["treatment"],
+            s["urgency"],
+            f"{s['cost_etb']:.2f}",
+            f"{s['cost_usd']:.2f}",
+            s["materials"]["hot_mix_asphalt_tonnes"],
+            s["materials"]["tack_coat_liters"]
+        ])
+
+    output.seek(0)
+    filename = f"ERA_Pavement_Assessment_Route_A2_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 
 @app.route("/calibration")
