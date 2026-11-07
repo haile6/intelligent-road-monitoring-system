@@ -501,3 +501,306 @@ class AsphaltBudgetEstimator:
             "equipment_fleet": equipment,
             "boq_items": boq_items
         }
+
+
+
+# ==============================================================================
+# 3. SPATIAL CORRIDOR SEGMENTER & GIS POLYLINE ANALYZER
+# ==============================================================================
+
+class CorridorPavementSegmenter:
+    """
+    Splits continuous vehicle GPS trajectories into discrete chainage segments
+    (e.g., 250m standard inspection blocks), maps detected defects to segments,
+    and calculates localized PCI, IRI, and rehabilitation budgets.
+    """
+
+    @staticmethod
+    def haversine_distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Calculate great-circle distance between two points in meters."""
+        r = 6371000.0  # Earth radius in meters
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        delta_phi = math.radians(lat2 - lat1)
+        delta_lambda = math.radians(lon2 - lon1)
+
+        a = (math.sin(delta_phi / 2.0) ** 2 +
+             math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0) ** 2)
+        c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+        return r * c
+
+    @classmethod
+    def segment_corridor(cls, 
+                         gps_points: List[Dict[str, Any]], 
+                         incidents: List[Dict[str, Any]], 
+                         target_segment_length_m: float = 250.0) -> Dict[str, Any]:
+        """
+        Segment the patrol corridor into equal distance blocks and evaluate pavement health.
+        
+        Args:
+            gps_points: List of GPS track records [{'lat': ..., 'lon': ...}, ...]
+            incidents: List of defect incident records [{'damage_latitude': ..., 'damage_type': ...}, ...]
+            target_segment_length_m: Desired segment block size (default 250m)
+            
+        Returns:
+            Dict containing corridor summary metrics and array of detailed segment objects.
+        """
+        if not gps_points or len(gps_points) < 2:
+            # Fallback if no GPS trace points: return synthetic segment from incidents
+            return cls._generate_fallback_assessment(incidents)
+
+        target_len = max(50.0, float(target_segment_length_m))
+
+        # 1. Calculate cumulative chainage along the GPS track
+        cumulative_m = 0.0
+        enriched_points = []
+        for i, pt in enumerate(gps_points):
+            lat = float(pt.get("lat") or pt.get("latitude") or 0.0)
+            lon = float(pt.get("lon") or pt.get("longitude") or 0.0)
+            if i > 0:
+                prev_lat = enriched_points[-1]["lat"]
+                prev_lon = enriched_points[-1]["lon"]
+                d = cls.haversine_distance_m(prev_lat, prev_lon, lat, lon)
+                # Filter out GPS jump anomalies (> 150m between 1s samples)
+                if d < 150.0:
+                    cumulative_m += d
+            enriched_points.append({
+                "lat": lat,
+                "lon": lon,
+                "chainage_m": cumulative_m,
+                "orig": pt
+            })
+
+        total_corridor_length_m = cumulative_m
+        if total_corridor_length_m < 50.0:
+            return cls._generate_fallback_assessment(incidents)
+
+        # 2. Slice track into uniform segments
+        segments = []
+        num_segments = max(1, math.ceil(total_corridor_length_m / target_len))
+
+        for seg_idx in range(num_segments):
+            start_m = seg_idx * target_len
+            end_m = min(total_corridor_length_m, (seg_idx + 1) * target_len)
+            seg_len_actual = max(10.0, end_m - start_m)
+
+            # Extract GPS points falling into this chainage window
+            seg_pts = [p for p in enriched_points if start_m <= p["chainage_m"] <= end_m]
+            if not seg_pts:
+                # Approximate with closest point
+                seg_pts = [min(enriched_points, key=lambda p: abs(p["chainage_m"] - ((start_m + end_m) / 2.0)))]
+
+            # Polyline coordinates for map drawing
+            polyline = [[p["lat"], p["lon"]] for p in seg_pts]
+            midpoint = polyline[len(polyline) // 2] if polyline else [seg_pts[0]["lat"], seg_pts[0]["lon"]]
+
+            segments.append({
+                "segment_index": seg_idx + 1,
+                "segment_id": f"KP-{seg_idx + 1:02d}",
+                "chainage_start_km": round(start_m / 1000.0, 3),
+                "chainage_end_km": round(end_m / 1000.0, 3),
+                "chainage_label": f"KP {start_m/1000.0:.2f} - {end_m/1000.0:.2f}",
+                "length_m": round(seg_len_actual, 1),
+                "start_coords": [seg_pts[0]["lat"], seg_pts[0]["lon"]],
+                "end_coords": [seg_pts[-1]["lat"], seg_pts[-1]["lon"]],
+                "midpoint": midpoint,
+                "polyline": polyline,
+                "potholes": [],
+                "cracks": []
+            })
+
+        # 3. Associate each incident to its geographically closest segment
+        for inc in incidents:
+            h_lat = float(inc.get("damage_latitude") or inc.get("latitude") or 0.0)
+            h_lon = float(inc.get("damage_longitude") or inc.get("longitude") or 0.0)
+            if not h_lat or not h_lon:
+                continue
+
+            # Find closest segment by midpoint
+            best_seg = min(segments, key=lambda s: cls.haversine_distance_m(h_lat, h_lon, s["midpoint"][0], s["midpoint"][1]))
+            
+            d_type = (inc.get("damage_type") or "").lower()
+            if "pothole" in d_type:
+                best_seg["potholes"].append(inc)
+            else:
+                best_seg["cracks"].append(inc)
+
+        # 4. Compute PCI, IRI, and Budget for every segment
+        processed_segments = []
+        for s in segments:
+            potholes = s["potholes"]
+            cracks = s["cracks"]
+            seg_len_m = s["length_m"]
+            seg_area_m2 = seg_len_m * 7.0  # 2 lanes @ 3.5m = 7.0m width
+
+            # ASTM D6433 PCI
+            pci_data = PavementConditionIndex.calculate_pci(potholes, cracks, sample_area_m2=seg_area_m2)
+            
+            # World Bank HDM-4 IRI
+            iri_data = InternationalRoughnessIndex.estimate_iri(potholes, cracks, segment_length_km=seg_len_m / 1000.0)
+
+            # ERA Budget & Material BoQ
+            budget_data = AsphaltBudgetEstimator.estimate_segment_budget(
+                pci_score=pci_data["pci"],
+                iri_score=iri_data["iri"],
+                potholes_count=len(potholes),
+                cracks_count=len(cracks),
+                segment_length_m=seg_len_m,
+                carriageway_width_m=7.0
+            )
+
+            # Critical defects count
+            critical_hazards = sum(1 for p in potholes if "IMMEDIATE" in str(p.get("max_risk_level", "")).upper() or "DANGER" in str(p.get("max_risk_level", "")).upper())
+            critical_hazards += sum(1 for c in cracks if "IMMEDIATE" in str(c.get("max_risk_level", "")).upper() or "DANGER" in str(c.get("max_risk_level", "")).upper())
+
+            processed_segments.append({
+                "segment_index": s["segment_index"],
+                "segment_id": s["segment_id"],
+                "chainage_start_km": s["chainage_start_km"],
+                "chainage_end_km": s["chainage_end_km"],
+                "chainage_label": s["chainage_label"],
+                "length_m": s["length_m"],
+                "midpoint": s["midpoint"],
+                "start_coords": s["start_coords"],
+                "end_coords": s["end_coords"],
+                "polyline": s["polyline"],
+                "potholes_count": len(potholes),
+                "cracks_count": len(cracks),
+                "total_defects": len(potholes) + len(cracks),
+                "critical_hazards": critical_hazards,
+                "pci": pci_data["pci"],
+                "pci_rating": pci_data["rating"],
+                "pci_rating_am": pci_data["rating_am"],
+                "color": pci_data["color"],
+                "color_rgba": pci_data["color_rgba"],
+                "iri": iri_data["iri"],
+                "iri_rating": iri_data["rating"],
+                "iri_rating_am": iri_data["rating_am"],
+                "recommended_action": pci_data["recommended_action"],
+                "treatment": budget_data["recommended_treatment"],
+                "treatment_am": budget_data["recommended_treatment_am"],
+                "urgency": budget_data["urgency"],
+                "intervention_level": budget_data["intervention_level"],
+                "cost_etb": budget_data["total_cost_etb"],
+                "cost_usd": budget_data["total_cost_usd"],
+                "materials": budget_data["materials"],
+                "equipment_fleet": budget_data["equipment_fleet"],
+                "boq_items": budget_data["boq_items"]
+            })
+
+        # 5. Aggregate overall corridor summary metrics
+        total_length_km = round(total_corridor_length_m / 1000.0, 2)
+        total_cost_etb = sum(s["cost_etb"] for s in processed_segments)
+        total_cost_usd = sum(s["cost_usd"] for s in processed_segments)
+        total_asphalt_tonnes = sum(s["materials"]["hot_mix_asphalt_tonnes"] for s in processed_segments)
+        total_tack_liters = sum(s["materials"]["tack_coat_liters"] for s in processed_segments)
+
+        # Distance-weighted average PCI and IRI
+        weighted_pci = sum(s["pci"] * s["length_m"] for s in processed_segments) / max(1.0, total_corridor_length_m)
+        weighted_iri = sum(s["iri"] * s["length_m"] for s in processed_segments) / max(1.0, total_corridor_length_m)
+
+        corridor_pci_info = PavementConditionIndex.get_rating_info(weighted_pci)
+        corridor_iri_info = InternationalRoughnessIndex.get_rating_info(weighted_iri)
+
+        # Condition breakdown counts
+        rating_counts = {}
+        for s in processed_segments:
+            r = s["pci_rating"]
+            rating_counts[r] = rating_counts.get(r, 0) + 1
+
+        # High priority segments (PCI < 55 or IRI > 5.0)
+        critical_hotspots = [s for s in processed_segments if s["pci"] < 55.0 or s["iri"] >= 5.0]
+
+        return {
+            "corridor_name": "Debre Berhan Corridor · Route A2",
+            "authority": "Ethiopian Roads Administration (ERA)",
+            "total_length_km": total_length_km,
+            "total_segments": len(processed_segments),
+            "average_pci": round(weighted_pci, 1),
+            "pci_rating": corridor_pci_info["rating"],
+            "pci_rating_am": corridor_pci_info["rating_am"],
+            "pci_color": corridor_pci_info["color"],
+            "average_iri": round(weighted_iri, 2),
+            "iri_rating": corridor_iri_info["rating"],
+            "iri_rating_am": corridor_iri_info["rating_am"],
+            "iri_color": corridor_iri_info["color"],
+            "total_rehabilitation_cost_etb": round(total_cost_etb, 2),
+            "total_rehabilitation_cost_usd": round(total_cost_usd, 2),
+            "materials_summary": {
+                "total_hot_mix_asphalt_tonnes": round(total_asphalt_tonnes, 1),
+                "total_tack_coat_liters": round(total_tack_liters, 1)
+            },
+            "condition_distribution": rating_counts,
+            "critical_hotspots_count": len(critical_hotspots),
+            "segments": processed_segments
+        }
+
+    @classmethod
+    def _generate_fallback_assessment(cls, incidents: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Generate a baseline corridor evaluation when GPS trace is sparse."""
+        potholes = [i for i in incidents if "pothole" in (i.get("damage_type") or "").lower()]
+        cracks = [i for i in incidents if "pothole" not in (i.get("damage_type") or "").lower()]
+        
+        pci_data = PavementConditionIndex.calculate_pci(potholes, cracks, sample_area_m2=58800.0)
+        iri_data = InternationalRoughnessIndex.estimate_iri(potholes, cracks, segment_length_km=8.40)
+        budget = AsphaltBudgetEstimator.estimate_segment_budget(
+            pci_score=pci_data["pci"],
+            iri_score=iri_data["iri"],
+            potholes_count=len(potholes),
+            cracks_count=len(cracks),
+            segment_length_m=8400.0
+        )
+
+        return {
+            "corridor_name": "Debre Berhan Corridor · Route A2",
+            "authority": "Ethiopian Roads Administration (ERA)",
+            "total_length_km": 8.40,
+            "total_segments": 1,
+            "average_pci": pci_data["pci"],
+            "pci_rating": pci_data["rating"],
+            "pci_rating_am": pci_data["rating_am"],
+            "pci_color": pci_data["color"],
+            "average_iri": iri_data["iri"],
+            "iri_rating": iri_data["rating"],
+            "iri_rating_am": iri_data["rating_am"],
+            "iri_color": iri_data["color"],
+            "total_rehabilitation_cost_etb": budget["total_cost_etb"],
+            "total_rehabilitation_cost_usd": budget["total_cost_usd"],
+            "materials_summary": {
+                "total_hot_mix_asphalt_tonnes": budget["materials"]["hot_mix_asphalt_tonnes"],
+                "total_tack_coat_liters": budget["materials"]["tack_coat_liters"]
+            },
+            "condition_distribution": {pci_data["rating"]: 1},
+            "critical_hotspots_count": 1 if pci_data["pci"] < 55.0 else 0,
+            "segments": [{
+                "segment_index": 1,
+                "segment_id": "KP-01",
+                "chainage_label": "KP 0.00 - 8.40",
+                "length_m": 8400.0,
+                "midpoint": [9.6800, 39.5300],
+                "start_coords": [9.6800, 39.5300],
+                "end_coords": [9.6890, 39.5390],
+                "polyline": [[9.6800, 39.5300], [9.6890, 39.5390]],
+                "potholes_count": len(potholes),
+                "cracks_count": len(cracks),
+                "total_defects": len(incidents),
+                "critical_hazards": sum(1 for i in incidents if "IMMEDIATE" in str(i.get("max_risk_level", "")).upper()),
+                "pci": pci_data["pci"],
+                "pci_rating": pci_data["rating"],
+                "pci_rating_am": pci_data["rating_am"],
+                "color": pci_data["color"],
+                "color_rgba": pci_data["color_rgba"],
+                "iri": iri_data["iri"],
+                "iri_rating": iri_data["rating"],
+                "iri_rating_am": iri_data["rating_am"],
+                "treatment": budget["recommended_treatment"],
+                "treatment_am": budget["recommended_treatment_am"],
+                "urgency": budget["urgency"],
+                "intervention_level": budget["intervention_level"],
+                "cost_etb": budget["total_cost_etb"],
+                "cost_usd": budget["total_cost_usd"],
+                "materials": budget["materials"],
+                "equipment_fleet": budget["equipment_fleet"],
+                "boq_items": budget["boq_items"]
+            }]
+        }
