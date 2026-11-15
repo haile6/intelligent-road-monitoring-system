@@ -552,6 +552,34 @@ def api_pavement_export_csv():
 
 
 # ============================================================
+# DBU & EDI BUSINESS IDEA COMPETITION PROPOSAL DOWNLOADS
+# ============================================================
+
+@app.route("/download/proposal/docx")
+def download_proposal_docx():
+    """Download DBU & EDI Business Idea Proposal in modern Word (.docx) format."""
+    docs_dir = os.path.join(BASE_DIR, "docs")
+    return send_from_directory(
+        docs_dir,
+        "DBU_EDI_Business_Idea_Proposal_RoadEye.docx",
+        as_attachment=True,
+        download_name="DBU_EDI_Business_Idea_Proposal_RoadEye.docx"
+    )
+
+
+@app.route("/download/proposal/doc")
+def download_proposal_doc():
+    """Download DBU & EDI Business Idea Proposal in Word (.doc) format."""
+    docs_dir = os.path.join(BASE_DIR, "docs")
+    return send_from_directory(
+        docs_dir,
+        "DBU_EDI_Business_Idea_Proposal_RoadEye.doc",
+        as_attachment=True,
+        download_name="DBU_EDI_Business_Idea_Proposal_RoadEye.doc"
+    )
+
+
+# ============================================================
 # MULTI-VEHICLE FLEET CROWDSOURCING & DE-DUPLICATION
 # ============================================================
 
