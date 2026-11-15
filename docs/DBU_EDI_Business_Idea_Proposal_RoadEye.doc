@@ -192,7 +192,7 @@ table.data-table tr:nth-child(even) {
 <p><strong>Title:</strong> AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform (RoadEye™)</p>
 <p><strong>Overview:</strong> <strong>RoadEye™</strong> is an end-to-end GovTech and Mobility AI innovation engineered at Debre Berhan University. It pairs low-cost, off-the-shelf monocular cameras (dashcams and smartphones) with deep learning computer vision, 3D photogrammetry, spatial GIS kinematics, and physics-informed pavement deterioration modeling to simultaneously achieve two transformative missions:</p>
 <ul>
-    <li><strong>1. For Drivers (Active In-Cabin ADAS Collision Avoidance):</strong> Scans the forward travel corridor in real-time at 30+ FPS, estimates closing Time-To-Collision (TTC &le; 1.8s), and triggers <strong>instantaneous dual-language (Amharic & English) audio voice alarms</strong> and flashing HUD visual alerts (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Hazard Ahead, Reduce Speed"</em>). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.</li>
+    <li><strong>1. For Drivers (Active In-Cabin ADAS & 360° Proximity Radar):</strong> Scans the forward travel corridor in real-time at 30+ FPS, maintains a multi-tier proximity radar horizon (25m, 50m, 100m, 150m), projects forward laser acquisition locks, estimates closing Time-To-Collision (TTC &le; 1.8s), and triggers <strong>instantaneous dual-language (Amharic & English) audio voice alarms</strong> and flashing HUD visual alerts (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Hazard Ahead, Reduce Speed"</em>). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.</li>
     <li><strong>2. For Municipalities & Road Authorities (Intelligent Asset Management):</strong> Automatically maps pavement distresses, calculates 3D cavity depth and required asphalt repair mass in kilograms, projects hazards on an interactive GIS map, and enforces contractor road warranties under FIDIC Clause 11 (Defect Liability Period).</li>
 </ul>
 <p>By predicting structural failure before the Ethiopian monsoon (<strong>Kiremt</strong>, where road deterioration accelerates by <strong>4.2&times;</strong>), the platform cuts municipal road maintenance costs by up to <strong>75%</strong> while protecting road users' lives.</p>
@@ -207,8 +207,9 @@ table.data-table tr:nth-child(even) {
     <strong>How RoadEye™ Solved It (The Engineering):</strong><br/>
     1. <strong>Edge Computer Vision Perception:</strong> Deploys lightweight YOLOv8/11 deep learning models running at 30+ FPS to detect potholes, alligator cracks, and vehicles 40–50 meters ahead.<br/>
     2. <strong>Active Driving Corridor Projection:</strong> Projects the vehicle's forward trajectory (&plusmn;1.8m lane width) to eliminate false alarms from roadside curbs or sidewalks.<br/>
-    3. <strong>Kinematic Time-To-Collision (TTC) Engine:</strong> Calculates forward distance (Z) and closing rate. When TTC &le; 1.8s (Critical) or &le; 3.0s (Warning), the system acts instantly.<br/>
-    4. <strong>Dual-Language Auditory Voice Alarms:</strong> Triggers loud, high-priority audio announcements in <strong>Amharic (አማርኛ)</strong> and English (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Pothole ahead, reduce speed"</em>) with flashing HUD displays, giving drivers 1.5 to 2.0 vital seconds to brake safely without panic swerving.
+    3. <strong>Software-Defined Proximity Radar & Multi-Tier Horizons:</strong> Operates an optical Software-Defined Radar projecting a 360° proximity scanning horizon around the vehicle (25m, 50m, 100m, 150m). As hazards enter the radar threshold, the system draws a directional forward laser acquisition lock, triggers concentric visual radar shockwaves on the GIS digital twin, and synthesizes subtle acoustic sonar pings.<br/>
+    4. <strong>Kinematic Time-To-Collision (TTC) Engine:</strong> Calculates forward distance (Z) and closing rate. When TTC &le; 1.8s (Critical) or &le; 3.0s (Warning), the system acts instantly.<br/>
+    5. <strong>Dual-Language Auditory Voice Alarms:</strong> Triggers loud, high-priority audio announcements in <strong>Amharic (አማርኛ)</strong> and English (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Pothole ahead, reduce speed"</em>) with flashing HUD displays, giving drivers 1.5 to 2.0 vital seconds to brake safely without panic swerving.
 </div>
 
 <h3>2.2 Problem 2: Catastrophic Monsoon (Kiremt) Pavement Destruction & The 4.2x Multiplier</h3>
@@ -292,6 +293,12 @@ table.data-table tr:nth-child(even) {
             <td>None</td>
             <td>None</td>
             <td><strong>Real-Time Dual-Language (አማርኛ/EN)</strong></td>
+        </tr>
+        <tr>
+            <td><strong>360° Proximity Radar Horizon</strong></td>
+            <td>None</td>
+            <td>None</td>
+            <td><strong>25m–150m Horizon with Sonar Pings & Laser Lock</strong></td>
         </tr>
         <tr>
             <td><strong>Survey Speed</strong></td>

@@ -38,7 +38,7 @@
 ### 1.2 Executive Overview
 **RoadEye™** is an end-to-end GovTech and Mobility AI innovation engineered at Debre Berhan University. It pairs low-cost, off-the-shelf monocular cameras (dashcams and smartphones) with deep learning computer vision, 3D photogrammetry, spatial GIS kinematics, and physics-informed pavement deterioration modeling to simultaneously achieve two transformative missions:
 
-1. **For Drivers (Active In-Cabin ADAS Collision Avoidance):** Scans the forward travel corridor in real-time at 30+ FPS, estimates closing Time-To-Collision ($\text{TTC} \le 1.8\text{s}$), and triggers **instantaneous dual-language (Amharic & English) audio voice alarms** and flashing HUD visual alerts (*"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* / *"Warning! Hazard Ahead, Reduce Speed"*). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.
+1. **For Drivers (Active In-Cabin ADAS & 360° Proximity Radar):** Scans the forward travel corridor in real-time at 30+ FPS, maintains a multi-tier proximity radar horizon (25m, 50m, 100m, 150m), projects forward laser acquisition locks, estimates closing Time-To-Collision ($\text{TTC} \le 1.8\text{s}$), and triggers **instantaneous dual-language (Amharic & English) audio voice alarms** and flashing HUD visual alerts (*"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* / *"Warning! Hazard Ahead, Reduce Speed"*). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.
 2. **For Municipalities & Road Authorities (Intelligent Asset Management):** Automatically maps pavement distresses, calculates 3D cavity depth and required asphalt repair mass in kilograms, projects hazards on an interactive GIS map, and enforces contractor road warranties under FIDIC Clause 11 (Defect Liability Period).
 
 By predicting structural failure before the Ethiopian monsoon (**Kiremt**, where road deterioration accelerates by **4.2×**), the platform cuts municipal road maintenance costs by up to **75%** while protecting road users' lives.
@@ -54,8 +54,9 @@ Below is the exhaustive breakdown of the five critical real-world infrastructure
 * **How RoadEye™ Solved It:**
   1. **Edge Computer Vision Perception:** Deploys lightweight YOLOv8/11 deep learning models optimized for mobile processors and dashcams, running at 30+ FPS to detect potholes, alligator cracks, and vehicles 40–50 meters ahead.
   2. **Active Driving Corridor Projection:** Projects the vehicle's projected forward trajectory ($\pm 1.8\text{m}$ lane width) to eliminate false alarms caused by roadside gutters, parked cars, or curbs.
-  3. **Kinematic Time-To-Collision (TTC) Engine:** Calculates metric forward distance ($Z$) and closing rate $\Delta v$. When $\text{TTC} \le 1.8\text{ seconds}$ (Critical) or $\le 3.0\text{ seconds}$ (Warning), the system acts instantly.
-  4. **Dual-Language Auditory Voice Alarms:** Drivers cannot safely take their eyes off the road to look at small screens. RoadEye™ triggers high-priority, clear audio voice announcements in **Amharic (አማርኛ)** and English:  
+  3. **Software-Defined Proximity Radar & Multi-Tier Horizons (25m, 50m, 100m, 150m):** Operates an optical Software-Defined Radar projecting a 360° proximity scanning horizon around the vehicle. As hazards enter the radar threshold, the system draws a directional forward laser acquisition lock, triggers concentric visual radar shockwaves on the GIS digital twin, and synthesizes subtle acoustic sonar pings.
+  4. **Kinematic Time-To-Collision (TTC) Engine:** Calculates metric forward distance ($Z$) and closing rate $\Delta v$. When $\text{TTC} \le 1.8\text{ seconds}$ (Critical) or $\le 3.0\text{ seconds}$ (Warning), the system acts instantly.
+  5. **Dual-Language Auditory Voice Alarms:** Drivers cannot safely take their eyes off the road to look at small screens. RoadEye™ triggers high-priority, clear audio voice announcements in **Amharic (አማርኛ)** and English:  
      * *"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* ("Caution! Pothole ahead!")  
      * *"አደጋ! ፍጥነትህን ቀንስ"* ("Danger! Reduce speed!")  
      accompanied by a prominent visual HUD flash, giving drivers 1.5 to 2.0 vital seconds to brake smoothly without swerving.
@@ -120,6 +121,7 @@ Below is the exhaustive breakdown of the five critical real-world infrastructure
 | **Capital Cost** | Low | **$250,000 – $500,000 USD** | **< $350 USD** (Dashcam / Smartphone) |
 | **Forex Dependency** | None | **100% Forex Dependent** | **0% Forex** (100% locally built & hosted) |
 | **In-Cabin Driver Voice Alarm** | None | None | **Real-Time Dual-Language (አማርኛ / English)** |
+| **360° Proximity Radar Horizon** | None | None | **25m–150m Horizon with Sonar Pings & Laser Lock** |
 | **Survey Speed** | 3 – 5 km/day | 40 – 60 km/day | **100 – 300+ km/day** |
 | **Worker Safety Risk** | Extremely High | Low | **Zero Risk** (Surveyed from cabin) |
 | **3D Cavity Material Calculation**| Guesswork | Requires LiDAR | **Automated Monocular 3D (Bags & kg)** |
