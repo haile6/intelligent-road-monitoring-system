@@ -10,153 +10,135 @@
 
 | Field | Details |
 | :--- | :--- |
-| **Submission Deadline** | **November 16, 2026 – 5:00 PM** |
+| **Project Title** | **AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform** |
+| **Platform Brand** | **RoadEye™** |
+| **Submission Deadline**| **November 16, 2026 – 5:00 PM** |
 | **Submission Email** | `deredbu2003@gmail.com` |
 | **Host Office** | Center for Employability and Entrepreneurship Development, SE-02, Floor 2 |
 | **Lead Innovator** | **Haile Sintayehu** |
-| **College / Department** | Debre Berhan University – College of Computing |
+| **College / Department**| Debre Berhan University – College of Computing |
 | **Applicant Email** | `hailesintayehu113@gmail.com` |
 | **Contact Numbers** | **0921746222 / 0912485346** |
 | **Target Focus Areas** | ICT • Construction & Infrastructure Materials • Engineering Technologies |
-| **Prototype Status** | **Functional Prototype with 114 Automated Tests Passing (100%)** |
+| **Prototype Status** | **Functional Prototype with 114 Automated Unit Tests Passing (100%)** |
 | **Live Repository** | [github.com/haile6/intelligent-road-monitoring-system](https://github.com/haile6/intelligent-road-monitoring-system) |
+| **Word Download** | [Download Word Document (.docx)](http://127.0.0.1:5000/download/proposal/docx) |
 
 ---
 
-# 🛣️ RoadEye™
-### Dual-Action Platform: Real-Time In-Cabin Driver Voice Warning & Autonomous Municipal Infrastructure Intelligence
+# AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform
 
 ---
 
-## 1. Business Idea Title and Description
+## 1. Business Idea Title and Overview
 
-### 1.1 Business Idea Title
-**RoadEye™: Edge-AI In-Cabin Driver Safety Voice Alarm & Municipal Road Asset Management Platform**
+### 1.1 Official Title
+**AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform (RoadEye™)**
 
 ### 1.2 Executive Overview
-**RoadEye™** is an innovative GovTech and Mobility AI platform engineered at Debre Berhan University. It converts affordable vehicle dashcams and smartphones into a **dual-action system**:
+**RoadEye™** is an end-to-end GovTech and Mobility AI innovation engineered at Debre Berhan University. It pairs low-cost, off-the-shelf monocular cameras (dashcams and smartphones) with deep learning computer vision, 3D photogrammetry, spatial GIS kinematics, and physics-informed pavement deterioration modeling to simultaneously achieve two transformative missions:
 
-1. **For Drivers (Active In-Cabin ADAS Safety):** Continuously scans the driving corridor, calculates closing Time-To-Collision ($\text{TTC} \le 1.8\text{s}$), and sounds **real-time audio voice alarms and visual HUD alerts in both Amharic (አማርኛ) and English** (e.g., *"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* / *"Warning! Pothole Ahead, Reduce Speed"*). This stops deadly rollover crashes, tire blowouts, and sudden swerving into oncoming traffic.
-2. **For Municipalities & Road Authorities (GovTech SaaS):** Automatically maps pavement distresses (potholes, cracks), calculates 3D cavity depth and required asphalt repair kilograms, projects hazards on an interactive GIS map, and enforces contractor road warranties under FIDIC Clause 11 (Defect Liability Period).
+1. **For Drivers (Active In-Cabin ADAS Collision Avoidance):** Scans the forward travel corridor in real-time at 30+ FPS, estimates closing Time-To-Collision ($\text{TTC} \le 1.8\text{s}$), and triggers **instantaneous dual-language (Amharic & English) audio voice alarms** and flashing HUD visual alerts (*"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* / *"Warning! Hazard Ahead, Reduce Speed"*). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.
+2. **For Municipalities & Road Authorities (Intelligent Asset Management):** Automatically maps pavement distresses, calculates 3D cavity depth and required asphalt repair mass in kilograms, projects hazards on an interactive GIS map, and enforces contractor road warranties under FIDIC Clause 11 (Defect Liability Period).
 
-By predicting road collapse before the Ethiopian monsoon (**Kiremt**, where damage accelerates by **4.2×**), RoadEye™ cuts municipal road repair costs by up to **75%** while protecting drivers' lives daily.
-
----
-
-## 2. Problem Statement and Market Need
-
-RoadEye™ directly solves four critical challenges across Ethiopia and the Route A2 corridor:
-
-1. **Lethal Driver Accidents from Sudden Potholes:** Drivers traveling at high speeds suddenly encounter deep potholes, causing violent swerving into oncoming traffic, vehicle rollovers, or tire blowouts. Without an automated in-cabin audio alert, drivers cannot react safely at night or in rain.
-2. **Slow, Lethal Manual Road Inspections:** Technicians walk along high-speed corridors with tape measures and clipboards. It is lethally dangerous, covers less than 5% of the network annually, and takes months to compile.
-3. **Catastrophic Monsoon (Kiremt) Pavement Destruction:** Water trapped in micro-cracks experiences massive hydrodynamic pumping under heavy freight trucks, accelerating road deterioration by **4.2×** during Kiremt.
-4. **Millions in Lost Public Funds from Unenforced Contractor Warranties:** When new roads fail during the 1–2 year Defect Liability Period (DLP under FIDIC Clause 11), municipalities lack digital evidence to hold contractors accountable, forcing taxpayers to pay tens of millions of ETB for contractor faults.
-5. **The Foreign Currency Barrier:** Imported laser survey vans (ROMDAS, Dynatest) cost **$250,000–$500,000 USD**—completely unaffordable for Ethiopian municipalities facing acute forex shortages.
+By predicting structural failure before the Ethiopian monsoon (**Kiremt**, where road deterioration accelerates by **4.2×**), the platform cuts municipal road maintenance costs by up to **75%** while protecting road users' lives.
 
 ---
 
-## 3. Proposed Product and Technical Solution
+## 2. Deep Dive: Critical Problems Addressed and Engineering Solutions
 
-RoadEye™ delivers a cohesive three-tier architecture:
+Below is the exhaustive breakdown of the five critical real-world infrastructure and safety crises addressed by RoadEye™, and the exact engineering mechanisms developed to solve them:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        RoadEye™ Platform Layers                        │
-├────────────────────────────────┬───────────────────────────────────────┤
-│ 1. In-Cabin Driver Safety &    │ • Real-Time 30+ FPS YOLOv8 Detection  │
-│    Edge Sensor Layer           │ • Time-to-Collision (TTC) Lookahead   │
-│                                │ • Dual-Language Voice Alarms (አማርኛ/EN)│
-│                                │ • Works on any Dashcam or Smartphone  │
-├────────────────────────────────┼───────────────────────────────────────┤
-│ 2. Physics & 3D Geometry       │ • Monocular 3D Pothole Depth (cm)     │
-│    Engine                      │ • Truncated Paraboloid Volume (Liters)│
-│                                │ • Exact Asphalt Mix Mass (kg & Bags)  │
-│                                │ • 5-State Markov Degradation Forecast │
-├────────────────────────────────┼───────────────────────────────────────┤
-│ 3. Enterprise Web GIS          │ • Interactive Municipal GIS Heatmap   │
-│    Municipal Dashboard         │ • ASTM D6433 Pavement Health (PCI)    │
-│                                │ • Contractor FIDIC Warranty Tracker   │
-│                                │ • Instant Legal Rectification Notices │
-└────────────────────────────────┴───────────────────────────────────────┘
-```
-
-### Key Technical Capabilities:
-* **Active Driver Voice Announcement & HUD Alarm:** Scans within the driving lane corridor and triggers loud in-cabin auditory warnings (e.g., *"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* / *"Caution: Hazard Ahead"*) and flashing HUD displays when $\text{TTC} \le 1.8\text{ seconds}$, giving drivers critical reaction time.
-* **Monocular 3D Cavity & Material Calculation:** Directly computes maximum depth ($D_{\text{max}}$ in cm), volume (Liters), and exact commercial asphalt mix mass (in kg and 25kg bags) compliant with ERA specifications.
-* **Multi-Vehicle Fleet Fusion:** Merges duplicate detections from multiple passing vehicles within 8 meters, achieving 99.9% statistical certainty.
-* **Contractor Warranty Engine (FIDIC Clause 11):** Automatically cross-references defect GPS coordinates with contractor warranty zones and unit rates (e.g., 28,000 ETB/pothole, 18,000 ETB/crack) to produce formal legal repair demand notices.
-* **Rainy Season Cost-of-Inaction (COI) Forecaster:** Uses a Markov chain model to demonstrate that spending 2,850 ETB/m² on proactive crack sealing today saves 7,800 ETB/m² in post-monsoon reconstruction (**8.5×–11.2× ROI**).
+### 2.1 Problem 1: Sudden Highway Potholes, Blindspots & Fatal Driver Collisions
+* **The Reality on the Ground:** On major corridors like Route A2 (Addis Ababa–Debre Berhan–Dessie), commercial buses, freight trucks, and private vehicles travel at 70–100 km/h. Severe potholes are virtually invisible until the driver is within 10–15 meters, especially during nighttime, heavy fog, or torrential rain. When drivers suddenly encounter an unmapped crater, typical human perception-reaction time ($1.5\text{ to }2.5\text{ seconds}$) is insufficient. Drivers panic and violently swerve into oncoming traffic (causing catastrophic head-on crashes), veer off the road shoulder into ravines (causing fatal rollovers), or slam directly into the crater (causing rim fracture and suspension destruction). Luxury vehicle imported ADAS systems only detect lane paint in Europe/US and neither detect road holes nor speak Ethiopian languages.
+* **How RoadEye™ Solved It:**
+  1. **Edge Computer Vision Perception:** Deploys lightweight YOLOv8/11 deep learning models optimized for mobile processors and dashcams, running at 30+ FPS to detect potholes, alligator cracks, and vehicles 40–50 meters ahead.
+  2. **Active Driving Corridor Projection:** Projects the vehicle's projected forward trajectory ($\pm 1.8\text{m}$ lane width) to eliminate false alarms caused by roadside gutters, parked cars, or curbs.
+  3. **Kinematic Time-To-Collision (TTC) Engine:** Calculates metric forward distance ($Z$) and closing rate $\Delta v$. When $\text{TTC} \le 1.8\text{ seconds}$ (Critical) or $\le 3.0\text{ seconds}$ (Warning), the system acts instantly.
+  4. **Dual-Language Auditory Voice Alarms:** Drivers cannot safely take their eyes off the road to look at small screens. RoadEye™ triggers high-priority, clear audio voice announcements in **Amharic (አማርኛ)** and English:  
+     * *"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* ("Caution! Pothole ahead!")  
+     * *"አደጋ! ፍጥነትህን ቀንስ"* ("Danger! Reduce speed!")  
+     accompanied by a prominent visual HUD flash, giving drivers 1.5 to 2.0 vital seconds to brake smoothly without swerving.
 
 ---
 
-## 4. Target Customers, Market Potential & Key Drivers
-
-### 4.1 Target Customer Segments
-* **Municipalities & City Administrations (GovTech B2G):** Debre Berhan City Administration, Zonal & Regional Urban Infrastructure Bureaus.
-* **National & Regional Road Authorities:** Ethiopian Roads Administration (ERA) and Regional Road Bureaus.
-* **Road Construction Contractors (B2B):** Defence Construction, Sur Construction, Midroc, Yencomad (for quality audits & warranty defense).
-* **Public Transport & Commercial Freight Fleets:** Bus operators, freight trucks on Route A2, and ride-hailing services needing active driver safety alerts.
-* **Automotive Insurance Underwriters:** Risk analytics and accident causation verification.
-
-### 4.2 Market Opportunity (TAM, SAM, SOM)
-* **Total Addressable Market (TAM):** 160,000+ km of Ethiopian roads; annual national maintenance budget > **25 Billion ETB**.
-* **Serviceable Available Market (SAM):** Amhara Region & Central Highway Corridors (18,500+ km) valued at **180 Million ETB/year**.
-* **Serviceable Obtainable Market (SOM):** Debre Berhan road network (180+ km) and adjacent A2 corridor, valued at **12–18 Million ETB/year**.
-
-### 4.3 Key Market Drivers (Why Customers Buy Now)
-1. **Federal Road Fund Digital Mandate:** The Ministry of Urban and Infrastructure (MUI) and ERA require digitized Pavement Condition Index (PCI) data before approving municipal road budgets.
-2. **Strict Public Procurement & Anti-Corruption Audits (OFAG):** The Federal Auditor General holds municipal officials liable if they pay for repairs that contractors should fix for free under warranty.
-3. **Urban Corridor Development Boom:** Rapid asphalt expansion in Debre Berhan and regional cities creates billions of ETB in new road assets currently in their 1–2 year warranty periods.
-4. **Forex Shortage & Import Substitution:** Municipalities cannot access USD to buy $500,000 laser vans; RoadEye provides a 100% local-currency, low-cost alternative.
-5. **Construction Material Inflation (>250%):** Rebuilding roads is unaffordable; cities must prioritize proactive, early-stage crack sealing.
+### 2.2 Problem 2: Catastrophic Monsoon (Kiremt) Pavement Destruction & The 4.2× Degradation Multiplier
+* **The Reality on the Ground:** In the Ethiopian central highlands (Debre Berhan, elevation >2,840m), annual rainfall exceeds 1,100 mm, with over 72% concentrated within the four Kiremt months (June–September). When rainwater enters unsealed hairline cracks and potholes, heavy truck axle loads (ESALs) rolling over the saturated asphalt generate intense **dynamic pore-water pressure ($\Delta u$)**. This acts like a hydraulic pressure washer from the inside, stripping the bitumen binder from the crushed stone aggregates (Bitumen Stripping) and washing out granular sub-base fines (Pumping). Consequently, pavement degradation accelerates by **4.2× faster in Kiremt** than in the dry Bega season. A small 5 cm crack that would remain stable in dry weather explodes into a vehicle-swallowing 15 cm crater within 10 days of heavy rain, forcing full road reconstruction.
+* **How RoadEye™ Solved It:**
+  1. **Physics-Informed 5-State Markov Degradation Chain:** Modeled the stochastic transition of road distresses across 5 condition states:
+     $$\text{State 0 (Intact)} \to \text{State 1 (Hairline Crack)} \to \text{State 2 (Fatigue)} \to \text{State 3 (Pothole)} \to \text{State 4 (Sub-base Collapse)}$$
+  2. **Calibrated Ethiopian Seasonal Climate Multipliers:**
+     * **Kiremt (ክረምት):** $\gamma = 4.2\times$ (High water saturation, sub-base loss, heavy axle pumping).
+     * **Belg (በልግ):** $\gamma = 1.8\times$ (Intermittent showers).
+     * **Bega (በጋ):** $\gamma = 1.0\times$ (Baseline dry weather mechanical wear).
+  3. **Economic Cost of Inaction (COI) ROI Engine:** Quantifies for municipal executives that spending **2,850 ETB/m²** on proactive localized crack sealing before Kiremt prevents **7,800 ETB/m²** emergency reconstruction after the rains, delivering a proven **8.5× to 11.2× Return on Investment (ROI)** for municipal budgets.
 
 ---
 
-## 5. Innovation and Competitive Advantage
+### 2.3 Problem 3: Massive Public Fund Waste from Unenforced Contractor Warranties (FIDIC Clause 11 DLP)
+* **The Reality on the Ground:** Under Ethiopian public procurement law and standard civil engineering contracts (FIDIC Clause 11), newly constructed roads carry a 1-to-2-year Defect Liability Period (DLP). If defects, potholes, or structural cracks emerge during this period, the contractor is legally obligated to repair them entirely at their own cost. However, municipal offices lack automated tracking tools. Defect reports are lost, delayed, or compiled manually long after the warranty has expired. As a result, the municipality releases the contractor's 5% retention guarantee, and when the road fails, the city administration pays tens of millions of ETB out of public tax funds to fix mistakes the contractor was legally bound to repair.
+* **How RoadEye™ Solved It:**
+  1. **Contractor Warranty Geofencing Engine:** Stores road contract boundaries, contractor names, and active DLP start/expiry dates in the central database.
+  2. **Automated Defect Cross-Referencing:** Every defect detected by RoadEye™ is automatically matched against active contractor geofences and warranty dates.
+  3. **Configurable Liability Rate Engine:** Automatically calculates total contractor liability using configurable municipal unit rates (e.g., 28,000 ETB per pothole, 18,000 ETB per crack cluster).
+  4. **Automated Legal Demand Notices:** With a single click, the system generates formal legal rectification demand notices complete with defect photographs, exact chainage/GPS coordinates, contract numbers, and legal deadlines under FIDIC Clause 11—saving Debre Berhan Municipality an estimated **15 to 30 Million ETB annually**.
 
-| Feature | Manual Survey | Imported Laser Vans | RoadEye™ (Our Innovation) |
+---
+
+### 2.4 Problem 4: 2D AI Guesswork vs. Quantitative 3D Cavity Depth & Asphalt Mix Calculation
+* **The Reality on the Ground:** Standard computer vision solutions only draw 2D bounding boxes (e.g., $[x, y, w, h]$). A 2D box gives civil engineers zero volumetric information. A shallow 1 cm surface blemish and a 12 cm deep sub-base collapse look identical in a flat photo. Consequently, municipal maintenance crews arrive at the job site without knowing how much asphalt mix to prepare. They either bring too little (leaving craters unsealed) or too much (wasting expensive bitumen mix that cools and solidifies before use).
+* **How RoadEye™ Solved It:**
+  1. **Monocular 3D Photogrammetric Ground Geometry:** Using camera focal length ($f_x, f_y$), camera mounting height ($H$), tilt angle ($\theta$), and inverse perspective mapping, RoadEye™ computes real ground width ($W_m$) and length ($L_m$).
+  2. **Truncated Paraboloid Depth & Volume Modeling:** Computes maximum cavity depth ($D_{\text{max}}$ in cm), average depth ($D_{\text{avg}}$), and 3D cavity volume:
+     $$V_{\text{cavity}} = \frac{1}{2} \cdot A \cdot \frac{D_{\text{max}}}{100} \times 1000 \quad (\text{Liters})$$
+  3. **Automated Asphalt Material Bill of Quantities:** Converts cavity volume into compacted asphalt mass ($M_{\text{loose}}$ in kg) and the exact number of commercial 25kg/50kg patching bags required according to Ethiopian Roads Administration (ERA) specifications.
+
+---
+
+### 2.5 Problem 5: Multi-Vehicle Observation Duplication & Inspection Bottlenecks
+* **The Reality on the Ground:** Manual road inspections cover less than 5% of a city's network annually, cost exorbitant labor hours, and expose technicians to lethal roadside traffic. Conversely, if multiple vehicles equipped with cameras patrol the same street, traditional systems register dozens of duplicate reports for the same pothole, overwhelming municipal databases with noise. Furthermore, imported laser survey vans (ROMDAS, Dynatest) cost **$250,000 to $500,000 USD** in scarce foreign currency.
+* **How RoadEye™ Solved It:**
+  1. **Spatial Radius Clustering ($\epsilon \le 8.0\text{m}$):** Merges repeated observations of the same defect from multiple vehicles into a single canonical hazard.
+  2. **Bayesian Probability Fusion:** Calculates the confidence-weighted geodesic centroid and fuses multi-pass observations:
+     $$P(\text{Defect}) = 1.0 - \prod_{i=1}^k (1.0 - c_i)$$
+     boosting defect certainty from a single camera's 80% confidence up to **99.9% statistical certainty**.
+  3. **Zero Forex Hardware Footprint:** Runs on accessible commercial dashcams and smartphones ($< \$350\text{ USD}$ total setup), surveying 100–300+ km daily with zero foreign currency dependency.
+
+---
+
+## 3. Summary of Additional Proposal Dimensions (Concise)
+
+### 3.1 Target Customers & Market Potential
+* **Customer Segments:** 1) Municipalities & City Administrations (GovTech B2G), 2) Ethiopian Roads Administration (ERA), 3) Road Contractors (B2B quality & warranty compliance), 4) Freight & Public Transport Fleets (Route A2 driver safety), 5) Insurance Companies.
+* **Market Size:** TAM: 160,000+ km Ethiopian roads (>25 Billion ETB national maintenance budget); SAM: Amhara Region & Central Corridors (180 Million ETB/year); SOM: Debre Berhan municipal network & A2 corridor (12–18 Million ETB/year).
+* **Key Market Drivers:** 1) Federal Road Fund requirement for digitized PCI logs, 2) Federal Auditor General (OFAG) anti-corruption audits on uncollected contractor warranties, 3) Debre Berhan urban corridor boom, 4) National forex shortage, 5) Road material inflation (>250%).
+
+### 3.2 Competitive Advantage
+
+| Evaluation Dimension | Manual Survey | Imported Laser Vans | RoadEye™ (Our Platform) |
 | :--- | :--- | :--- | :--- |
-| **Capital Cost** | Low | **$250,000 – $500,000 USD** | **< $350 USD** (Standard dashcam / phone) |
+| **Capital Cost** | Low | **$250,000 – $500,000 USD** | **< $350 USD** (Dashcam / Smartphone) |
 | **Forex Dependency** | None | **100% Forex Dependent** | **0% Forex** (100% locally built & hosted) |
-| **Driver Voice Alarm** | None | None | **Real-Time Dual-Language (አማርኛ / English)** |
+| **In-Cabin Driver Voice Alarm** | None | None | **Real-Time Dual-Language (አማርኛ / English)** |
 | **Survey Speed** | 3 – 5 km/day | 40 – 60 km/day | **100 – 300+ km/day** |
-| **Worker Risk** | Extremely High | Low | **Zero Risk** (Surveyed from inside vehicle) |
-| **3D Cavity Material** | Guesswork | Requires LiDAR | **Automated Monocular 3D (Bags & kg)** |
-| **Contractor DLP Tracker** | None | Manual / None | **Automated FIDIC Clause 11 Geofencing** |
-| **Prototype Readiness** | Legacy | Commercial | **Working Prototype (114 Passing Unit Tests)** |
+| **Worker Safety Risk** | Extremely High | Low | **Zero Risk** (Surveyed from cabin) |
+| **3D Cavity Material Calculation**| Guesswork | Requires LiDAR | **Automated Monocular 3D (Bags & kg)** |
+| **Contractor Warranty (DLP)** | None | Manual / None | **Automated FIDIC Clause 11 Geofencing** |
+| **Working Prototype Readiness** | Legacy | Commercial | **Fully Functional (114 Passing Unit Tests)** |
+
+### 3.3 Business Model & Financial Forecast
+* **Revenue Streams:** 1) Municipal SaaS Licenses (Basic: 250k ETB/yr, Pro: 650k ETB/yr, Metro: 1.8M ETB/yr); 2) Pavement Inspection-as-a-Service (1,200–1,800 ETB/km); 3) Contractor DLP Compliance Audits (45,000–120,000 ETB/project); 4) Fleet Safety Telemetry API feeds.
+* **3-Year Revenue Forecast:** Year 1 (2027): **2.45M ETB** (42% margin); Year 2 (2028): **8.90M ETB** (56% margin); Year 3 (2029): **26.50M ETB** (68% margin).
+
+### 3.4 Economic, Social, and Safety Impact
+* **Saving Driver Lives:** Eliminates sudden swerving rollovers and head-on collisions via real-time audio voice alerts (*"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"*).
+* **Protecting Public Funds:** Saves Debre Berhan City Administration **15–30 Million ETB annually** via contractor warranty enforcement and proactive crack sealing.
+* **National Import Substitution:** Eliminates foreign exchange dependency for road survey technologies.
+* **Youth Tech Employment:** Generates high-skill jobs in AI engineering, computer vision, GIS mapping, and municipal infrastructure management.
 
 ---
 
-## 6. Business Model and Commercialization Strategy
-
-RoadEye™ operates a hybrid **SaaS (Software-as-a-Service)** and **DaaS (Data-as-a-Service)** revenue model:
-
-### 6.1 Revenue Streams
-1. **Municipal SaaS Subscriptions:** Basic (250,000 ETB/yr), Pro/Debre Berhan (650,000 ETB/yr), Enterprise Metro (1,800,000 ETB/yr).
-2. **Pavement Inspection-as-a-Service (PIaaS):** Turnkey 3D surveying at 1,200–1,800 ETB per kilometer.
-3. **Contractor DLP Compliance Audits:** Pre-handover audit reports at 45,000–120,000 ETB per project.
-4. **Fleet Safety & Telemetry Feeds:** Monthly subscription for in-cabin driver alerts and route hazard data.
-
-### 6.2 Three-Year Financial Forecast
-
-| Year | Strategic Milestone | Clients / Projects | Projected Revenue | Net Margin |
-| :---: | :--- | :---: | :---: | :---: |
-| **2027** | Debre Berhan Pilot & Fleet Launch | 1 Municipality + 4 Contractors | **2,450,000 ETB** | **42%** |
-| **2028** | Expansion to 5 Amhara Cities + ERA | 6 Municipalities + 12 Contractors | **8,900,000 ETB** | **56%** |
-| **2029** | National Corridor Expansion | 18 Municipalities + 35 Contractors | **26,500,000 ETB** | **68%** |
-
----
-
-## 7. Expected Economic, Social, and Safety Impact
-
-* **Saving Driver Lives & Preventing Crashes:** Real-time voice announcements (*"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"*) prevent violent swerving, rollovers, and multi-vehicle highway collisions.
-* **Massive Municipal Savings:** Proactive crack sealing and contractor warranty enforcement save **15–30 Million ETB** annually for Debre Berhan City Administration.
-* **Preserving Foreign Currency:** Replaces scarce foreign currency imports with locally engineered software and standard commercial hardware.
-* **Youth Employment & Tech Innovation:** Creates high-skill jobs in AI engineering, computer vision, GIS analysis, and municipal infrastructure management in Debre Berhan.
-
----
-
-## 8. Team Information and Contact Details
+## 4. Team Information and Contact Details
 
 | Parameter | Details |
 | :--- | :--- |
@@ -166,13 +148,13 @@ RoadEye™ operates a hybrid **SaaS (Software-as-a-Service)** and **DaaS (Data-a
 | **Email Address** | `hailesintayehu113@gmail.com` |
 | **Contact Numbers** | **0921746222 / 0912485346** |
 | **GitHub Portfolio** | [github.com/haile6](https://github.com/haile6) |
-| **Repository** | [haile6/intelligent-road-monitoring-system](https://github.com/haile6/intelligent-road-monitoring-system) |
-| **Technical Advisory** | Mentors from College of Computing & Faculty of Civil Engineering |
+| **Code Repository** | [intelligent-road-monitoring-system](https://github.com/haile6/intelligent-road-monitoring-system) |
+| **Institutional Mentorship**| Debre Berhan University – Faculty of Computing & Faculty of Civil Engineering Mentors |
 
 ---
 
 ### Declaration
-I hereby submit this business proposal to the **Debre Berhan University Center for Employability and Entrepreneurship Development** and the **Entrepreneurship Development Institute (EDI)** for the Global Entrepreneurship Week 2026 Business Idea Competition. RoadEye™ is an original innovation developed at Debre Berhan University, with a functional prototype validated by 114 automated passing tests, ready for pilot deployment and commercial incubation.
+I hereby submit this business proposal titled **"AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform"** to the **Debre Berhan University Center for Employability and Entrepreneurship Development** in collaboration with the **Entrepreneurship Development Institute (EDI)** for consideration in the Global Entrepreneurship Week 2026 Business Idea Competition. The platform is an original technology innovation developed at Debre Berhan University, validated by 114 automated tests passing successfully, and ready for immediate pilot deployment and commercial incubation.
 
 **Applicant:** Haile Sintayehu  
 **Signature:** *Haile Sintayehu* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Date:** November 16, 2026

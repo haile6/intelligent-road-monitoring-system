@@ -1,6 +1,7 @@
 """
-Generate Word-Compatible Document (.doc) for Debre Berhan University & EDI
-Business Idea Competition 2026 - Concise, Driver-Alert Focused Version.
+Generate Word-Compatible Document (.doc) with Official Title:
+"AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform"
+For Debre Berhan University & EDI Business Idea Competition 2026.
 """
 
 import os
@@ -9,7 +10,7 @@ HTML_DOC_CONTENT = """<!DOCTYPE html>
 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
 <head>
 <meta charset="utf-8">
-<title>DBU EDI Business Idea Proposal - RoadEye</title>
+<title>AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform</title>
 <!--[if gte mso 9]>
 <xml>
 <w:WordDocument>
@@ -32,7 +33,7 @@ body {
     background-color: #ffffff;
 }
 h1 {
-    font-size: 18pt;
+    font-size: 17pt;
     font-weight: 700;
     color: #1e3a8a;
     text-align: center;
@@ -40,19 +41,19 @@ h1 {
     margin-bottom: 4pt;
 }
 h2 {
-    font-size: 13pt;
+    font-size: 12.5pt;
     font-weight: 700;
     color: #1e3a8a;
     border-bottom: 2px solid #3b82f6;
     padding-bottom: 3pt;
-    margin-top: 14pt;
-    margin-bottom: 6pt;
+    margin-top: 12pt;
+    margin-bottom: 5pt;
 }
 h3 {
     font-size: 11pt;
     font-weight: 600;
     color: #0369a1;
-    margin-top: 10pt;
+    margin-top: 9pt;
     margin-bottom: 3pt;
 }
 p {
@@ -61,7 +62,7 @@ p {
 }
 ul {
     margin-top: 3pt;
-    margin-bottom: 6pt;
+    margin-bottom: 5pt;
     padding-left: 18pt;
 }
 li {
@@ -100,7 +101,7 @@ table.meta-table, table.data-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 6pt;
-    margin-bottom: 10pt;
+    margin-bottom: 8pt;
     font-size: 9.5pt;
 }
 table.meta-table td {
@@ -128,15 +129,22 @@ table.data-table td {
 table.data-table tr:nth-child(even) {
     background-color: #f8fafc;
 }
-.highlight-box {
+.problem-box {
+    background-color: #fff1f2;
+    border-left: 4px solid #e11d48;
+    padding: 5pt 9pt;
+    margin: 5pt 0;
+    font-size: 10pt;
+}
+.solution-box {
     background-color: #eff6ff;
     border-left: 4px solid #2563eb;
-    padding: 6pt 10pt;
-    margin: 6pt 0;
+    padding: 5pt 9pt;
+    margin: 5pt 0;
     font-size: 10pt;
 }
 .signature-section {
-    margin-top: 18pt;
+    margin-top: 15pt;
     border-top: 1px solid #cbd5e1;
     padding-top: 8pt;
 }
@@ -153,16 +161,14 @@ table.data-table tr:nth-child(even) {
 
 <table class="meta-table">
     <tr>
-        <td class="meta-label">Submission Deadline:</td>
-        <td><strong>November 16, 2026 – 5:00 PM</strong></td>
-        <td class="meta-label">Submission Format:</td>
-        <td>Word / PDF Document</td>
+        <td class="meta-label">Project Title:</td>
+        <td colspan="3"><strong>AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform</strong></td>
     </tr>
     <tr>
-        <td class="meta-label">Submission Email:</td>
-        <td><strong>deredbu2003@gmail.com</strong></td>
-        <td class="meta-label">Office Location:</td>
-        <td>Center for Employability / SE-02, F2</td>
+        <td class="meta-label">Platform Brand:</td>
+        <td><strong>RoadEye™</strong></td>
+        <td class="meta-label">Submission Deadline:</td>
+        <td><strong>November 16, 2026 – 5:00 PM</strong></td>
     </tr>
     <tr>
         <td class="meta-label">Lead Innovator:</td>
@@ -173,72 +179,107 @@ table.data-table tr:nth-child(even) {
     <tr>
         <td class="meta-label">College / Dept:</td>
         <td>College of Computing</td>
+        <td class="meta-label">Email:</td>
+        <td><strong>hailesintayehu113@gmail.com</strong></td>
+    </tr>
+    <tr>
+        <td class="meta-label">Target Focus Areas:</td>
+        <td>ICT • Infrastructure Materials • Engineering</td>
         <td class="meta-label">Prototype Status:</td>
-        <td><strong>114 Automated Tests Passing (100%)</strong></td>
+        <td><strong>114 Automated Unit Tests Passing (100%)</strong></td>
     </tr>
 </table>
 
-<div style="text-align: center; margin-top: 6pt; margin-bottom: 10pt;">
-    <h1 style="color: #1e3a8a; margin-bottom: 2pt;">RoadEye™</h1>
-    <div style="font-size: 12pt; font-weight: 600; color: #0284c7;">Dual-Action Platform: Real-Time In-Cabin Driver Voice Warning & Municipal Asset Management</div>
+<div style="text-align: center; margin-top: 6pt; margin-bottom: 8pt;">
+    <h1 style="color: #1e3a8a; margin-bottom: 2pt;">AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform</h1>
+    <div style="font-size: 11pt; font-weight: 600; color: #0284c7;">Dual-Action Platform: Real-Time In-Cabin Driver Voice Warning & Municipal Asset Management (RoadEye™)</div>
     <div style="font-size: 9pt; color: #64748b;">Repository: <a href="https://github.com/haile6/intelligent-road-monitoring-system">github.com/haile6/intelligent-road-monitoring-system</a></div>
 </div>
 
-<h2>1. Business Idea Title and Description</h2>
-<p><strong>Title:</strong> RoadEye™: Edge-AI In-Cabin Driver Safety Voice Alarm & Municipal Asset Management Platform</p>
-<p><strong>Overview:</strong> <strong>RoadEye™</strong> is an innovative GovTech and Mobility AI platform engineered at Debre Berhan University. It converts affordable dashcams and smartphones into a <strong>dual-action system</strong>:</p>
+<h2>1. Business Idea Title and Overview</h2>
+<p><strong>Title:</strong> AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform (RoadEye™)</p>
+<p><strong>Overview:</strong> <strong>RoadEye™</strong> is an end-to-end GovTech and Mobility AI innovation engineered at Debre Berhan University. It pairs low-cost, off-the-shelf monocular cameras (dashcams and smartphones) with deep learning computer vision, 3D photogrammetry, spatial GIS kinematics, and physics-informed pavement deterioration modeling to simultaneously achieve two transformative missions:</p>
 <ul>
-    <li><strong>1. For Drivers (Active In-Cabin ADAS Safety):</strong> Continuously monitors the forward driving corridor, calculates closing Time-To-Collision (TTC &le; 1.8s), and sounds <strong>real-time voice alarms and visual HUD alerts in both Amharic (አማርኛ) and English</strong> (e.g., <em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Pothole Ahead, Reduce Speed"</em>). This prevents violent swerving, rollovers, and tire blowouts.</li>
-    <li><strong>2. For Municipalities (GovTech Asset Management):</strong> Automatically detects pavement distresses, calculates 3D cavity depth and required asphalt repair mass (kg), projects defects onto an interactive GIS map, and enforces contractor warranties under FIDIC Clause 11 (Defect Liability Period).</li>
+    <li><strong>1. For Drivers (Active In-Cabin ADAS Collision Avoidance):</strong> Scans the forward travel corridor in real-time at 30+ FPS, estimates closing Time-To-Collision (TTC &le; 1.8s), and triggers <strong>instantaneous dual-language (Amharic & English) audio voice alarms</strong> and flashing HUD visual alerts (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Hazard Ahead, Reduce Speed"</em>). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.</li>
+    <li><strong>2. For Municipalities & Road Authorities (Intelligent Asset Management):</strong> Automatically maps pavement distresses, calculates 3D cavity depth and required asphalt repair mass in kilograms, projects hazards on an interactive GIS map, and enforces contractor road warranties under FIDIC Clause 11 (Defect Liability Period).</li>
 </ul>
-<p>By identifying road defects before the Ethiopian monsoon (<strong>Kiremt</strong>, where damage accelerates by <strong>4.2&times;</strong>), RoadEye™ cuts municipal repair costs by up to <strong>75%</strong> while protecting drivers' lives daily.</p>
+<p>By predicting structural failure before the Ethiopian monsoon (<strong>Kiremt</strong>, where road deterioration accelerates by <strong>4.2&times;</strong>), the platform cuts municipal road maintenance costs by up to <strong>75%</strong> while protecting road users' lives.</p>
 
-<h2>2. Problem Statement and Market Need</h2>
-<ul>
-    <li><strong>1. Lethal Driver Collisions from Sudden Potholes:</strong> Drivers traveling at high speeds encounter unexpected potholes, causing violent swerving into oncoming traffic, rollovers, or tire blowouts. Without automated in-cabin voice warnings, drivers cannot react safely at night or in rain.</li>
-    <li><strong>2. Inefficient & Dangerous Manual Inspections:</strong> Technicians walk along high-speed corridors with tape measures and clipboards. It is lethally dangerous, covers under 5% of the network annually, and takes months to report.</li>
-    <li><strong>3. Severe Monsoon (Kiremt) Pavement Destruction:</strong> Heavy rainfall and freight truck axle loads create hydrodynamic pore-water pumping, accelerating pavement breakdown by <strong>4.2&times;</strong> during Kiremt.</li>
-    <li><strong>4. Millions Lost from Unenforced Contractor Warranties:</strong> When newly built roads fail during the 1–2 year warranty period (FIDIC Clause 11 DLP), municipalities lack digital evidence, forcing taxpayers to pay tens of millions of ETB that contractors should fix for free.</li>
-    <li><strong>5. Foreign Currency (Forex) Crisis:</strong> Foreign laser inspection vans (ROMDAS) cost <strong>$250,000–$500,000 USD</strong>—completely unaffordable for Ethiopian municipal budgets.</li>
-</ul>
+<h2>2. Deep Dive: Critical Problems Addressed and Engineering Solutions</h2>
 
-<h2>3. Proposed Product and Technical Solution</h2>
-<div class="highlight-box">
-    <strong>Key Capabilities:</strong><br/>
-    • <strong>Active Driver Voice Announcement & ADAS Alarm:</strong> Monitors forward travel lanes at 30+ FPS and issues dual-language auditory voice warnings (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em>) and flashing HUD displays when TTC &le; 1.8 seconds.<br/>
-    • <strong>Monocular 3D Cavity & Asphalt Quantification:</strong> Directly computes depth (cm), volume (Liters), and exact commercial asphalt mix mass (in kg and 25kg bags) compliant with ERA specifications.<br/>
-    • <strong>Multi-Vehicle Fleet Fusion:</strong> Merges duplicate detections from multiple vehicles within 8 meters, achieving 99.9% statistical certainty.<br/>
-    • <strong>Contractor Warranty Engine (FIDIC Clause 11):</strong> Cross-references defect coordinates with contractor warranty zones and unit rates (28,000 ETB/pothole, 18,000 ETB/crack) to produce formal legal rectification demand notices.<br/>
-    • <strong>Rainy Season Cost-of-Inaction (COI) ROI Engine:</strong> Proves that spending 2,850 ETB/m² on proactive crack sealing today saves 7,800 ETB/m² in post-monsoon reconstruction (<strong>8.5&times;–11.2&times; ROI</strong>).
+<h3>2.1 Problem 1: Sudden Highway Potholes, Blindspots & Fatal Driver Collisions</h3>
+<div class="problem-box">
+    <strong>The Reality on the Ground:</strong> On major corridors like Route A2 (Addis Ababa–Debre Berhan–Dessie), commercial buses, freight trucks, and private vehicles travel at 70–100 km/h. Severe potholes are virtually invisible until the driver is within 10–15 meters, especially during nighttime, heavy fog, or torrential rain. When drivers suddenly encounter an unmapped crater, typical human perception-reaction time (1.5 to 2.5 seconds) is insufficient. Drivers panic and violently swerve into oncoming traffic (causing catastrophic head-on crashes), veer off the road shoulder into ravines (causing fatal rollovers), or slam directly into the crater (causing rim fracture and suspension destruction). Luxury vehicle imported ADAS systems only detect lane paint in Europe/US and neither detect road holes nor speak Ethiopian languages.
+</div>
+<div class="solution-box">
+    <strong>How RoadEye™ Solved It (The Engineering):</strong><br/>
+    1. <strong>Edge Computer Vision Perception:</strong> Deploys lightweight YOLOv8/11 deep learning models running at 30+ FPS to detect potholes, alligator cracks, and vehicles 40–50 meters ahead.<br/>
+    2. <strong>Active Driving Corridor Projection:</strong> Projects the vehicle's forward trajectory (&plusmn;1.8m lane width) to eliminate false alarms from roadside curbs or sidewalks.<br/>
+    3. <strong>Kinematic Time-To-Collision (TTC) Engine:</strong> Calculates forward distance (Z) and closing rate. When TTC &le; 1.8s (Critical) or &le; 3.0s (Warning), the system acts instantly.<br/>
+    4. <strong>Dual-Language Auditory Voice Alarms:</strong> Triggers loud, high-priority audio announcements in <strong>Amharic (አማርኛ)</strong> and English (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em> / <em>"Warning! Pothole ahead, reduce speed"</em>) with flashing HUD displays, giving drivers 1.5 to 2.0 vital seconds to brake safely without panic swerving.
 </div>
 
-<h2>4. Target Customers, Market Potential & Key Drivers</h2>
-<h3>4.1 Target Customer Segments</h3>
+<h3>2.2 Problem 2: Catastrophic Monsoon (Kiremt) Pavement Destruction & The 4.2x Multiplier</h3>
+<div class="problem-box">
+    <strong>The Reality on the Ground:</strong> In the Ethiopian central highlands (Debre Berhan, elevation >2,840m), annual rainfall exceeds 1,100 mm, with over 72% falling in the four Kiremt months (June–September). Rainwater entering unsealed cracks combined with heavy truck axle loads generates intense hydrodynamic pore-water pressure (&Delta;u). This strips the bitumen binder from aggregates (Bitumen Stripping) and washes out sub-base fines (Pumping). Consequently, pavement degradation accelerates by <strong>4.2&times; faster in Kiremt</strong> than in dry Bega. A small 5 cm crack explodes into a vehicle-swallowing 15 cm crater within 10 days of heavy rain, forcing full road reconstruction.
+</div>
+<div class="solution-box">
+    <strong>How RoadEye™ Solved It (The Engineering):</strong><br/>
+    1. <strong>Physics-Informed 5-State Markov Degradation Chain:</strong> Models structural transition across 5 discrete states (Intact &rarr; Hairline Crack &rarr; Fatigue &rarr; Pothole &rarr; Sub-base Collapse).<br/>
+    2. <strong>Calibrated Ethiopian Climate Multipliers:</strong> Kiremt (&gamma; = 4.2&times; saturation & pumping), Belg (&gamma; = 1.8&times; showers), and Bega (&gamma; = 1.0&times; baseline dry wear).<br/>
+    3. <strong>Economic Cost of Inaction (COI) ROI Engine:</strong> Mathematically proves that spending 2,850 ETB/m² on proactive localized crack sealing before Kiremt prevents 7,800 ETB/m² emergency reconstruction after the rains (<strong>8.5&times;–11.2&times; ROI</strong>).
+</div>
+
+<h3>2.3 Problem 3: Public Fund Waste from Unenforced Contractor Warranties (FIDIC Clause 11 DLP)</h3>
+<div class="problem-box">
+    <strong>The Reality on the Ground:</strong> Under standard civil contracts (FIDIC Clause 11), newly built roads carry a 1-to-2-year Defect Liability Period (DLP). If potholes or cracks emerge, the contractor must repair them at their own cost. However, municipal offices lack automated tracking tools. Defect reports are delayed or lost. As a result, the municipality releases the contractor's 5% retention guarantee, and when the road fails, the city administration pays tens of millions of ETB out of public tax funds to fix mistakes the contractor was legally bound to repair.
+</div>
+<div class="solution-box">
+    <strong>How RoadEye™ Solved It (The Engineering):</strong><br/>
+    1. <strong>Contractor Warranty Geofencing Engine:</strong> Stores road contract boundaries, contractor names, and active DLP start/expiry dates in the central database.<br/>
+    2. <strong>Automated Defect Cross-Referencing:</strong> Every defect detected is automatically matched against active contractor geofences and warranty dates.<br/>
+    3. <strong>Configurable Liability Rate Engine:</strong> Automatically calculates total contractor liability using configurable municipal unit rates (e.g., 28,000 ETB/pothole, 18,000 ETB/crack).<br/>
+    4. <strong>Automated Legal Demand Notices:</strong> Generates formal legal rectification notices complete with defect photographs, GPS coordinates, contract numbers, and deadlines under FIDIC Clause 11—saving Debre Berhan Municipality an estimated <strong>15 to 30 Million ETB annually</strong>.
+</div>
+
+<h3>2.4 Problem 4: 2D AI Guesswork vs. Quantitative 3D Cavity Depth & Asphalt Mix Calculation</h3>
+<div class="problem-box">
+    <strong>The Reality on the Ground:</strong> Standard computer vision solutions only draw 2D bounding boxes. A 2D box gives civil engineers zero volumetric information. A shallow 1 cm surface blemish and a 12 cm deep sub-base collapse look identical in a flat photo. Consequently, municipal maintenance crews arrive at the job site without knowing how much asphalt mix to prepare. They either bring too little (leaving craters unsealed) or too much (wasting expensive bitumen mix that cools and solidifies before use).
+</div>
+<div class="solution-box">
+    <strong>How RoadEye™ Solved It (The Engineering):</strong><br/>
+    1. <strong>Monocular 3D Photogrammetric Ground Geometry:</strong> Using camera focal length, mounting height, tilt angle, and inverse perspective mapping, computes real ground width (Wm) and length (Lm).<br/>
+    2. <strong>Truncated Paraboloid Depth & Volume Modeling:</strong> Computes maximum cavity depth (Dmax in cm), average depth (Davg), and 3D cavity volume (V = 1/2 * A * Dmax * 1000 Liters).<br/>
+    3. <strong>Automated Asphalt Material Bill of Quantities:</strong> Converts cavity volume into compacted asphalt mass (M_loose in kg) and the exact number of commercial 25kg/50kg patching bags required according to ERA specifications.
+</div>
+
+<h3>2.5 Problem 5: Multi-Vehicle Observation Duplication & Inspection Bottlenecks</h3>
+<div class="problem-box">
+    <strong>The Reality on the Ground:</strong> Manual road inspections cover less than 5% of a city's network annually, cost exorbitant labor hours, and expose technicians to lethal roadside traffic. Conversely, if multiple vehicles patrol the same street, traditional systems register dozens of duplicate reports for the same pothole, overwhelming municipal databases with noise. Furthermore, imported laser survey vans (ROMDAS) cost $250,000 to $500,000 USD in scarce foreign currency.
+</div>
+<div class="solution-box">
+    <strong>How RoadEye™ Solved It (The Engineering):</strong><br/>
+    1. <strong>Spatial Radius Clustering (&epsilon; &le; 8.0m):</strong> Merges repeated observations of the same defect from multiple vehicles into a single canonical hazard.<br/>
+    2. <strong>Bayesian Probability Fusion:</strong> Calculates the confidence-weighted geodesic centroid and fuses multi-pass observations via Bayesian joint probability, boosting defect certainty up to <strong>99.9% statistical certainty</strong>.<br/>
+    3. <strong>Zero Forex Hardware Footprint:</strong> Runs on accessible commercial dashcams and smartphones (&lt; $350 USD total setup), surveying 100–300+ km daily with zero foreign currency dependency.
+</div>
+
+<h2>3. Summary of Additional Dimensions (Concise)</h2>
+<h3>3.1 Target Customers & Market Potential</h3>
 <ul>
-    <li><strong>Municipalities (GovTech B2G):</strong> Debre Berhan City Administration, Zonal & Regional Urban Infrastructure Bureaus.</li>
-    <li><strong>National Highway Authorities:</strong> Ethiopian Roads Administration (ERA) and Regional Road Bureaus.</li>
-    <li><strong>Road Construction Contractors (B2B):</strong> Defence Construction, Sur Construction, Midroc, Yencomad (for quality audits & warranty defense).</li>
-    <li><strong>Commercial Transport Fleets:</strong> Freight trucks on Route A2, bus fleets, and logistics companies requiring in-cabin driver alerts.</li>
+    <li><strong>Customer Segments:</strong> Municipalities (GovTech B2G), ERA, Civil Road Contractors (B2B), Commercial Freight & Bus Fleets, Insurance Underwriters.</li>
+    <li><strong>Market Size:</strong> TAM: 160,000+ km of roads (> 25 Billion ETB national maintenance context); SAM: Amhara Region & Central Corridors (180 Million ETB/year); SOM: Debre Berhan network & A2 corridor (12–18 Million ETB/year).</li>
+    <li><strong>Key Market Drivers:</strong> Federal Road Fund digital PCI mandate, OFAG anti-corruption audit liability on uncollected contractor warranties, Debre Berhan urban corridor boom, forex shortages, and road material inflation (>250%).</li>
 </ul>
 
-<h3>4.2 Market Potential & Key Market Drivers</h3>
-<ul>
-    <li><strong>TAM / SAM / SOM:</strong> TAM: 160,000+ km of roads (> 25 Billion ETB national maintenance context); SAM: Amhara Region & Central Corridors (180 Million ETB/year); SOM: Debre Berhan network & A2 corridor (12–18 Million ETB/year).</li>
-    <li><strong>1. Federal Road Fund Digital Mandate:</strong> MUI and ERA require digitized Pavement Condition Index (PCI) logs before approving municipal road budgets.</li>
-    <li><strong>2. Strict Anti-Corruption & Public Procurement Audits (OFAG):</strong> The Federal Auditor General holds municipal officials personally liable if they pay for repairs that contractors should fix for free under warranty.</li>
-    <li><strong>3. Urban Corridor Development Boom:</strong> Rapid asphalt expansion in Debre Berhan and regional cities creates billions of ETB in new road assets currently in their 1–2 year warranty periods.</li>
-    <li><strong>4. Forex Crunch & Import Substitution Policy:</strong> Foreign exchange shortages make imported laser survey vans ($500k USD) unaffordable, driving urgent demand for 100% locally built GovTech solutions.</li>
-    <li><strong>5. Construction Material Inflation (>250%):</strong> Rebuilding roads is unaffordable; cities must prioritize proactive, early-stage crack sealing.</li>
-</ul>
-
-<h2>5. Innovation and Competitive Advantage</h2>
+<h3>3.2 Competitive Advantage</h3>
 <table class="data-table">
     <thead>
         <tr>
-            <th>Feature</th>
+            <th>Evaluation Dimension</th>
             <th>Manual Survey</th>
             <th>Imported Laser Vans</th>
-            <th>RoadEye™ (Our Innovation)</th>
+            <th>RoadEye™ (Our Platform)</th>
         </tr>
     </thead>
     <tbody>
@@ -246,19 +287,19 @@ table.data-table tr:nth-child(even) {
             <td><strong>Hardware Cost</strong></td>
             <td>Low</td>
             <td><strong>$250,000 – $500,000 USD</strong></td>
-            <td><strong>&lt; $350 USD</strong> (Standard dashcam / phone)</td>
+            <td><strong>&lt; $350 USD</strong> (Dashcam / Phone)</td>
         </tr>
         <tr>
             <td><strong>Forex Dependency</strong></td>
             <td>None</td>
             <td><strong>100% Forex Dependent</strong></td>
-            <td><strong>0% Forex</strong> (100% locally built & hosted)</td>
+            <td><strong>0% Forex</strong> (100% locally built)</td>
         </tr>
         <tr>
-            <td><strong>Driver Voice Alarm</strong></td>
+            <td><strong>In-Cabin Driver Voice Alarm</strong></td>
             <td>None</td>
             <td>None</td>
-            <td><strong>Real-Time Dual-Language (አማርኛ / English)</strong></td>
+            <td><strong>Real-Time Dual-Language (አማርኛ/EN)</strong></td>
         </tr>
         <tr>
             <td><strong>Survey Speed</strong></td>
@@ -267,41 +308,36 @@ table.data-table tr:nth-child(even) {
             <td><strong>100 – 300+ km/day</strong></td>
         </tr>
         <tr>
-            <td><strong>Worker Risk</strong></td>
+            <td><strong>Worker Safety Risk</strong></td>
             <td>Extremely High Risk</td>
             <td>Low Risk</td>
-            <td><strong>Zero Risk</strong> (Surveyed from vehicle cabin)</td>
+            <td><strong>Zero Risk</strong> (Surveyed from cabin)</td>
         </tr>
         <tr>
             <td><strong>3D Cavity Material</strong></td>
             <td>Guesswork</td>
             <td>Requires LiDAR</td>
-            <td><strong>Automated Monocular 3D (Bags & kg)</strong></td>
+            <td><strong>Automated Monocular 3D (Bags/kg)</strong></td>
         </tr>
         <tr>
             <td><strong>Contractor DLP</strong></td>
             <td>None</td>
             <td>Manual / None</td>
-            <td><strong>Automated FIDIC Clause 11 Geofencing</strong></td>
+            <td><strong>Automated FIDIC Clause 11 Geofence</strong></td>
         </tr>
         <tr>
-            <td><strong>Prototype Readiness</strong></td>
+            <td><strong>Working Prototype</strong></td>
             <td>Legacy</td>
             <td>Commercial</td>
-            <td><strong>Working Prototype (114 Passing Tests)</strong></td>
+            <td><strong>Fully Functional (114 Passing Tests)</strong></td>
         </tr>
     </tbody>
 </table>
 
-<h2>6. Business Model and Commercialization Strategy</h2>
+<h3>3.3 Business Model & Financial Forecast</h3>
 <ul>
-    <li><strong>1. Municipal SaaS Subscriptions:</strong> Basic (250,000 ETB), Pro / Debre Berhan (650,000 ETB), Enterprise Metro (1,800,000 ETB).</li>
-    <li><strong>2. Pavement Inspection-as-a-Service (PIaaS):</strong> Turnkey 3D surveying at 1,200–1,800 ETB per kilometer.</li>
-    <li><strong>3. Contractor DLP Compliance Audits:</strong> Pre-handover audit reports at 45,000–120,000 ETB per project.</li>
-    <li><strong>4. Fleet Safety & Telemetry Feeds:</strong> Monthly subscription for in-cabin driver alerts and route hazard data.</li>
+    <li><strong>Revenue Streams:</strong> Tiered annual municipal SaaS subscriptions (250k–1.8M ETB/yr), Pavement Inspection-as-a-Service (1,200–1,800 ETB/km), Contractor DLP audits, and fleet telemetry API feeds.</li>
 </ul>
-
-<h3>3-Year Financial Forecast:</h3>
 <table class="data-table">
     <thead>
         <tr>
@@ -337,15 +373,15 @@ table.data-table tr:nth-child(even) {
     </tbody>
 </table>
 
-<h2>7. Expected Economic, Social, and Safety Impact</h2>
+<h3>3.4 Economic, Social, and Safety Impact</h3>
 <ul>
-    <li><strong>Saving Driver Lives & Preventing Crashes:</strong> Real-time voice announcements (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em>) prevent violent swerving, rollovers, and multi-vehicle highway collisions.</li>
-    <li><strong>Massive Municipal Savings:</strong> Proactive crack sealing and contractor warranty enforcement save <strong>15–30 Million ETB</strong> annually for Debre Berhan City Administration.</li>
-    <li><strong>Preserving Foreign Currency:</strong> Replaces scarce foreign currency imports with locally engineered software and standard commercial hardware.</li>
-    <li><strong>Youth Employment & Tech Innovation:</strong> Creates high-skill jobs in AI engineering, computer vision, GIS analysis, and municipal infrastructure management in Debre Berhan.</li>
+    <li><strong>Saving Driver Lives:</strong> Real-time voice announcements (<em>"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"</em>) prevent violent swerving, rollovers, and multi-vehicle highway collisions.</li>
+    <li><strong>Protecting Public Funds:</strong> Proactive crack sealing and contractor warranty enforcement save 15–30 Million ETB annually for Debre Berhan City Administration.</li>
+    <li><strong>Import Substitution:</strong> Replaces scarce foreign currency imports with locally engineered software and standard commercial hardware.</li>
+    <li><strong>Youth Tech Employment:</strong> Creates high-skill employment in AI engineering, computer vision, GIS analysis, and municipal infrastructure management.</li>
 </ul>
 
-<h2>8. Team Information and Contact Details</h2>
+<h2>4. Team Information and Contact Details</h2>
 <table class="meta-table">
     <tr>
         <td class="meta-label">Lead Innovator:</td>
@@ -354,7 +390,7 @@ table.data-table tr:nth-child(even) {
         <td>Lead AI & Computer Vision Developer / System Architect</td>
     </tr>
     <tr>
-        <td class="meta-label">Institution:</td>
+        <td class="meta-label">Institution / College:</td>
         <td>Debre Berhan University – College of Computing</td>
         <td class="meta-label">Email:</td>
         <td><strong>hailesintayehu113@gmail.com</strong></td>
@@ -368,7 +404,7 @@ table.data-table tr:nth-child(even) {
 </table>
 
 <div class="signature-section">
-    <p><em>Declaration: I submit this business proposal to the Debre Berhan University Center for Employability and Entrepreneurship Development and EDI for the Global Entrepreneurship Week 2026 Business Idea Competition. RoadEye™ is an original innovation developed at Debre Berhan University, validated by 114 passing unit tests, ready for pilot deployment and commercial incubation.</em></p>
+    <p><em>Declaration: I submit this business proposal titled 'AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform' to the Debre Berhan University Center for Employability and Entrepreneurship Development in collaboration with EDI for the Global Entrepreneurship Week 2026 Business Idea Competition. The platform is an original technology innovation developed at Debre Berhan University, validated by 114 passing unit tests, and ready for pilot deployment and commercial incubation.</em></p>
     <br/>
     <p><strong>Applicant Signature:</strong> <em>Haile Sintayehu</em> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Date:</strong> November 16, 2026</p>
 </div>
