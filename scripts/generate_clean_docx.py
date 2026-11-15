@@ -182,6 +182,12 @@ def make_docx():
     body.append(bullet("Over 160,000 km of classified federal and municipal road networks across Ethiopia, with an annual national road maintenance budget exceeding 25 Billion ETB.", "Total Addressable Market (TAM):"))
     body.append(bullet("Amhara Region & Central Highway Corridors covering 18,500+ km, representing an estimated annual inspection and condition monitoring market of 180 Million ETB.", "Serviceable Available Market (SAM):"))
     body.append(bullet("Debre Berhan City road network (180+ km paved roads) and the adjacent 130 km Debre Berhan–Addis Ababa freight corridor, with an immediate addressable annual value of 12 to 18 Million ETB.", "Immediate Serviceable Obtainable Market (SOM):"))
+    body.append(h2("4.3 Key Market Potential Drivers (Why Customers Buy Now)"))
+    body.append(bullet("MUI and ERA now require objective digital Pavement Condition Index (PCI) logs before approving annual municipal road maintenance budgets.", "1. Regulatory Mandates & Road Fund Requirements:"))
+    body.append(bullet("The Federal Auditor General (OFAG) now penalizes municipal heads who fail to enforce contractor Defect Liability Period (DLP) obligations under FIDIC Clause 11, creating urgent demand for our automated warranty audit records.", "2. Strict Anti-Corruption & Public Procurement Audits:"))
+    body.append(bullet("Debre Berhan, Adama, Hawassa, and regional capitals are rapidly expanding asphalt corridors, creating billions of ETB in new road assets entering critical 1-2 year warranty periods.", "3. Nationwide Urban Corridor Development Boom:"))
+    body.append(bullet("Severe foreign exchange shortages make imported laser survey vans ($250k–$500k USD) unaffordable, driving urgent demand for 100% locally built GovTech solutions.", "4. Forex Crunch & Import Substitution Policy:"))
+    body.append(bullet("Asphalt bitumen and fuel inflation (>250%) makes full reconstruction economically unsustainable, forcing municipalities to invest in proactive crack sealing prior to monsoon rains.", "5. Construction Material Inflation & Budget Crisis:"))
 
     # Section 5
     body.append(h1("5. Innovation and Competitive Advantage"))
@@ -279,3 +285,4 @@ def make_docx():
 
 if __name__ == "__main__":
     make_docx()
+

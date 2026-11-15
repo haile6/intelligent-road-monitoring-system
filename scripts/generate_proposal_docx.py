@@ -242,6 +242,15 @@ table.data-table tr:nth-child(even) {
     <li><strong>Immediate Serviceable Obtainable Market (SOM):</strong> Debre Berhan City road network (180+ km paved roads) and the adjacent 130 km Debre Berhan&ndash;Addis Ababa freight corridor, with an immediate addressable annual value of <strong>12 to 18 Million ETB</strong>.</li>
 </ul>
 
+<h3>4.3 Key Market Potential Drivers (Why Customers Buy Now)</h3>
+<ul>
+    <li><strong>1. Regulatory Mandates & Road Fund Requirements:</strong> The Ministry of Urban and Infrastructure (MUI) and ERA require objective digital Pavement Condition Index (PCI) logs before approving annual municipal road maintenance budgets.</li>
+    <li><strong>2. Strict Anti-Corruption & Public Procurement Audits (OFAG):</strong> The Federal Auditor General penalizes municipal heads who fail to enforce contractor Defect Liability Period (DLP) obligations under FIDIC Clause 11, creating urgent demand for our automated warranty audit records.</li>
+    <li><strong>3. Nationwide Urban Corridor Development Boom:</strong> Debre Berhan, Adama, Hawassa, and regional capitals are rapidly expanding asphalt corridors, creating billions of ETB in new road assets entering critical 1&ndash;2 year warranty periods.</li>
+    <li><strong>4. Forex Crunch & Import Substitution Policy:</strong> Severe foreign exchange shortages make imported laser survey vans ($250k&ndash;$500k USD) unaffordable, driving urgent demand for 100% locally built GovTech solutions.</li>
+    <li><strong>5. Construction Material Inflation & Budget Crisis:</strong> Asphalt bitumen and fuel inflation (&gt;250%) makes full reconstruction economically unsustainable, forcing municipalities to invest in proactive crack sealing prior to monsoon rains.</li>
+</ul>
+
 <h2>5. Innovation and Competitive Advantage</h2>
 <table class="data-table">
     <thead>
@@ -435,3 +444,4 @@ def generate_docs():
 
 if __name__ == "__main__":
     generate_docs()
+
