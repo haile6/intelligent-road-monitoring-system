@@ -579,6 +579,107 @@ def download_proposal_doc():
     )
 
 
+@app.route("/download/manual/docx")
+def download_manual_docx():
+    """Download Complete Engineering Manual in Amharic (.docx format)."""
+    docs_dir = os.path.join(BASE_DIR, "docs")
+    return send_from_directory(
+        docs_dir,
+        "RoadEye_Complete_Engineering_Manual_Amharic.docx",
+        as_attachment=True,
+        download_name="RoadEye_Complete_Engineering_Manual_Amharic.docx"
+    )
+
+
+@app.route("/download/manual/doc")
+def download_manual_doc():
+    """Download Complete Engineering Manual in Amharic (.doc format)."""
+    docs_dir = os.path.join(BASE_DIR, "docs")
+    return send_from_directory(
+        docs_dir,
+        "RoadEye_Complete_Engineering_Manual_Amharic.doc",
+        as_attachment=True,
+        download_name="RoadEye_Complete_Engineering_Manual_Amharic.doc"
+    )
+
+
+# ============================================================
+# BRAND LOGO DOWNLOADS (PNG, SVG, AI EMBLEM)
+# ============================================================
+
+@app.route("/download/logo/circular")
+@app.route("/logo/circular")
+def download_logo_circular():
+    """Download / View Sleek Circular Radar HUD RoadEye Brand Emblem."""
+    assets_dir = os.path.join(BASE_DIR, "docs", "assets")
+    return send_from_directory(
+        assets_dir,
+        "roadeye_logo_circular.png",
+        as_attachment=False
+    )
+
+
+@app.route("/download/logo/clean")
+@app.route("/logo")
+@app.route("/logo/clean")
+def download_logo_clean():
+    """Download / View Clean Minimalist RoadEye Brand Emblem (Recommended for Proposals)."""
+    assets_dir = os.path.join(BASE_DIR, "docs", "assets")
+    return send_from_directory(
+        assets_dir,
+        "roadeye_logo_clean.png",
+        as_attachment=False
+    )
+
+
+@app.route("/download/logo/ai")
+@app.route("/logo/ai")
+def download_logo_ai():
+    """Download / View AI-Generated RoadEye Full Badge Emblem."""
+    assets_dir = os.path.join(BASE_DIR, "docs", "assets")
+    return send_from_directory(
+        assets_dir,
+        "roadeye_logo_ai.png",
+        as_attachment=False
+    )
+
+
+@app.route("/download/logo/png")
+def download_logo_png():
+    """Download High-Res Square Icon PNG Logo."""
+    assets_dir = os.path.join(BASE_DIR, "docs", "assets")
+    return send_from_directory(
+        assets_dir,
+        "roadeye_logo_icon.png",
+        as_attachment=True,
+        download_name="RoadEye_Logo_Icon_HighRes.png"
+    )
+
+
+@app.route("/download/logo/svg")
+@app.route("/logo/svg")
+def download_logo_svg():
+    """Download Vector Horizontal SVG Logo."""
+    assets_dir = os.path.join(BASE_DIR, "docs", "assets")
+    return send_from_directory(
+        assets_dir,
+        "roadeye_logo_horizontal.svg",
+        as_attachment=False
+    )
+
+
+@app.route("/download/logo/icon/svg")
+def download_logo_icon_svg():
+    """Download Vector Square App Icon SVG."""
+    assets_dir = os.path.join(BASE_DIR, "docs", "assets")
+    return send_from_directory(
+        assets_dir,
+        "roadeye_logo_icon.svg",
+        as_attachment=True,
+        download_name="RoadEye_Logo_AppIcon.svg"
+    )
+
+
 # ============================================================
 # MULTI-VEHICLE FLEET CROWDSOURCING & DE-DUPLICATION
 # ============================================================
