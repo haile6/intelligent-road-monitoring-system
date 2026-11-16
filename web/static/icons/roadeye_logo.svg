@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="60%" stop-color="#090E17"/>
+      <stop offset="100%" stop-color="#04070D"/>
+    </radialGradient>
+
+    <!-- Cyan Glow -->
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#00D2FF"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+
+    <!-- Emerald Accent -->
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <!-- Road Surface Gradient -->
+    <linearGradient id="roadGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+
+    <!-- Shield Border Gradient -->
+    <linearGradient id="shieldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#1E293B" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00D2FF" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Shield / Rounded Squircle -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bgGrad)" stroke="url(#shieldBorder)" stroke-width="4"/>
+
+  <!-- Radar Proximity Scanning Rings -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="6 8" stroke-opacity="0.25"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.35"/>
+  <circle cx="256" cy="256" r="110" fill="none" stroke="#00D2FF" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.45"/>
+
+  <!-- Radar 4-Axis Reticle Crosshairs -->
+  <line x1="256" y1="56" x2="256" y2="86" stroke="#38BDF8" stroke-width="2.5" stroke-opacity="0.6"/>
+  <line x1="256" y1="426" x2="256" y2="456" stroke="#38BDF8" stroke-width="2.5" stroke-opacity="0.6"/>
+  <line x1="56" y1="256" x2="86" y2="256" stroke="#38BDF8" stroke-width="2.5" stroke-opacity="0.6"/>
+  <line x1="426" y1="256" x2="456" y2="256" stroke="#38BDF8" stroke-width="2.5" stroke-opacity="0.6"/>
+
+  <!-- Cybernetic Eye Outer Arcs (Aperture) -->
+  <!-- Upper Eyelid Arc -->
+  <path d="M 96 256 C 146 156, 366 156, 416 256" fill="none" stroke="url(#cyanGlow)" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
+  <!-- Lower Eyelid Arc -->
+  <path d="M 96 256 C 146 356, 366 356, 416 256" fill="none" stroke="url(#cyanGlow)" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- Receding Perspective Highway / Corridor -->
+  <!-- Road Polygon -->
+  <polygon points="256,220 220,380 292,380" fill="url(#roadGrad)" stroke="#334155" stroke-width="2"/>
+  
+  <!-- Road Outer Curbs (Green / Safety Glow) -->
+  <line x1="256" y1="220" x2="220" y2="380" stroke="url(#emeraldGrad)" stroke-width="4" stroke-linecap="round" filter="url(#subtleGlow)"/>
+  <line x1="256" y1="220" x2="292" y2="380" stroke="url(#emeraldGrad)" stroke-width="4" stroke-linecap="round" filter="url(#subtleGlow)"/>
+
+  <!-- Highway Center Dashed Stripe (Glowing Yellow / White) -->
+  <line x1="256" y1="230" x2="256" y2="255" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+  <line x1="256" y1="270" x2="256" y2="305" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="256" y1="325" x2="256" y2="370" stroke="#FBBF24" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Central Camera Aperture / Iris (AI Core) -->
+  <circle cx="256" cy="220" r="50" fill="none" stroke="url(#cyanGlow)" stroke-width="5" filter="url(#glow)"/>
+  <circle cx="256" cy="220" r="30" fill="#090E17" stroke="#38BDF8" stroke-width="3"/>
+  <circle cx="256" cy="220" r="14" fill="#00D2FF" filter="url(#glow)"/>
+  <circle cx="256" cy="220" r="5" fill="#FFFFFF"/>
+
+  <!-- Forward Sonar / Laser Pulse Beam -->
+  <polygon points="256,170 236,120 276,120" fill="url(#cyanGlow)" opacity="0.35"/>
+  <circle cx="256" cy="120" r="6" fill="#38BDF8" filter="url(#glow)"/>
+</svg>
