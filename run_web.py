@@ -55,7 +55,8 @@ def main():
             return s.connect_ex(("127.0.0.1", port)) == 0
 
     target_port = args.port
-    if is_port_in_use(target_port, args.host):
+    is_reloader_child = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+    if not is_reloader_child and is_port_in_use(target_port, args.host):
         print(f"[!] Notice: Port {target_port} is already in use by another running app.")
         for p in [8080, 8888, 9090, 8000, 7070]:
             if not is_port_in_use(p, args.host):

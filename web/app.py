@@ -603,6 +603,13 @@ def download_manual_doc():
     )
 
 
+@app.route("/presentation")
+@app.route("/deck")
+def presentation_view():
+    """Competition Pitch Deck Presentation View for Global Entrepreneurship Week."""
+    return render_template("presentation.html")
+
+
 # ============================================================
 # BRAND LOGO DOWNLOADS (PNG, SVG, AI EMBLEM)
 # ============================================================
