@@ -22,8 +22,12 @@ def main():
     parser = argparse.ArgumentParser(description="Road Monitoring System Web Management Panel")
     parser.add_argument("--host", default="0.0.0.0", help="Host IP to bind (default: 0.0.0.0 for mobile and local access)")
     parser.add_argument("--port", type=int, default=8080, help="Port to listen on (default: 8080)")
-    parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
+    parser.add_argument("--debug", action="store_true", default=True, help="Enable Flask debug mode")
     args = parser.parse_args()
+
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+    app.jinja_env.auto_reload = True
 
     print("=" * 65)
     print("      ROAD MONITORING SYSTEM - WEB MANAGEMENT PANEL")
