@@ -254,6 +254,7 @@
                     <div class="filter-pills-row">
                         <button class="filter-pill-btn active" onclick="filterLedger('ALL', this)">All ({{ recent_incidents|length }})</button>
                         <button class="filter-pill-btn" onclick="filterLedger('DANGER', this)">Immediate Danger</button>
+                        <button class="filter-pill-btn" onclick="filterLedger('WARNING', this)">Warning</button>
                         <button class="filter-pill-btn" onclick="filterLedger('CAUTION', this)">Caution</button>
                         <button class="filter-pill-btn" onclick="filterLedger('SAFE', this)">Safe</button>
                     </div>
@@ -269,25 +270,26 @@
             <table class="enterprise-table" id="dashboardIncidentsTable">
                 <thead>
                     <tr>
-                        <th style="width: 90px;">Hazard ID</th>
+                        <th style="width: 80px;">Hazard ID</th>
                         <th>Defect Class</th>
                         <th>Confidence</th>
-                        <th>Risk Severity</th>
-                        <th>Distance (m)</th>
-                        <th>TTC (s)</th>
+                        <th>Dual-Layer Risk (Physical + TTC)</th>
+                        <th>3D Depth (Dmax)</th>
+                        <th>Surface Area & Vol</th>
+                        <th>Kinematics & Path</th>
                         <th>Speed</th>
-                        <th>Geodesic Coordinates</th>
-                        <th style="width: 110px; text-align: right;">Action</th>
+                        <th>Coordinates</th>
+                        <th style="width: 90px; text-align: right;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="incidentsTbody">
                     {% for inc in recent_incidents %}
                     {% set risk_upper = (inc.max_risk_level or '')|upper %}
                     {% set type_upper = (inc.damage_type or '')|upper %}
-                    <tr class="incident-entry-row {% if 'IMMEDIATE' in risk_upper %}row-critical-flash{% elif 'CAUTION' in risk_upper %}row-caution-flash{% endif %}"
+                    <tr class="incident-entry-row {% if 'IMMEDIATE' in risk_upper %}row-critical-flash{% elif 'WARNING' in risk_upper %}row-caution-flash{% endif %}"
                         data-risk="{{ risk_upper }}"
                         data-type="{{ type_upper }}"
-                        data-search="#{{ inc.track_id or inc.id }} {{ type_upper }} {{ inc.damage_latitude }} {{ inc.damage_longitude }}">
+                        data-search="#{{ inc.track_id or inc.id }} {{ type_upper }} {{ inc.max_risk_level }} {{ inc.dual_risk_factors }} {{ inc.damage_latitude }} {{ inc.damage_longitude }}">
                         <td class="font-mono fw-bold text-accent">#{{ inc.track_id or inc.id }}</td>
                         <td>
                             {% if 'POTHOLE' in type_upper %}
@@ -300,21 +302,42 @@
                         <td>
                             {% if 'IMMEDIATE' in risk_upper or 'DANGER' in risk_upper %}
                             <span class="badge-status badge-status-danger">Immediate Danger</span>
+                            {% elif 'WARNING' in risk_upper %}
+                            <span class="badge-status badge-status-warning" style="background:rgba(245,158,11,0.15); color:#F59E0B; border:1px solid rgba(245,158,11,0.3);">Warning (Asset Risk)</span>
                             {% elif 'CAUTION' in risk_upper %}
-                            <span class="badge-status badge-status-warning">Caution</span>
+                            <span class="badge-status" style="background:rgba(234,179,8,0.15); color:#EAB308; border:1px solid rgba(234,179,8,0.3);">Caution</span>
                             {% else %}
                             <span class="badge-status badge-status-success">Safe / Monitored</span>
                             {% endif %}
+                            <div class="text-secondary font-mono" style="font-size:10px; margin-top:3px;">
+                                {{ inc.dual_risk_factors or 'Structural: ' ~ (inc.severity or 'High') ~ ' • TTC: ' ~ ("%.1f"|format(inc.ttc_seconds or 1.5)) ~ 's' }}
+                            </div>
                         </td>
-                        <td class="font-mono">{{ "%.1f"|format(inc.distance_m or 0) }} m</td>
-                        <td class="font-mono fw-bold text-white">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</td>
-                        <td class="font-mono">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
-                        <td class="font-mono text-muted" style="font-size: 11px;">
-                            {{ "%.5f"|format(inc.damage_latitude or 9.6800) }}° N, {{ "%.5f"|format(inc.damage_longitude or 39.5300) }}° E
+                        <td>
+                            <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-family:monospace; font-size:11px;">
+                                ⬇ {{ "%.1f"|format(inc.depth_max_cm or 6.5) }} cm
+                            </span>
+                        </td>
+                        <td class="font-mono" style="font-size: 11.5px;">
+                            <span class="text-white">{{ "%.2f"|format(inc.surface_area_m2 or 0.35) }} m²</span>
+                            <span class="text-secondary small">({{ "%.1f"|format(inc.cavity_volume_liters or 8.5) }}L)</span>
+                        </td>
+                        <td class="font-mono" style="font-size: 11.5px;">
+                            {% if inc.ever_in_path %}
+                            <span class="text-white fw-bold">{{ "%.2f"|format(inc.ttc_seconds or 0) }}s</span>
+                            <span class="badge bg-danger text-white py-0 px-1" style="font-size:9px;">In-Path</span>
+                            {% else %}
+                            <span class="text-secondary">{{ "%.1f"|format(inc.distance_m or 0) }}m</span>
+                            <span class="badge bg-secondary text-white py-0 px-1" style="font-size:9px;">Off-Path</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-mono text-secondary" style="font-size: 11px;">{{ "%.1f"|format(inc.speed_kmh or 45.0) }} km/h</td>
+                        <td class="font-mono text-muted" style="font-size: 10.5px;">
+                            {{ "%.4f"|format(inc.damage_latitude or 9.6800) }}° N, {{ "%.4f"|format(inc.damage_longitude or 39.5300) }}° E
                         </td>
                         <td style="text-align: right;">
                             <button class="btn btn-sm btn-outline-secondary row-hover-action py-0.5 px-2"
-                                    onclick="inspectIncident({{ inc.id or inc.track_id }}, '{{ inc.damage_type }}', {{ inc.confidence or 0.85 }}, '{{ inc.max_risk_level }}', {{ inc.distance_m or 0 }}, {{ inc.ttc_seconds or 0 }}, {{ inc.speed_kmh or 45.0 }}, {{ inc.damage_latitude or 9.68 }}, {{ inc.damage_longitude or 39.53 }}, '{{ inc.video_name or 'data/test_video.mp4' }}', {{ inc.video_time_s or 0 }})"
+                                    onclick="inspectIncident({{ inc.id or inc.track_id }}, '{{ inc.damage_type }}', {{ inc.confidence or 0.85 }}, '{{ inc.max_risk_level }}', {{ inc.distance_m or 0 }}, {{ inc.ttc_seconds or 0 }}, {{ inc.speed_kmh or 45.0 }}, {{ inc.damage_latitude or 9.68 }}, {{ inc.damage_longitude or 39.53 }}, '{{ inc.video_name or 'data/test_video.mp4' }}', {{ inc.video_time_s or 0 }}, {{ inc.depth_max_cm or 6.5 }}, {{ inc.surface_area_m2 or 0.35 }}, {{ inc.cavity_volume_liters or 8.5 }}, '{{ inc.dual_risk_factors or '' }}')"
                                     title="Open Detailed Inspection Drawer">
                                 <i data-lucide="eye" style="width:12px; height:12px;"></i> Inspect
                             </button>
@@ -322,7 +345,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="9" class="text-center py-4 text-muted">
+                        <td colspan="10" class="text-center py-4 text-muted">
                             No incident records found in current database session.
                         </td>
                     </tr>
@@ -485,17 +508,26 @@ function filterLedger(type, btn) {
             r.style.display = '';
         } else if (type === 'DANGER') {
             r.style.display = (risk.includes('IMMEDIATE') || risk.includes('DANGER')) ? '' : 'none';
+        } else if (type === 'WARNING') {
+            r.style.display = risk.includes('WARNING') ? '' : 'none';
         } else if (type === 'CAUTION') {
             r.style.display = risk.includes('CAUTION') ? '' : 'none';
         } else if (type === 'SAFE') {
-            r.style.display = risk.includes('SAFE') ? '' : 'none';
+            r.style.display = (risk.includes('SAFE') || risk.includes('MONITOR')) ? '' : 'none';
         }
     });
 }
 
 // Slide-Over Detail Drawer Inspector
-function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video, timeS) {
-    const riskColor = risk.toUpperCase().includes('IMMEDIATE') ? 'var(--danger)' : (risk.toUpperCase().includes('CAUTION') ? 'var(--warning)' : 'var(--success)');
+function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video, timeS, depth, area, vol, dualFactors) {
+    const riskUpper = (risk || '').toUpperCase();
+    const riskColor = riskUpper.includes('IMMEDIATE') ? 'var(--danger)' : (riskUpper.includes('WARNING') ? '#F59E0B' : (riskUpper.includes('CAUTION') ? '#EAB308' : 'var(--success)'));
+
+    const depthNum = parseFloat(depth) || 6.5;
+    const areaNum = parseFloat(area) || 0.35;
+    const volNum = parseFloat(vol) || 8.5;
+    const bags = Math.max(1, Math.ceil((volNum * 2.2 * 1.22) / 25.0));
+    const cost = (bags * 1250) + 1800; // Cold-mix bag price + crew deployment ETB
 
     const contentHtml = `
         <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
@@ -506,17 +538,17 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
                 </span>
             </div>
             <h5 class="fw-bold mb-1" style="font-size:16px; color:var(--text-primary); text-transform:capitalize;">${type.replace('_', ' ')}</h5>
-            <div class="text-secondary small font-mono">Survey Verification</div>
+            <div class="text-secondary small font-mono">${dualFactors || 'Dual-Layer Physical & Kinematic Risk Analysis'}</div>
         </div>
 
         <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
             <div class="kpi-metric-card p-2" style="min-height:75px;">
-                <span class="kpi-label-text">Risk Level</span>
+                <span class="kpi-label-text">Dual-Layer Risk</span>
                 <div class="fw-bold font-mono" style="color:${riskColor}; font-size:15px; margin-top:4px;">${risk}</div>
             </div>
             <div class="kpi-metric-card p-2" style="min-height:75px;">
-                <span class="kpi-label-text">Time-to-Collision</span>
-                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${ttc.toFixed(2)}s</div>
+                <span class="kpi-label-text">Kinematic TTC</span>
+                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${ttc > 0 ? ttc.toFixed(2) + 's' : 'N/A (Off-Path)'}</div>
             </div>
             <div class="kpi-metric-card p-2" style="min-height:75px;">
                 <span class="kpi-label-text">Ground Distance</span>
@@ -541,30 +573,30 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
                     <i data-lucide="box" style="width:13px; height:13px; color:var(--accent-primary);"></i>
                     3D Depth &amp; Volumetric Repair Spec
                 </div>
-                <span class="badge-status badge-status-info font-mono" id="drawerDepthBadge" style="font-size:9.5px;">Estimating...</span>
+                <span class="badge-status badge-status-info font-mono" id="drawerDepthBadge" style="font-size:9.5px;">ERA Standard</span>
             </div>
             <div class="row g-2 mb-2 font-mono" style="font-size:11.5px;">
                 <div class="col-4">
-                    <span class="text-secondary small">Dimensions:</span>
-                    <div class="text-white fw-bold" id="drawerDimVal">-- × -- cm</div>
+                    <span class="text-secondary small">Footprint:</span>
+                    <div class="text-white fw-bold" id="drawerDimVal">${areaNum.toFixed(2)} m²</div>
                 </div>
                 <div class="col-4">
-                    <span class="text-secondary small">Max Depth:</span>
-                    <div class="text-warning fw-bold" id="drawerDepthVal">-- cm</div>
+                    <span class="text-secondary small">Max Depth (Dmax):</span>
+                    <div class="text-warning fw-bold" id="drawerDepthVal">⬇ ${depthNum.toFixed(1)} cm</div>
                 </div>
                 <div class="col-4">
                     <span class="text-secondary small">Cavity Vol:</span>
-                    <div class="text-info fw-bold" id="drawerVolVal">-- L</div>
+                    <div class="text-info fw-bold" id="drawerVolVal">${volNum.toFixed(1)} L</div>
                 </div>
             </div>
             <div class="p-2 rounded" style="background:var(--bg-sunken); font-size:11px;">
                 <div class="d-flex justify-content-between mb-1">
                     <span class="text-secondary">Cold Patch Required:</span>
-                    <span class="text-white fw-bold font-mono" id="drawerBagsVal">-- Bags</span>
+                    <span class="text-white fw-bold font-mono" id="drawerBagsVal">${bags} Bags (25kg)</span>
                 </div>
                 <div class="d-flex justify-content-between">
                     <span class="text-secondary">Est. Repair Budget:</span>
-                    <span class="text-success fw-bold font-mono" id="drawerCostVal">-- ETB</span>
+                    <span class="text-success fw-bold font-mono" id="drawerCostVal">${cost.toLocaleString()} ETB</span>
                 </div>
             </div>
         </div>
