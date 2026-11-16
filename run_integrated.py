@@ -253,20 +253,24 @@ def main():
             if t.confirmed and t.in_path and t.ttc_s is not None:
                 t.min_ttc_s = t.ttc_s if t.min_ttc_s is None else min(t.min_ttc_s, t.ttc_s)
 
-            # 3. Collision Risk Assessment
+            # Phase 11: Damage Severity Assessment
+            if t.confirmed and getattr(t, "severity", None) is None:
+                sev = estimate_damage_severity(t.bbox, t.distance_m, t.class_name, width)
+                t.severity = sev["severity_level"]
+                t.area_m2 = sev.get("area_m2")
+                t.severity_score = sev.get("score")
+
+            # 3. Collision Risk Assessment (Dual-Layer: Physical Severity + Kinematic TTC)
             if t.confirmed:
                 risk = assess_risk(t, speed)
                 t.risk_level, t.risk_rank = risk["level"], risk["rank"]
+                t.asset_risk_level = risk.get("asset_risk_level", risk["level"])
+                t.unified_score = risk.get("unified_score", 0.0)
                 if t.risk_rank > t.max_risk_rank:
                     t.max_risk_level, t.max_risk_rank = risk["level"], risk["rank"]
                     t.max_risk_reasons = risk["reasons"]
                     print(f"[{fmt_time(timestamp)}] RISK {risk['label']:16s} {t.class_name} "
                           f"ID {t.id} | {'; '.join(risk['reasons'])}")
-
-            # Phase 11: Damage Severity Assessment
-            if t.confirmed and getattr(t, "severity", None) is None:
-                sev = estimate_damage_severity(t.bbox, t.distance_m, t.class_name, width)
-                t.severity = sev["severity_level"]
 
             # Phase 13: Save High-Resolution Evidence Crops
             if t.confirmed and not getattr(t, "evidence_saved", False):
