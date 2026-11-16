@@ -176,7 +176,7 @@
                 <div class="panel-body p-3">
                     {% set tot = stats.total_hazards or stats.total_incidents or 1 %}
                     {% set p_danger = ((stats.immediate_danger or 0) / tot * 100)|round(1) %}
-                    {% set p_caut = ((stats.caution_count or 0) / tot * 100)|round(1) %}
+                    {% set p_caut = ((stats.warning_caution or stats.caution_count or 0) / tot * 100)|round(1) %}
                     {% set p_safe = ((stats.safe_count or 0) / tot * 100)|round(1) %}
 
                     <!-- Progress Distribution Bars -->
@@ -198,9 +198,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11.5px;">
                                 <span class="d-flex align-items-center gap-2 text-warning fw-semibold">
                                     <span style="width:8px; height:8px; border-radius:50%; background:var(--warning); display:inline-block;"></span>
-                                    Caution
+                                    Caution / Warning
                                 </span>
-                                <span class="font-mono text-white fw-bold">{{ stats.caution_count or 0 }} <span class="text-secondary fw-normal">({{ p_caut }}%)</span></span>
+                                <span class="font-mono text-white fw-bold">{{ stats.warning_caution or stats.caution_count or 0 }} <span class="text-secondary fw-normal">({{ p_caut }}%)</span></span>
                             </div>
                             <div class="progress" style="height: 6px; background: var(--bg-sunken);">
                                 <div class="progress-bar bg-warning" style="width: {{ p_caut }}%;"></div>
@@ -416,9 +416,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: ['Immediate Danger', 'Caution / Warning', 'Safe / Passing'],
                 datasets: [{
                     data: [
-                        {{ stats.immediate_danger or 20 }},
-                        {{ stats.caution_count or 14 }},
-                        {{ stats.safe_count or 20 }}
+                        {{ stats.immediate_danger or 0 }},
+                        {{ stats.warning_caution or stats.caution_count or 0 }},
+                        {{ stats.safe_count or 0 }}
                     ],
                     backgroundColor: ['#EF4444', '#F59E0B', '#22C55E'],
                     borderColor: isBrightInitial ? '#FFFFFF' : '#111C2B',
