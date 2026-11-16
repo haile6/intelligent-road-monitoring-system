@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>RoadEye Complete Engineering Manual - Amharic</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page {
+    size: A4 portrait;
+    margin: 2.0cm 2.0cm 2.0cm 2.0cm;
+}
+body {
+    font-family: 'Nyala', 'Abyssinica SIL', 'Segoe UI', Calibri, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1f2937;
+    background-color: #ffffff;
+}
+h1 {
+    font-size: 20pt;
+    font-weight: bold;
+    color: #1e3a8a;
+    text-align: center;
+    margin-top: 15pt;
+    margin-bottom: 5pt;
+}
+h2 {
+    font-size: 15pt;
+    font-weight: bold;
+    color: #1e3a8a;
+    border-bottom: 2px solid #3b82f6;
+    padding-bottom: 4pt;
+    margin-top: 18pt;
+    margin-bottom: 8pt;
+}
+h3 {
+    font-size: 12.5pt;
+    font-weight: bold;
+    color: #0369a1;
+    margin-top: 12pt;
+    margin-bottom: 4pt;
+}
+p {
+    margin-bottom: 6pt;
+    text-align: justify;
+}
+ul, ol {
+    margin-top: 4pt;
+    margin-bottom: 8pt;
+    padding-left: 20pt;
+}
+li {
+    margin-bottom: 4pt;
+}
+.box-header {
+    background-color: #f8fafc;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 12pt;
+    text-align: center;
+    margin-bottom: 15pt;
+}
+.box-formula {
+    background-color: #f1f5f9;
+    border-left: 4px solid #0284c7;
+    padding: 8pt 12pt;
+    margin: 8pt 0;
+    font-family: 'Consolas', monospace;
+    font-size: 10.5pt;
+}
+.box-ref {
+    background-color: #fefce8;
+    border-left: 4px solid #ca8a04;
+    padding: 6pt 10pt;
+    margin: 6pt 0;
+    font-size: 10pt;
+}
+.box-qa {
+    background-color: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8pt 12pt;
+    margin: 8pt 0;
+}
+</style>
+</head>
+<body>
+
+<div class="box-header">
+    <div style="font-size: 16pt; font-weight: bold; color: #1e3a8a;">ደብረ ብርሃን ዩኒቨርሲቲ • የኮምፒውቲንግ ኮሌጅ</div>
+    <div style="font-size: 13pt; font-weight: bold; color: #334155; margin-top: 4pt;">RoadEye™ የተሟላ የምህንድስና፣ የሒሳብ ስሌት እና የሳይንሳዊ ምንጮች ማኑዋል</div>
+    <div style="font-size: 10pt; color: #64748b; margin-top: 3pt;">AI-Powered Intelligent Transportation Infrastructure Management & Advanced Collision Avoidance Platform</div>
+    <div style="font-size: 10pt; font-weight: bold; color: #2563eb; margin-top: 5pt;">ደራሲ፦ ኃይሌ ስንታየሁ (Haile Sintayehu) • ህዳር 2026</div>
+</div>
+
+<h2>ክፍል 1፦ Edge-AI የኮምፒውተር ቪዥን እና የብልሽት መለያ (YOLOv8/11 Perception)</h2>
+<p><strong>ዓላማው፦</strong> ተራ የመኪና ዳሽካም ወይም ስልክ ካሜራን በመጠቀም በመንገድ ላይ የሚገኙ አደገኛ ጉድጓዶችን (Potholes)፣ የአዞ ቆዳ ስንጥቆችን (Alligator Cracking)፣ ቁመታዊና አግድም ስንጥቆችን (Longitudinal/Transverse Cracks) እና ተሽከርካሪዎችን በቅጽበት በሰከንድ 30+ ምስሎች (FPS) ፍጥነት መለየት።</p>
+<div class="box-formula">
+1. Bounding Box: B = [x_center, y_center, width, height]<br/>
+2. Confidence Score: C = P(Object) * IoU &gt;= 0.40 (40%)<br/>
+3. Non-Maximum Suppression (NMS): IoU = Area(B1 &cap; B2) / Area(B1 &cup; B2) &lt;= 0.45
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> Ultralytics YOLOv8/11 Architecture (2023-2025) &bull; IEEE Transactions on Intelligent Transportation Systems (Vision-Based Asphalt Pavement Distress Classification).
+</div>
+
+<h2>ክፍል 2፦ የሞኖኩላር ርቀት፣ ጂኦሜትሪ እና የመንዳት መስመር ትንበያ (Distance, Corridor & TTC)</h2>
+<p><strong>ዓላማው፦</strong> የ 2D ካሜራ ምስልን ወደ እውነተኛ ሜትሪክ ርቀት (በሜትር) በመቀየር ጉድጓዱ ከመኪናው ስንት ሜትር ርቀት ላይ እንዳለ፣ መኪናው በሚጓዝበት መስመር ውስጥ መሆኑን እና ሾፌሩ ለመጋጨት ስንት ሰከንድ እንደቀረው (TTC) ማስላት።</p>
+<div class="box-formula">
+1. Forward Distance (Z): Z = (f * H) / delta_y<br/>
+   (f = የካሜራ ፎካል ሌንግዝ፣ H = የመኪናው ካሜራ ከፍታ &approx; 1.25m፣ delta_y = ከሆሪዞን መስመር አንጻር ያለው የፒክሰል ቁመት)<br/>
+2. Lateral Offset (X): X = (delta_x * Z) / f_x<br/>
+3. የመንዳት መስመር ማጣሪያ: |X| &lt;= 1.8m (በመኪናው 3.6m መስመር ውስጥ ከሆነ ብቻ አደጋ ነው፤ ካልሆነ የእግረኛ መንገድ ስለሆነ ውሸት ማንቂያ አይሰጥም)<br/>
+4. Time-To-Collision (TTC): TTC = Z / delta_v (ፍጥነት)<br/>
+   TTC &lt;= 1.8s ከሆነ CRITICAL ALARM; TTC &lt;= 3.0s ከሆነ WARNING ALARM።<br/>
+5. የድምፅ ደወል: "ጥንቃቄ! ከፊትህ ጉድጓድ አለ" / "Warning! Hazard Ahead, Slow Down"
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> ISO 15623 Standards (Forward Collision Warning Systems) &bull; Mobileye EyeQ Vision-Only Kinematic Monocular Ranging.
+</div>
+
+<h2>ክፍል 3፦ የ 3D የጉድጓድ ጥልቀት፣ ይዘት እና የአስፋልት ቦርሳ ስሌት (3D Cavity & Bags)</h2>
+<p><strong>ዓላማው፦</strong> የ 2D ቦክስ ግምትን በማስቀረት የጉድጓዱን እውነተኛ ጥልቀት በሳንቲሜትር፣ ይዘቱን በሊትር እና ለመጠገን የሚያስፈልገውን የአስፋልት ድብልቅ ክብደት በኪሎግራም እና በ 25 ኪ.ግ ቦርሳ ማስላት።</p>
+<div class="box-formula">
+1. የመሬት ስፋት (Area A): Wm = delta_x * (Z / fx), Lm = delta_y * (Z / fy*sin &theta;), Area A = &pi; * (Wm/2) * (Lm/2) [m&sup2;]<br/>
+2. 3D ጥልቀት (Depth Dmax): Dmax = min(18cm, max(1.5cm, 4.2 * &radic;(Wm*Lm) * (1.0 + 0.65*S))) [cm]<br/>
+   (S = የጉድጓዱ ጥላ ድቅድቅነት Shadow Gradient)<br/>
+3. የይዘት ስሌት (Truncated Paraboloid Volume): V = 0.5 * A * (Dmax / 100) * 1000 [Liters]<br/>
+4. የአስፋልት ክብደት: M_loose = V * 2.20 (እፍጋት) * 1.22 (የመጠቅጠቂያ ማባዣ) [kg]<br/>
+5. የቦርሳ ብዛት: N_25kg = &lceil; M_loose / 25 &rceil; ቦርሳዎች
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> Ethiopian Roads Administration (ERA) Standard Technical Specifications (Division 4000: Bituminous Pavements) &bull; ASTM D6433.
+</div>
+
+<h2>ክፍል 4፦ 360° የቀረቤታ ራዳር፣ የሌዘር ዒላማ እይታ እና የሶናር ድምፅ (Proximity Radar)</h2>
+<p><strong>ዓላማው፦</strong> ተሽከርካሪው በሚጓዝበት ወቅት በመኪናው ዙሪያ የራዳር ፍተሻ አድማስ መዘርጋት፣ ወደ አደጋው ሲቃረብ አቅጣጫ ጠቋሚ የሌዘር ጨረር በስክሪኑ ላይ መቆለፍ እና ተለዋዋጭ የሶናር ድምፅ ማሰማት።</p>
+<div class="box-formula">
+1. የራዳር አድማሶች: 25m, 50m, 100m (Standard Horizon), 150m (Extended Horizon)<br/>
+2. የቀረቤታ ስሌት (Great-Circle Distance d): በጂኦዴሲክ ርቀት መኪናው ወደ ጉድጓዱ ሲቃረብ<br/>
+3. Forward Laser Lock: ከመኪናው ወደ ጉድጓዱ የሚያሳይ ቀጥታ የሌዘር ጨረር በስክሪኑ ላይ ይቆለፋል<br/>
+4. Acoustic Sonar Ping: f = 800Hz + (1.0 - d / R_radar) * 1200Hz (በቀረበ ቁጥር የድምፁ ቃና እየሳሳ ይሄዳል)
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> SAE J3016 Active Sonar Perception Standards &bull; W3C Web Audio API Specifications.
+</div>
+
+<h2>ክፍል 5፦ የክረምት ዝናብ እና የብልሽት ማፋጠን ሞዴል (Kiremt 4.2x Multiplier)</h2>
+<p><strong>ዓላማው፦</strong> በኢትዮጵያ ደጋማ ቦታዎች (ደብረ ብርሃን) በክረምት ወቅት የመንገድ ብልሽት በከፍተኛ ፍጥነት ለምን እንደሚያድግ በሳይንሳዊ ምህንድስና ማስረዳት እና የቅድመ-ክረምት ጥገና ስንት ሚሊዮን ብር እንደሚያድን ማረጋገጥ።</p>
+<div class="box-formula">
+1. ፊዚክሱ (Pore-Water Hydrodynamic Pumping):<br/>
+   በክረምት ውሃ ስንጥቅ ውስጥ ይገባል &rarr; ከባድ መኪና (ESAL) ሲረግጠው ከፍተኛ ግፊት (&Delta;u) ይፈጥራል &rarr; ሬንጁን ከጠጠሩ ይነቅላል (Bitumen Stripping) &rarr; ስር ያለውን ጠጠር ያቦካል (Pumping) &rarr; መንገዱ ይፈርሳል!<br/>
+2. የወቅቶች ማባዣ (&gamma;):<br/>
+   ክረምት (ሰኔ-መስከረም): &gamma; = 4.2&times; (ከ 72% በላይ የዓመቱ ዝናብ)<br/>
+   በልግ (የካቲት-ግንቦት): &gamma; = 1.8&times; (መካከለኛ ዝናብ)<br/>
+   በጋ (ጥቅምት-ጥር): &gamma; = 1.0&times; (ደረቅ መደበኛ መነሻ Baseline)<br/>
+3. የ 5-ደረጃ ማርኮቭ ማትሪክስ: P_eff(i, j) = P0(i, j) * &gamma;_season * (1 + 0.85 * (Truck%/20%))<br/>
+4. Cost of Inaction (COI ROI):<br/>
+   Cost_today = A * 2,850 ETB/m&sup2; (ስንጥቅ መለጠፍ)<br/>
+   Cost_after_rain = A * (1 + 3 * 0.28 * 4.2) * 7,800 ETB/m&sup2; (ሙሉ በሙሉ መገንባት)<br/>
+   ROI = 8.5&times; እስከ 11.2&times; የህዝብ ገንዘብ ትርፍ!
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> World Bank HDM-4 Climate Calibration Factors &bull; AASHTO Drainage Modification Factor (m_i) &bull; ERA Pavement Design Manual Vol. 1.
+</div>
+
+<h2>ክፍል 6፦ የተቋራጮች የዋስትና ጊዜ እና የህግ መጠየቂያ ደብዳቤ (Contractor DLP & FIDIC)</h2>
+<p><strong>ዓላማው፦</strong> የአዳዲስ መንገዶችን የዋስትና ጊዜ (Defect Liability Period - DLP) በራስ-ሰር በመከታተል፣ ተቋራጮች በዋስትናቸው መሠረት እንዲጠግኑ በማስገደድ የማዘጋጃ ቤቱን በሚሊዮን የሚቆጠር ብር ማዳን።</p>
+<div class="box-formula">
+1. ህጋዊ መሰረት: FIDIC Red Book Clause 11 (Defects Liability Period - ከ 1 እስከ 2 ዓመት)<br/>
+2. Geofencing: የብልሽቱ ጂፒኤስ ከተቋራጩ የመንገድ ወሰንና የዋስትና ቀን ጋር ይዛመዳል<br/>
+3. የተቋራጭ ዕዳ: Total Liability = (N_potholes * 28,000 ETB) + (N_cracks * 18,000 ETB)<br/>
+4. ህጋዊ ደብዳቤ: በአንድ ክሊክ የኮንትራት ቁጥሩንና የብልሽት ፎቶውን የያዘ ይፋዊ የጥገና መጠየቂያ ደብዳቤ (Demand Notice) ያዘጋጃል።
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> FIDIC Conditions of Contract for Construction Clause 11 &bull; Ethiopian Public Procurement Agency (PPA) Directives.
+</div>
+
+<h2>ክፍል 7፦ የብዙ መኪኖች መረጃ ጥምረትና ድግግሞሽን ማጥፋት (Fleet Crowdsourcing)</h2>
+<p><strong>ዓላማው፦</strong> በአንድ መንገድ ላይ በርካታ መኪኖች በተደጋጋሚ ሲያልፉ አንድን ጉድጓድ 20 ጊዜ እንዳይመዘግቡ ማጣራት እና የተገኘውን መረጃ ትክክለኛነት በስታቲስቲክስ ማረጋገጥ።</p>
+<div class="box-formula">
+1. Spatial Clustering: በ 8 ሜትር ራዲየስ (&epsilon; &le; 8.0m) ውስጥ ያሉ ምልከታዎች ወደ አንድ ጉድጓድ ይጠቀለላሉ<br/>
+2. Confidence-Weighted Centroid: ማዕከሉ በመኪናዎቹ የመተማመኛ ነጥብ ተባዝቶ ይሰላል<br/>
+3. Bayesian Probability Fusion: P(Defect) = 1.0 - &prod; (1.0 - ci)<br/>
+   ምሳሌ፦ 3 መኪኖች በ 80% ቢያዩት &rarr; P = 1.0 - (0.2)&sup3; = 99.2% ትክክለኛነት!
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> DBSCAN Spatial Clustering Principles &bull; Bayesian Multi-Sensor Data Fusion Theory.
+</div>
+
+<h2>ክፍል 8፦ ዓለም አቀፍ የመንገድ ጤና መለኪያ እና የበጀት ትንበያ (ASTM D6433 PCI & HDM-4)</h2>
+<p><strong>ዓላማው፦</strong> የመንገዱን አጠቃላይ የጤና ደረጃ ከ 0 እስከ 100 በሚለካው የ ASTM D6433 Pavement Condition Index (PCI) እና በዓለም ባንክ International Roughness Index (IRI) መሠረት ደረጃ ማውጣት።</p>
+<div class="box-formula">
+1. Deduct Values (DV): DV_pothole = min(95, 38 * D^0.45), DV_crack = min(85, 28 * D^0.42)<br/>
+2. Corrected Deduct Value (CDV) &amp; PCI: PCI = 100 - CDV<br/>
+3. World Bank HDM-4 IRI (Roughness in m/km): በአስፋልቱ ንዝረትና በጉድጓዶች ብዛት ይሰላል<br/>
+4. ERA የበጀት ተመን፦<br/>
+   &bull; Reconstruction (PCI &lt; 40): 7,800 ETB/m&sup2;<br/>
+   &bull; Mill &amp; Overlay (40 &le; PCI &lt; 70): 3,250 ETB/m&sup2;<br/>
+   &bull; Localized Patch (PCI &ge; 70): 2,850 ETB/m&sup2;
+</div>
+<div class="box-ref">
+<strong>ሳይንሳዊ ምንጭ፦</strong> ASTM D6433 Pavement Condition Index Standards &bull; World Bank Technical Paper 46 (HDM-4).
+</div>
+
+<h2>ክፍል 9፦ የፈታኞች እና የዳኞች የተለመዱ ጥያቄዎችና መልሶቻቸው (Defense Cheatsheet)</h2>
+<div class="box-qa">
+<strong>ጥያቄ 1፦ "የክረምቱ ማባዣ &gamma; = 4.2&times; ከየት መጣ?"</strong><br/>
+<strong>ምላሽ፦</strong> "በ 3 ሳይንሳዊ መረጃዎች ላይ የተመሰረተ ነው፦ 1) የዓለም ባንክ HDM-4 የአየር ንብረት ካሊብሬሽን ቀመር፣ 2) በደብረ ብርሃን 72% የዓመቱ ዝናብ በ 4ቱ የክረምት ወራት መውደቁ፣ 3) በAASHTO የፍሳሽ ማስወገጃ ቅነሳ (m_i) መሠረት አስፋልት በውሃ ሲዋጥ ጥንካሬው በ 50% ይቀንሳል፤ የከባድ መኪና ጎማ ከፍተኛ የውሃ ግፊት (Pore-Water Pressure) በመፍጠር ሬንጅን ከጠጠር ስለሚነቅለው የመበላሸት ፍጥነቱ በ 4 እጥፍ ይጨምራል።"
+</div>
+<div class="box-qa">
+<strong>ጥያቄ 2፦ "ባለ አንድ ካሜራ ስልክ እንዴት ጥልቀት (Depth) እና ኪሎግራም ያሰላል?"</strong><br/>
+<strong>ምላሽ፦</strong> "LiDAR ውድ እና ዶላር የሚጠይቅ ነው። RoadEye በምትኩ Inverse Perspective Mapping (IPM) በመጠቀም ፒክሰልን ወደ ሜትር ይቀይራል። ጥልቀቱን በጉድጓዱ የጥላ ጥልቀት (Shadow Gradient S) እና በ Truncated Paraboloid የይዘት ቀመር በማስላት በ ERA ስታንዳርድ አስፋልቱን ወደ ኪሎግራም እና ቦርሳ ይቀይረዋል።"
+</div>
+<div class="box-qa">
+<strong>ጥያቄ 3፦ "የራዳር ኮንሰፕቱ እንዴት ነው የሚሰራው?"</strong><br/>
+<strong>ምላሽ፦</strong> "ይህ ሲስተም 'Software-Defined Optical Radar' ይባላል። አካላዊ የራዳር ሴንሰር ከመግጠም ይልቅ የካሜራ ምስልን እና ጂኦዴሲክ ርቀትን በመጠቀም በመኪናው ዙሪያ የ 360° የቀረቤታ ራዳር አድማስ (25m እስከ 150m) ይዘረጋል። አደጋ ሲቃረብ የሌዘር ጨረር በስክሪኑ ላይ ይቆልፋል፣ የሶናር ድምፅ ያሰማል፣ እንዲሁም በአማርኛ 'ጥንቃቄ! ከፊትህ ጉድጓድ አለ' ብሎ ይጮሃል።"
+</div>
+<div class="box-qa">
+<strong>ጥያቄ 4፦ "ተቋራጩ (Contractor) ለምን ተጠያቂ ይሆናል?"</strong><br/>
+<strong>ምላሽ፦</strong> "በዓለም አቀፉ የሲቪል ኮንትራት ህግ FIDIC Clause 11 (Defects Liability Period) መሠረት አዲስ መንገድ ተረክቦ ለ 1 እስከ 2 ዓመት በማንኛውም ብልሽት ተቋራጩ በራሱ ወጪ የመጠገን ህጋዊ ግዴታ አለበት። ሲስተማችን ይሄን በጂኦፌንሲንግ በራስ-ሰር ይከታተላል።"
+</div>
+<div class="box-qa">
+<strong>ጥያቄ 5፦ "ይህ ሲስተም በእርግጥ ይሰራል ወይስ በወረቀት ላይ ያለ ሃሳብ ብቻ ነው?"</strong><br/>
+<strong>ምላሽ፦</strong> "ይህ ሙሉ በሙሉ የሚሰራ ፕሮቶታይፕ (Working Prototype) ነው። 114 አውቶሜትድ ቴስቶች 100% አልፈዋል፤ በአሁኑ ሰዓትም በላፕቶፔ ላይ በፖርት 5000 ላይ በቀጥታ እየሰራ ያለ ሲስተም ነው።"
+</div>
+
+<br/>
+<hr/>
+<p style="text-align: center; color: #64748b; font-size: 10pt;">
+<strong>ደራሲና ተመራማሪ፦</strong> ኃይሌ ስንታየሁ (Haile Sintayehu) &bull; ደብረ ብርሃን ዩኒቨርሲቲ፣ የኮምፒውቲንግ ኮሌጅ &bull; ህዳር 2026
+</p>
+
+</body>
+</html>

@@ -82,3 +82,4 @@ RoadEye features an interactive patrol simulation engine:
 - **Dynamic 360° Vector Vehicle Marker:** Automatically rotates in the direction of travel with animated headlight beams and emergency strobe lights.
 - **Proximity Radar Pings:** Automatically detects pavement defects within a 45-meter spatial threshold, triggering visual concentric radar ping waves around hazard markers.
 - **Glassmorphic Telemetry HUD:** Real-time speedometer (km/h), compass bearing (cardinal + degrees), odometer (km), and timeline scrubber controls.
+
