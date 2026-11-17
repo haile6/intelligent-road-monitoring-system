@@ -526,8 +526,10 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
     const depthNum = parseFloat(depth) || 6.5;
     const areaNum = parseFloat(area) || 0.35;
     const volNum = parseFloat(vol) || 8.5;
-    const bags = Math.max(1, Math.ceil((volNum * 2.2 * 1.22) / 25.0));
-    const cost = (bags * 1250) + 1800; // Cold-mix bag price + crew deployment ETB
+    const bagPrice = parseFloat(localStorage.getItem('roadeye_bag_price')) || 850;
+    const laborRate = parseFloat(localStorage.getItem('roadeye_labor_m2')) || 450;
+    const bags = Math.max(1, Math.ceil((volNum * 2.35 * 1.15) / 25.0));
+    const cost = (bags * bagPrice) + Math.max(350, Math.round(areaNum * laborRate));
 
     const contentHtml = `
         <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
@@ -597,6 +599,9 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
                 <div class="d-flex justify-content-between">
                     <span class="text-secondary">Est. Repair Budget:</span>
                     <span class="text-success fw-bold font-mono" id="drawerCostVal">${cost.toLocaleString()} ETB</span>
+                </div>
+                <div class="text-muted small mt-1 font-mono" style="font-size:10px;">
+                    (Calculated @ ${bagPrice} ETB/bag • <a href="/settings" class="text-info text-decoration-none">Adjust Material Rates</a>)
                 </div>
             </div>
         </div>

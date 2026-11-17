@@ -968,10 +968,23 @@ def audit_view():
 @app.route("/settings")
 def settings_view():
     """Enterprise Platform Settings."""
+    rates = db_manager.get_material_rates()
     return render_template(
         "settings.html",
-        active_page="settings"
+        active_page="settings",
+        material_rates=rates
     )
+
+
+@app.route("/api/settings/material-rates", methods=["GET", "POST"])
+def api_material_rates():
+    """Retrieve or update dynamic municipal asphalt procurement rates."""
+    if request.method == "POST":
+        payload = request.get_json() or {}
+        updated = db_manager.update_material_rates(payload)
+        return jsonify({"success": True, "rates": updated, "message": "Municipal material procurement rates updated successfully."})
+    rates = db_manager.get_material_rates()
+    return jsonify({"success": True, "rates": rates})
 
 
 def get_system_health_status():

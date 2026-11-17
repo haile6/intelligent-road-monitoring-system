@@ -91,6 +91,150 @@
                 </div>
             </div>
         </div>
+
+        <!-- Municipal Authority Dynamic Material & Asphalt Procurement Schedule -->
+        <div class="col-12">
+            <div class="card" style="border: 1px solid var(--accent-primary); background: rgba(56, 189, 248, 0.03);">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background: rgba(56, 189, 248, 0.08);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="calculator" style="color:var(--accent-primary); width:18px; height:18px;"></i>
+                        <h6 class="card-title mb-0" style="color:var(--text-primary); font-weight:700;">
+                            Municipal Material Procurement Schedule (የጥሬ ዕቃና የአስፋልት የገበያ ዋጋ መመሪያ)
+                        </h6>
+                    </div>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
+                        ERA Live Market Dynamic
+                    </span>
+                </div>
+                <div class="card-body p-3">
+                    <p class="text-secondary small mb-3">
+                        የአስፋልት እና የጥገና ጥሬ ዕቃዎች የገበያ ዋጋ በዋጋ ግሽበት (Inflation) ወይም በአቅራቢዎች ምክንያት ሲለዋወጥ፣ ማዘጋጃ ቤቱ ወይም የተፈቀደለት ኦፕሬተር ወቅታዊውን ዋጋ እዚህ በማስገባት የበጀት ስሌቱን በቅጽበት ማስተካከል ይችላል።
+                    </p>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Cold-Patch Asphalt (25kg Bag) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB</span>
+                                <input type="number" step="10" class="form-control font-mono fw-bold" id="rate-bag-price" 
+                                       value="{{ material_rates.cold_patch_bag_price_etb or 850.0 }}">
+                            </div>
+                            <span class="metadata-text">የአንድ ቦርሳ (25kg) የቀዝቃዛ አስፋልት የፋብሪካ/የገበያ ዋጋ</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Labor &amp; Compaction Rate (per m²) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB/m²</span>
+                                <input type="number" step="10" class="form-control font-mono fw-bold" id="rate-labor-m2" 
+                                       value="{{ material_rates.labor_compaction_rate_m2_etb or 450.0 }}">
+                            </div>
+                            <span class="metadata-text">የሰራተኛ ጉልበት፣ የማጽጃና የኮምፓክተር ማሽን ኪራይ በካሬ ሜትር</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Bitumen Tack Coat Emulsion (per Liter) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB/L</span>
+                                <input type="number" step="5" class="form-control font-mono fw-bold" id="rate-tack-coat" 
+                                       value="{{ material_rates.tack_coat_per_liter_etb or 120.0 }}">
+                            </div>
+                            <span class="metadata-text">የሬንጅ ኢመልሽን ማጣበቂያ በሊትር</span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold">
+                                Hot Mix Asphalt AC 60/70 (per Ton) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB/Ton</span>
+                                <input type="number" step="100" class="form-control font-mono fw-bold" id="rate-hot-mix" 
+                                       value="{{ material_rates.hot_mix_ton_etb or 14500.0 }}">
+                            </div>
+                            <span class="metadata-text">ትላልቅ መንገዶችን መልሶ ለመሸፈን (Resurfacing) የፍል አስፋልት ዋጋ</span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold">
+                                Official Exchange Rate (ETB to USD)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">1 USD =</span>
+                                <input type="number" step="0.5" class="form-control font-mono fw-bold" id="rate-fx-usd" 
+                                       value="{{ material_rates.etb_to_usd_rate or 128.0 }}">
+                                <span class="input-group-text font-mono">ETB</span>
+                            </div>
+                            <span class="metadata-text">ለአለም አቀፍ ለጋሾችና ለአይኤምኤፍ ሪፖርት ማቅረቢያ ምንዛሪ</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3 gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resetDefaultRates()">
+                            <i data-lucide="rotate-ccw"></i> Reset Defaults (ወደ ነባሪ መልስ)
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="saveMaterialRates()">
+                            <i data-lucide="save"></i> Update Material Rates (ወቅታዊውን ዋጋ መዝግብ)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function saveMaterialRates() {
+    const payload = {
+        cold_patch_bag_price_etb: parseFloat(document.getElementById('rate-bag-price').value) || 850.0,
+        labor_compaction_rate_m2_etb: parseFloat(document.getElementById('rate-labor-m2').value) || 450.0,
+        tack_coat_per_liter_etb: parseFloat(document.getElementById('rate-tack-coat').value) || 120.0,
+        hot_mix_ton_etb: parseFloat(document.getElementById('rate-hot-mix').value) || 14500.0,
+        etb_to_usd_rate: parseFloat(document.getElementById('rate-fx-usd').value) || 128.0
+    };
+
+    // Save to localStorage for instant client-side budgeting
+    localStorage.setItem('roadeye_material_rates', JSON.stringify(payload));
+    localStorage.setItem('roadeye_bag_price', payload.cold_patch_bag_price_etb);
+    localStorage.setItem('roadeye_labor_m2', payload.labor_compaction_rate_m2_etb);
+
+    // Save to server backend database
+    fetch('/api/settings/material-rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof showToast === 'function') {
+                showToast('የአስፋልትና ጥሬ ዕቃ ዋጋዎች በስኬት ተመዝግበዋል! አጠቃላይ የከተማው በጀት በአዲሱ ዋጋ ተሰልቷል።', 'success');
+            } else {
+                alert('የአስፋልትና ጥሬ ዕቃ ዋጋዎች በስኬት ተመዝግበዋል!');
+            }
+        }
+    })
+    .catch(err => {
+        console.error('Error saving rates:', err);
+        alert('የዋጋ መረጃዎችን በማስቀመጥ ላይ ችግር አጋጥሟል!');
+    });
+}
+
+function resetDefaultRates() {
+    document.getElementById('rate-bag-price').value = 850.0;
+    document.getElementById('rate-labor-m2').value = 450.0;
+    document.getElementById('rate-tack-coat').value = 120.0;
+    document.getElementById('rate-hot-mix').value = 14500.0;
+    document.getElementById('rate-fx-usd').value = 128.0;
+    saveMaterialRates();
+}
+</script>
     </div>
 
 </div>

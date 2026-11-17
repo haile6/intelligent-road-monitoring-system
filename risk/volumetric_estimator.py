@@ -225,11 +225,24 @@ class PotholeVolumetricCalculator:
         wetted_area_m2 = area_m2 + (perimeter_m * volume_data["depth_m"])
         tack_coat_liters = round(wetted_area_m2 * cls.TACK_APPLICATION_RATE_L_M2, 2)
 
-        # Financial estimate (ETB and USD)
-        material_cost_etb = round(loose_cold_kg * cls.RATE_COLD_PATCH_PER_KG_ETB, 2)
-        # Add labor and equipment factor (~35%)
-        total_repair_cost_etb = round(material_cost_etb * 1.35, 2)
-        total_repair_cost_usd = round(total_repair_cost_etb / cls.ETB_TO_USD_RATE, 2)
+        # Dynamic Municipal Authority Material & Labor Rates
+        bag_price_etb = 850.0
+        labor_m2_etb = 450.0
+        usd_rate = cls.ETB_TO_USD_RATE
+        try:
+            from database import db_manager
+            mrates = db_manager.get_material_rates()
+            bag_price_etb = float(mrates.get("cold_patch_bag_price_etb", 850.0))
+            labor_m2_etb = float(mrates.get("labor_compaction_rate_m2_etb", 450.0))
+            usd_rate = float(mrates.get("etb_to_usd_rate", 128.0))
+        except Exception:
+            pass
+
+        # Financial estimate (ETB and USD) based on dynamic municipal unit rates
+        material_cost_etb = round(bags_25kg * bag_price_etb, 2)
+        labor_equipment_cost_etb = round(max(350.0, area_m2 * labor_m2_etb), 2)
+        total_repair_cost_etb = round(material_cost_etb + labor_equipment_cost_etb, 2)
+        total_repair_cost_usd = round(total_repair_cost_etb / usd_rate, 2)
 
         # Estimated repair time (minutes)
         # Base prep (10 min) + filling & tamping (10 min per 50kg)

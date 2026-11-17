@@ -1047,3 +1047,73 @@ def delete_contractor(cid):
     conn.commit()
     conn.close()
 
+
+# ==============================================================================
+# SYSTEM SETTINGS & DYNAMIC MUNICIPAL PROCUREMENT RATES
+# ==============================================================================
+
+DEFAULT_MATERIAL_RATES = {
+    "cold_patch_bag_price_etb": 850.0,
+    "labor_compaction_rate_m2_etb": 450.0,
+    "tack_coat_per_liter_etb": 120.0,
+    "hot_mix_ton_etb": 14500.0,
+    "etb_to_usd_rate": 128.0
+}
+
+
+def get_setting(key: str, default=None):
+    """Retrieve setting value by key from system_settings table."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT value FROM system_settings WHERE key = ?", (key,))
+    row = cursor.fetchone()
+    conn.close()
+    if row and row["value"] is not None:
+        return row["value"]
+    return default
+
+
+def set_setting(key: str, value, description: str = ""):
+    """Insert or update setting in system_settings table."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cursor.execute("""
+    INSERT INTO system_settings (key, value, description, updated_at)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(key) DO UPDATE SET
+        value = excluded.value,
+        description = CASE WHEN excluded.description != '' THEN excluded.description ELSE system_settings.description END,
+        updated_at = excluded.updated_at
+    """, (str(key), str(value), str(description), now_str))
+    conn.commit()
+    conn.close()
+
+
+def get_material_rates() -> dict:
+    """Retrieve all municipal asphalt and repair material procurement rates."""
+    rates = dict(DEFAULT_MATERIAL_RATES)
+    for k in DEFAULT_MATERIAL_RATES:
+        stored = get_setting(k)
+        if stored is not None:
+            try:
+                rates[k] = float(stored)
+            except (ValueError, TypeError):
+                pass
+    return rates
+
+
+def update_material_rates(new_rates: dict) -> dict:
+    """Update material procurement rates with municipal authority values."""
+    current = get_material_rates()
+    for k, v in new_rates.items():
+        if k in DEFAULT_MATERIAL_RATES:
+            try:
+                val = float(v)
+                set_setting(k, val, f"Municipal rate for {k}")
+                current[k] = val
+            except (ValueError, TypeError):
+                pass
+    return current
+
+
