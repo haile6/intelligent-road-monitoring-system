@@ -85,3 +85,5 @@ phase*_inspection.txt
 phase7_update_review/
 
 *.ipynb
+
+Ultralytics/
