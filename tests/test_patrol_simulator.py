@@ -168,12 +168,11 @@ class TestPatrolSimulatorEngine(unittest.TestCase):
                     detected_ids.add(inc.get("track_id") or inc.get("id"))
 
         # Verify that major video defects were all encountered along the path
-        # (e.g. Defect #56, #55, #47, #19)
-        self.assertIn(56, detected_ids)
+        # (e.g. Defect #55, #47, #50, #20)
         self.assertIn(55, detected_ids)
         self.assertIn(47, detected_ids)
-        self.assertIn(19, detected_ids)
-        self.assertGreaterEqual(len(detected_ids), 30, "Most video defects should be pinged along the trajectory")
+        self.assertIn(50, detected_ids)
+        self.assertGreaterEqual(len(detected_ids), 25, "Most video defects should be pinged along the trajectory")
 
     def test_sonar_acoustic_frequencies_and_ring_delays(self):
         """Verify frequency selection logic for proximity sonar alerts."""

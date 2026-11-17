@@ -388,6 +388,11 @@
                         <span>Patrol Video Stream</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
+                        <select class="form-select form-select-sm py-0 px-2 fw-semibold text-light bg-dark border-secondary" id="patrolVideoSelector" onchange="switchPatrolVideo(this.value)" style="font-size: 11px; width: auto;" title="Switch Video Stream">
+                            <option value="/media/video/outputs/final_integrated_video.mp4" selected>📍 Debre Berhan 40s AI Sync</option>
+                            <option value="/media/video/outputs/annotated_gemini_generated_video_dadfa683.mp4">🏙️ Real Traffic Dashcam (3m 29s)</option>
+                            <option value="/media/video/data/debre_berhan_test_video.mp4">📹 Raw 40s Camera View</option>
+                        </select>
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;">
                             <i class="bi bi-broadcast me-1"></i>LIVE SYNC
                         </span>
@@ -398,7 +403,7 @@
                 </div>
                 <div class="dashcam-video-wrapper">
                     <video id="patrolDashcamVideo" class="dashcam-video-player" playsinline preload="auto" muted>
-                        <source src="/media/video/outputs/annotated_gemini_generated_video_dadfa683.mp4" type="video/mp4">
+                        <source src="/media/video/outputs/final_integrated_video.mp4" type="video/mp4">
                         Your browser does not support HTML5 video streaming.
                     </video>
 
@@ -1448,6 +1453,25 @@ function toggleDashcamMute(btn) {
     if (icon) {
         icon.className = video.muted ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill text-info';
     }
+}
+
+function switchPatrolVideo(videoSrc) {
+    const video = document.getElementById('patrolDashcamVideo');
+    if (!video) return;
+    const wasPlaying = (typeof patrolSimulatorInstance !== 'undefined' && patrolSimulatorInstance) ? patrolSimulatorInstance.isPlaying : !video.paused;
+    if (typeof patrolSimulatorInstance !== 'undefined' && patrolSimulatorInstance && patrolSimulatorInstance.isPlaying) {
+        patrolSimulatorInstance.pause();
+    }
+    video.src = videoSrc;
+    video.load();
+    video.addEventListener('loadedmetadata', function onMeta() {
+        video.removeEventListener('loadedmetadata', onMeta);
+        if (typeof patrolSimulatorInstance !== 'undefined' && patrolSimulatorInstance) {
+            patrolSimulatorInstance.videoDuration = video.duration || 40.0;
+            patrolSimulatorInstance.seek(0);
+            if (wasPlaying) patrolSimulatorInstance.play();
+        }
+    });
 }
 
 function toggleCockpitHud() {
