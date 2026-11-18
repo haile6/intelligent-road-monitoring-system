@@ -107,6 +107,17 @@ class TestCostOfInactionForecaster(unittest.TestCase):
         self.assertGreater(res["roi_savings_multiplier"], 2.5)
         self.assertEqual(len(res["defect_trajectories"]), 3)
 
+        # Validate prediction features matrix
+        self.assertIn("prediction_features", res)
+        feats = res["prediction_features"]
+        self.assertEqual(feats["climate"]["evaluated_season"], "KIREMT")
+        self.assertEqual(feats["climate"]["beta_climate_sensitivity"], 0.38)
+        self.assertEqual(feats["climate"]["gamma_infiltration_exponent"], 0.72)
+        self.assertEqual(feats["climate"]["deterioration_multiplier"], 4.2)
+        self.assertEqual(feats["traffic"]["heavy_freight_pct"], 24.0)
+        self.assertEqual(feats["cv_geometry"]["total_tracked_defects"], 3)
+        self.assertEqual(len(feats["cv_geometry"]["measured_features"]), 5)
+
 
 if __name__ == "__main__":
     unittest.main()

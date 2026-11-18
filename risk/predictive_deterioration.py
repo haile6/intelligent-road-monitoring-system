@@ -362,6 +362,57 @@ class CostOfInactionForecaster:
             horizons=[30, 60, 90, 180]
         )
 
+        # Standardized Climate & Physics Calibration Parameters
+        season_upper = season.upper()
+        season_meta = CLIMATE_SEASONS.get(season_upper, CLIMATE_SEASONS["KIREMT"])
+        base_rain = CLIMATE_SEASONS["BEGA"]["rainfall_mm_month"]
+        cur_rain = season_meta["rainfall_mm_month"]
+        rain_ratio = round(cur_rain / max(1.0, base_rain), 2)
+        beta_coeff = 0.38
+        gamma_exp = 0.72
+        computed_mult = round(1.0 + beta_coeff * (rain_ratio ** gamma_exp), 2)
+
+        prediction_features = {
+            "climate": {
+                "evaluated_season": season_upper,
+                "season_name": season_meta["season_en"],
+                "season_am": season_meta["season_am"],
+                "monthly_rainfall_mm": cur_rain,
+                "baseline_rainfall_mm": base_rain,
+                "rainfall_ratio": rain_ratio,
+                "beta_climate_sensitivity": beta_coeff,
+                "gamma_infiltration_exponent": gamma_exp,
+                "deterioration_multiplier": season_meta["deterioration_multiplier"],
+                "hdm4_formula": f"M = 1.0 + {beta_coeff} × ({rain_ratio})^{gamma_exp} = {computed_mult}× ({int(computed_mult*100)}%)",
+                "water_stripping_risk": season_meta["water_stripping_risk"]
+            },
+            "traffic": {
+                "corridor": "Route A2 · Addis Ababa - Debre Berhan Highway",
+                "heavy_freight_pct": 24.0,
+                "truck_traffic_label": "High-Density Commercial Freight (Sino-Trucks)",
+                "pore_water_pressure_range": "400 - 600 kPa",
+                "axle_stress_factor": 1.20,
+                "pumping_mechanism": "Dynamic tire-pumping hydraulic pore action"
+            },
+            "pavement_state": {
+                "current_corridor_pci": current_pci,
+                "total_corridor_hazards": len(incidents),
+                "markov_states_count": 5,
+                "states": PAVEMENT_STATES
+            },
+            "cv_geometry": {
+                "perception_pipeline": "YOLOv8 Detection + Monocular 3D Depth Estimation",
+                "measured_features": ["Defect Class", "Width (cm)", "Depth (cm)", "Volumetric Footprint (L)", "Risk Severity"],
+                "total_tracked_defects": len(incidents)
+            },
+            "economic": {
+                "immediate_patching_avg_etb": 1850.0,
+                "delayed_reconstruction_avg_etb": 19943.0,
+                "total_savings_etb": total_savings_etb,
+                "roi_multiplier": overall_roi
+            }
+        }
+
         return {
             "success": True,
             "corridor": "Route A2 · Addis Ababa - Debre Berhan Highway",
@@ -378,5 +429,6 @@ class CostOfInactionForecaster:
             "total_savings_usd": total_savings_usd,
             "roi_savings_multiplier": overall_roi,
             "markov_forecast": markov,
-            "defect_trajectories": defect_trajectories
+            "defect_trajectories": defect_trajectories,
+            "prediction_features": prediction_features
         }

@@ -81,6 +81,12 @@
                 <a href="?block_size=250" class="btn btn-secondary {% if request.args.get('block_size') == '250' %}active{% endif %}" title="250m Engineering Blocks">250m Blocks</a>
             </div>
 
+            <!-- Rainy Forecast Link -->
+            <a href="/forecast" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1" title="Simulate Monsoon Deterioration Forecast">
+                <i data-lucide="cloud-rain" style="width:14px; height:14px;"></i>
+                <span class="d-none d-md-inline">Rainy Forecast</span>
+            </a>
+
             <!-- Export BoQ CSV -->
             <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-primary" title="Export ERA Schedule of Rates BoQ">
                 <i data-lucide="download"></i> Export BoQ CSV
