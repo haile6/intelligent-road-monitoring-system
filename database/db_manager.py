@@ -1057,6 +1057,9 @@ DEFAULT_MATERIAL_RATES = {
     "labor_compaction_rate_m2_etb": 450.0,
     "tack_coat_per_liter_etb": 120.0,
     "hot_mix_ton_etb": 14500.0,
+    "reconstruction_rate_m2_etb": 7800.0,
+    "milling_rate_m2_etb": 420.0,
+    "overlay_rate_m2_etb": 2650.0,
     "etb_to_usd_rate": 128.0
 }
 

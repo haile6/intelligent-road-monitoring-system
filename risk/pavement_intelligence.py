@@ -330,6 +330,22 @@ class AsphaltBudgetEstimator:
         urgency = "Scheduled Maintenance"
         intervention_level = "PREVENTIVE"
 
+        # Dynamically load municipal rates if configured by the city authority
+        rate_reconstruct = cls.RATE_FULL_RECONSTRUCTION_PER_M2
+        rate_milling = cls.RATE_MILLING_50MM_PER_M2
+        rate_overlay = cls.RATE_ASPHALT_OVERLAY_50MM_PER_M2
+        rate_tack = cls.RATE_TACK_COAT_PER_M2
+        fx_usd = cls.ETB_TO_USD_RATE
+        try:
+            from database import db_manager
+            m_rates = db_manager.get_material_rates()
+            rate_reconstruct = float(m_rates.get("reconstruction_rate_m2_etb") or rate_reconstruct)
+            rate_milling = float(m_rates.get("milling_rate_m2_etb") or rate_milling)
+            rate_overlay = float(m_rates.get("overlay_rate_m2_etb") or rate_overlay)
+            fx_usd = float(m_rates.get("etb_to_usd_rate") or fx_usd)
+        except Exception:
+            pass
+
         # Determine Intervention Level based on ASTM D6433 & ERA triggers:
         # 1. PCI < 40 or IRI >= 7.0: Heavy Structural Failure -> Full-Depth Reconstruction
         # 2. 40 <= PCI < 70 or 4.0 <= IRI < 7.0: Functional Impairment -> Mill & 50mm Overlay
@@ -344,14 +360,14 @@ class AsphaltBudgetEstimator:
 
             # Reconstruction of entire segment carriageway
             qty_reconstruct = total_surface_area_m2
-            cost_reconstruct = qty_reconstruct * cls.RATE_FULL_RECONSTRUCTION_PER_M2
+            cost_reconstruct = qty_reconstruct * rate_reconstruct
 
             boq_items.append({
                 "item_code": "ERA-REC-01",
                 "description": "Full-Depth Carriageway Reconstruction (Stabilized base + DBM + AC)",
                 "unit": "m²",
                 "quantity": round(qty_reconstruct, 1),
-                "unit_rate_etb": cls.RATE_FULL_RECONSTRUCTION_PER_M2,
+                "unit_rate_etb": rate_reconstruct,
                 "total_etb": round(cost_reconstruct, 2)
             })
 
@@ -366,16 +382,16 @@ class AsphaltBudgetEstimator:
             treatment_am = "ሚሊንግ (50ሚሜ) + ታክ ኮት + 50ሚሜ የአስፋልት ኮንክሪት ሽፋን"
             urgency = "High (Quarterly Remediation)"
 
-            cost_milling = total_surface_area_m2 * cls.RATE_MILLING_50MM_PER_M2
-            cost_tack = total_surface_area_m2 * cls.RATE_TACK_COAT_PER_M2
-            cost_overlay = total_surface_area_m2 * cls.RATE_ASPHALT_OVERLAY_50MM_PER_M2
+            cost_milling = total_surface_area_m2 * rate_milling
+            cost_tack = total_surface_area_m2 * rate_tack
+            cost_overlay = total_surface_area_m2 * rate_overlay
 
             boq_items.append({
                 "item_code": "ERA-MIL-01",
                 "description": "Cold Milling of Existing Asphalt Surfacing (50mm depth)",
                 "unit": "m²",
                 "quantity": round(total_surface_area_m2, 1),
-                "unit_rate_etb": cls.RATE_MILLING_50MM_PER_M2,
+                "unit_rate_etb": rate_milling,
                 "total_etb": round(cost_milling, 2)
             })
             boq_items.append({
@@ -383,7 +399,7 @@ class AsphaltBudgetEstimator:
                 "description": "Bituminous Emulsion Tack Coat (K1-60 @ 0.55 L/m²)",
                 "unit": "m²",
                 "quantity": round(total_surface_area_m2, 1),
-                "unit_rate_etb": cls.RATE_TACK_COAT_PER_M2,
+                "unit_rate_etb": rate_tack,
                 "total_etb": round(cost_tack, 2)
             })
             boq_items.append({
@@ -391,7 +407,7 @@ class AsphaltBudgetEstimator:
                 "description": "50mm Hot-Mix Asphalt Concrete Wearing Course (AC 60/70)",
                 "unit": "m²",
                 "quantity": round(total_surface_area_m2, 1),
-                "unit_rate_etb": cls.RATE_ASPHALT_OVERLAY_50MM_PER_M2,
+                "unit_rate_etb": rate_overlay,
                 "total_etb": round(cost_overlay, 2)
             })
 
@@ -459,7 +475,7 @@ class AsphaltBudgetEstimator:
 
         # Sum total ETB and USD
         total_etb = sum(item["total_etb"] for item in boq_items)
-        total_usd = total_etb / cls.ETB_TO_USD_RATE
+        total_usd = total_etb / (fx_usd or cls.ETB_TO_USD_RATE)
 
         # Recommend construction machinery fleet
         equipment = []

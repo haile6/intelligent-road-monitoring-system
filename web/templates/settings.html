@@ -172,6 +172,43 @@
                             </div>
                             <span class="metadata-text">ለአለም አቀፍ ለጋሾችና ለአይኤምኤፍ ሪፖርት ማቅረቢያ ምንዛሪ</span>
                         </div>
+
+                        <!-- Corridor Civil Engineering Schedule Rates -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Full-Depth Reconstruction Rate (per m²) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB/m²</span>
+                                <input type="number" step="100" class="form-control font-mono fw-bold" id="rate-reconstruct" 
+                                       value="{{ material_rates.reconstruction_rate_m2_etb or 7800.0 }}">
+                            </div>
+                            <span class="metadata-text">መሰረቱ የፈረሰ መንገድ ሙሉ መልሶ ግንባታ (ሰብ-ቤዝ + ባይንደር + አስፋልት)</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                50mm Asphalt Overlay Rate (per m²) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB/m²</span>
+                                <input type="number" step="50" class="form-control font-mono fw-bold" id="rate-overlay" 
+                                       value="{{ material_rates.overlay_rate_m2_etb or 2650.0 }}">
+                            </div>
+                            <span class="metadata-text">የተሰነጣጠቀ መንገድ ላይ አዲስ 50ሚሜ አስፋልት ኮንክሪት ማልበስ</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Cold Planar Milling Rate (per m²) ዋጋ (ETB)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">ETB/m²</span>
+                                <input type="number" step="20" class="form-control font-mono fw-bold" id="rate-milling" 
+                                       value="{{ material_rates.milling_rate_m2_etb or 420.0 }}">
+                            </div>
+                            <span class="metadata-text">የድሮውን አስፋልት በማሽን የመፈልፈል ስራ በካሬ ሜትር</span>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-end mt-3 gap-2">
@@ -196,6 +233,9 @@ function saveMaterialRates() {
         labor_compaction_rate_m2_etb: parseFloat(document.getElementById('rate-labor-m2').value) || 450.0,
         tack_coat_per_liter_etb: parseFloat(document.getElementById('rate-tack-coat').value) || 120.0,
         hot_mix_ton_etb: parseFloat(document.getElementById('rate-hot-mix').value) || 14500.0,
+        reconstruction_rate_m2_etb: parseFloat(document.getElementById('rate-reconstruct').value) || 7800.0,
+        milling_rate_m2_etb: parseFloat(document.getElementById('rate-milling').value) || 420.0,
+        overlay_rate_m2_etb: parseFloat(document.getElementById('rate-overlay').value) || 2650.0,
         etb_to_usd_rate: parseFloat(document.getElementById('rate-fx-usd').value) || 128.0
     };
 
@@ -231,6 +271,9 @@ function resetDefaultRates() {
     document.getElementById('rate-labor-m2').value = 450.0;
     document.getElementById('rate-tack-coat').value = 120.0;
     document.getElementById('rate-hot-mix').value = 14500.0;
+    document.getElementById('rate-reconstruct').value = 7800.0;
+    document.getElementById('rate-overlay').value = 2650.0;
+    document.getElementById('rate-milling').value = 420.0;
     document.getElementById('rate-fx-usd').value = 128.0;
     saveMaterialRates();
 }
