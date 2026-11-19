@@ -205,6 +205,14 @@ class UnifiedDatasetManager:
             initial_pci = min(100.0, final_pci + (100.0 - final_pci) * 0.75)
             pci_drop_total = initial_pci - final_pci
 
+            # Calculate normalized seasonal weights across timeline
+            step_weights = []
+            for d_str in sample_dates:
+                dt = datetime.strptime(d_str, "%Y-%m-%d")
+                is_k = dt.month in [6, 7, 8, 9]
+                step_weights.append(4.20 if is_k else 1.00)
+            sum_weights = max(1.0, sum(step_weights))
+
             current_tracked_pci = initial_pci
             current_potholes = max(0, round(final_potholes * 0.2))
             current_cracks = max(0, round(final_cracks * 0.3))
@@ -217,12 +225,9 @@ class UnifiedDatasetManager:
                 soil_pct = float(w_obs.get("soil_moisture_pct", 40.0))
                 w_source = str(w_obs.get("weather_source", "open_meteo_archive"))
 
-                dt = datetime.strptime(d_str, "%Y-%m-%d")
-                is_kiremt = dt.month in [6, 7, 8, 9]
-
-                # Progressive degradation step
-                weight = 2.5 if is_kiremt else 0.8
-                step_pci_drop = (pci_drop_total / max(1, total_steps)) * (weight / 1.5)
+                # Proportional seasonal degradation step
+                w_factor = step_weights[step_idx]
+                step_pci_drop = pci_drop_total * (w_factor / sum_weights)
                 
                 prev_pci = current_tracked_pci
                 current_tracked_pci = max(final_pci, current_tracked_pci - step_pci_drop)
