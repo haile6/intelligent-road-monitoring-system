@@ -13,9 +13,10 @@ Physics, Markovian & Climate Foundations:
 
 import math
 from typing import Dict, List, Tuple, Any, Optional
+from risk.maintenance_cost_estimator import MaintenanceCostEstimator, MaintenanceUnitRatesERA
 
 # ==============================================================================
-# 1. ETHIOPIAN CLIMATE SEASONS & DISTRESS STATES
+# 1. ETHIOPIAN CLIMATE SEASONS & DISTRESS STATES (COMPARATIVE SIMULATION BENCHMARKS)
 # ==============================================================================
 
 CLIMATE_SEASONS = {
@@ -24,27 +25,33 @@ CLIMATE_SEASONS = {
         "season_am": "ክረምት (ከባድ የዝናብ ወቅት)",
         "months": "June - September",
         "rainfall_mm_month": 280.0,
-        "deterioration_multiplier": 4.2,  # 420% accelerated deterioration
+        "simulation_scenario_multiplier": 4.2,  # HDM-4 Calibrated Theoretical Simulation Scenario
+        "deterioration_multiplier": 4.2,        # Retained for comparative simulation scenario
         "water_stripping_risk": "CRITICAL",
-        "color": "#ef4444"
+        "color": "#ef4444",
+        "provenance": "HDM-4 Physics Calibration Scenario (Theoretical Simulation)"
     },
     "BELG": {
         "season_en": "Belg (Moderate Autumn Rains)",
         "season_am": "በልግ (መካከለኛ ዝናብ)",
         "months": "March - May",
         "rainfall_mm_month": 95.0,
+        "simulation_scenario_multiplier": 1.8,
         "deterioration_multiplier": 1.8,
         "water_stripping_risk": "MODERATE",
-        "color": "#f59e0b"
+        "color": "#f59e0b",
+        "provenance": "HDM-4 Physics Calibration Scenario (Theoretical Simulation)"
     },
     "BEGA": {
         "season_en": "Bega (Dry Sunny Season)",
         "season_am": "በጋ (ደረቅ የበጋ ወቅት)",
         "months": "October - February",
         "rainfall_mm_month": 15.0,
-        "deterioration_multiplier": 1.0,  # Baseline dry pavement wear
+        "simulation_scenario_multiplier": 1.0,  # Baseline dry pavement wear
+        "deterioration_multiplier": 1.0,
         "water_stripping_risk": "MINIMAL",
-        "color": "#10b981"
+        "color": "#10b981",
+        "provenance": "Baseline Dry Season Calibration"
     }
 }
 
@@ -284,16 +291,27 @@ class CostOfInactionForecaster:
                 future_state = "Dense Alligator Crack Web"
                 future_state_am = "የተስፋፋ የአዞ ቆዳ ስንጥቅ"
 
-        # Economic Cost of Inaction calculation
-        # Repair Today: localized cold patch or crack seal
-        if is_pothole:
-            cost_today_etb = 1850.0
-            # If delayed through Kiremt: requires asphalt saw-cut, base re-compaction, 50mm overlay
-            cost_inaction_etb = round(cost_today_etb * (2.8 + 0.95 * m * t_months), 2)
-        else:
-            cost_today_etb = 480.0  # Crack seal
-            # If delayed: becomes a pothole requiring deep patching
-            cost_inaction_etb = round(cost_today_etb * (4.2 + 1.20 * m * t_months), 2)
+        # Transparent Civil Engineering Cost of Inaction calculation via Bill of Quantities (BOQ)
+        # 1. Cost Today based on current measured dimensions
+        boq_today = MaintenanceCostEstimator.estimate_defect_repair_cost(
+            damage_type=dtype,
+            width_cm=current_width_cm,
+            depth_cm=current_depth_cm,
+            volume_liters=current_vol_liters,
+            risk_level=risk
+        )
+        cost_today_etb = boq_today["total_estimated_repair_cost_etb"]
+
+        # 2. Cost of Delayed Inaction based on projected physical geometry expansion
+        # When depth breaches 45mm, it requires deep sub-base excavation instead of shallow overlay
+        boq_delayed = MaintenanceCostEstimator.estimate_defect_repair_cost(
+            damage_type="pothole" if (is_pothole or future_depth_cm >= 4.0) else "crack",
+            width_cm=future_width_cm,
+            depth_cm=future_depth_cm,
+            volume_liters=future_vol_liters,
+            risk_level="CRITICAL" if future_depth_cm >= 4.5 else "CAUTION"
+        )
+        cost_inaction_etb = boq_delayed["total_estimated_repair_cost_etb"]
 
         cost_today_usd = round(cost_today_etb / cls.ETB_TO_USD_RATE, 2)
         cost_inaction_usd = round(cost_inaction_etb / cls.ETB_TO_USD_RATE, 2)
