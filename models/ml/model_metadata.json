@@ -1,0 +1,188 @@
+{
+  "trained_at": "2026-11-19T09:11:40.790589",
+  "best_model_name": "Ridge Regression",
+  "metrics": {
+    "trained_at": "2026-11-19T09:11:40.790589",
+    "total_samples": 357,
+    "training_samples": 249,
+    "validation_samples": 53,
+    "held_out_test_samples": 55,
+    "chronological_train_date_range": [
+      "2026-07-22",
+      "2026-09-30"
+    ],
+    "chronological_test_date_range": [
+      "2026-10-21",
+      "2026-11-11"
+    ],
+    "benchmark_30d_pci": {
+      "ridge_regression": {
+        "mae": 0.64,
+        "rmse": 0.87,
+        "r2": 0.999,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      },
+      "random_forest": {
+        "mae": 4.88,
+        "rmse": 7.98,
+        "r2": 0.876,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      },
+      "hist_gradient_boosting": {
+        "mae": 4.62,
+        "rmse": 10.72,
+        "r2": 0.777,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      },
+      "markov_model_baseline": {
+        "mae": 7.67,
+        "rmse": 9.0,
+        "r2": 0.843,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      },
+      "persistence_baseline": {
+        "mae": 1.37,
+        "rmse": 2.17,
+        "r2": 0.991,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      }
+    },
+    "multi_horizon_performance": {
+      "horizon_7d": {
+        "mae": 2.43,
+        "rmse": 6.5,
+        "r2": 0.912,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      },
+      "horizon_30d": {
+        "mae": 4.88,
+        "rmse": 7.98,
+        "r2": 0.876,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      },
+      "horizon_60d": {
+        "mae": 4.64,
+        "rmse": 9.08,
+        "r2": 0.84,
+        "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R\u00b2: Coefficient of Determination (explained variance, not accuracy %)"
+      }
+    },
+    "best_model": "Ridge Regression",
+    "feature_importance": [
+      {
+        "feature": "current_pci",
+        "importance_score": 0.566,
+        "physical_interpretation": "Current PCI represents the primary baseline structural state."
+      },
+      {
+        "feature": "cavity_total_volume_liters",
+        "importance_score": 0.14,
+        "physical_interpretation": "Existing cavity volume indicates localized subgrade punching failure."
+      },
+      {
+        "feature": "cavity_pothole_count",
+        "importance_score": 0.139,
+        "physical_interpretation": "Existing cavity volume indicates localized subgrade punching failure."
+      },
+      {
+        "feature": "cavity_avg_depth_cm",
+        "importance_score": 0.086,
+        "physical_interpretation": "Existing cavity volume indicates localized subgrade punching failure."
+      },
+      {
+        "feature": "cavity_max_depth_cm",
+        "importance_score": 0.063,
+        "physical_interpretation": "Existing cavity volume indicates localized subgrade punching failure."
+      },
+      {
+        "feature": "historical_pci_drop_velocity",
+        "importance_score": 0.005,
+        "physical_interpretation": "Observational feature association; does not claim direct unconfounded causal mechanism."
+      },
+      {
+        "feature": "moisture_rain_60d_cum_mm",
+        "importance_score": 0.001,
+        "physical_interpretation": "Recent rainfall accumulation is associated with increased pavement softening."
+      },
+      {
+        "feature": "traffic_truck_vpd",
+        "importance_score": 0.001,
+        "physical_interpretation": "Heavy commercial traffic volume contributes to predicted rate of structural wear."
+      },
+      {
+        "feature": "moisture_rainy_days_30d",
+        "importance_score": 0.0,
+        "physical_interpretation": "Recent rainfall accumulation is associated with increased pavement softening."
+      },
+      {
+        "feature": "traffic_total_vpd",
+        "importance_score": 0.0,
+        "physical_interpretation": "Heavy commercial traffic volume contributes to predicted rate of structural wear."
+      },
+      {
+        "feature": "moisture_rain_30d_cum_mm",
+        "importance_score": 0.0,
+        "physical_interpretation": "Recent rainfall accumulation is associated with increased pavement softening."
+      },
+      {
+        "feature": "moisture_rain_daily_mm",
+        "importance_score": 0.0,
+        "physical_interpretation": "Recent rainfall accumulation is associated with increased pavement softening."
+      },
+      {
+        "feature": "moisture_consecutive_wet_days",
+        "importance_score": 0.0,
+        "physical_interpretation": "Recent rainfall accumulation is associated with increased pavement softening."
+      },
+      {
+        "feature": "fatigue_crack_density_m_m2",
+        "importance_score": 0.0,
+        "physical_interpretation": "Existing surface crack density indicates vulnerability to moisture penetration."
+      },
+      {
+        "feature": "traffic_truck_ratio_pct",
+        "importance_score": 0.0,
+        "physical_interpretation": "Heavy commercial traffic volume contributes to predicted rate of structural wear."
+      },
+      {
+        "feature": "moisture_rain_7d_cum_mm",
+        "importance_score": 0.0,
+        "physical_interpretation": "Recent rainfall accumulation is associated with increased pavement softening."
+      },
+      {
+        "feature": "fatigue_crack_count",
+        "importance_score": 0.0,
+        "physical_interpretation": "Existing surface crack density indicates vulnerability to moisture penetration."
+      }
+    ],
+    "data_provenance": "SYNTHETIC_BENCHMARK_TEST_DATA",
+    "field_validation_status": "INSUFFICIENT_TRAINING_DATA",
+    "field_validation_note": "Insufficient genuine historical data: Found 2 survey dates (2026-10-20, 2026-11-16). Multi-horizon ML training requires repeated panel surveys across distinct 7d, 30d, and 60d intervals.",
+    "scientific_note": "Evaluated strictly on held-out temporal observations. R\u00b2 is coefficient of determination."
+  },
+  "feature_names": [
+    "current_pci",
+    "moisture_rain_daily_mm",
+    "moisture_rain_7d_cum_mm",
+    "moisture_rain_30d_cum_mm",
+    "moisture_rain_60d_cum_mm",
+    "moisture_rainy_days_30d",
+    "moisture_consecutive_wet_days",
+    "traffic_total_vpd",
+    "traffic_truck_vpd",
+    "traffic_truck_ratio_pct",
+    "fatigue_crack_count",
+    "fatigue_crack_density_m_m2",
+    "cavity_pothole_count",
+    "cavity_avg_depth_cm",
+    "cavity_max_depth_cm",
+    "cavity_total_volume_liters",
+    "historical_pci_drop_velocity",
+    "temperature_c",
+    "relative_humidity_pct",
+    "antecedent_precip_index",
+    "traffic_exposure_30d_kveh",
+    "drainage_risk_score",
+    "water_accumulation_risk"
+  ]
+}

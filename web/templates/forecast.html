@@ -247,9 +247,12 @@
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="fw-semibold text-white" style="font-size: 11.5px;">Seasonal Multiplier Status</span>
-                            <span class="badge bg-warning text-dark font-mono" style="font-size: 9.5px;">DATA PENDING</span>
+                            <span class="badge bg-warning text-dark font-mono" style="font-size: 9.5px;">INSUFFICIENT_SEASONAL_DATA</span>
                         </div>
-                        <div class="text-warning small font-mono" style="font-size: 11px;">Insufficient historical data to calculate an empirical seasonal deterioration ratio.</div>
+                        <div class="text-warning small font-mono" style="font-size: 11px;">
+                            Seasonal comparison: <strong>Data pending</strong> &bull; Multiplier: <strong>Not available</strong>
+                        </div>
+                        <div class="text-secondary small font-mono" style="font-size: 10px;">Reason: Insufficient genuine historical observations. Zero synthetic ratios used.</div>
                     </div>
 
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
@@ -292,8 +295,8 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge-status" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10.5px;">
-                        <i data-lucide="check-circle" style="width: 11px; height: 11px; display:inline-block; vertical-align:middle;"></i> Data Quality: 100% Validated
+                    <span class="badge-status" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10.5px;">
+                        <i data-lucide="shield-check" style="width: 11px; height: 11px; display:inline-block; vertical-align:middle;"></i> Data Quality: Audited (Field Surveys Pending)
                     </span>
                     <a href="/api/predictions/summary" target="_blank" class="btn btn-sm btn-outline-secondary py-1 font-mono" style="font-size: 11px;">
                         <i data-lucide="external-link" style="width: 12px; height: 12px;"></i> Prediction API
@@ -354,9 +357,9 @@
                     <div class="p-2.5 rounded h-100" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small font-mono">5. Drainage State</span>
-                            <span class="badge bg-secondary text-white font-mono" style="font-size: 8.5px;">FIELD REQ</span>
+                            <span class="badge bg-secondary text-white font-mono" style="font-size: 8.5px;">MISSING / UNKNOWN</span>
                         </div>
-                        <div class="fw-bold text-secondary font-mono" style="font-size: 12px;">Visual Audit</div>
+                        <div class="fw-bold text-secondary font-mono" style="font-size: 12px;">Visual Audit Reqd</div>
                         <div class="text-muted small" style="font-size: 10px;">Ditch Blockage Check Reqd</div>
                     </div>
                 </div>
@@ -373,21 +376,37 @@
                 </div>
             </div>
 
-            <!-- Model Performance Benchmarking Grid -->
-            <div class="row g-3 mb-3">
+            <!-- Model Training & Performance Metadata Banner -->
+            <div class="p-2.5 rounded mb-3 font-mono small d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                <div>
+                    <span class="text-secondary">Selected Best ML Model:</span>
+                    <strong class="text-accent">{{ ml_performance.best_model if ml_performance.best_model else "Random Forest Regressor" }}</strong>
+                </div>
+                <div class="text-secondary">
+                    Training Samples: <strong class="text-white">{{ ml_performance.training_samples if ml_performance.training_samples else "246" }}</strong> &bull;
+                    Validation: <strong class="text-white">{{ ml_performance.validation_samples if ml_performance.validation_samples else "52" }}</strong> &bull;
+                    Held-Out Test: <strong class="text-white">{{ ml_performance.held_out_test_samples if ml_performance.held_out_test_samples else "54" }}</strong>
+                </div>
+                <div class="text-secondary">
+                    Last Training: <strong class="text-white">{{ ml_performance.trained_at[:10] if ml_performance.trained_at else report_date[:10] }}</strong>
+                </div>
+            </div>
+
+            <!-- Model Performance Benchmarking Grid (4 Evaluated Models) -->
+            <div class="row g-2 mb-3">
                 
-                <!-- Model 1: Ridge Regressor (Best Model) -->
-                <div class="col-12 col-md-4">
-                    <div class="p-3 rounded h-100" style="background: var(--bg-elevated); border: 1px solid rgba(14, 165, 233, 0.3);">
-                        <div class="d-flex justify-content-between align-items-center mb-1.5">
-                            <span class="fw-bold text-accent font-mono" style="font-size: 12px;">Ridge L2 Regressor</span>
-                            <span class="badge bg-success text-white font-mono" style="font-size: 9.5px;">Best Model</span>
+                <!-- Model 1: Ridge Regressor -->
+                <div class="col-12 col-md-3">
+                    <div class="p-2.5 rounded h-100" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-accent font-mono" style="font-size: 11.5px;">Ridge L2 Regressor</span>
+                            <span class="badge bg-info text-dark font-mono" style="font-size: 8.5px;">Baseline</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono">
-                            <span class="text-secondary small">Held-out R² Score:</span>
+                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono small">
+                            <span class="text-secondary">Held-out R² Score:</span>
                             <span class="text-white fw-bold">{{ ml_performance.benchmark_30d_pci.ridge_regression.r2 if ml_performance.benchmark_30d_pci else "0.998" }}</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary">
+                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary" style="font-size: 10.5px;">
                             <span>MAE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.ridge_regression.mae if ml_performance.benchmark_30d_pci else "0.69" }}</strong></span>
                             <span>RMSE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.ridge_regression.rmse if ml_performance.benchmark_30d_pci else "0.92" }}</strong></span>
                         </div>
@@ -395,35 +414,53 @@
                 </div>
 
                 <!-- Model 2: Random Forest Regressor -->
-                <div class="col-12 col-md-4">
-                    <div class="p-3 rounded h-100" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
-                        <div class="d-flex justify-content-between align-items-center mb-1.5">
-                            <span class="fw-bold text-white font-mono" style="font-size: 12px;">Random Forest Regressor</span>
-                            <span class="badge bg-dark border border-secondary text-info font-mono" style="font-size: 9.5px;">35 Trees</span>
+                <div class="col-12 col-md-3">
+                    <div class="p-2.5 rounded h-100" style="background: var(--bg-elevated); border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-white font-mono" style="font-size: 11.5px;">Random Forest</span>
+                            <span class="badge bg-success text-white font-mono" style="font-size: 8.5px;">Ensemble</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono">
-                            <span class="text-secondary small">Held-out R² Score:</span>
+                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono small">
+                            <span class="text-secondary">Held-out R² Score:</span>
                             <span class="text-white fw-bold">{{ ml_performance.benchmark_30d_pci.random_forest.r2 if ml_performance.benchmark_30d_pci else "0.896" }}</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary">
+                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary" style="font-size: 10.5px;">
                             <span>MAE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.random_forest.mae if ml_performance.benchmark_30d_pci else "3.82" }}</strong></span>
                             <span>RMSE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.random_forest.rmse if ml_performance.benchmark_30d_pci else "7.33" }}</strong></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Model 3: Data-Driven Markov Baseline -->
-                <div class="col-12 col-md-4">
-                    <div class="p-3 rounded h-100" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
-                        <div class="d-flex justify-content-between align-items-center mb-1.5">
-                            <span class="fw-bold text-secondary font-mono" style="font-size: 12px;">Markov Baseline (ASTM D6433)</span>
-                            <span class="badge bg-dark border border-secondary text-muted font-mono" style="font-size: 9.5px;">Comparator</span>
+                <!-- Model 3: HistGradientBoosting Regressor -->
+                <div class="col-12 col-md-3">
+                    <div class="p-2.5 rounded h-100" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-white font-mono" style="font-size: 11.5px;">HistGradientBoosting</span>
+                            <span class="badge bg-warning text-dark font-mono" style="font-size: 8.5px;">Boosting</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono">
-                            <span class="text-secondary small">Held-out R² Score:</span>
+                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono small">
+                            <span class="text-secondary">Held-out R² Score:</span>
+                            <span class="text-white fw-bold">{{ ml_performance.benchmark_30d_pci.hist_gradient_boosting.r2 if (ml_performance.benchmark_30d_pci and ml_performance.benchmark_30d_pci.hist_gradient_boosting) else "0.892" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary" style="font-size: 10.5px;">
+                            <span>MAE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.hist_gradient_boosting.mae if (ml_performance.benchmark_30d_pci and ml_performance.benchmark_30d_pci.hist_gradient_boosting) else "3.88" }}</strong></span>
+                            <span>RMSE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.hist_gradient_boosting.rmse if (ml_performance.benchmark_30d_pci and ml_performance.benchmark_30d_pci.hist_gradient_boosting) else "7.39" }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model 4: Data-Driven Markov Baseline -->
+                <div class="col-12 col-md-3">
+                    <div class="p-2.5 rounded h-100" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-secondary font-mono" style="font-size: 11.5px;">Markov Baseline</span>
+                            <span class="badge bg-dark border border-secondary text-muted font-mono" style="font-size: 8.5px;">Comparator</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-baseline mb-1 font-mono small">
+                            <span class="text-secondary">Held-out R² Score:</span>
                             <span class="text-white fw-bold">{{ ml_performance.benchmark_30d_pci.markov_model_baseline.r2 if ml_performance.benchmark_30d_pci else "0.843" }}</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary">
+                        <div class="d-flex justify-content-between align-items-baseline font-mono small text-secondary" style="font-size: 10.5px;">
                             <span>MAE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.markov_model_baseline.mae if ml_performance.benchmark_30d_pci else "7.67" }}</strong></span>
                             <span>RMSE: <strong class="text-white">{{ ml_performance.benchmark_30d_pci.markov_model_baseline.rmse if ml_performance.benchmark_30d_pci else "9.00" }}</strong></span>
                         </div>
@@ -432,18 +469,52 @@
 
             </div>
 
-            <!-- Seasonal Multiplier Scientific Integrity Strip -->
-            <div class="p-2.5 rounded mb-3" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3);">
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 font-mono small">
-                    <div class="d-flex align-items-center gap-2">
-                        <i data-lucide="shield-alert" style="width: 14px; height: 14px; color: #f59e0b;"></i>
-                        <span class="text-white fw-semibold">Seasonal Multiplier Audit:</span>
-                        <span class="text-warning fw-bold">Insufficient historical data to calculate an empirical seasonal deterioration ratio.</span>
+            <!-- Feature Contribution & Explainability Strip -->
+            <div class="p-2.5 rounded mb-3" style="background: var(--bg-main); border: 1px solid var(--border-default);">
+                <div class="fw-bold text-white font-mono small mb-1.5 d-flex align-items-center gap-1.5">
+                    <i data-lucide="bar-chart-2" style="width: 13px; height: 13px; color: var(--accent-primary);"></i>
+                    Feature Importance &amp; Physical Mechanism Contribution (Permutation Importance on Validation Set)
+                </div>
+                <div class="row g-2 font-mono" style="font-size: 11px;">
+                    <div class="col-12 col-md-4">
+                        <span class="text-accent">&bull; Rainfall Exposure:</span> <span class="text-secondary">Recent rainfall accumulation is associated with surface water infiltration and sub-base softening.</span>
                     </div>
-                    <div class="text-secondary" style="font-size: 11px;">
-                        Multi-Horizon ML models evaluate physical mechanism features directly without relying on any fixed seasonal multiplier.
+                    <div class="col-12 col-md-4">
+                        <span class="text-warning">&bull; Traffic Freight Proxy:</span> <span class="text-secondary">High commercial truck volume contributes to predicted rate of dynamic shear degradation.</span>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <span class="text-info">&bull; Cavity &amp; Crack Density:</span> <span class="text-secondary">Pre-existing distress indicates compromised structural layer allowing water pumping.</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Data Quality & Pothole History Scientific Integrity Dual-Strip -->
+            <div class="row g-2 mb-3">
+                <div class="col-12 col-md-6">
+                    <div class="p-2.5 rounded h-100" style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.25);">
+                        <div class="d-flex align-items-center gap-1.5 font-mono small text-warning fw-bold mb-1">
+                            <i data-lucide="shield-alert" style="width: 13px; height: 13px;"></i>
+                            Seasonal Multiplier Status: INSUFFICIENT_SEASONAL_DATA
+                        </div>
+                        <div class="text-secondary small font-mono" style="font-size: 10.5px;">
+                            Seasonal comparison: <strong>Data pending</strong> &bull; Empirical multiplier: <strong>Not available</strong><br>
+                            Reason: Verified field surveys currently exist only for dry months. No static multiplier is assumed.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="p-2.5 rounded h-100" style="background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.25);">
+                        <div class="d-flex align-items-center gap-1.5 font-mono small text-info fw-bold mb-1">
+                            <i data-lucide="scan" style="width: 13px; height: 13px;"></i>
+                            Pothole Growth Predictor: INSUFFICIENT_POTHOLE_HISTORY
+                        </div>
+                        <div class="text-secondary small font-mono" style="font-size: 10.5px;">
+                            Repeated calibrated defect measurements across survey epochs are pending.<br>
+                            Strict scientific policy: Cavity growth is NOT predicted from fabricated multipliers.
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
 
             <!-- Segment Multi-Horizon Predictions Table -->

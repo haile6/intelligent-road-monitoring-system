@@ -254,9 +254,33 @@ class MaintenanceCostEstimator:
             else:
                 total_cost_etb = 0.0
 
+        # Determine maintenance urgency level based on projected condition
+        pci_val = float(projected_pci_30d) if projected_pci_30d is not None else float(current_pci)
+        if pci_val < 50.0 or potholes >= 3:
+            urgency_level = 1
+            urgency_label = "Emergency Structural Intervention"
+            urgency_color = "#ef4444"
+            recommended_action = "Deep asphalt milling & aggregate base re-compaction"
+        elif pci_val < 70.0 or potholes >= 1 or cracks >= 2:
+            urgency_level = 2
+            urgency_label = "High Priority Preventive Maintenance"
+            urgency_color = "#f59e0b"
+            recommended_action = "Cold-mix asphalt patching & elastomeric crack sealing"
+        else:
+            urgency_level = 3
+            urgency_label = "Routine Scheduled Monitoring"
+            urgency_color = "#10b981"
+            recommended_action = "Routine road shoulder sweep & surface distress monitoring"
+
         return {
             "total_estimated_budget_etb": round(total_cost_etb, 2),
+            "estimated_repair_cost_etb": round(total_cost_etb, 2),
             "total_estimated_budget_usd": round(total_cost_etb / MaintenanceUnitRatesERA.ETB_TO_USD_RATE, 2),
+            "urgency_level": urgency_level,
+            "urgency_label": urgency_label,
+            "urgency": urgency_label,
+            "color": urgency_color,
+            "recommended_action": recommended_action,
             "cost_breakdown": {
                 "materials_etb": round(itemized_materials, 2),
                 "labor_etb": round(itemized_labor, 2),

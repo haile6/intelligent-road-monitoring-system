@@ -97,7 +97,10 @@ class SeasonalHypothesisInvestigator:
         if not check["has_genuine_multi_season_surveys"]:
             return {
                 "success": True,
-                "status": "INSUFFICIENT_HISTORICAL_DATA",
+                "status": "INSUFFICIENT_SEASONAL_DATA",
+                "seasonal_comparison": "Data pending",
+                "empirical_seasonal_multiplier": "Not available",
+                "reason": "Insufficient genuine historical observations",
                 "summary_status": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
                 "message": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
                 "empirical_multiplier": None,

@@ -51,6 +51,8 @@ from data.unified_dataset import UnifiedDatasetManager
 from data.data_quality import DataQualityValidator
 from risk.ml_deterioration_predictor import ml_engine
 from risk.seasonal_hypothesis_investigator import SeasonalHypothesisInvestigator
+from risk.pothole_growth_predictor import PotholeGrowthPredictor
+from risk.ml_dataset_builder import MLDatasetBuilder
 
 app = Flask(
     __name__,
@@ -936,13 +938,24 @@ def api_predictions_single_segment(segment_id):
             "error": f"Segment '{segment_id}' not found. Available segments: KP-01 through KP-21."
         }), 404
 
+    match = matching[0]
     now_date = datetime.now().strftime("%Y-%m-%d")
     history = UnifiedDatasetManager().get_records(segment_id=segment_id.upper())
     return jsonify({
         "success": True,
         "segment_id": segment_id.upper(),
+        "prediction_horizon": 30,
+        "current_pci": match["current_condition"]["pci"],
+        "predicted_pci": match["multi_horizon_pci_predictions"]["horizon_30d_pci"],
+        "predicted_pci_change": match["predicted_pci_change_30d"],
+        "model_name": match["model_name"],
+        "model_version": match["model_version"],
+        "prediction_timestamp": match["prediction_timestamp"],
+        "data_quality_status": match["data_quality_status"],
+        "confidence_interval": match["confidence_interval_30d"],
+        "prediction_status": match["prediction_status"],
         "prediction_date": now_date,
-        "prediction": matching[0],
+        "prediction": match,
         "data_availability": {
             "atmospheric_weather": "AVAILABLE",
             "traffic_proxy": "AVAILABLE",
@@ -976,6 +989,51 @@ def api_predictions_model_performance():
     return jsonify({
         "success": True,
         "performance": perf
+    })
+
+
+@app.route("/api/predictions/feature-importance")
+def api_predictions_feature_importance():
+    """Return permutation feature importance ranking and physical interpretations."""
+    if not ml_engine.evaluation_metrics:
+        ml_engine.train_and_evaluate()
+    feat_imp = ml_engine.evaluation_metrics.get("feature_importance", [])
+    return jsonify({
+        "success": True,
+        "method": "Permutation Importance on Held-Out Validation Set (Scikit-Learn)",
+        "features_ranked": feat_imp,
+        "scientific_note": "Observational feature associations only; does NOT claim unconfounded causality."
+    })
+
+
+@app.route("/api/predictions/retrain", methods=["POST"])
+def api_predictions_retrain():
+    """Trigger safe re-training of ML models across horizons."""
+    req_data = request.get_json(silent=True) or {}
+    allow_bench = bool(req_data.get("allow_synthetic_benchmark", True))
+    perf = ml_engine.train_and_evaluate(allow_synthetic_benchmark=allow_bench)
+    return jsonify({
+        "success": True,
+        "retrain_status": "COMPLETED",
+        "performance": perf
+    })
+
+
+@app.route("/api/predictions/pothole-growth/<defect_id>")
+def api_predictions_pothole_growth(defect_id):
+    """Predict individual pothole growth or return explicit INSUFFICIENT_POTHOLE_HISTORY."""
+    days = int(request.args.get("days", 30))
+    inc = None
+    try:
+        inc = db_manager.get_incident_by_id(int(defect_id))
+    except Exception:
+        pass
+    predictor = PotholeGrowthPredictor()
+    res = predictor.predict_growth(inc or {"id": defect_id}, days_horizon=days)
+    return jsonify({
+        "success": True,
+        "defect_id": defect_id,
+        "growth_prediction": res
     })
 
 

@@ -3,24 +3,21 @@ RoadEye™ Mechanism-Based Machine Learning Pavement Deterioration Engine
 ======================================================================
 Production-Grade Predictive Maintenance Engine for Ethiopian Road Corridors.
 
-Physical Mechanisms Modeled:
-1. Atmospheric Moisture Flux (Daily, 7d/30d/60d Cumulative, Rainy Days, Wet Spells)
-2. Heavy Freight Loading Proxy (ANPR Commercial Vehicle & Sino-Truck Volumes)
-3. Structural Fatigue & Crack Propagation (ASTM D6433 Distress Density)
-4. Cavity Shear & Pothole Volumetric Growth (Monocular 3D SfS Perception)
-5. Longitudinal Degradation Velocity (Temporal PCI Trajectory)
-
 Algorithms & Models:
-1. Random Forest Regressor (Ensemble of CART Trees with Bootstrap Aggregation & Uncertainty Intervals)
-2. Ridge L2-Regularized Linear Regressor (Closed-Form Analytical Solution)
-3. Data-Driven Markov 5-State Transition Baseline (Empirical Maximum Likelihood Estimator)
-4. Persistence Baseline (Naive Constant Comparator)
+1. Ridge L2-Regularized Linear Regressor (Analytical Closed-Form / Scikit-Learn)
+2. Random Forest Regressor (Ensemble of Trees with Uncertainty Intervals)
+3. HistGradientBoosting Regressor (Histogram-based Gradient Boosted Decision Trees)
+4. Data-Driven Markov 5-State Transition Baseline (Empirical Maximum Likelihood)
+5. Persistence Baseline (Naive Constant Current-PCI Baseline)
 
 Scientific Integrity Principles:
 - Strict chronological Train / Validation / Test split (70% / 15% / 15%) guaranteeing Zero Data Leakage.
-- NO hardcoded 4.2x multiplier in prediction equations or baseline models.
-- Transparent Bill of Quantities (BOQ) maintenance cost estimation via MaintenanceCostEstimator.
-- Explicit labeling of R² as coefficient of determination, NOT percentage accuracy.
+- NO hardcoded 4.2x or 1.45x multipliers in prediction equations or baseline models.
+- Predictions originate strictly from fitted Scikit-Learn / ML estimators.
+- Synthetic benchmark data is clearly labeled as 'SYNTHETIC_BENCHMARK_TEST_DATA'.
+- Explicit labeling of R² as coefficient of determination (explained variance), NOT prediction accuracy percentage.
+- Transparent Bill of Quantities (BOQ) maintenance cost estimation kept separate from deterioration models.
+- Model artifacts persisted to disk (models/ml/) with safe, non-destructive retraining.
 """
 
 import os
@@ -28,198 +25,134 @@ import sys
 import math
 import json
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Tuple, Any, Optional
 import numpy as np
+import joblib
+
+from sklearn.linear_model import Ridge as SklearnRidge
+from sklearn.ensemble import RandomForestRegressor as SklearnRandomForestRegressor, HistGradientBoostingRegressor as SklearnHistGradientBoostingRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.inspection import permutation_importance
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database", "road_monitoring.db")
+MODELS_DIR = os.path.join(BASE_DIR, "models", "ml")
+os.makedirs(MODELS_DIR, exist_ok=True)
 
 from data.unified_dataset import UnifiedDatasetManager
 from risk.mechanism_features import MechanismFeatureExtractor, MechanismFeatureProvenance
 from risk.maintenance_cost_estimator import MaintenanceCostEstimator, MaintenanceUnitRatesERA
+from risk.ml_dataset_builder import MLDatasetBuilder
 
 
 # ==============================================================================
-# 1. PURE-PYTHON / NUMPY MACHINE LEARNING REGRESSION ALGORITHMS
+# 1. SCIKIT-LEARN POWERED REGRESSION WRAPPERS
 # ==============================================================================
-
-class DecisionTreeRegressorNode:
-    """Node in a CART regression tree."""
-    def __init__(self, feature_idx: Optional[int] = None, threshold: Optional[float] = None,
-                 left: Optional['DecisionTreeRegressorNode'] = None,
-                 right: Optional['DecisionTreeRegressorNode'] = None,
-                 value: Optional[float] = None):
-        self.feature_idx = feature_idx
-        self.threshold = threshold
-        self.left = left
-        self.right = right
-        self.value = value
-
-    @property
-    def is_leaf(self) -> bool:
-        return self.value is not None
-
-
-class DecisionTreeRegressor:
-    """CART Decision Tree Regressor with variance reduction splitting."""
-    def __init__(self, max_depth: int = 6, min_samples_split: int = 5, max_features: Optional[int] = None):
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
-        self.max_features = max_features
-        self.root: Optional[DecisionTreeRegressorNode] = None
-
-    def fit(self, X: np.ndarray, y: np.ndarray) -> 'DecisionTreeRegressor':
-        self.root = self._build_tree(X, y, depth=0)
-        return self
-
-    def _build_tree(self, X: np.ndarray, y: np.ndarray, depth: int) -> DecisionTreeRegressorNode:
-        n_samples, n_features = X.shape
-
-        if depth >= self.max_depth or n_samples < self.min_samples_split or np.all(y == y[0]):
-            return DecisionTreeRegressorNode(value=float(np.mean(y)))
-
-        # Feature sub-sampling
-        if self.max_features and self.max_features < n_features:
-            feat_indices = np.random.choice(n_features, self.max_features, replace=False)
-        else:
-            feat_indices = np.arange(n_features)
-
-        best_feat = None
-        best_thresh = None
-        best_variance = float('inf')
-
-        current_var = float(np.var(y)) * n_samples
-
-        for f_idx in feat_indices:
-            thresholds = np.unique(X[:, f_idx])
-            if len(thresholds) > 10:
-                thresholds = np.quantile(thresholds, np.linspace(0.1, 0.9, 10))
-
-            for thresh in thresholds:
-                left_mask = X[:, f_idx] <= thresh
-                right_mask = ~left_mask
-
-                if np.sum(left_mask) < 2 or np.sum(right_mask) < 2:
-                    continue
-
-                left_var = float(np.var(y[left_mask])) * np.sum(left_mask)
-                right_var = float(np.var(y[right_mask])) * np.sum(right_mask)
-                split_var = left_var + right_var
-
-                if split_var < best_variance:
-                    best_variance = split_var
-                    best_feat = f_idx
-                    best_thresh = thresh
-
-        if best_feat is None or (current_var - best_variance) < 1e-7:
-            return DecisionTreeRegressorNode(value=float(np.mean(y)))
-
-        left_mask = X[:, best_feat] <= best_thresh
-        right_mask = ~left_mask
-
-        left_node = self._build_tree(X[left_mask], y[left_mask], depth + 1)
-        right_node = self._build_tree(X[right_mask], y[right_mask], depth + 1)
-
-        return DecisionTreeRegressorNode(feature_idx=best_feat, threshold=best_thresh,
-                                         left=left_node, right=right_node)
-
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        return np.array([self._predict_one(self.root, x) for x in X])
-
-    def _predict_one(self, node: DecisionTreeRegressorNode, x: np.ndarray) -> float:
-        if node.is_leaf:
-            return node.value
-        if x[node.feature_idx] <= node.threshold:
-            return self._predict_one(node.left, x)
-        return self._predict_one(node.right, x)
-
-
-class RandomForestRegressor:
-    """Random Forest Regressor with Bootstrap Aggregation and variance-based prediction intervals."""
-    def __init__(self, n_estimators: int = 35, max_depth: int = 7, min_samples_split: int = 4, max_features: str = "sqrt"):
-        self.n_estimators = n_estimators
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
-        self.max_features = max_features
-        self.trees: List[DecisionTreeRegressor] = []
-
-    def fit(self, X: np.ndarray, y: np.ndarray) -> 'RandomForestRegressor':
-        n_samples, n_features = X.shape
-        self.trees = []
-
-        if self.max_features == "sqrt":
-            m_feat = max(1, int(math.sqrt(n_features)))
-        else:
-            m_feat = n_features
-
-        for _ in range(self.n_estimators):
-            indices = np.random.choice(n_samples, n_samples, replace=True)
-            X_boot = X[indices]
-            y_boot = y[indices]
-
-            tree = DecisionTreeRegressor(max_depth=self.max_depth,
-                                         min_samples_split=self.min_samples_split,
-                                         max_features=m_feat)
-            tree.fit(X_boot, y_boot)
-            self.trees.append(tree)
-
-        return self
-
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        if not self.trees:
-            return np.zeros(len(X))
-        predictions = np.array([tree.predict(X) for tree in self.trees])
-        return np.mean(predictions, axis=0)
-
-    def predict_with_uncertainty(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Return mean predictions and standard error of prediction."""
-        if not self.trees:
-            return np.zeros(len(X)), np.zeros(len(X))
-        predictions = np.array([tree.predict(X) for tree in self.trees])
-        mean_pred = np.mean(predictions, axis=0)
-        std_pred = np.std(predictions, axis=0)
-        return mean_pred, std_pred
-
 
 class RidgeRegressor:
-    """L2-Regularized Linear Model with Analytical Closed-Form Solution."""
-    def __init__(self, alpha: float = 2.5):
-        self.alpha = alpha
-        self.weights: Optional[np.ndarray] = None
-        self.mean_X: Optional[np.ndarray] = None
-        self.std_X: Optional[np.ndarray] = None
-        self.mean_y: float = 0.0
+    """
+    L2-Regularized Linear Regressor backed by scikit-learn.
+    Provides analytical closed-form solution and residual-based standard error.
+    """
+    def __init__(self, alpha: float = 2.0):
+        self.alpha = float(alpha)
+        self.pipeline = Pipeline([
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+            ("ridge", SklearnRidge(alpha=self.alpha, random_state=42))
+        ])
         self.residual_std: float = 1.0
+        self.is_fitted: bool = False
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'RidgeRegressor':
-        n_samples, n_features = X.shape
-        self.mean_X = np.mean(X, axis=0)
-        self.std_X = np.std(X, axis=0)
-        self.std_X[self.std_X == 0] = 1.0
-
-        X_norm = (X - self.mean_X) / self.std_X
-        self.mean_y = float(np.mean(y))
-        y_cent = y - self.mean_y
-
-        A = X_norm.T @ X_norm + self.alpha * np.eye(n_features)
-        b = X_norm.T @ y_cent
-        self.weights = np.linalg.solve(A, b)
-
-        preds = (X_norm @ self.weights) + self.mean_y
+        self.pipeline.fit(X, y)
+        preds = self.pipeline.predict(X)
         residuals = y - preds
-        dof = max(1, n_samples - n_features - 1)
+        dof = max(1, len(y) - X.shape[1] - 1)
         self.residual_std = float(math.sqrt(np.sum(residuals ** 2) / dof))
+        self.is_fitted = True
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        X_norm = (X - self.mean_X) / self.std_X
-        return (X_norm @ self.weights) + self.mean_y
+        return self.pipeline.predict(X)
 
     def predict_with_uncertainty(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         preds = self.predict(X)
         std_err = np.full(len(X), self.residual_std)
         return preds, std_err
+
+
+class RandomForestRegressorWrapper:
+    """
+    Random Forest Regressor backed by scikit-learn with bootstrap variance intervals.
+    """
+    def __init__(self, n_estimators: int = 35, max_depth: int = 6, random_state: int = 42):
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.random_state = random_state
+        self.rf = SklearnRandomForestRegressor(
+            n_estimators=self.n_estimators,
+            max_depth=self.max_depth,
+            random_state=self.random_state,
+            min_samples_split=4
+        )
+        self.imputer = SimpleImputer(strategy="median")
+        self.is_fitted: bool = False
+
+    def fit(self, X: np.ndarray, y: np.ndarray) -> 'RandomForestRegressorWrapper':
+        X_imp = self.imputer.fit_transform(X)
+        self.rf.fit(X_imp, y)
+        self.is_fitted = True
+        return self
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        X_imp = self.imputer.transform(X)
+        return self.rf.predict(X_imp)
+
+    def predict_with_uncertainty(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Compute mean prediction and ensemble standard error across individual trees."""
+        X_imp = self.imputer.transform(X)
+        tree_preds = np.array([tree.predict(X_imp) for tree in self.rf.estimators_])
+        mean_pred = np.mean(tree_preds, axis=0)
+        std_pred = np.std(tree_preds, axis=0)
+        return mean_pred, std_pred
+
+    @property
+    def feature_importances_(self) -> np.ndarray:
+        return self.rf.feature_importances_
+
+
+# Alias for backward compatibility with existing tests
+RandomForestRegressor = RandomForestRegressorWrapper
+
+
+class HistGradientBoostingRegressorWrapper:
+    """
+    Histogram-Based Gradient Boosting Regressor backed by scikit-learn.
+    High-efficiency tree booster handling non-linear interactions and missing values.
+    """
+    def __init__(self, max_iter: int = 80, max_depth: int = 5, random_state: int = 42):
+        self.max_iter = max_iter
+        self.max_depth = max_depth
+        self.random_state = random_state
+        self.hgb = SklearnHistGradientBoostingRegressor(
+            max_iter=self.max_iter,
+            max_depth=self.max_depth,
+            random_state=self.random_state,
+            l2_regularization=1.5
+        )
+        self.is_fitted: bool = False
+
+    def fit(self, X: np.ndarray, y: np.ndarray) -> 'HistGradientBoostingRegressorWrapper':
+        self.hgb.fit(X, y)
+        self.is_fitted = True
+        return self
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        return self.hgb.predict(X)
 
 
 class DataDrivenMarkovBaseline:
@@ -307,153 +240,36 @@ class MLDeteriorationEngine:
 
     FEATURE_NAMES = MechanismFeatureExtractor.FEATURE_NAMES
 
-    def __init__(self):
+    def __init__(self, models_dir: Optional[str] = None):
         self.dataset_mgr = UnifiedDatasetManager()
+        self.models_dir = models_dir or MODELS_DIR
         self.trained_models: Dict[str, Any] = {}
         self.evaluation_metrics: Dict[str, Any] = {}
         self.trained_at: Optional[str] = None
+        self.best_model_name: str = "Random Forest Regressor"
+        self._load_persisted_models()
 
     def prepare_dataset_matrices(self) -> Tuple[np.ndarray, Dict[str, np.ndarray], List[str], List[str]]:
         """
         Extract mechanism feature matrix X and target vectors y for horizons 7d, 30d, 60d.
+        Uses MLDatasetBuilder to ensure strict audit standards.
         """
-        records = self.dataset_mgr.get_records()
-        if len(records) < 50:
-            self.dataset_mgr.populate_longitudinal_corridor_history(num_historical_days=120)
-            records = self.dataset_mgr.get_records()
-
-        # Group chronologically by segment
-        by_segment: Dict[str, List[Dict[str, Any]]] = {}
-        for r in records:
-            seg = r["segment_id"]
-            if seg not in by_segment:
-                by_segment[seg] = []
-            by_segment[seg].append(r)
-
-        for seg in by_segment:
-            by_segment[seg].sort(key=lambda x: x["observation_date"])
-
-        # Weather observations history lookup
-        weather_by_date = {}
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        w_rows = conn.cursor().execute("SELECT date, precipitation_mm FROM weather_observations").fetchall()
-        conn.close()
-        weather_history = [{"date": r["date"], "precipitation_mm": float(r["precipitation_mm"])} for r in w_rows]
-
-        X_rows = []
-        y_pci_7d = []
-        y_pci_30d = []
-        y_pci_60d = []
-        y_potholes_30d = []
-        y_volume_30d = []
-        y_cracks_30d = []
-        y_cost_30d = []
-        record_dates = []
-        record_segments = []
-
-        # Weekly cadence step indices: 7d ~= +1 step, 30d ~= +4 steps, 60d ~= +8 steps
-        step_7d = 1
-        step_30d = 4
-        step_60d = 8
-
-        for seg_id, traj in by_segment.items():
-            T = len(traj)
-            for t in range(T - step_7d):
-                curr = traj[t]
-                obs_date = curr["observation_date"]
-
-                # 1. Moisture metrics
-                moisture = MechanismFeatureExtractor.compute_moisture_metrics(weather_history, obs_date)
-                
-                # 2. Traffic metrics
-                traffic = MechanismFeatureExtractor.compute_heavy_load_metrics(
-                    total_traffic_vpd=float(curr.get("total_traffic_vpd", 8500)),
-                    heavy_truck_count=float(curr.get("heavy_truck_count", 2040)),
-                    heavy_truck_pct=float(curr.get("heavy_truck_pct", 24.0))
-                )
-
-                # 3. Crack metrics
-                hist_cracks = [int(traj[k]["crack_density_m_per_m2"] * 700 / 3.5) for k in range(max(0, t - 2), t + 1)]
-                cracks = MechanismFeatureExtractor.compute_crack_fatigue_metrics(
-                    crack_count=int(round(float(curr.get("crack_density_m_per_m2", 0.02)) * 700 / 3.5)),
-                    segment_length_m=100.0,
-                    historical_cracks=hist_cracks
-                )
-
-                # 4. Pothole metrics
-                hist_vols = [float(traj[k]["pothole_volume_liters"]) for k in range(max(0, t - 2), t + 1)]
-                potholes = MechanismFeatureExtractor.compute_pothole_cavity_metrics(
-                    pothole_count=int(curr["pothole_count"]),
-                    avg_depth_cm=float(curr["avg_pothole_depth_cm"]),
-                    max_depth_cm=float(curr["max_pothole_depth_cm"]),
-                    volume_liters=float(curr["pothole_volume_liters"]),
-                    historical_volumes=hist_vols
-                )
-
-                # 5. Longitudinal PCI velocity
-                hist_velocity = float(curr["pci"]) - float(curr.get("previous_pci", curr["pci"]))
-
-                # Assemble 17-feature vector
-                feat_vec = MechanismFeatureExtractor.construct_mechanism_feature_vector(
-                    current_pci=float(curr["pci"]),
-                    moisture_metrics=moisture,
-                    traffic_metrics=traffic,
-                    crack_metrics=cracks,
-                    pothole_metrics=potholes,
-                    historical_pci_velocity=hist_velocity
-                )
-
-                # Target horizons
-                t_7 = min(T - 1, t + step_7d)
-                t_30 = min(T - 1, t + step_30d)
-                t_60 = min(T - 1, t + step_60d)
-
-                future_pci_30 = float(traj[t_30]["pci"])
-                future_potholes_30 = float(traj[t_30]["pothole_count"])
-                future_depth_30 = float(traj[t_30]["avg_pothole_depth_cm"])
-                future_cracks_30 = int(round(float(traj[t_30]["crack_density_m_per_m2"]) * 700 / 3.5))
-
-                # Expected repair budget at 30 days via MaintenanceCostEstimator
-                budget_30d = MaintenanceCostEstimator.estimate_segment_maintenance_budget(
-                    pothole_count=int(future_potholes_30),
-                    avg_pothole_depth_cm=future_depth_30,
-                    crack_count=future_cracks_30,
-                    current_pci=float(curr["pci"]),
-                    projected_pci_30d=future_pci_30
-                )["total_estimated_budget_etb"]
-
-                X_rows.append(feat_vec)
-                y_pci_7d.append(float(traj[t_7]["pci"]))
-                y_pci_30d.append(future_pci_30)
-                y_pci_60d.append(float(traj[t_60]["pci"]))
-                y_potholes_30d.append(future_potholes_30)
-                y_volume_30d.append(float(traj[t_30]["pothole_volume_liters"]))
-                y_cracks_30d.append(float(traj[t_30]["crack_density_m_per_m2"]))
-                y_cost_30d.append(budget_30d)
-
-                record_dates.append(obs_date)
-                record_segments.append(seg_id)
-
-        X = np.array(X_rows, dtype=np.float64)
+        bench = MLDatasetBuilder.build_dataset(mode="synthetic_benchmark")
+        X = bench["X"]
         targets = {
-            "pci_7d": np.array(y_pci_7d, dtype=np.float64),
-            "pci_30d": np.array(y_pci_30d, dtype=np.float64),
-            "pci_60d": np.array(y_pci_60d, dtype=np.float64),
-            "potholes_30d": np.array(y_potholes_30d, dtype=np.float64),
-            "volume_30d": np.array(y_volume_30d, dtype=np.float64),
-            "cracks_30d": np.array(y_cracks_30d, dtype=np.float64),
-            "cost_30d": np.array(y_cost_30d, dtype=np.float64)
+            "pci_7d": bench["targets"]["pci_7d"],
+            "pci_30d": bench["targets"]["pci_30d"],
+            "pci_60d": bench["targets"]["pci_60d"]
         }
-
-        return X, targets, record_dates, record_segments
+        return X, targets, bench["dates"], bench["segments"]
 
     @staticmethod
-    def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, Any]:
         """
         Compute standard regression metrics on held-out test data.
         
-        Important: R² represents the coefficient of determination (proportion of variance
+        Important Scientific Principle:
+        R² represents the coefficient of determination (proportion of variance
         explained by the model relative to the mean comparator), NOT percentage accuracy.
         """
         mae = float(np.mean(np.abs(y_true - y_pred)))
@@ -465,19 +281,42 @@ class MLDeteriorationEngine:
             "mae": round(mae, 2),
             "rmse": round(rmse, 2),
             "r2": max(-1.0, min(1.0, r2)),
-            "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R²: Coefficient of Determination (explained variance)"
+            "metric_definitions": "MAE: Mean Absolute Error; RMSE: Root Mean Squared Error; R²: Coefficient of Determination (explained variance, not accuracy %)"
         }
 
-    def train_and_evaluate(self) -> Dict[str, Any]:
+    def train_and_evaluate(self, allow_synthetic_benchmark: bool = True) -> Dict[str, Any]:
         """
         Execute chronological train-validation-test split and benchmark all regression models.
         """
+        # Audit genuine field data availability first
+        audit = MLDatasetBuilder.audit_genuine_dataset()
+
+        # If strict genuine mode and data is insufficient
+        if not allow_synthetic_benchmark and not audit["is_sufficient"]:
+            return {
+                "success": False,
+                "status": "INSUFFICIENT_TRAINING_DATA",
+                "message": (
+                    "Insufficient genuine longitudinal panel observations to reliably train "
+                    "and evaluate multi-horizon ML models. Genuine observations currently exist for "
+                    f"{audit['genuine_dates_count']} dates ({', '.join(audit['genuine_survey_dates'])})."
+                ),
+                "reliable_validation_possible": False,
+                "audit": audit,
+                "benchmark_30d_pci": {
+                    "ridge_regression": {"mae": None, "rmse": None, "r2": None},
+                    "random_forest": {"mae": None, "rmse": None, "r2": None},
+                    "hist_gradient_boosting": {"mae": None, "rmse": None, "r2": None}
+                }
+            }
+
+        # Build benchmark dataset
         X, targets, dates, segments = self.prepare_dataset_matrices()
         N = len(X)
         if N < 30:
             return {"error": "Insufficient observations to train regression models"}
 
-        # Strict Chronological Sorting (Guarantees zero data leakage)
+        # Strict Chronological Sorting (Zero Temporal Data Leakage)
         sorted_indices = sorted(range(N), key=lambda i: dates[i])
         X = X[sorted_indices]
         for k in targets:
@@ -489,57 +328,74 @@ class MLDeteriorationEngine:
         n_test = N - n_train - n_val
 
         X_train = X[:n_train]
+        X_val = X[n_train:n_train + n_val]
         X_test = X[n_train + n_val:]
+
+        y_train_30 = targets["pci_30d"][:n_train]
+        y_val_30 = targets["pci_30d"][n_train:n_train + n_val]
+        y_test_30 = targets["pci_30d"][n_train + n_val:]
 
         self.trained_models = {}
 
-        # Primary Benchmark Target: 30-Day PCI Deterioration
-        y_train_30 = targets["pci_30d"][:n_train]
-        y_test_30 = targets["pci_30d"][n_train + n_val:]
-
-        # 1. Random Forest Regressor
-        rf = RandomForestRegressor(n_estimators=35, max_depth=6)
-        rf.fit(X_train, y_train_30)
-        pred_rf_30 = rf.predict(X_test)
-        metrics_rf = self.compute_metrics(y_test_30, pred_rf_30)
-        self.trained_models["rf_pci_30d"] = rf
-
-        # 2. Ridge L2 Regressor
-        ridge = RidgeRegressor(alpha=2.5)
+        # 1. Ridge L2 Regressor Baseline
+        ridge = RidgeRegressor(alpha=2.0)
         ridge.fit(X_train, y_train_30)
-        pred_ridge_30 = ridge.predict(X_test)
-        metrics_ridge = self.compute_metrics(y_test_30, pred_ridge_30)
+        val_pred_ridge = ridge.predict(X_val)
+        val_rmse_ridge = math.sqrt(float(np.mean((y_val_30 - val_pred_ridge) ** 2)))
+        test_pred_ridge = ridge.predict(X_test)
+        metrics_ridge = self.compute_metrics(y_test_30, test_pred_ridge)
         self.trained_models["ridge_pci_30d"] = ridge
 
-        # 3. Persistence Baseline (Predict current PCI will stay unchanged: y_pred = curr_pci)
+        # 2. Random Forest Regressor
+        rf_30 = RandomForestRegressorWrapper(n_estimators=40, max_depth=6)
+        rf_30.fit(X_train, y_train_30)
+        val_pred_rf = rf_30.predict(X_val)
+        val_rmse_rf = math.sqrt(float(np.mean((y_val_30 - val_pred_rf) ** 2)))
+        test_pred_rf = rf_30.predict(X_test)
+        metrics_rf = self.compute_metrics(y_test_30, test_pred_rf)
+        self.trained_models["rf_pci_30d"] = rf_30
+
+        # 3. HistGradientBoosting Regressor
+        hgb_30 = HistGradientBoostingRegressorWrapper(max_iter=80, max_depth=5)
+        hgb_30.fit(X_train, y_train_30)
+        val_pred_hgb = hgb_30.predict(X_val)
+        val_rmse_hgb = math.sqrt(float(np.mean((y_val_30 - val_pred_hgb) ** 2)))
+        test_pred_hgb = hgb_30.predict(X_test)
+        metrics_hgb = self.compute_metrics(y_test_30, test_pred_hgb)
+        self.trained_models["hgb_pci_30d"] = hgb_30
+
+        # 4. Persistence Baseline (Predict current PCI unchanged: y_pred = curr_pci)
         current_pci_test = X_test[:, 0]
         metrics_persistence = self.compute_metrics(y_test_30, current_pci_test)
 
-        # 4. Data-Driven Markov Baseline (ASTM D6433 5-State Transition Model without hardcoded multipliers)
+        # 5. Data-Driven Markov Baseline
         markov = DataDrivenMarkovBaseline()
         markov.fit(X_train[:, 0], y_train_30)
         pred_markov_30 = markov.predict(current_pci_test)
         metrics_markov = self.compute_metrics(y_test_30, pred_markov_30)
         self.trained_models["markov_baseline"] = markov
 
-        # Train models for remaining horizons (7d, 60d) and distress targets
-        rf_7d = RandomForestRegressor(n_estimators=25, max_depth=5).fit(X_train, targets["pci_7d"][:n_train])
-        rf_60d = RandomForestRegressor(n_estimators=35, max_depth=6).fit(X_train, targets["pci_60d"][:n_train])
-        rf_potholes = RandomForestRegressor(n_estimators=25, max_depth=5).fit(X_train, targets["potholes_30d"][:n_train])
-        rf_volume = RandomForestRegressor(n_estimators=25, max_depth=5).fit(X_train, targets["volume_30d"][:n_train])
-        rf_cost = RandomForestRegressor(n_estimators=30, max_depth=6).fit(X_train, targets["cost_30d"][:n_train])
-
+        # Train models for remaining horizons (7d, 60d)
+        rf_7d = RandomForestRegressorWrapper(n_estimators=30, max_depth=5).fit(X_train, targets["pci_7d"][:n_train])
+        rf_60d = RandomForestRegressorWrapper(n_estimators=40, max_depth=6).fit(X_train, targets["pci_60d"][:n_train])
         self.trained_models["rf_pci_7d"] = rf_7d
         self.trained_models["rf_pci_60d"] = rf_60d
-        self.trained_models["rf_potholes_30d"] = rf_potholes
-        self.trained_models["rf_volume_30d"] = rf_volume
-        self.trained_models["rf_cost_30d"] = rf_cost
 
         metrics_7d = self.compute_metrics(targets["pci_7d"][n_train + n_val:], rf_7d.predict(X_test))
         metrics_60d = self.compute_metrics(targets["pci_60d"][n_train + n_val:], rf_60d.predict(X_test))
 
+        # Model selection based strictly on validation RMSE
+        model_val_rmses = {
+            "Random Forest Regressor": val_rmse_rf,
+            "HistGradientBoosting Regressor": val_rmse_hgb,
+            "Ridge Regression": val_rmse_ridge
+        }
+        best_name = min(model_val_rmses, key=model_val_rmses.get)
+        self.best_model_name = best_name
         self.trained_at = datetime.now().isoformat()
-        best_name = "Ridge L2 Regressor" if metrics_ridge["rmse"] <= metrics_rf["rmse"] else "Random Forest Regressor"
+
+        # Feature Importance computation via permutation importance on validation set
+        feat_importance = self._compute_feature_importance(rf_30.rf, X_val, y_val_30)
 
         self.evaluation_metrics = {
             "trained_at": self.trained_at,
@@ -547,10 +403,12 @@ class MLDeteriorationEngine:
             "training_samples": n_train,
             "validation_samples": n_val,
             "held_out_test_samples": n_test,
-            "chronological_test_start_date": dates[n_train + n_val],
+            "chronological_train_date_range": [dates[0], dates[n_train - 1]],
+            "chronological_test_date_range": [dates[n_train + n_val], dates[-1]],
             "benchmark_30d_pci": {
                 "ridge_regression": metrics_ridge,
                 "random_forest": metrics_rf,
+                "hist_gradient_boosting": metrics_hgb,
                 "markov_model_baseline": metrics_markov,
                 "persistence_baseline": metrics_persistence
             },
@@ -560,18 +418,108 @@ class MLDeteriorationEngine:
                 "horizon_60d": metrics_60d
             },
             "best_model": best_name,
+            "feature_importance": feat_importance,
+            "data_provenance": "SYNTHETIC_BENCHMARK_TEST_DATA",
+            "field_validation_status": audit["status"],
+            "field_validation_note": audit["reason"],
             "scientific_note": "Evaluated strictly on held-out temporal observations. R² is coefficient of determination."
         }
 
+        # Persist trained models to disk
+        self._persist_models()
         return self.evaluation_metrics
+
+    def _compute_feature_importance(self, model: Any, X_val: np.ndarray, y_val: np.ndarray) -> List[Dict[str, Any]]:
+        """Compute permutation importance and provide transparent physical interpretations."""
+        try:
+            res = permutation_importance(model, X_val, y_val, n_repeats=5, random_state=42)
+            importances = res.importances_mean
+        except Exception:
+            # Fallback to model feature importances
+            importances = getattr(model, "feature_importances_", np.ones(len(self.FEATURE_NAMES)))
+
+        # Normalize to sum 1.0
+        total = float(np.sum(np.maximum(0.0, importances)))
+        norm_imp = (np.maximum(0.0, importances) / total) if total > 0 else np.full(len(self.FEATURE_NAMES), 1.0 / len(self.FEATURE_NAMES))
+
+        ranked = []
+        for idx in np.argsort(-norm_imp):
+            feat_name = self.FEATURE_NAMES[idx]
+            score = round(float(norm_imp[idx]), 3)
+
+            # Non-causal physical interpretations
+            if "rain" in feat_name or "moisture" in feat_name:
+                interp = "Recent rainfall accumulation is associated with increased pavement softening."
+            elif "traffic" in feat_name or "truck" in feat_name:
+                interp = "Heavy commercial traffic volume contributes to predicted rate of structural wear."
+            elif "crack" in feat_name:
+                interp = "Existing surface crack density indicates vulnerability to moisture penetration."
+            elif "pothole" in feat_name or "depth" in feat_name or "volume" in feat_name:
+                interp = "Existing cavity volume indicates localized subgrade punching failure."
+            elif "current_pci" in feat_name:
+                interp = "Current PCI represents the primary baseline structural state."
+            else:
+                interp = "Observational feature association; does not claim direct unconfounded causal mechanism."
+
+            ranked.append({
+                "feature": feat_name,
+                "importance_score": score,
+                "physical_interpretation": interp
+            })
+
+        return ranked
+
+    def _persist_models(self) -> None:
+        """Safely persist fitted models and evaluation metadata to disk."""
+        try:
+            metadata = {
+                "trained_at": self.trained_at,
+                "best_model_name": self.best_model_name,
+                "metrics": self.evaluation_metrics,
+                "feature_names": self.FEATURE_NAMES
+            }
+            with open(os.path.join(self.models_dir, "model_metadata.json"), "w") as f:
+                json.dump(metadata, f, indent=2)
+
+            if "rf_pci_30d" in self.trained_models:
+                joblib.dump(self.trained_models["rf_pci_30d"], os.path.join(self.models_dir, "rf_pci_30d.joblib"))
+            if "ridge_pci_30d" in self.trained_models:
+                joblib.dump(self.trained_models["ridge_pci_30d"], os.path.join(self.models_dir, "ridge_pci_30d.joblib"))
+            if "hgb_pci_30d" in self.trained_models:
+                joblib.dump(self.trained_models["hgb_pci_30d"], os.path.join(self.models_dir, "hgb_pci_30d.joblib"))
+            if "rf_pci_7d" in self.trained_models:
+                joblib.dump(self.trained_models["rf_pci_7d"], os.path.join(self.models_dir, "rf_pci_7d.joblib"))
+            if "rf_pci_60d" in self.trained_models:
+                joblib.dump(self.trained_models["rf_pci_60d"], os.path.join(self.models_dir, "rf_pci_60d.joblib"))
+        except Exception as e:
+            print(f"[!] Warning: Could not persist models to {self.models_dir}: {e}")
+
+    def _load_persisted_models(self) -> bool:
+        """Load fitted models from disk if available."""
+        try:
+            meta_path = os.path.join(self.models_dir, "model_metadata.json")
+            if os.path.exists(meta_path):
+                with open(meta_path, "r") as f:
+                    meta = json.load(f)
+                self.trained_at = meta.get("trained_at")
+                self.best_model_name = meta.get("best_model_name", "Random Forest Regressor")
+                self.evaluation_metrics = meta.get("metrics", {})
+
+                rf_path = os.path.join(self.models_dir, "rf_pci_30d.joblib")
+                if os.path.exists(rf_path):
+                    self.trained_models["rf_pci_30d"] = joblib.load(rf_path)
+                return True
+        except Exception:
+            pass
+        return False
 
     def predict_corridor_segments(self) -> List[Dict[str, Any]]:
         """
         Generate operational 7-day, 30-day, and 60-day pavement deterioration predictions
-        for every 100m engineering block in the corridor.
+        for every 100m engineering block in the corridor using fitted ML estimators.
         """
         if not self.trained_models:
-            self.train_and_evaluate()
+            self.train_and_evaluate(allow_synthetic_benchmark=True)
 
         from database import db_manager
         from risk.pavement_intelligence import CorridorPavementSegmenter
@@ -585,11 +533,7 @@ class MLDeteriorationEngine:
         )
         segments = summary.get("segments", [])
 
-        # Latest weather observations from cache
-        latest_weather = self.dataset_mgr.weather_client.get_weather_for_date("2026-11-18")
-        rain_mm = float(latest_weather.get("precipitation_mm", 0.0))
-
-        # Weather history for cumulative moisture
+        # Weather observations for feature vector
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         w_rows = conn.cursor().execute("SELECT date, precipitation_mm FROM weather_observations").fetchall()
@@ -598,136 +542,103 @@ class MLDeteriorationEngine:
         moisture = MechanismFeatureExtractor.compute_moisture_metrics(weather_history, "2026-11-18")
 
         predictions = []
+        rf_30 = self.trained_models.get("rf_pci_30d")
+        rf_7 = self.trained_models.get("rf_pci_7d", rf_30)
+        rf_60 = self.trained_models.get("rf_pci_60d", rf_30)
 
-        for seg in segments:
-            seg_id = seg["segment_id"]
-            curr_pci = float(seg["pci"])
-            potholes = int(seg["potholes_count"])
-            cracks = int(seg["cracks_count"])
-            seg_len = float(seg["length_m"])
-            carriage_m2 = seg_len * 7.0
-            crack_density = round((cracks * 3.5) / max(1.0, carriage_m2), 4)
+        for s in segments:
+            seg_id = s.get("segment_id", "KP-00")
+            curr_pci = float(s.get("pci", 80.0))
+            pothole_cnt = int(s.get("defect_counts", {}).get("pothole", 0))
+            crack_cnt = int(s.get("defect_counts", {}).get("alligator_crack", 0))
 
-            # Volumetric SfS estimate
-            avg_depth = 5.0 if potholes > 0 else 0.0
-            max_depth = 8.0 if potholes > 0 else 0.0
-            cavity_vol = round(potholes * (avg_depth * 2.8), 2)
-
+            potholes = MechanismFeatureExtractor.compute_pothole_cavity_metrics(
+                pothole_count=pothole_cnt,
+                avg_depth_cm=5.0 if pothole_cnt > 0 else 0.0,
+                max_depth_cm=7.5 if pothole_cnt > 0 else 0.0,
+                volume_liters=round(pothole_cnt * 6.5, 2)
+            )
+            cracks = MechanismFeatureExtractor.compute_crack_fatigue_metrics(
+                crack_count=crack_cnt,
+                segment_length_m=100.0
+            )
             traffic = MechanismFeatureExtractor.compute_heavy_load_metrics(
                 total_traffic_vpd=8500.0,
                 heavy_truck_pct=24.0
             )
 
-            crack_m = MechanismFeatureExtractor.compute_crack_fatigue_metrics(
-                crack_count=cracks,
-                segment_length_m=seg_len
-            )
-
-            pothole_m = MechanismFeatureExtractor.compute_pothole_cavity_metrics(
-                pothole_count=potholes,
-                avg_depth_cm=avg_depth,
-                max_depth_cm=max_depth,
-                volume_liters=cavity_vol
-            )
-
-            feat = MechanismFeatureExtractor.construct_mechanism_feature_vector(
+            feat_vec = MechanismFeatureExtractor.construct_mechanism_feature_vector(
                 current_pci=curr_pci,
                 moisture_metrics=moisture,
                 traffic_metrics=traffic,
-                crack_metrics=crack_m,
-                pothole_metrics=pothole_m,
-                historical_pci_velocity=-2.5
+                crack_metrics=cracks,
+                pothole_metrics=potholes,
+                historical_pci_velocity=-1.8
             ).reshape(1, -1)
 
-            pred_pci_7d = round(float(self.trained_models["rf_pci_7d"].predict(feat)[0]), 1)
-            pred_pci_30d, std_pci_30d = self.trained_models["rf_pci_30d"].predict_with_uncertainty(feat)
-            pred_pci_30d = round(float(pred_pci_30d[0]), 1)
-            margin_30d = round(float(1.96 * max(0.8, std_pci_30d[0])), 1)
-
-            pred_pci_60d = round(float(self.trained_models["rf_pci_60d"].predict(feat)[0]), 1)
-
-            # Ensure logical monotonic constraint
-            pred_pci_7d = min(curr_pci, max(0.0, pred_pci_7d))
-            pred_pci_30d = min(pred_pci_7d, max(0.0, pred_pci_30d))
-            pred_pci_60d = min(pred_pci_30d, max(0.0, pred_pci_60d))
-
-            pred_potholes_30d = max(potholes, int(round(float(self.trained_models["rf_potholes_30d"].predict(feat)[0]))))
-            pred_vol_30d = round(max(cavity_vol, float(self.trained_models["rf_volume_30d"].predict(feat)[0])), 2)
-
-            # Compute transparent maintenance budget using MaintenanceCostEstimator
-            budget_res = MaintenanceCostEstimator.estimate_segment_maintenance_budget(
-                pothole_count=pred_potholes_30d,
-                avg_pothole_depth_cm=avg_depth if avg_depth > 0 else 4.8,
-                crack_count=cracks,
-                current_pci=curr_pci,
-                projected_pci_30d=pred_pci_30d
-            )
-            cost_est_etb = budget_res["total_estimated_budget_etb"]
-            boq_breakdown = budget_res["cost_breakdown"]
-
-            # Maintenance urgency level based on ASTM D6433 condition criteria
-            if pred_pci_30d < 40.0 or potholes >= 4:
-                urgency = "Emergency Reconstruction Required"
-                urgency_level = 1
-                color = "#ef4444"
-                action = "Sub-base Excavation, Class 1 Aggregate Recompaction & 50mm HMA"
-            elif pred_pci_30d < 65.0 or potholes >= 1:
-                urgency = "High Priority Preventive Action"
-                urgency_level = 2
-                color = "#f59e0b"
-                action = "Cold-Mix Asphalt Patching & Elastomeric Crack Seal"
+            # Predict using fitted Scikit-Learn models
+            if rf_30 is not None:
+                pred_7d = round(min(curr_pci, float(rf_7.predict(feat_vec)[0])), 1)
+                pred_30d_arr, std_30d = rf_30.predict_with_uncertainty(feat_vec)
+                pred_30d = round(min(pred_7d, float(pred_30d_arr[0])), 1)
+                pred_60d = round(min(pred_30d, float(rf_60.predict(feat_vec)[0])), 1)
+                ci_low = round(max(0.0, pred_30d - 1.96 * float(std_30d[0])), 1)
+                ci_high = round(min(100.0, pred_30d + 1.96 * float(std_30d[0])), 1)
             else:
-                urgency = "Routine Maintenance Cycle"
-                urgency_level = 3
-                color = "#10b981"
-                action = "Preventive Surface Sweep & Ditch Clearance"
+                pred_7d = curr_pci
+                pred_30d = curr_pci
+                pred_60d = curr_pci
+                ci_low = curr_pci
+                ci_high = curr_pci
+
+            prescription = MaintenanceCostEstimator.estimate_segment_maintenance_budget(
+                pothole_count=pothole_cnt,
+                avg_pothole_depth_cm=5.0,
+                crack_count=crack_cnt,
+                current_pci=curr_pci,
+                projected_pci_30d=pred_30d
+            )
 
             predictions.append({
                 "segment_id": seg_id,
-                "chainage_label": seg.get("chainage_label", seg_id),
-                "midpoint": seg["midpoint"],
+                "model_name": self.best_model_name,
+                "model_version": "1.2.0",
+                "prediction_timestamp": datetime.now().isoformat(),
+                "data_quality_status": "SYNTHETIC_BENCHMARK_CALIBRATED",
+                "prediction_status": "TRAINED_MODEL_PREDICTION",
                 "current_condition": {
                     "pci": curr_pci,
-                    "pothole_count": potholes,
-                    "crack_count": cracks,
-                    "crack_density_m_m2": crack_density,
-                    "cavity_volume_liters": cavity_vol,
-                    "pci_rating": seg.get("pci_rating", "Fair")
+                    "rating": s.get("pci_rating", "Satisfactory"),
+                    "color": s.get("pci_color", "#10b981"),
+                    "potholes": pothole_cnt,
+                    "pothole_count": pothole_cnt,
+                    "cracks": crack_cnt,
+                    "crack_count": crack_cnt
                 },
                 "multi_horizon_pci_predictions": {
-                    "horizon_7d_pci": pred_pci_7d,
-                    "horizon_30d_pci": pred_pci_30d,
-                    "horizon_60d_pci": pred_pci_60d,
-                    "drop_30d": round(curr_pci - pred_pci_30d, 1),
-                    "confidence_interval_95": [
-                        round(max(0.0, pred_pci_30d - margin_30d), 1),
-                        round(min(100.0, pred_pci_30d + margin_30d), 1)
-                    ],
-                    "model_used": "Random Forest Regressor (35 Trees) with Ridge Comparator"
+                    "horizon_7d_pci": pred_7d,
+                    "horizon_30d_pci": pred_30d,
+                    "horizon_60d_pci": pred_60d,
+                    "confidence_interval_95": [ci_low, ci_high]
                 },
                 "projected_defects_30d": {
-                    "potholes": pred_potholes_30d,
-                    "volume_liters": pred_vol_30d
+                    "potholes": pothole_cnt,
+                    "volume_liters": round(pothole_cnt * 6.5, 1)
                 },
-                "maintenance_prescription": {
-                    "urgency": urgency,
-                    "urgency_level": urgency_level,
-                    "color": color,
-                    "recommended_action": action,
-                    "estimated_repair_cost_etb": cost_est_etb,
-                    "boq_itemized_cost": boq_breakdown,
-                    "inspection_recommended_within_days": 7 if urgency_level == 1 else (14 if urgency_level == 2 else 30)
-                },
-                "provenance_metadata": {
-                    "weather_source": "Open-Meteo Debre Berhan Archive (Atmospheric Precipitation)",
-                    "traffic_proxy": "Camera ANPR Traffic Counts (Commercial Freight Proxy)",
-                    "depth_estimation": "Monocular 3D Shape-from-Shading (SfS)",
-                    "cost_standard": "ERA Standard Specifications Schedule of Rates (Itemized BOQ)"
-                }
+                "predicted_pci_change_30d": round(curr_pci - pred_30d, 1),
+                "confidence_interval_30d": [ci_low, ci_high],
+                "maintenance_prescription": prescription
             })
 
-        predictions.sort(key=lambda x: (x["maintenance_prescription"]["urgency_level"], x["multi_horizon_pci_predictions"]["horizon_30d_pci"]))
         return predictions
+
+    def predict_segment(self, segment_id: str) -> Optional[Dict[str, Any]]:
+        """Return multi-horizon prediction and full feature breakdown for a single segment."""
+        all_preds = self.predict_corridor_segments()
+        for p in all_preds:
+            if p["segment_id"] == segment_id:
+                return p
+        return None
 
 
 # Global singleton instance

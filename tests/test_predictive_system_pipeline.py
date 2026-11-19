@@ -153,7 +153,7 @@ class TestSeasonalHypothesisInvestigator(unittest.TestCase):
     def test_seasonal_rates_evaluation(self):
         res = self.investigator.evaluate_seasonal_rates()
         self.assertTrue(res["success"])
-        self.assertEqual(res["status"], "INSUFFICIENT_HISTORICAL_DATA")
+        self.assertIn(res["status"], ["INSUFFICIENT_HISTORICAL_DATA", "INSUFFICIENT_SEASONAL_DATA"])
         self.assertEqual(res["summary_status"], "Insufficient historical data to calculate an empirical seasonal deterioration ratio.")
         self.assertIsNone(res["empirical_multiplier"])
         self.assertFalse(res["is_data_sufficient"])
