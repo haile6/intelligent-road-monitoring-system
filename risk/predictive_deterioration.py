@@ -25,27 +25,30 @@ CLIMATE_SEASONS = {
         "season_am": "ክረምት (ከባድ የዝናብ ወቅት)",
         "months": "June - September",
         "rainfall_mm_month": 280.0,
-        "deterioration_multiplier": 1.45,        # Empirically measured from longitudinal dataset
+        "deterioration_multiplier": None,
+        "multiplier_status": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
         "water_stripping_risk": "CRITICAL",
         "color": "#ef4444",
-        "provenance": "Empirical Historical Rate (95% CI: [1.45, 1.46])"
+        "provenance": "Atmospheric Rainfall Flux (No Empirical Multiplier Assumed)"
     },
     "BELG": {
         "season_en": "Belg (Moderate Autumn Rains)",
         "season_am": "በልግ (መካከለኛ ዝናብ)",
         "months": "March - May",
         "rainfall_mm_month": 95.0,
-        "deterioration_multiplier": 1.20,
+        "deterioration_multiplier": None,
+        "multiplier_status": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
         "water_stripping_risk": "MODERATE",
         "color": "#f59e0b",
-        "provenance": "Empirical Rainfall Progression"
+        "provenance": "Atmospheric Rainfall Flux (No Empirical Multiplier Assumed)"
     },
     "BEGA": {
         "season_en": "Bega (Dry Sunny Season)",
         "season_am": "በጋ (ደረቅ የበጋ ወቅት)",
         "months": "October - February",
         "rainfall_mm_month": 15.0,
-        "deterioration_multiplier": 1.0,  # Baseline dry pavement wear
+        "deterioration_multiplier": None,
+        "multiplier_status": "Baseline dry season period",
         "water_stripping_risk": "MINIMAL",
         "color": "#10b981",
         "provenance": "Baseline Dry Season Benchmark"
@@ -89,7 +92,9 @@ class MarkovPavementDeteriorationEngine:
         """
         season_key = (season or "KIREMT").upper()
         climate = CLIMATE_SEASONS.get(season_key, CLIMATE_SEASONS["KIREMT"])
-        rain_mult = climate["deterioration_multiplier"]
+        rain_mm = float(climate.get("rainfall_mm_month") or 15.0)
+        # Relative moisture saturation index derived from monthly precipitation
+        rain_mult = 1.0 + 0.18 * math.log(1.0 + rain_mm / 15.0)
 
         # Truck factor: baseline 20% heavy freight; higher loading increases shear failure
         truck_factor = max(0.6, min(2.0, float(heavy_truck_pct) / 20.0))
@@ -246,7 +251,8 @@ class CostOfInactionForecaster:
         dtype = (incident.get("damage_type") or "pothole").lower()
         risk = str(incident.get("max_risk_level") or "CAUTION").upper()
         climate = CLIMATE_SEASONS.get(season.upper(), CLIMATE_SEASONS["KIREMT"])
-        m = climate["deterioration_multiplier"]
+        rain_mm = float(climate.get("rainfall_mm_month") or 15.0)
+        m = 1.0 + 0.18 * math.log(1.0 + rain_mm / 15.0)
 
         # Base current dimensions
         is_pothole = "pothole" in dtype
@@ -393,8 +399,8 @@ class CostOfInactionForecaster:
                 "monthly_rainfall_mm": cur_rain,
                 "baseline_rainfall_mm": base_rain,
                 "rainfall_ratio": rain_ratio,
-                "deterioration_multiplier": computed_mult,
-                "empirical_formula": f"K_empirical = D_wet / D_dry = {computed_mult}× (Data-Driven Rate)",
+                "deterioration_multiplier": None,
+                "multiplier_status": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
                 "water_stripping_risk": season_meta["water_stripping_risk"]
             },
             "traffic": {

@@ -1,201 +1,128 @@
 """
-RoadEye™ Seasonal Pavement Deterioration Hypothesis Investigation Engine
-========================================================================
-Scientific Investigation of the Rainy Season (Kiremt) Acceleration Factor:
-Hypothesis: D_wet > D_dry (Statistically Significant Seasonal Acceleration)
+RoadEye™ Seasonal Pavement Deterioration Integrity & Evaluation Engine
+======================================================================
+Strict Scientific Integrity Module for Evaluating Seasonal Deterioration Claims.
 
-Formal Methodology:
-1. Empirical Rate Calculation from Longitudinal Historical Observations:
-   D_dry = Total PCI Loss (Dry Season) / Observation Days (Dry Season)
-   D_wet = Total PCI Loss (Wet Season) / Observation Days (Wet Season)
-   K_empirical = D_wet / D_dry
+Audit Finding:
+- The database contains genuine CV dashcam survey incidents from 2026-10-20 and 2026-11-16 (dry season).
+- Genuine repeated field condition surveys across a full wet season (Kiremt, June–September)
+  and dry season (Bega) do NOT currently exist in the database.
+- The 378 records in `unified_road_observations` were mathematically synthesized
+  via backwards interpolation from current PCI weighted by atmospheric rainfall reanalysis.
+- The previously calculated 1.45x ratio was an analytical mathematical artifact of the
+  interpolation function: 1.0 + 0.18 * ln(1 + rain_mm).
+- It was NOT an empirical field observation.
 
-2. Confounder Control:
-   - Traffic volume & commercial axle loads (ESAL normalization)
-   - Initial pavement structural condition (PCI_0 stratification)
-   - Drainage condition & block chainage
-   - Exclusion of artificially restored segments (maintenance events)
-
-3. Statistical Hypothesis Testing:
-   - Bootstrap 95% Confidence Intervals for K_empirical
-   - Paired Student's t-test / Welch's t-test for rate significance (p-value)
-
-4. HDM-4 Formula Provenance Clarification:
-   - Distinguishes standard World Bank HDM-4 default coefficients from
-     localized empirical adaptation equations (K_env = 1.0 + beta * ratio^gamma).
+In accordance with strict scientific integrity principles:
+If genuine multi-season field survey observations are unavailable, the system displays:
+"Insufficient historical data to calculate an empirical seasonal deterioration ratio."
+No arbitrary multiplier is assumed, simulated, or substituted.
 """
 
 import os
 import sys
-import math
 import sqlite3
 from datetime import datetime
 from typing import Dict, List, Tuple, Any, Optional
-import numpy as np
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database", "road_monitoring.db")
 
-from data.unified_dataset import UnifiedDatasetManager
-
 
 class SeasonalHypothesisInvestigator:
     """
-    Rigorously analyzes empirical historical pavement observations to evaluate
-    seasonal degradation acceleration and quantify empirical rate multipliers.
+    Evaluates whether genuine repeated field pavement condition observations exist
+    across distinct seasons to compute an empirical seasonal deterioration ratio.
     """
 
     def __init__(self):
-        self.dataset_mgr = UnifiedDatasetManager()
+        pass
+
+    def check_genuine_seasonal_observations(self) -> Dict[str, Any]:
+        """
+        Check database for genuine repeated field inspection surveys spanning
+        both wet season (June-September) and dry season (October-May).
+        """
+        if not os.path.exists(DB_PATH):
+            return {"has_genuine_data": False, "reason": "Database file not found"}
+
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Check genuine incident survey dates from field dashcam runs
+        cursor.execute("SELECT DISTINCT date(timestamp) FROM incidents WHERE timestamp IS NOT NULL")
+        raw_dates = [r[0] for r in cursor.fetchall() if r[0]]
+
+        # Check video runs
+        cursor.execute("SELECT DISTINCT video_name FROM incidents WHERE video_name IS NOT NULL")
+        videos = [r[0] for r in cursor.fetchall() if r[0]]
+        conn.close()
+
+        wet_dates = []
+        dry_dates = []
+
+        for d_str in raw_dates:
+            try:
+                dt = datetime.strptime(d_str, "%Y-%m-%d")
+                if dt.month in [6, 7, 8, 9]:
+                    wet_dates.append(d_str)
+                else:
+                    dry_dates.append(d_str)
+            except Exception:
+                continue
+
+        has_both_seasons = len(wet_dates) >= 2 and len(dry_dates) >= 2
+
+        return {
+            "has_genuine_multi_season_surveys": has_both_seasons,
+            "genuine_survey_dates_found": raw_dates,
+            "wet_season_survey_dates": wet_dates,
+            "dry_season_survey_dates": dry_dates,
+            "videos_cataloged": videos,
+            "provenance_note": (
+                "Verified field inspection surveys require dashcam video runs recorded across "
+                "distinct wet (June-Sept) and dry (Oct-May) seasons. Current recorded incidents "
+                "originate only from dry season dates (October/November 2026)."
+            )
+        }
 
     def evaluate_seasonal_rates(self) -> Dict[str, Any]:
         """
-        Compute empirical dry vs wet deterioration rates and test seasonal acceleration significance.
+        Evaluate seasonal deterioration rates strictly from genuine field observations.
+        If sufficient observations across both seasons do not exist, report honestly:
+        "Insufficient historical data to calculate an empirical seasonal deterioration ratio."
         """
-        records = self.dataset_mgr.get_records()
-        if len(records) < 40:
-            self.dataset_mgr.populate_longitudinal_corridor_history(num_historical_days=120)
-            records = self.dataset_mgr.get_records()
+        check = self.check_genuine_seasonal_observations()
 
-        # Group records by segment
-        by_segment: Dict[str, List[Dict[str, Any]]] = {}
-        for r in records:
-            # Exclude segments undergoing active maintenance to prevent artificial bias
-            if r.get("maintenance_event") not in [None, "None", ""]:
-                continue
-            seg = r["segment_id"]
-            if seg not in by_segment:
-                by_segment[seg] = []
-            by_segment[seg].append(r)
-
-        dry_rates_pci_per_day = []
-        wet_rates_pci_per_day = []
-        segment_comparisons = []
-
-        for seg_id, traj in by_segment.items():
-            if len(traj) < 4:
-                continue
-            traj.sort(key=lambda x: x["observation_date"])
-
-            # Split into wet observations (June-September) and dry observations (October-May)
-            dry_deltas = []
-            wet_deltas = []
-
-            for i in range(len(traj) - 1):
-                t0 = traj[i]
-                t1 = traj[i + 1]
-
-                d0 = datetime.strptime(t0["observation_date"], "%Y-%m-%d")
-                d1 = datetime.strptime(t1["observation_date"], "%Y-%m-%d")
-                days = max(1, (d1 - d0).days)
-
-                pci_loss = max(0.0, float(t0["pci"]) - float(t1["pci"]))
-                daily_loss = pci_loss / days
-
-                # Route A2 traffic normalization factor (normalize to 24% baseline)
-                truck_pct = float(t0.get("heavy_truck_pct", 24.0))
-                traffic_norm = max(0.8, min(1.3, truck_pct / 24.0))
-                norm_loss = daily_loss / traffic_norm
-
-                if d0.month in [6, 7, 8, 9]:  # Kiremt Heavy Monsoon
-                    wet_deltas.append(norm_loss)
-                else:                        # Bega / Belg
-                    dry_deltas.append(norm_loss)
-
-            if dry_deltas and wet_deltas:
-                mean_dry = float(np.mean(dry_deltas))
-                mean_wet = float(np.mean(wet_deltas))
-                dry_rates_pci_per_day.append(mean_dry)
-                wet_rates_pci_per_day.append(mean_wet)
-
-                ratio = round(mean_wet / max(0.001, mean_dry), 2)
-                segment_comparisons.append({
-                    "segment_id": seg_id,
-                    "dry_season_rate_pci_day": round(mean_dry, 4),
-                    "wet_season_rate_pci_day": round(mean_wet, 4),
-                    "segment_multiplier": ratio
-                })
-
-        if not dry_rates_pci_per_day or not wet_rates_pci_per_day:
+        if not check["has_genuine_multi_season_surveys"]:
             return {
-                "success": False,
-                "error": "Insufficient distinct dry and wet season intervals to compute empirical rates."
+                "success": True,
+                "status": "INSUFFICIENT_HISTORICAL_DATA",
+                "summary_status": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
+                "message": "Insufficient historical data to calculate an empirical seasonal deterioration ratio.",
+                "empirical_multiplier": None,
+                "is_data_sufficient": False,
+                "genuine_field_data_audit": {
+                    "wet_season_field_surveys_count": len(check["wet_season_survey_dates"]),
+                    "dry_season_field_surveys_count": len(check["dry_season_survey_dates"]),
+                    "available_dates": check["genuine_survey_dates_found"],
+                    "required_condition": "At least 2 repeated field condition surveys in Kiremt and 2 in Bega"
+                },
+                "scientific_integrity_declaration": {
+                    "was_1_45_empirical": False,
+                    "provenance_of_1_45": (
+                        "The previously reported 1.45x value was an artifact of backwards mathematical "
+                        "interpolation using the formula 1.0 + 0.18 * ln(1 + rain_mm). It was NOT an "
+                        "empirical measurement from repeated field condition surveys. In accordance with "
+                        "scientific integrity principles, it has been completely removed."
+                    ),
+                    "policy": "No arbitrary or simulated multiplier is substituted."
+                }
             }
 
-        mean_d_dry = float(np.mean(dry_rates_pci_per_day))
-        mean_d_wet = float(np.mean(wet_rates_pci_per_day))
-        std_d_dry = float(np.std(dry_rates_pci_per_day))
-        std_d_wet = float(np.std(wet_rates_pci_per_day))
-
-        empirical_k = round(mean_d_wet / max(0.001, mean_d_dry), 2)
-
-        # Statistical Hypothesis Testing: Paired t-test
-        differences = np.array(wet_rates_pci_per_day) - np.array(dry_rates_pci_per_day)
-        n = len(differences)
-        diff_mean = float(np.mean(differences))
-        diff_se = float(np.std(differences, ddof=1) / math.sqrt(n)) if n > 1 else 0.01
-
-        t_stat = diff_mean / max(1e-6, diff_se)
-        # Approximate two-tailed p-value for Student's t
-        p_val = round(float(2.0 * (1.0 - 0.5 * (1.0 + math.erf(t_stat / math.sqrt(2))))), 5)
-        p_val = max(0.00001, min(1.0, p_val))
-
-        # Bootstrap 95% Confidence Interval for K
-        boot_ks = []
-        np.random.seed(42)
-        for _ in range(500):
-            idx = np.random.choice(n, n, replace=True)
-            b_dry = max(0.001, float(np.mean(np.array(dry_rates_pci_per_day)[idx])))
-            b_wet = float(np.mean(np.array(wet_rates_pci_per_day)[idx]))
-            boot_ks.append(b_wet / b_dry)
-
-        ci_lower = round(float(np.percentile(boot_ks, 2.5)), 2)
-        ci_upper = round(float(np.percentile(boot_ks, 97.5)), 2)
-
-        # Hypothesis Evaluation Decision: Wet-Season Deterioration Acceleration
-        hypothesis_tested = "Wet-Season Acceleration Hypothesis: D_wet > D_dry"
-        is_statistically_significant = (p_val < 0.05 and mean_d_wet > mean_d_dry)
-
-        conclusion = "STATISTICALLY_VALIDATED_SEASONAL_ACCELERATION" if is_statistically_significant else "NO_SIGNIFICANT_SEASONAL_ACCELERATION"
-        summary_status = f"Empirical data demonstrates significant degradation acceleration in wet season with K={empirical_k}x (95% CI: [{ci_lower}, {ci_upper}], p={p_val})."
-
-        # Formula Provenance and Attribution Audit
-        formula_audit = {
-            "formula_expression": "K_empirical = D_wet / D_dry",
-            "evaluated_values": f"D_wet={round(mean_d_wet, 4)} / D_dry={round(mean_d_dry, 4)} = {empirical_k}x",
-            "provenance_status": "EMPIRICAL_DATA_DRIVEN_DERIVATION",
-            "scientific_attribution_clarification": (
-                "The seasonal deterioration multiplier is computed directly from longitudinal pavement observations "
-                "across Route A2 corridor segments. No arbitrary or hardcoded multipliers are applied in the primary models."
-            ),
-            "is_standard_hdm4_verbatim": False,
-            "is_empirically_calibrated_for_ethiopia": True
-        }
-
+        # If genuine multi-season data were available, calculate rates here (placeholder for future real data)
         return {
             "success": True,
-            "hypothesis": hypothesis_tested,
-            "status": conclusion,
-            "summary_status": summary_status,
-            "total_segments_analyzed": n,
-            "empirical_rates": {
-                "dry_season_rate_pci_per_day": round(mean_d_dry, 4),
-                "wet_season_rate_pci_per_day": round(mean_d_wet, 4),
-                "empirical_multiplier_K": empirical_k,
-                "confidence_interval_95": [ci_lower, ci_upper]
-            },
-            "statistical_significance": {
-                "test_type": "Paired Student's t-test (Wet vs Dry Rate)",
-                "t_statistic": round(t_stat, 3),
-                "p_value": p_val,
-                "is_statistically_significant": is_statistically_significant
-            },
-            "hypothesis_evaluation": {
-                "empirical_multiplier": empirical_k,
-                "confidence_interval_95": [ci_lower, ci_upper],
-                "is_statistically_significant": is_statistically_significant,
-                "scientific_status": "Empirical Rate Derived from Longitudinal Observations (No Hardcoded Multipliers)"
-            },
-            "formula_provenance": formula_audit,
-            "segment_comparisons": segment_comparisons[:8]
+            "status": "CALCULATED_FROM_GENUINE_DATA",
+            "empirical_multiplier": None
         }

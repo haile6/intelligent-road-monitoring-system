@@ -190,13 +190,13 @@ RoadEye completely eliminates arbitrary cost multipliers (e.g., $cost \times (2.
 
 ---
 
-## 6. Complete Elimination of the Unscientific 4.2× Multiplier
+## 6. Elimination of Heuristic & Artificial Multipliers
 
 In accordance with strict scientific integrity rules:
-1. **Complete Removal from UI and Backend:** The hardcoded $4.20\times$ ("4.2× Faster") seasonal acceleration multiplier has been **completely eliminated** from all user interfaces, dashboard widgets, regression equations, Markov transition matrices, and climate profiles.
-2. **True Empirical Seasonal Rate ($1.45\times$):** Rigorous statistical analysis of longitudinal historical observations across Route A2 demonstrates that under natural Debre Berhan precipitation and traffic dynamics, wet-season deterioration acceleration is:
-   $$K_{\text{empirical}} = \mathbf{1.45\times} \quad (95\%\text{ CI: } [1.45, 1.46], \quad p < 0.001)$$
-3. **Data-Driven Feature Regressors:** RoadEye forecasts future condition directly through multi-variate regressors (Ridge L2 and Random Forest) evaluating the 17 physical mechanism features rather than relying on any static multiplier.
+1. **Complete Removal of Multipliers:** All assumed and interpolated seasonal acceleration multipliers (including the legacy 4.2× heuristic and the 1.45× analytical artifact) have been **completely eliminated** from all user interfaces, dashboard widgets, regression equations, Markov transition matrices, and climate profiles.
+2. **Empirical Seasonal Rate Audit:** Rigorous auditing of the underlying observation records revealed that verified field surveys currently exist only for dry-season dates (October & November 2026). True empirical seasonal multipliers require repeated condition surveys conducted across distinct wet and dry seasons. Because longitudinal multi-season surveys have not yet been conducted, RoadEye displays:
+   > **"Insufficient historical data to calculate an empirical seasonal deterioration ratio."**
+3. **No Substitute Multipliers:** No arbitrary or simulated multiplier is substituted. RoadEye forecasts future condition directly through multi-variate regressors (Ridge L2 and Random Forest) evaluating 17 physical mechanism features (rainfall flux, heavy truck axle loading, crack density, and 3D defect volume) rather than relying on any static multiplier.
 
 ---
 

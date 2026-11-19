@@ -153,12 +153,12 @@ class TestSeasonalHypothesisInvestigator(unittest.TestCase):
     def test_seasonal_rates_evaluation(self):
         res = self.investigator.evaluate_seasonal_rates()
         self.assertTrue(res["success"])
-        rates = res["empirical_rates"]
-        self.assertGreater(rates["dry_season_rate_pci_per_day"], 0.0)
-        self.assertGreater(rates["wet_season_rate_pci_per_day"], 0.0)
-        self.assertGreater(rates["empirical_multiplier_K"], 1.0)  # Wet season degradation exceeds dry season
-        self.assertIn("confidence_interval_95", rates)
-        self.assertTrue(res["statistical_significance"]["is_statistically_significant"])
+        self.assertEqual(res["status"], "INSUFFICIENT_HISTORICAL_DATA")
+        self.assertEqual(res["summary_status"], "Insufficient historical data to calculate an empirical seasonal deterioration ratio.")
+        self.assertIsNone(res["empirical_multiplier"])
+        self.assertFalse(res["is_data_sufficient"])
+        self.assertIn("genuine_field_data_audit", res)
+        self.assertIn("scientific_integrity_declaration", res)
 
 
 class TestPredictionRESTAPIs(unittest.TestCase):

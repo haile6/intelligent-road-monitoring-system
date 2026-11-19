@@ -111,7 +111,8 @@ class TestCostOfInactionForecaster(unittest.TestCase):
         self.assertIn("prediction_features", res)
         feats = res["prediction_features"]
         self.assertEqual(feats["climate"]["evaluated_season"], "KIREMT")
-        self.assertEqual(feats["climate"]["deterioration_multiplier"], 1.45)
+        self.assertIsNone(feats["climate"]["deterioration_multiplier"])
+        self.assertIn("Insufficient historical data", feats["climate"]["multiplier_status"])
         self.assertEqual(feats["traffic"]["heavy_freight_pct"], 24.0)
         self.assertEqual(feats["cv_geometry"]["total_tracked_defects"], 3)
         self.assertEqual(len(feats["cv_geometry"]["measured_features"]), 5)

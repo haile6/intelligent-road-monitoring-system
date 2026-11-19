@@ -176,7 +176,7 @@
                 <div class="kpi-number-display" style="color: {{ forecast_data.season_details.color }}; font-size: 19px;">
                     {{ forecast_data.season_details.water_stripping_risk }}
                 </div>
-                <span class="font-mono text-secondary small">{{ forecast_data.season_details.deterioration_multiplier }}× Empirical Rate</span>
+                <span class="font-mono text-secondary small">Monsoon Saturation</span>
             </div>
         </div>
 
@@ -246,10 +246,10 @@
 
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Empirical Seasonal Rate</span>
-                            <span class="font-mono text-accent fw-bold">{{ forecast_data.season_details.deterioration_multiplier }}× Observed Rate</span>
+                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Seasonal Multiplier Status</span>
+                            <span class="badge bg-warning text-dark font-mono" style="font-size: 9.5px;">DATA PENDING</span>
                         </div>
-                        <div class="text-muted small">Statistically derived from longitudinal observations (95% CI: [1.45, 1.46]).</div>
+                        <div class="text-warning small font-mono" style="font-size: 11px;">Insufficient historical data to calculate an empirical seasonal deterioration ratio.</div>
                     </div>
 
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
@@ -432,19 +432,16 @@
 
             </div>
 
-            <!-- Empirical Seasonal Multiplier Analysis Strip -->
-            <div class="p-2.5 rounded mb-3" style="background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.25);">
+            <!-- Seasonal Multiplier Scientific Integrity Strip -->
+            <div class="p-2.5 rounded mb-3" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3);">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 font-mono small">
                     <div class="d-flex align-items-center gap-2">
-                        <i data-lucide="scale" style="width: 14px; height: 14px; color: #818cf8;"></i>
-                        <span class="text-white fw-semibold">Empirical Seasonal Rate (D<sub>wet</sub> / D<sub>dry</sub>):</span>
-                        <span class="badge bg-primary text-white">
-                            K<sub>empirical</sub> = {{ seasonal_investigation.empirical_rates.empirical_multiplier_K if seasonal_investigation.empirical_rates else "1.45" }}×
-                        </span>
-                        <span class="text-muted">(95% CI: [{{ seasonal_investigation.empirical_rates.confidence_interval_95[0] if seasonal_investigation.empirical_rates else "1.45" }}, {{ seasonal_investigation.empirical_rates.confidence_interval_95[1] if seasonal_investigation.empirical_rates else "1.46" }}])</span>
+                        <i data-lucide="shield-alert" style="width: 14px; height: 14px; color: #f59e0b;"></i>
+                        <span class="text-white fw-semibold">Seasonal Multiplier Audit:</span>
+                        <span class="text-warning fw-bold">Insufficient historical data to calculate an empirical seasonal deterioration ratio.</span>
                     </div>
                     <div class="text-secondary" style="font-size: 11px;">
-                        Data-Driven Rate: 1.45× &bull; Paired t-test p &lt; 0.001 &bull; Zero Heuristics or Hardcoded Multipliers
+                        Multi-Horizon ML models evaluate physical mechanism features directly without relying on any fixed seasonal multiplier.
                     </div>
                 </div>
             </div>
@@ -807,8 +804,8 @@ function initForecastSearch() {
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="p-2.5 rounded text-center" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-                            <div class="text-secondary small font-mono">Empirical Multiplier</div>
-                            <div class="fw-bold text-accent font-mono" style="font-size: 13.5px;">1.45× Empirical Rate</div>
+                            <div class="text-secondary small font-mono">Seasonal Ratio Status</div>
+                            <div class="fw-bold text-warning font-mono" style="font-size: 12.5px;">Data Pending</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
@@ -907,11 +904,11 @@ function initForecastSearch() {
                                 </tr>
                                 <tr>
                                     <td class="font-mono text-accent fw-bold">F8</td>
-                                    <td class="fw-semibold text-white">Empirical Rate Ratio (K)</td>
-                                    <td><span class="badge-status" style="background:rgba(14,165,233,0.15); color:var(--accent-primary);">Data-Driven</span></td>
-                                    <td class="font-mono text-accent fw-bold">1.45× (Observed)</td>
-                                    <td class="text-secondary">Empirical Ratio: D<sub>wet</sub> / D<sub>dry</sub> (95% CI: [1.45, 1.46])</td>
-                                    <td class="text-secondary">Directly learned from longitudinal observations across Route A2; zero hardcoded factors</td>
+                                    <td class="fw-semibold text-white">Seasonal Degradation Multiplier</td>
+                                    <td><span class="badge-status badge-defect-crack">Integrity Policy</span></td>
+                                    <td class="font-mono text-warning fw-bold">Insufficient Data</td>
+                                    <td class="text-secondary">Requires repeated multi-season field survey runs (Kiremt + Bega)</td>
+                                    <td class="text-secondary">No arbitrary multiplier is assumed or substituted; models predict directly from physical features</td>
                                 </tr>
 
                                 <!-- Group 3: Traffic & Loading -->
@@ -957,18 +954,16 @@ function initForecastSearch() {
                 <!-- Mathematical Formulas Callout -->
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
-                        <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-                            <div class="fw-bold text-accent mb-2 font-mono small d-flex align-items-center gap-1.5">
-                                <i data-lucide="binary" style="width:14px; height:14px;"></i>
-                                Data-Driven Empirical Degradation Ratio
+                        <div class="p-3 rounded h-100" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.3);">
+                            <div class="fw-bold text-warning mb-2 font-mono small d-flex align-items-center gap-1.5">
+                                <i data-lucide="shield-alert" style="width:14px; height:14px;"></i>
+                                Seasonal Deterioration Ratio Audit
                             </div>
-                            <div class="p-2.5 rounded font-mono text-white small mb-2" style="background: var(--bg-main); border: 1px solid var(--border-subtle);">
-                                K<sub>empirical</sub> = D<sub>wet</sub> / D<sub>dry</sub><br>
-                                K<sub>empirical</sub> = 0.0614 / 0.0424<br>
-                                K<sub>empirical</sub> = <strong>1.45× (Observed Empirical Acceleration)</strong>
+                            <div class="p-2.5 rounded font-mono text-warning small mb-2" style="background: var(--bg-main); border: 1px solid rgba(245, 158, 11, 0.2);">
+                                <strong>Insufficient historical data to calculate an empirical seasonal deterioration ratio.</strong>
                             </div>
                             <div class="text-secondary small">
-                                Statistically validated from longitudinal corridor observations across Route A2 (95% CI: [1.45, 1.46], p &lt; 0.001). Zero arbitrary or unscientific multipliers.
+                                Verified field surveys currently exist only for dry season dates (October &amp; November 2026). True empirical seasonal multipliers require repeated condition surveys conducted across distinct wet and dry seasons. RoadEye ML models predict directly from physical mechanism features without assuming any fixed multiplier.
                             </div>
                         </div>
                     </div>
@@ -980,12 +975,12 @@ function initForecastSearch() {
                                 Economic Cost of Inaction (COI) ROI Formula
                             </div>
                             <div class="p-2.5 rounded font-mono text-white small mb-2" style="background: var(--bg-main); border: 1px solid var(--border-subtle);">
-                                Savings = Cost<sub>Inaction</sub>(60d) - Cost<sub>Today</sub><br>
-                                Savings = 2,014,243 ETB - 186,850 ETB<br>
-                                Net ROI = <strong>+1,827,393 ETB (10.78× ROI Multiplier)</strong>
+                                Savings = Cost<sub>Inaction</sub>({{ forecast_data.days_horizon }}d) - Cost<sub>Today</sub><br>
+                                Savings = {{ "{:,.0f}".format(forecast_data.total_cost_inaction_etb) }} ETB - {{ "{:,.0f}".format(forecast_data.total_cost_today_etb) }} ETB<br>
+                                Net ROI = <strong>+{{ "{:,.0f}".format(forecast_data.total_savings_etb) }} ETB ({{ forecast_data.roi_savings_multiplier }}× ROI Multiplier)</strong>
                             </div>
                             <div class="text-secondary small">
-                                Proves to municipal decision-makers that patching small defects today saves 10× capital expenditure post-monsoon.
+                                Proves to municipal decision-makers that patching small defects today saves substantial capital expenditure post-monsoon.
                             </div>
                         </div>
                     </div>
