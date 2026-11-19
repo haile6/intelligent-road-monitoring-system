@@ -92,9 +92,9 @@
             </div>
 
             <!-- Inspect Features Modal Trigger -->
-            <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 ms-2" data-bs-toggle="modal" data-bs-target="#featuresMatrixModal" title="Inspect 12 AI Prediction Features">
-                <i data-lucide="cpu" style="width:14px; height:14px;"></i>
-                <span class="d-none d-md-inline">AI Prediction Features</span>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5 ms-2" data-bs-toggle="modal" data-bs-target="#featuresMatrixModal" title="Scientific Model &amp; HDM-4 Proof">
+                <i data-lucide="info" style="width:14px; height:14px;"></i>
+                <span class="d-none d-md-inline">Model Details</span>
             </button>
 
             <button class="btn btn-ghost" onclick="window.location.reload()" title="Refresh Telemetry">
@@ -192,49 +192,6 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 2.5 AI PREDICTION FEATURE MATRIX BANNER                     -->
-    <!-- ============================================================ -->
-    <div class="panel-card mb-3 p-3" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.04) 100%); border-left: 4px solid var(--accent-primary);">
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span class="badge-status" style="background: rgba(14,165,233,0.18); color: #38bdf8; font-weight:700; font-size:10.5px;">
-                        <i data-lucide="cpu" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i> 12 LIVE AI PREDICTION FEATURES
-                    </span>
-                    <span class="text-white fw-bold" style="font-size: 13.5px;">Scientific Inputs Powering RoadEye™ Deterioration Forecaster</span>
-                </div>
-                <div class="text-secondary small">
-                    Every projected curve is computed from live sensor measurements, World Bank HDM-4 precipitation physics, Route A2 commercial axle load ratios, and 5-state Markovian transitions.
-                </div>
-            </div>
-
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <!-- Chip 1: Climate Physics -->
-                <div class="px-2.5 py-1.5 rounded font-mono" style="background: var(--bg-surface); border: 1px solid var(--border-default); font-size: 11px;">
-                    <span class="text-secondary">HDM-4 Climate:</span>
-                    <span class="text-danger fw-bold ms-1">{{ forecast_data.season_details.deterioration_multiplier }}×</span>
-                    <span class="text-muted ms-1 small">(β=0.38, γ=0.72)</span>
-                </div>
-                <!-- Chip 2: Axle Loading -->
-                <div class="px-2.5 py-1.5 rounded font-mono" style="background: var(--bg-surface); border: 1px solid var(--border-default); font-size: 11px;">
-                    <span class="text-secondary">Freight Axle:</span>
-                    <span class="text-warning fw-bold ms-1">24% Sino-Trucks</span>
-                    <span class="text-muted ms-1 small">(500 kPa Pore)</span>
-                </div>
-                <!-- Chip 3: 3D CV Inputs -->
-                <div class="px-2.5 py-1.5 rounded font-mono" style="background: var(--bg-surface); border: 1px solid var(--border-default); font-size: 11px;">
-                    <span class="text-secondary">Vision Sensors:</span>
-                    <span class="text-accent fw-bold ms-1">W · D · V (3D Depth)</span>
-                </div>
-                <!-- Trigger Button -->
-                <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 py-1" data-bs-toggle="modal" data-bs-target="#featuresMatrixModal">
-                    <i data-lucide="sliders-horizontal" style="width:13px; height:13px;"></i> Inspect Matrix
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================================ -->
     <!-- 3. DEGRADATION TRAJECTORY CHART & ENVIRONMENTAL RADAR        -->
     <!-- ============================================================ -->
     <div class="row g-3 mb-4">
@@ -273,53 +230,41 @@
                         <i data-lucide="droplet" style="color:var(--accent-primary);"></i>
                         Monsoon Pore-Water Mechanics
                     </div>
-                    <button class="btn btn-xs btn-outline-secondary py-0 px-1.5 font-mono" data-bs-toggle="modal" data-bs-target="#featuresMatrixModal" style="font-size:10px;">
-                        All Features
-                    </button>
+                    <span class="badge-status" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; font-size: 10px;">
+                        Route A2 Corridor
+                    </span>
                 </div>
 
-                <div class="panel-body p-3 d-flex flex-column gap-2.5">
+                <div class="panel-body p-3 d-flex flex-column gap-3">
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="fw-semibold text-white" style="font-size: 11.5px;">Average Monthly Rainfall</span>
                             <span class="font-mono text-accent fw-bold">{{ forecast_data.season_details.rainfall_mm_month }} mm</span>
                         </div>
-                        <div class="text-muted small">Water saturates sub-base through unsealed surface cracks (Baseline Bega: 15 mm).</div>
+                        <div class="text-muted small">Water saturates sub-base through unsealed surface cracks.</div>
                     </div>
 
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Hydrodynamic Stripping</span>
-                            <span class="font-mono text-danger fw-bold">{{ forecast_data.season_details.deterioration_multiplier }}× (420%)</span>
+                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Accelerated Wear Multiplier</span>
+                            <span class="font-mono text-danger fw-bold">{{ forecast_data.season_details.deterioration_multiplier }}× Faster</span>
                         </div>
-                        <div class="d-flex align-items-center gap-1 my-1 font-mono" style="font-size: 10px;">
-                            <span class="badge bg-dark border border-secondary text-info">β = 0.38 (Drainage)</span>
-                            <span class="badge bg-dark border border-secondary text-info">γ = 0.72 (Darcy Exp)</span>
-                            <span class="badge bg-dark border border-secondary text-warning">18.67× Rain</span>
-                        </div>
-                        <div class="text-muted small">Pore pressure blasts bitumen film from aggregate aggregates under wheel impact.</div>
+                        <div class="text-muted small">Heavy rain and unsealed cracks accelerate pavement degradation.</div>
                     </div>
 
                     <div class="p-2.5 rounded" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Heavy Freight Traffic (Route A2)</span>
+                            <span class="fw-semibold text-white" style="font-size: 11.5px;">Heavy Freight Traffic</span>
                             <span class="font-mono text-warning fw-bold">24% Freight Trucks</span>
                         </div>
-                        <div class="text-muted small">High ESAL loading causes rapid shear punch-through (400-600 kPa pore pressure).</div>
-                    </div>
-
-                    <div class="p-2 rounded" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25);">
-                        <div class="fw-bold text-accent mb-0.5 font-mono" style="font-size: 10.5px;">
-                            <i data-lucide="calculator" style="width: 11px; height: 11px; display:inline-block; vertical-align:middle;"></i> World Bank HDM-4 Formula:
-                        </div>
-                        <div class="font-mono text-white small" style="font-size: 11px;">
-                            M = 1.0 + 0.38 × (280/15)<sup>0.72</sup> = <strong>4.20×</strong>
-                        </div>
+                        <div class="text-muted small">High axle loads cause shear failure of water-softened sub-base.</div>
                     </div>
                 </div>
 
-                <div class="panel-footer font-mono text-muted text-center" style="font-size: 11px;">
-                    ERA Maintenance Directive: Seal Cracks Prior to Monsoon Arrival
+                <div class="panel-footer d-flex justify-content-between align-items-center p-2" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle);">
+                    <button class="btn btn-sm btn-ghost text-secondary font-mono w-100 py-0.5 d-flex align-items-center justify-content-center gap-1.5" data-bs-toggle="modal" data-bs-target="#featuresMatrixModal" style="font-size: 11px;">
+                        <i data-lucide="info" style="width: 12px; height: 12px;"></i> View Scientific Proof &amp; Formulas
+                    </button>
                 </div>
             </div>
         </div>
@@ -548,16 +493,10 @@ function inspectTrajectory(index) {
             </div>
         </div>
 
-        <!-- Predictive AI Features Used for this Defect -->
-        <div class="panel-card p-3 mb-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Active AI Features Feeding Prediction</div>
-            <div class="d-flex flex-wrap gap-1.5 font-mono" style="font-size:10.5px;">
-                <span class="badge bg-dark border border-secondary text-info">Season: ${forecastData.evaluated_season} (4.2× Rate)</span>
-                <span class="badge bg-dark border border-secondary text-accent">Rain: ${forecastData.season_details.rainfall_mm_month} mm/mo</span>
-                <span class="badge bg-dark border border-secondary text-warning">Traffic: 24% Route A2 Trucks</span>
-                <span class="badge bg-dark border border-secondary text-danger">Pore Pressure: 400-600 kPa</span>
-                <span class="badge bg-dark border border-secondary text-success">Sensor: YOLOv8 + 3D Depth</span>
-            </div>
+        <!-- Defect Simulation Meta -->
+        <div class="panel-card p-2.5 mb-3 text-secondary font-mono small d-flex justify-content-between align-items-center">
+            <span>Climate Season: ${forecastData.evaluated_season} (${forecastData.season_details.deterioration_multiplier}× Multiplier)</span>
+            <span class="text-accent">Route A2 Corridor</span>
         </div>
 
         <!-- Engineering Recommendation -->
