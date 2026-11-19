@@ -900,10 +900,27 @@ def api_predictions_summary():
 def api_predictions_segments():
     """Return multi-horizon predictions and maintenance prescriptions for all road blocks."""
     preds = ml_engine.predict_corridor_segments()
+    now_date = datetime.now().strftime("%Y-%m-%d")
     return jsonify({
         "success": True,
         "corridor": "Route A2 · Addis Ababa - Debre Berhan Highway",
+        "prediction_date": now_date,
         "total_segments": len(preds),
+        "data_availability": {
+            "atmospheric_weather": "AVAILABLE (Open-Meteo & EMI Baseline)",
+            "traffic_counts": "AVAILABLE (Camera ANPR Commercial Freight Proxy)",
+            "pavement_surface_distress": "AVAILABLE (YOLOv8 Edge Perception)",
+            "pothole_volume_depth": "AVAILABLE (Monocular 3D Shape-from-Shading)",
+            "drainage_ditch_telemetry": "UNAVAILABLE (Requires Manual Field Inspection)",
+            "rut_depth_profilometry": "UNAVAILABLE (Requires Transverse Laser Profilometer)"
+        },
+        "data_provenance_summary": {
+            "measured": ["daily_rainfall_mm", "traffic_vpd_counts"],
+            "camera_detected": ["pothole_count", "crack_count", "crack_density"],
+            "ai_estimated": ["pothole_depth_cm", "cavity_volume_liters"],
+            "model_predicted": ["horizon_7d_pci", "horizon_30d_pci", "horizon_60d_pci", "projected_defects"],
+            "boq_engineered": ["estimated_repair_cost_etb", "materials_cost", "labor_cost"]
+        },
         "predictions": preds
     })
 
@@ -914,13 +931,25 @@ def api_predictions_single_segment(segment_id):
     preds = ml_engine.predict_corridor_segments()
     matching = [p for p in preds if p["segment_id"].upper() == segment_id.upper()]
     if not matching:
-        return jsonify({"success": False, "error": f"Segment '{segment_id}' not found"}), 404
+        return jsonify({
+            "success": False,
+            "error": f"Segment '{segment_id}' not found. Available segments: KP-01 through KP-21."
+        }), 404
 
+    now_date = datetime.now().strftime("%Y-%m-%d")
     history = UnifiedDatasetManager().get_records(segment_id=segment_id.upper())
     return jsonify({
         "success": True,
         "segment_id": segment_id.upper(),
+        "prediction_date": now_date,
         "prediction": matching[0],
+        "data_availability": {
+            "atmospheric_weather": "AVAILABLE",
+            "traffic_proxy": "AVAILABLE",
+            "surface_distress": "AVAILABLE",
+            "drainage_sensor": "UNAVAILABLE (Requires Field Survey)",
+            "rut_profilometry": "UNAVAILABLE (Requires Field Survey)"
+        },
         "historical_observations_count": len(history),
         "historical_trajectory": history
     })
