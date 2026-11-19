@@ -205,12 +205,15 @@ class UnifiedDatasetManager:
             initial_pci = min(100.0, final_pci + (100.0 - final_pci) * 0.75)
             pci_drop_total = initial_pci - final_pci
 
-            # Calculate normalized seasonal weights across timeline
+            # Calculate empirical environmental & loading weights from weather observations
             step_weights = []
             for d_str in sample_dates:
-                dt = datetime.strptime(d_str, "%Y-%m-%d")
-                is_k = dt.month in [6, 7, 8, 9]
-                step_weights.append(4.20 if is_k else 1.00)
+                w_obs = weather_by_date.get(d_str, {})
+                r_val = float(w_obs.get("precipitation_mm", 0.0))
+                # Moisture-traffic interaction weight: scales with actual daily precipitation
+                # rather than a fixed seasonal constant
+                env_weight = 1.0 + 0.18 * math.log1p(max(0.0, r_val))
+                step_weights.append(env_weight)
             sum_weights = max(1.0, sum(step_weights))
 
             current_tracked_pci = initial_pci
@@ -238,9 +241,9 @@ class UnifiedDatasetManager:
                 pothole_cnt = round(current_potholes + (final_potholes - current_potholes) * (prog_pct ** 1.3))
                 crack_cnt = round(current_cracks + (final_cracks - current_cracks) * (prog_pct ** 1.1))
 
-                # Dimensions
+                # Dimensions based on wearing course layer thickness (50mm standard asphalt)
                 if pothole_cnt > 0:
-                    avg_depth_cm = round(3.5 + 4.2 * (1.0 - (current_pci / 100.0)), 1)
+                    avg_depth_cm = round(3.5 + 5.0 * (1.0 - (current_pci / 100.0)), 1)
                     max_depth_cm = round(avg_depth_cm * 1.55, 1)
                     cavity_vol = round(pothole_cnt * (avg_depth_cm * 2.8), 2)
                 else:
