@@ -794,13 +794,30 @@ def forecast_view():
     forecast_data = get_forecast_simulation_cache()
     stats = db_manager.get_dashboard_stats()
     now_str = datetime.now().strftime("%B %d, %Y - %H:%M")
+    
+    # Machine Learning Multi-Horizon Predictions & Scientific Audit
+    try:
+        ml_predictions = ml_engine.predict_corridor_segments()
+        ml_performance = ml_engine.train_and_evaluate() if not ml_engine.evaluation_metrics else ml_engine.evaluation_metrics
+        seasonal_investigation = SeasonalHypothesisInvestigator().evaluate_seasonal_rates()
+        data_quality_report = DataQualityValidator.audit_dataset()
+    except Exception as e:
+        ml_predictions = []
+        ml_performance = {}
+        seasonal_investigation = {}
+        data_quality_report = {}
+
     return render_template(
         "forecast.html",
         forecast_data=forecast_data,
         seasons=CLIMATE_SEASONS,
         stats=stats,
         report_date=now_str,
-        active_page="forecast"
+        active_page="forecast",
+        ml_predictions=ml_predictions,
+        ml_performance=ml_performance,
+        seasonal_investigation=seasonal_investigation,
+        data_quality_report=data_quality_report
     )
 
 
