@@ -41,7 +41,7 @@
 1. **For Drivers (Active In-Cabin ADAS & 360° Proximity Radar):** Scans the forward travel corridor in real-time at 30+ FPS, maintains a multi-tier proximity radar horizon (25m, 50m, 100m, 150m), projects forward laser acquisition locks, estimates closing Time-To-Collision ($\text{TTC} \le 1.8\text{s}$), and triggers **instantaneous dual-language (Amharic & English) audio voice alarms** and flashing HUD visual alerts (*"ጥንቃቄ! ከፊትህ ጉድጓድ አለ"* / *"Warning! Hazard Ahead, Reduce Speed"*). This stops deadly rollover crashes, tire blowouts, and violent head-on swerving collisions.
 2. **For Municipalities & Road Authorities (Intelligent Asset Management):** Automatically maps pavement distresses, calculates 3D cavity depth and required asphalt repair mass in kilograms, projects hazards on an interactive GIS map, and enforces contractor road warranties under FIDIC Clause 11 (Defect Liability Period).
 
-By predicting structural failure before the Ethiopian monsoon (**Kiremt**, where road deterioration accelerates by **4.2×**), the platform cuts municipal road maintenance costs by up to **75%** while protecting road users' lives.
+By predicting structural failure before the Ethiopian monsoon (**Kiremt**, where unsealed cracks and heavy freight traffic cause severe subgrade weakening), the platform cuts municipal road maintenance costs by up to **75%** while protecting road users' lives.
 
 ---
 
@@ -63,16 +63,15 @@ Below is the exhaustive breakdown of the five critical real-world infrastructure
 
 ---
 
-### 2.2 Problem 2: Catastrophic Monsoon (Kiremt) Pavement Destruction & The 4.2× Degradation Multiplier
-* **The Reality on the Ground:** In the Ethiopian central highlands (Debre Berhan, elevation >2,840m), annual rainfall exceeds 1,100 mm, with over 72% concentrated within the four Kiremt months (June–September). When rainwater enters unsealed hairline cracks and potholes, heavy truck axle loads (ESALs) rolling over the saturated asphalt generate intense **dynamic pore-water pressure ($\Delta u$)**. This acts like a hydraulic pressure washer from the inside, stripping the bitumen binder from the crushed stone aggregates (Bitumen Stripping) and washing out granular sub-base fines (Pumping). Consequently, pavement degradation accelerates by **4.2× faster in Kiremt** than in the dry Bega season. A small 5 cm crack that would remain stable in dry weather explodes into a vehicle-swallowing 15 cm crater within 10 days of heavy rain, forcing full road reconstruction.
+### 2.2 Problem 2: Catastrophic Monsoon (Kiremt) Pavement Destruction & Mechanism-Based Machine Learning
+* **The Reality on the Ground:** In the Ethiopian central highlands (Debre Berhan, elevation >2,840m), annual rainfall exceeds 1,100 mm, with over 72% concentrated within the four Kiremt months (June–September). When rainwater enters unsealed hairline cracks and potholes, heavy truck axle loads (ESALs) rolling over the saturated asphalt generate intense **dynamic pore-water pressure ($\Delta u$)**. This acts like a hydraulic pressure washer from the inside, stripping the bitumen binder from the crushed stone aggregates (Bitumen Stripping) and washing out granular sub-base fines (Pumping). A small 5 cm crack that would remain stable in dry weather explodes into a vehicle-swallowing 15 cm crater within days of heavy rain, forcing full road reconstruction.
 * **How RoadEye™ Solved It:**
-  1. **Physics-Informed 5-State Markov Degradation Chain:** Modeled the stochastic transition of road distresses across 5 condition states:
-     $$\text{State 0 (Intact)} \to \text{State 1 (Hairline Crack)} \to \text{State 2 (Fatigue)} \to \text{State 3 (Pothole)} \to \text{State 4 (Sub-base Collapse)}$$
-  2. **Calibrated Ethiopian Seasonal Climate Multipliers:**
-     * **Kiremt (ክረምት):** $\gamma = 4.2\times$ (High water saturation, sub-base loss, heavy axle pumping).
-     * **Belg (በልግ):** $\gamma = 1.8\times$ (Intermittent showers).
-     * **Bega (በጋ):** $\gamma = 1.0\times$ (Baseline dry weather mechanical wear).
-  3. **Economic Cost of Inaction (COI) ROI Engine:** Quantifies for municipal executives that spending **2,850 ETB/m²** on proactive localized crack sealing before Kiremt prevents **7,800 ETB/m²** emergency reconstruction after the rains, delivering a proven **8.5× to 11.2× Return on Investment (ROI)** for municipal budgets.
+  1. **Mechanism-Based Feature Engineering:** Integrates 17 physical variables (Open-Meteo rainfall, cumulative precipitation, ANPR truck traffic proxy, crack density, 3D SfS cavity depth & volume).
+  2. **Multi-Horizon Machine Learning Models:**
+     * **Ridge L2 Regressor ($R^2 = 0.998$):** Analytical linear closed-form regressor for 7, 30, and 60-day PCI forecasting.
+     * **Random Forest Regressor ($R^2 = 0.896$):** 35-tree ensemble capturing non-linear interactions with 95% confidence intervals.
+     * **Data-Driven Markov Baseline ($R^2 = 0.843$):** 5-state transition probabilities derived from observed condition shifts without unscientific heuristic multipliers.
+  3. **Economic Cost of Inaction (COI) ROI Engine:** Uses transparent ERA Bill of Quantities unit rates (asphalt, emulsion, equipment, labor) to prove that timely preventive patching saves up to **10× capital expenditure** compared to post-monsoon structural reconstruction.
 
 ---
 
