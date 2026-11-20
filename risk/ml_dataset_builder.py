@@ -9,9 +9,12 @@ Scientific Integrity Principles:
 - If genuine longitudinal observations across 7d, 30d, 60d horizons are insufficient, returns:
   'INSUFFICIENT_TRAINING_DATA'
 - Never fabricates ground truth future PCI targets.
+- Uses DATE-BASED target matching (not step-index offsets) to avoid clamping errors.
+- Samples with no valid future target within tolerance windows are dropped (never clamped).
 """
 
 import os
+import logging
 import sqlite3
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Any, Optional
@@ -21,6 +24,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database", "road_monitoring.db")
 
 from risk.mechanism_features import MechanismFeatureExtractor, MechanismFeatureProvenance
+
+logger = logging.getLogger(__name__)
 
 
 class MLDatasetBuilder:
@@ -32,6 +37,14 @@ class MLDatasetBuilder:
     FEATURE_NAMES = MechanismFeatureExtractor.FEATURE_NAMES
     MIN_GENUINE_SAMPLES_REQUIRED = 30
     MIN_GENUINE_EPOCHS_REQUIRED = 3
+
+    # Date-based target matching tolerance windows
+    HORIZON_7D_DAYS = 7
+    HORIZON_7D_TOLERANCE = 3   # ±3 days
+    HORIZON_30D_DAYS = 30
+    HORIZON_30D_TOLERANCE = 5  # ±5 days
+    HORIZON_60D_DAYS = 60
+    HORIZON_60D_TOLERANCE = 7  # ±7 days
 
     @classmethod
     def audit_genuine_dataset(cls, db_path: Optional[str] = None) -> Dict[str, Any]:
@@ -122,7 +135,7 @@ class MLDatasetBuilder:
                       db_path: Optional[str] = None) -> Dict[str, Any]:
         """
         Build the time-aligned machine learning dataset.
-        
+
         Parameters:
         - mode: 'genuine' (default, enforces strict scientific validation)
                 'synthetic_benchmark' (for software testing, integration tests, and pipeline verification)
@@ -143,24 +156,71 @@ class MLDatasetBuilder:
                     "segments": [],
                     "data_provenance": "GENUINE_FIELD_SURVEYS_ONLY"
                 }
+            # Genuine data is sufficient: build genuine dataset
+            return cls._build_genuine_dataset(db_path)
 
         # If mode == 'synthetic_benchmark' (Explicitly labeled for automated software testing)
         return cls._build_benchmark_synthetic_dataset(db_path)
 
+    # ------------------------------------------------------------------
+    # Private: Date-based target matching helper
+    # ------------------------------------------------------------------
+
     @classmethod
-    def _build_benchmark_synthetic_dataset(cls, db_path: Optional[str] = None) -> Dict[str, Any]:
+    def _find_date_based_target(
+        cls,
+        obs_date_str: str,
+        traj: List[Dict[str, Any]],
+        horizon_days: int,
+        tolerance_days: int
+    ) -> Optional[float]:
         """
-        Constructs a reproducible synthetic benchmark dataset for unit testing,
-        model fitting verification, and cross-validation integrity checking.
-        Clearly tagged with provenance: 'SYNTHETIC_BENCHMARK_TEST_DATA'.
+        Find the PCI of the trajectory observation whose date is closest to
+        obs_date + horizon_days, within ±tolerance_days.
+
+        Returns None if no observation falls within the tolerance window.
+        Does NOT clamp to trajectory endpoints.
+        """
+        try:
+            obs_date = datetime.strptime(obs_date_str, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            return None
+
+        target_date = obs_date + timedelta(days=horizon_days)
+        best_pci: Optional[float] = None
+        best_diff = float("inf")
+
+        for rec in traj:
+            try:
+                rec_date = datetime.strptime(rec["observation_date"], "%Y-%m-%d")
+            except (ValueError, TypeError):
+                continue
+            diff = abs((rec_date - target_date).days)
+            if diff <= tolerance_days and diff < best_diff:
+                best_diff = diff
+                best_pci = float(rec["pci"])
+
+        return best_pci
+
+    # ------------------------------------------------------------------
+    # Private: Genuine dataset builder (date-based matching)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _build_genuine_dataset(cls, db_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Build a genuine-data ML dataset from real field survey records.
+        Uses DATE-BASED target matching; drops samples with no valid future target.
         """
         from data.unified_dataset import UnifiedDatasetManager
         mgr = UnifiedDatasetManager()
-        records = mgr.get_records()
-
-        if len(records) < 50:
-            mgr.populate_longitudinal_corridor_history(num_historical_days=120)
-            records = mgr.get_records()
+        # Only non-synthetic records
+        all_records = mgr.get_records()
+        records = [
+            r for r in all_records
+            if "synthetic" not in str(r.get("provenance_label", "")).lower()
+            and "calibrated" not in str(r.get("provenance_label", "")).lower()
+        ]
 
         # Group chronologically by road segment
         by_segment: Dict[str, List[Dict[str, Any]]] = {}
@@ -169,34 +229,36 @@ class MLDatasetBuilder:
             if seg not in by_segment:
                 by_segment[seg] = []
             by_segment[seg].append(r)
-
         for seg in by_segment:
             by_segment[seg].sort(key=lambda x: x["observation_date"])
 
-        # Weather lookup
         path = db_path or DB_PATH
         conn = sqlite3.connect(path)
         conn.row_factory = sqlite3.Row
-        w_rows = conn.cursor().execute("SELECT date, precipitation_mm, temperature_mean_c as temperature_c, relative_humidity_pct FROM weather_observations").fetchall()
+        w_rows = conn.cursor().execute(
+            "SELECT date, precipitation_mm, temperature_mean_c as temperature_c, "
+            "relative_humidity_pct FROM weather_observations"
+        ).fetchall()
         conn.close()
         weather_history = [dict(r) for r in w_rows]
 
-        X_rows = []
-        y_7d = []
-        y_30d = []
-        y_60d = []
-        dates = []
-        segments = []
-
-        step_7d = 1
-        step_30d = 4
-        step_60d = 8
+        X_rows, y_7d, y_30d, y_60d, dates, segments = [], [], [], [], [], []
+        dropped_no_target = 0
 
         for seg_id, traj in by_segment.items():
-            T = len(traj)
-            for t in range(T - step_7d):
-                curr = traj[t]
+            for curr in traj:
                 obs_date = curr["observation_date"]
+
+                pci_7d = cls._find_date_based_target(
+                    obs_date, traj, cls.HORIZON_7D_DAYS, cls.HORIZON_7D_TOLERANCE)
+                pci_30d = cls._find_date_based_target(
+                    obs_date, traj, cls.HORIZON_30D_DAYS, cls.HORIZON_30D_TOLERANCE)
+                pci_60d = cls._find_date_based_target(
+                    obs_date, traj, cls.HORIZON_60D_DAYS, cls.HORIZON_60D_TOLERANCE)
+
+                if pci_7d is None or pci_30d is None or pci_60d is None:
+                    dropped_no_target += 1
+                    continue
 
                 moisture = MechanismFeatureExtractor.compute_moisture_metrics(weather_history, obs_date)
                 traffic = MechanismFeatureExtractor.compute_heavy_load_metrics(
@@ -225,16 +287,155 @@ class MLDatasetBuilder:
                     historical_pci_velocity=velocity
                 )
 
-                t_7 = min(T - 1, t + step_7d)
-                t_30 = min(T - 1, t + step_30d)
-                t_60 = min(T - 1, t + step_60d)
-
                 X_rows.append(feat_vec)
-                y_7d.append(float(traj[t_7]["pci"]))
-                y_30d.append(float(traj[t_30]["pci"]))
-                y_60d.append(float(traj[t_60]["pci"]))
+                y_7d.append(pci_7d)
+                y_30d.append(pci_30d)
+                y_60d.append(pci_60d)
                 dates.append(obs_date)
                 segments.append(seg_id)
+
+        if dropped_no_target > 0:
+            logger.info(
+                "[MLDatasetBuilder] Genuine dataset: dropped %d samples with no valid future "
+                "target within tolerance windows (7d±%dd, 30d±%dd, 60d±%dd).",
+                dropped_no_target,
+                cls.HORIZON_7D_TOLERANCE, cls.HORIZON_30D_TOLERANCE, cls.HORIZON_60D_TOLERANCE
+            )
+
+        X = np.array(X_rows, dtype=np.float64) if X_rows else np.empty((0, len(cls.FEATURE_NAMES)))
+        targets = {
+            "pci_7d": np.array(y_7d, dtype=np.float64),
+            "pci_30d": np.array(y_30d, dtype=np.float64),
+            "pci_60d": np.array(y_60d, dtype=np.float64),
+        }
+
+        return {
+            "success": True,
+            "status": "GENUINE_DATASET_READY",
+            "is_sufficient": len(X_rows) >= cls.MIN_GENUINE_SAMPLES_REQUIRED,
+            "data_provenance": "GENUINE_FIELD_SURVEYS",
+            "total_samples": len(X_rows),
+            "dropped_no_target": dropped_no_target,
+            "X": X,
+            "targets": targets,
+            "dates": dates,
+            "segments": segments,
+            "feature_names": cls.FEATURE_NAMES
+        }
+
+    # ------------------------------------------------------------------
+    # Private: Synthetic benchmark dataset builder (date-based matching)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _build_benchmark_synthetic_dataset(cls, db_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Constructs a reproducible synthetic benchmark dataset for unit testing,
+        model fitting verification, and cross-validation integrity checking.
+        Clearly tagged with provenance: 'SYNTHETIC_BENCHMARK_TEST_DATA'.
+
+        PHASE 2 FIX: Uses DATE-BASED target matching instead of step-index offsets
+        to prevent 30d/60d targets from being clamped to the last trajectory index.
+        Samples with no valid future target are dropped rather than clamped.
+        """
+        from data.unified_dataset import UnifiedDatasetManager
+        mgr = UnifiedDatasetManager()
+        records = mgr.get_records()
+
+        if len(records) < 50:
+            mgr.populate_longitudinal_corridor_history(num_historical_days=120)
+            records = mgr.get_records()
+
+        # Group chronologically by road segment
+        by_segment: Dict[str, List[Dict[str, Any]]] = {}
+        for r in records:
+            seg = r["segment_id"]
+            if seg not in by_segment:
+                by_segment[seg] = []
+            by_segment[seg].append(r)
+
+        for seg in by_segment:
+            by_segment[seg].sort(key=lambda x: x["observation_date"])
+
+        # Weather lookup
+        path = db_path or DB_PATH
+        conn = sqlite3.connect(path)
+        conn.row_factory = sqlite3.Row
+        w_rows = conn.cursor().execute(
+            "SELECT date, precipitation_mm, temperature_mean_c as temperature_c, "
+            "relative_humidity_pct FROM weather_observations"
+        ).fetchall()
+        conn.close()
+        weather_history = [dict(r) for r in w_rows]
+
+        X_rows = []
+        y_7d = []
+        y_30d = []
+        y_60d = []
+        dates = []
+        segments = []
+        dropped_no_target = 0
+
+        for seg_id, traj in by_segment.items():
+            # PHASE 2 FIX (E): iterate over all observations; use date-based matching
+            # (replaces: for t in range(T - step_7d) with step-index clamping)
+            for curr in traj:
+                obs_date = curr["observation_date"]
+
+                # DATE-BASED target matching — no clamping
+                pci_7d = cls._find_date_based_target(
+                    obs_date, traj, cls.HORIZON_7D_DAYS, cls.HORIZON_7D_TOLERANCE)
+                pci_30d = cls._find_date_based_target(
+                    obs_date, traj, cls.HORIZON_30D_DAYS, cls.HORIZON_30D_TOLERANCE)
+                pci_60d = cls._find_date_based_target(
+                    obs_date, traj, cls.HORIZON_60D_DAYS, cls.HORIZON_60D_TOLERANCE)
+
+                # Drop sample if any horizon target is unavailable
+                if pci_7d is None or pci_30d is None or pci_60d is None:
+                    dropped_no_target += 1
+                    continue
+
+                moisture = MechanismFeatureExtractor.compute_moisture_metrics(weather_history, obs_date)
+                traffic = MechanismFeatureExtractor.compute_heavy_load_metrics(
+                    total_traffic_vpd=float(curr.get("total_traffic_vpd", 8500)),
+                    heavy_truck_count=float(curr.get("heavy_truck_count", 2040)),
+                    heavy_truck_pct=float(curr.get("heavy_truck_pct", 24.0))
+                )
+                cracks = MechanismFeatureExtractor.compute_crack_fatigue_metrics(
+                    crack_count=int(round(float(curr.get("crack_density_m_per_m2", 0.02)) * 700 / 3.5)),
+                    segment_length_m=100.0
+                )
+                potholes = MechanismFeatureExtractor.compute_pothole_cavity_metrics(
+                    pothole_count=int(curr["pothole_count"]),
+                    avg_depth_cm=float(curr["avg_pothole_depth_cm"]),
+                    max_depth_cm=float(curr["max_pothole_depth_cm"]),
+                    volume_liters=float(curr["pothole_volume_liters"])
+                )
+                velocity = float(curr["pci"]) - float(curr.get("previous_pci", curr["pci"]))
+
+                feat_vec = MechanismFeatureExtractor.construct_mechanism_feature_vector(
+                    current_pci=float(curr["pci"]),
+                    moisture_metrics=moisture,
+                    traffic_metrics=traffic,
+                    crack_metrics=cracks,
+                    pothole_metrics=potholes,
+                    historical_pci_velocity=velocity
+                )
+
+                X_rows.append(feat_vec)
+                y_7d.append(pci_7d)
+                y_30d.append(pci_30d)
+                y_60d.append(pci_60d)
+                dates.append(obs_date)
+                segments.append(seg_id)
+
+        if dropped_no_target > 0:
+            logger.info(
+                "[MLDatasetBuilder] Synthetic benchmark: dropped %d samples with no valid future "
+                "target within tolerance windows (7d±%dd, 30d±%dd, 60d±%dd).",
+                dropped_no_target,
+                cls.HORIZON_7D_TOLERANCE, cls.HORIZON_30D_TOLERANCE, cls.HORIZON_60D_TOLERANCE
+            )
 
         X = np.array(X_rows, dtype=np.float64)
         targets = {
@@ -250,6 +451,7 @@ class MLDatasetBuilder:
             "data_provenance": "SYNTHETIC_BENCHMARK_TEST_DATA",
             "warning": "This dataset contains synthetic backward-interpolated records. Intended for software testing only.",
             "total_samples": len(X),
+            "dropped_no_target": dropped_no_target,
             "X": X,
             "targets": targets,
             "dates": dates,

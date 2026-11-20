@@ -425,11 +425,55 @@ class MechanismFeatureExtractor:
                                            traffic_metrics: Dict[str, Any],
                                            crack_metrics: Dict[str, Any],
                                            pothole_metrics: Dict[str, Any],
-                                           historical_pci_velocity: float = -2.5) -> np.ndarray:
+                                           historical_pci_velocity: float = -2.5,
+                                           temperature_c: Optional[float] = None,
+                                           relative_humidity_pct: Optional[float] = None,
+                                           drainage_metrics: Optional[Dict[str, Any]] = None,
+                                           antecedent_precip_index: Optional[float] = None) -> np.ndarray:
         """
-        Assemble the 17-dimensional core mechanism feature vector for ML models.
-        Preserves complete backward compatibility with all existing pipeline callers.
+        Assemble the 23-dimensional mechanism feature vector for ML models.
+        Preserves complete backward compatibility — existing callers that don't pass
+        the extra kwargs receive sensible defaults for the 6 extended features.
+
+        Extended features (indices 17-22):
+            17: temperature_c
+            18: relative_humidity_pct
+            19: antecedent_precip_index
+            20: traffic_exposure_30d_kveh
+            21: drainage_risk_score
+            22: water_accumulation_risk
         """
+        # --- Extended feature resolution ---
+        # 17: temperature_c
+        if temperature_c is not None:
+            temp_val = float(temperature_c)
+        else:
+            temp_val = float(moisture_metrics.get("temperature_c", 16.5))
+
+        # 18: relative_humidity_pct
+        if relative_humidity_pct is not None:
+            rh_val = float(relative_humidity_pct)
+        else:
+            rh_raw = moisture_metrics.get("relative_humidity_pct", None)
+            rh_val = float(rh_raw) if rh_raw is not None else 65.0  # median imputed
+
+        # 19: antecedent_precip_index
+        if antecedent_precip_index is not None:
+            api_val = float(antecedent_precip_index)
+        else:
+            api_val = float(moisture_metrics.get("antecedent_precipitation_index_api", 0.0))
+
+        # 20: traffic_exposure_30d_kveh  (convert vehicles to thousands)
+        traffic_exp_30d_kveh = float(traffic_metrics.get("traffic_exposure_30d", 0.0)) / 1000.0
+
+        # 21 & 22: drainage risk + water accumulation risk
+        if drainage_metrics is not None:
+            drain_score = float(drainage_metrics.get("drainage_risk_score", 0.5))
+            water_acc   = float(drainage_metrics.get("water_accumulation_risk", 0.0))
+        else:
+            drain_score = 0.5   # neutral uncertainty prior when drainage survey absent
+            water_acc   = 0.0
+
         return np.array([
             float(current_pci),                                                 # 0: current_pci
             float(moisture_metrics["daily_rainfall_mm"]),                       # 1: moisture_rain_daily_mm
@@ -447,7 +491,13 @@ class MechanismFeatureExtractor:
             float(pothole_metrics["avg_depth_cm"]),                             # 13: cavity_avg_depth_cm
             float(pothole_metrics["max_depth_cm"]),                             # 14: cavity_max_depth_cm
             float(pothole_metrics["cavity_volume_liters"]),                     # 15: cavity_total_volume_liters
-            float(historical_pci_velocity)                                      # 16: historical_pci_drop_velocity
+            float(historical_pci_velocity),                                     # 16: historical_pci_drop_velocity
+            temp_val,                                                           # 17: temperature_c
+            rh_val,                                                             # 18: relative_humidity_pct
+            api_val,                                                            # 19: antecedent_precip_index
+            traffic_exp_30d_kveh,                                               # 20: traffic_exposure_30d_kveh
+            drain_score,                                                        # 21: drainage_risk_score
+            water_acc,                                                          # 22: water_accumulation_risk
         ], dtype=np.float64)
 
     @classmethod

@@ -200,7 +200,7 @@ class TestMLDeteriorationModels(unittest.TestCase):
 
     def test_chronological_splitting_zero_leakage(self):
         """Verify train-validation-test split is strictly chronological."""
-        X, targets, dates, segments = ml_engine.prepare_dataset_matrices()
+        X, targets, dates, segments = ml_engine.prepare_benchmark_matrices()
         self.assertGreaterEqual(len(X), 50)
         # Check sorted order
         sorted_indices = sorted(range(len(dates)), key=lambda i: dates[i])
