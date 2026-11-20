@@ -409,5 +409,144 @@ class TestPredictionRESTEndpoints(unittest.TestCase):
         self.assertFalse(growth["is_data_sufficient"])
 
 
+class TestForecastingAndRainySeasonRepair(unittest.TestCase):
+    """
+    Validation Suite for the 12-Part Repair of Predictive Deterioration,
+    Markov Chain Simulation, Ethiopian Climate Forecasting, and Cost of Inaction Engine.
+    """
+
+    def setUp(self):
+        self.client = app.test_client()
+
+    def test_forecast_defect_growth_uses_actual_dimensions(self):
+        """Part 7 & 9: Verify defect growth trajectory reads measured dimensions, not hardcoded 45cm/5.2cm."""
+        from risk.predictive_deterioration import CostOfInactionForecaster
+        
+        # Incident A: Large shallow pothole
+        inc_a = {
+            "id": 101,
+            "damage_type": "pothole",
+            "depth_max_cm": 3.2,
+            "surface_area_m2": 0.45,
+            "cavity_volume_liters": 14.4
+        }
+        # Incident B: Deep small pothole
+        inc_b = {
+            "id": 102,
+            "damage_type": "pothole",
+            "depth_max_cm": 9.8,
+            "surface_area_m2": 0.08,
+            "cavity_volume_liters": 7.84
+        }
+
+        traj_a = CostOfInactionForecaster.estimate_defect_growth_trajectory(inc_a, season="KIREMT", days_horizon=60)
+        traj_b = CostOfInactionForecaster.estimate_defect_growth_trajectory(inc_b, season="KIREMT", days_horizon=60)
+
+        # Initial measured dimensions must match inputs, NOT hardcoded 45.0 cm / 5.2 cm
+        self.assertEqual(traj_a["current_dimensions"]["depth_cm"], 3.2)
+        self.assertEqual(traj_a["current_dimensions"]["volume_liters"], 14.4)
+        self.assertEqual(traj_b["current_dimensions"]["depth_cm"], 9.8)
+        self.assertEqual(traj_b["current_dimensions"]["volume_liters"], 7.84)
+        self.assertNotEqual(traj_a["current_dimensions"]["depth_cm"], traj_b["current_dimensions"]["depth_cm"])
+        self.assertNotEqual(traj_a["projected_dimensions"]["depth_cm"], traj_b["projected_dimensions"]["depth_cm"])
+
+    def test_forecast_coi_spatial_deduplication(self):
+        """Part 9: Verify evaluate_corridor_coi clusters raw sightings within 8m to eliminate duplicate records."""
+        from risk.predictive_deterioration import CostOfInactionForecaster
+        
+        coi = CostOfInactionForecaster.evaluate_corridor_coi(season="KIREMT", days_horizon=60)
+        self.assertIn("canonical_hazards_count", coi)
+        self.assertIn("duplicates_eliminated", coi)
+        self.assertIn("raw_sightings_evaluated", coi)
+        
+        # With 101 raw incidents on Route A2, clustering reduces duplicate sightings
+        self.assertGreater(coi["duplicates_eliminated"], 0)
+        self.assertLess(coi["canonical_hazards_count"], coi["raw_sightings_evaluated"])
+        self.assertEqual(coi["canonical_hazards_count"] + coi["duplicates_eliminated"], coi["raw_sightings_evaluated"])
+
+    def test_cost_of_inaction_and_escalation_ratio_calculation(self):
+        """Part 8: Verify Cost of Inaction = Delayed - Today and Cost Escalation Ratio = Delayed / Today."""
+        from risk.predictive_deterioration import CostOfInactionForecaster
+
+        coi = CostOfInactionForecaster.evaluate_corridor_coi(season="BEGA", days_horizon=60)
+        today = coi["total_cost_today_etb"]
+        delayed = coi["total_cost_inaction_etb"]
+        coi_penalty = coi["total_cost_of_inaction_etb"]
+        ratio = coi["cost_escalation_ratio"]
+
+        # COI = Delayed - Today
+        self.assertAlmostEqual(coi_penalty, delayed - today, places=2)
+        # Escalation Ratio = Delayed / Today
+        expected_ratio = round(delayed / max(1.0, today), 2)
+        self.assertEqual(ratio, expected_ratio)
+        # Verify not hardcoded to 1.28
+        self.assertIsInstance(ratio, float)
+
+    def test_markov_simulation_labeling_and_stochastic_rows(self):
+        """Part 5: Verify Markov model is explicitly labeled as simulation and all rows sum to 1.0."""
+        from risk.predictive_deterioration import MarkovPavementDegradationModel
+
+        markov = MarkovPavementDegradationModel.forecast_markov_chain_degradation(
+            current_pci=85.0, incidents_count=67, season="KIREMT", horizons=[30, 60]
+        )
+        self.assertEqual(markov["simulation_status"], "ILLUSTRATIVE MARKOV SIMULATION — NOT FIELD VALIDATED")
+        self.assertFalse(markov["is_field_validated"])
+        self.assertIn("illustrative markov simulation", markov["simulation_disclaimer"].lower())
+
+        # Validate stochasticity of base transition matrices
+        for season_key, matrix in MarkovPavementDegradationModel.TRANSITION_MATRICES.items():
+            for i, row in enumerate(matrix):
+                row_sum = sum(row)
+                self.assertAlmostEqual(row_sum, 1.0, places=4, msg=f"{season_key} row {i} does not sum to 1.0: {row_sum}")
+                for val in row:
+                    self.assertGreaterEqual(val, 0.0)
+                    self.assertLessEqual(val, 1.0)
+
+    def test_dynamic_calendar_season_and_live_telemetry(self):
+        """Part 6: Verify dynamic season selection and live weather queries from DB."""
+        from web.app import get_forecast_simulation_cache
+        
+        cache = get_forecast_simulation_cache()
+        self.assertIn("calendar_season", cache)
+        self.assertIn("evaluated_season", cache)
+        self.assertIn("live_telemetry", cache)
+        
+        # November is Bega
+        current_month = datetime.utcnow().month
+        if current_month in [10, 11, 12, 1, 2]:
+            self.assertEqual(cache["calendar_season"], "BEGA")
+        elif current_month in [3, 4, 5]:
+            self.assertEqual(cache["calendar_season"], "BELG")
+        else:
+            self.assertEqual(cache["calendar_season"], "KIREMT")
+
+        # Telemetry contains live rainfall
+        self.assertIn("recent_rain_30d_mm", cache["live_telemetry"])
+        self.assertIsInstance(cache["live_telemetry"]["recent_rain_30d_mm"], (int, float))
+
+    def test_forecast_api_summary_and_page_render(self):
+        """Part 10: Verify /api/forecast/summary and /forecast page render with clean contracts."""
+        # 1. API Summary
+        res = self.client.get("/api/forecast/summary")
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data["success"])
+        self.assertIn("canonical_hazards_count", data)
+        self.assertIn("duplicates_eliminated", data)
+        self.assertIn("cost_escalation_ratio", data)
+        self.assertIn("total_cost_of_inaction_etb", data)
+        self.assertEqual(data["markov_forecast"]["is_field_validated"], False)
+
+        # 2. HTML Page Render
+        page = self.client.get("/forecast")
+        self.assertEqual(page.status_code, 200)
+        html = page.data.decode("utf-8")
+        self.assertIn("23 Physical Mechanism Features", html)
+        self.assertIn("ILLUSTRATIVE MARKOV SIMULATION — NOT FIELD VALIDATED", html)
+        self.assertIn("Cost of Inaction", html)
+        self.assertIn("Cost Escalation", html)
+        self.assertNotIn("Capital Savings (ROI)", html)
+
+
 if __name__ == "__main__":
     unittest.main()

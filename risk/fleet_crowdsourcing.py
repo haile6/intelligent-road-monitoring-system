@@ -169,11 +169,17 @@ class SpatialDeDuplicationEngine:
                 c_lon = float(candidate.get("damage_longitude") or candidate.get("longitude") or 0.0)
                 c_type = (candidate.get("damage_type") or "pothole").lower()
 
-                # Must match defect class family (pothole vs crack) and fall within epsilon distance
+                # Must match defect class family (pothole vs crack) and fall within epsilon distance.
+                # Observations lacking GPS coordinates (0.0, 0.0) cannot be assumed to be co-located.
                 type_match = ("pothole" in seed_type and "pothole" in c_type) or ("pothole" not in seed_type and "pothole" not in c_type)
-                dist = cls.haversine_distance_m(seed_lat, seed_lon, c_lat, c_lon)
+                has_coords = (seed_lat != 0.0 or seed_lon != 0.0) and (c_lat != 0.0 or c_lon != 0.0)
+                if has_coords:
+                    dist = cls.haversine_distance_m(seed_lat, seed_lon, c_lat, c_lon)
+                    is_proximate = (dist <= eps)
+                else:
+                    is_proximate = False
 
-                if type_match and dist <= eps:
+                if type_match and is_proximate:
                     current_cluster.append(candidate)
                 else:
                     remaining.append(candidate)

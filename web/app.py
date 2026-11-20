@@ -765,12 +765,22 @@ def api_fleet_deduplicate_trigger():
 # PREDICTIVE DETERIORATION & RAINY SEASON FORECAST ENGINE
 # ============================================================
 
-def get_forecast_simulation_cache(season: str = "KIREMT", days_horizon: int = 60):
-    """Compute corridor predictive deterioration and Cost of Inaction (COI)."""
+def get_forecast_simulation_cache(season=None, days_horizon: int = 60):
+    """Compute corridor predictive deterioration and Cost of Inaction (COI) using deduplicated canonical hazards."""
+    # Determine default season dynamically from calendar month if not explicitly specified
+    current_month = datetime.now().month
+    if 6 <= current_month <= 9:
+        calendar_season = "KIREMT"
+    elif 3 <= current_month <= 5:
+        calendar_season = "BELG"
+    else:
+        calendar_season = "BEGA"
+
+    active_season = season or calendar_season
     try:
         s_arg = request.args.get("season")
         if s_arg:
-            season = s_arg.upper()
+            active_season = s_arg.upper()
         d_arg = request.args.get("days")
         if d_arg:
             days_horizon = int(d_arg)
@@ -782,12 +792,41 @@ def get_forecast_simulation_cache(season: str = "KIREMT", days_horizon: int = 60
     pavement_summary = get_pavement_assessment_cache()
     current_pci = float(pavement_summary.get("average_pci") or 64.0)
 
-    return CostOfInactionForecaster.evaluate_corridor_coi(
+    # Live rainfall telemetry lookup from SQLite weather_observations
+    live_rain_30d = 0.0
+    live_weather_date = None
+    try:
+        conn = sqlite3.connect("database/road_monitoring.db")
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        max_row = c.execute("SELECT max(date) as max_date FROM weather_observations").fetchone()
+        if max_row and max_row["max_date"]:
+            live_weather_date = max_row["max_date"]
+            r_row = c.execute(
+                "SELECT sum(precipitation_mm) as rain_sum FROM weather_observations "
+                "WHERE date BETWEEN date(?, '-30 days') AND ?",
+                (live_weather_date, live_weather_date)
+            ).fetchone()
+            if r_row and r_row["rain_sum"] is not None:
+                live_rain_30d = round(float(r_row["rain_sum"]), 1)
+        conn.close()
+    except Exception:
+        pass
+
+    res = CostOfInactionForecaster.evaluate_corridor_coi(
         incidents=incidents,
         current_pci=current_pci,
-        season=season,
-        days_horizon=days_horizon
+        season=active_season,
+        days_horizon=days_horizon,
+        deduplicate=True
     )
+    res["calendar_season"] = calendar_season
+    res["live_telemetry"] = {
+        "recent_rain_30d_mm": live_rain_30d,
+        "latest_weather_date": live_weather_date,
+        "is_scenario_simulation": (active_season != calendar_season)
+    }
+    return res
 
 
 @app.route("/forecast")
@@ -800,7 +839,7 @@ def forecast_view():
     # Machine Learning Multi-Horizon Predictions & Scientific Audit
     try:
         ml_predictions = ml_engine.predict_corridor_segments()
-        ml_performance = ml_engine.train_and_evaluate() if not ml_engine.evaluation_metrics else ml_engine.evaluation_metrics
+        ml_performance = ml_engine.train_and_evaluate(allow_synthetic_benchmark=True) if not ml_engine.evaluation_metrics else ml_engine.evaluation_metrics
         seasonal_investigation = SeasonalHypothesisInvestigator().evaluate_seasonal_rates()
         data_quality_report = DataQualityValidator.audit_dataset()
     except Exception as e:
@@ -819,13 +858,16 @@ def forecast_view():
         ml_predictions=ml_predictions,
         ml_performance=ml_performance,
         seasonal_investigation=seasonal_investigation,
-        data_quality_report=data_quality_report
+        data_quality_report=data_quality_report,
+        production_mode=ml_engine.production_mode,
+        feature_names=ml_engine.FEATURE_NAMES,
+        features_count=len(ml_engine.FEATURE_NAMES)
     )
 
 
 @app.route("/api/forecast/summary")
 def api_forecast_summary():
-    """Return executive pavement deterioration forecast and Cost of Inaction ROI metrics."""
+    """Return executive pavement deterioration forecast and Cost of Inaction (COI) metrics."""
     data = get_forecast_simulation_cache()
     return jsonify({
         "success": True,
@@ -834,15 +876,21 @@ def api_forecast_summary():
         "season_details": data["season_details"],
         "days_horizon": data["days_horizon"],
         "current_pci": data["current_pci"],
+        "total_raw_observations": data.get("total_raw_observations"),
         "total_defects_evaluated": data["total_defects_evaluated"],
+        "canonical_hazards_count": data.get("canonical_hazards_count"),
+        "duplicates_eliminated": data.get("duplicates_eliminated"),
         "total_cost_today_etb": data["total_cost_today_etb"],
         "total_cost_today_usd": data["total_cost_today_usd"],
         "total_cost_inaction_etb": data["total_cost_inaction_etb"],
         "total_cost_inaction_usd": data["total_cost_inaction_usd"],
+        "total_cost_of_inaction_etb": data.get("total_cost_of_inaction_etb"),
+        "cost_escalation_ratio": data.get("cost_escalation_ratio"),
         "total_savings_etb": data["total_savings_etb"],
         "total_savings_usd": data["total_savings_usd"],
         "roi_savings_multiplier": data["roi_savings_multiplier"],
-        "markov_forecast": data["markov_forecast"]
+        "markov_forecast": data["markov_forecast"],
+        "live_telemetry": data.get("live_telemetry")
     })
 
 
