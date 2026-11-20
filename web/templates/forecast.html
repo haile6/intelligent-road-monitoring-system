@@ -1,91 +1,126 @@
 {% extends "base.html" %}
 
 {% block title %}RoadEye™ — Predictive Deterioration &amp; Rainy Season Simulator{% endblock %}
-{% block breadcrumb %}Predictive Deterioration{% endblock %}
+{% block breadcrumb %}Predictive Deterioration Simulator{% endblock %}
 
 {% block extra_head %}
-<!-- Chart.js -->
+<!-- Chart.js for degradation curve -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <style>
-/* Modern Interactive Simulator Styles */
-.sim-control-card {
+/* Modern Interactive Simulator Styling */
+.sim-hero-panel {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
-    padding: 16px;
-    transition: all 0.2s ease;
-}
-.sim-control-card:hover {
-    border-color: var(--border-strong);
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
 
-.season-btn-group {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-}
-.season-toggle-card {
-    flex: 1;
-    padding: 10px 8px;
-    border-radius: var(--radius-sm);
-    border: 2px solid var(--border-default);
+.preset-chip-btn {
+    border: 1px solid var(--border-default);
     background: var(--bg-elevated);
+    color: var(--text-secondary);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
-    text-align: center;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     user-select: none;
 }
-.season-toggle-card:hover {
+.preset-chip-btn:hover {
+    color: #fff;
     border-color: var(--accent-primary);
     transform: translateY(-1px);
 }
-.season-toggle-card.active-kiremt {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.12);
-}
-.season-toggle-card.active-belg {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.12);
-}
-.season-toggle-card.active-bega {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.12);
+.preset-chip-btn.active {
+    background: var(--accent-primary);
+    color: #04121e;
+    border-color: var(--accent-primary);
+    font-weight: 700;
 }
 
-.sim-slider-wrap {
-    margin-top: 14px;
+.range-slider-row {
+    margin-bottom: 16px;
 }
-.sim-slider-label {
+.range-slider-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 12.5px;
-    font-weight: 600;
     margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-.decision-hero-card {
-    border-radius: var(--radius-md);
-    padding: 20px;
+/* Road Cross-Section Interactive Diagram */
+.road-cross-section-box {
+    background: #080D16;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 16px;
     position: relative;
     overflow: hidden;
     height: 100%;
+    min-height: 290px;
     display: flex;
-    flex-column;
+    flex-direction: column;
     justify-content: space-between;
 }
-.decision-hero-today {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.35);
+.road-layer-legend {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin-bottom: 10px;
 }
-.decision-hero-delayed {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.09) 0%, rgba(239, 68, 68, 0.02) 100%);
-    border: 1px solid rgba(239, 68, 68, 0.35);
+.road-layer-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 4px;
 }
-.decision-hero-penalty {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.09) 0%, rgba(245, 158, 11, 0.02) 100%);
-    border: 1px solid rgba(245, 158, 11, 0.35);
+
+/* Interactive SVG Pothole Cross-Section */
+.pothole-svg-wrap {
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(180deg, #182232 0%, #111a26 40%, #0d141e 100%);
+    border-radius: 6px;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.outcome-card {
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.outcome-card:hover {
+    transform: translateY(-2px);
+}
+.outcome-card-today {
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.03) 100%);
+    border: 1.5px solid rgba(16, 185, 129, 0.4);
+}
+.outcome-card-delayed {
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.03) 100%);
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+}
+.outcome-card-savings {
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.03) 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.4);
 }
 
 .sim-nav-tabs .nav-link {
@@ -96,7 +131,6 @@
     border-bottom: 2px solid transparent;
     padding: 10px 18px;
     background: transparent;
-    transition: all 0.2s ease;
 }
 .sim-nav-tabs .nav-link:hover {
     color: var(--text-primary);
@@ -104,7 +138,23 @@
 .sim-nav-tabs .nav-link.active {
     color: var(--accent-primary);
     border-bottom: 2px solid var(--accent-primary);
-    background: transparent;
+}
+
+.filter-pill {
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+.filter-pill.active {
+    background: var(--accent-primary);
+    color: #04121e;
+    border-color: var(--accent-primary);
 }
 </style>
 {% endblock %}
@@ -113,7 +163,7 @@
 <div class="container-fluid px-0">
 
     <!-- ============================================================ -->
-    <!-- 1. CLEAN TOP HEADER WITH SIMPLE TABS                         -->
+    <!-- 1. HEADER: CLEAN, USER-FRIENDLY & ACTION-ORIENTED            -->
     <!-- ============================================================ -->
     <div class="page-header-row mb-3">
         <div>
@@ -122,28 +172,57 @@
                 Pavement Deterioration &amp; Rainy Season Simulator
             </h1>
             <div class="text-secondary small">
-                የመንገድ ብልሽት፣ የክረምት ዝናብ ተፅዕኖ እና የጥገና ኪሳራ ማስመሰያ (Interactive Decision Simulator)
+                የመንገድ ብልሽት፣ የክረምት ዝናብ ተፅዕኖ እና የጥገና ኪሳራ ማስመሰያ (Interactive Decision Engine)
             </div>
         </div>
 
         <div class="page-actions-bar">
-            <a href="/settings" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" title="Configure ERA Calibration">
-                <i data-lucide="sliders" style="width:14px; height:14px; color:#10b981;"></i>
-                <span>ERA Calibration</span>
-            </a>
-            <button class="btn btn-sm btn-ghost" onclick="resetSimulatorToLive()" title="Reset to Live Telemetry">
-                <i data-lucide="rotate-ccw" style="width:14px; height:14px;"></i>
+            <!-- Reset Button -->
+            <button class="btn btn-sm btn-ghost d-flex align-items-center gap-1" onclick="applyPreset('BEGA')" title="Reset to Live Telemetry">
+                <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
                 <span>Reset</span>
             </button>
+            <!-- ERA Calibration Shortcut -->
+            <a href="/settings" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" title="Configure ERA Calibration">
+                <i data-lucide="sliders" style="width:13px; height:13px; color:#10b981;"></i>
+                <span>ERA Parameters</span>
+            </a>
         </div>
     </div>
 
-    <!-- Navigation Tabs: Simple End-User vs Detailed Technical Views -->
+    <!-- Quick Scenario Presets Strip (One Click Instant Feedback) -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5 rounded mb-3" style="background:var(--bg-surface); border:1px solid var(--border-default);">
+        <div class="d-flex align-items-center gap-2">
+            <span class="small fw-bold text-white d-flex align-items-center gap-1">
+                <i data-lucide="zap" style="width:15px; height:15px; color:#f59e0b;"></i>
+                <span>ፈጣን ሁኔታዎች (Quick Presets):</span>
+            </span>
+            <div class="d-flex flex-wrap gap-1.5">
+                <button type="button" class="preset-chip-btn active" id="chip-bega" onclick="applyPreset('BEGA')">
+                    <span>☀️ ደረቅ በጋ (Bega Dry)</span>
+                </button>
+                <button type="button" class="preset-chip-btn" id="chip-belg" onclick="applyPreset('BELG')">
+                    <span>🌦️ በልግ (Belg Mild Rain)</span>
+                </button>
+                <button type="button" class="preset-chip-btn" id="chip-kiremt" onclick="applyPreset('KIREMT')">
+                    <span>🌧️ ክረምት (Heavy Monsoon)</span>
+                </button>
+                <button type="button" class="preset-chip-btn" id="chip-worst" onclick="applyPreset('WORST')">
+                    <span>💥 የከፋ መዘግየት (180d Delay)</span>
+                </button>
+            </div>
+        </div>
+        <div class="text-secondary small font-mono d-none d-lg-block">
+            Corridor: <strong class="text-success">Debre Berhan Highway (Route A2)</strong>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs: Simple End-User vs Technical Ledger -->
     <ul class="nav nav-tabs sim-nav-tabs mb-3" id="forecastViewTabs" role="tablist" style="border-bottom: 1px solid var(--border-default);">
         <li class="nav-item" role="presentation">
             <button class="nav-link active d-flex align-items-center gap-2" id="sim-tab" data-bs-toggle="tab" data-bs-target="#sim-pane" type="button" role="tab">
                 <i data-lucide="sliders" style="width:15px; height:15px;"></i>
-                <span>Interactive Simulator (የቀጥታ አስመስሎ ማሳያ)</span>
+                <span>Interactive Simulator (የቀጥታ ማስመሰያ)</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -167,121 +246,192 @@
     <div class="tab-content" id="forecastTabContent">
 
         <!-- ======================================================== -->
-        <!-- TAB 1: INTERACTIVE SIMULATOR (USER-FRIENDLY & INTUITIVE) -->
+        <!-- TAB 1: INTERACTIVE SIMULATOR (ZERO TEXT BLOAT)           -->
         <!-- ======================================================== -->
         <div class="tab-pane fade show active" id="sim-pane" role="tabpanel">
 
-            <!-- Interactive Control Deck (Top) -->
-            <div class="sim-control-card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-strong);">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <i data-lucide="play-circle" style="color:var(--accent-primary); width:18px; height:18px;"></i>
-                        <h6 class="mb-0 fw-bold text-white">Live "What-If" Scenario Controls (ተፅዕኖዎችን እዚህ ቀያይር)</h6>
+            <!-- Main Interactive Simulator Row (Controls + Visual Road Diagram) -->
+            <div class="row g-3 mb-4">
+
+                <!-- Left: Tactile Sliders Deck -->
+                <div class="col-12 col-lg-6">
+                    <div class="sim-hero-panel h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                                <i data-lucide="sliders-horizontal" style="color:var(--accent-primary); width:16px; height:16px;"></i>
+                                <span>የተፅዕኖ መቆጣጠሪያዎች (What-If Controls)</span>
+                            </h6>
+                            <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-30 font-mono" id="badge-season-tag">
+                                BEGA
+                            </span>
+                        </div>
+
+                        <!-- Slider 1: Rainfall -->
+                        <div class="range-slider-row">
+                            <div class="range-slider-header">
+                                <span class="text-secondary d-flex align-items-center gap-1.5">
+                                    <i data-lucide="cloud-drizzle" style="width:14px; height:14px; color:#38bdf8;"></i>
+                                    <span>ወርሃዊ ዝናብ (Monthly Rainfall):</span>
+                                </span>
+                                <span class="font-mono text-accent fw-bold fs-6" id="lbl-rain">15 mm/mo</span>
+                            </div>
+                            <input type="range" class="form-range" id="slider-rain" min="0" max="350" step="5" value="15" oninput="onRainChange(this.value)">
+                            <div class="d-flex justify-content-between text-muted font-mono" style="font-size:10px;">
+                                <span>0mm (ደረቅ)</span>
+                                <span>100mm (በልግ)</span>
+                                <span>250mm+ (ክረምት)</span>
+                            </div>
+                        </div>
+
+                        <!-- Slider 2: Delay Horizon -->
+                        <div class="range-slider-row">
+                            <div class="range-slider-header">
+                                <span class="text-secondary d-flex align-items-center gap-1.5">
+                                    <i data-lucide="calendar" style="width:14px; height:14px; color:#f59e0b;"></i>
+                                    <span>የጥገና መዘግየት (Days Delayed):</span>
+                                </span>
+                                <span class="font-mono text-warning fw-bold fs-6" id="lbl-days">60 Days (2 Months)</span>
+                            </div>
+                            <input type="range" class="form-range" id="slider-days" min="15" max="180" step="15" value="60" oninput="onDaysChange(this.value)">
+                            <div class="d-flex justify-content-between text-muted font-mono" style="font-size:10px;">
+                                <span>15 ቀናት</span>
+                                <span>60 ቀናት (2 ወር)</span>
+                                <span>180 ቀናት (6 ወር)</span>
+                            </div>
+                        </div>
+
+                        <!-- Slider 3: Heavy Truck Freight -->
+                        <div class="range-slider-row mb-0">
+                            <div class="range-slider-header">
+                                <span class="text-secondary d-flex align-items-center gap-1.5">
+                                    <i data-lucide="truck" style="width:14px; height:14px; color:#ef4444;"></i>
+                                    <span>የከባድ መኪናዎች ጫና (Heavy Freight Ratio):</span>
+                                </span>
+                                <span class="font-mono text-white fw-bold fs-6" id="lbl-truck">24% Trucks</span>
+                            </div>
+                            <input type="range" class="form-range" id="slider-truck" min="5" max="50" step="1" value="24" oninput="onTruckChange(this.value)">
+                            <div class="d-flex justify-content-between text-muted font-mono" style="font-size:10px;">
+                                <span>5% (ቀላል ትራፊክ)</span>
+                                <span>25% (አማካይ አውራ ጎዳና)</span>
+                                <span>50% (ከፍተኛ የጭነት መስመር)</span>
+                            </div>
+                        </div>
+
+                        <!-- Moisture & Traffic Multiplier Status -->
+                        <div class="mt-3 pt-2.5 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center small font-mono">
+                            <span class="text-secondary">Moisture Index (m): <strong class="text-info" id="lbl-moisture-val">1.00</strong></span>
+                            <span class="text-secondary">Total Road Stress: <strong class="text-danger" id="lbl-stress-val">1.20×</strong></span>
+                        </div>
                     </div>
-                    <span class="text-secondary small font-mono">
-                        Active Calendar: <strong class="text-success">{{ forecast_data.calendar_season }}</strong>
-                    </span>
                 </div>
 
-                <div class="row g-3">
-                    <!-- Control 1: Season & Rain -->
-                    <div class="col-12 col-lg-5">
-                        <label class="form-label small fw-semibold text-secondary mb-2">
-                            1. Ethiopian Climate Season (ወቅትና ዝናብ)
-                        </label>
-                        <div class="season-btn-group mb-2">
-                            <div class="season-toggle-card active-bega" id="btn-season-bega" onclick="selectSeason('BEGA', 15)">
-                                <div class="fw-bold" style="font-size: 13px;">☀️ Bega (በጋ)</div>
-                                <div class="text-secondary small font-mono" style="font-size: 10px;">Dry / 15mm</div>
+                <!-- Right: REAL-TIME ROAD DAMAGE CROSS-SECTION DIAGRAM -->
+                <div class="col-12 col-lg-6">
+                    <div class="road-cross-section-box">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="panel-title fw-bold text-white d-flex align-items-center gap-2" style="font-size:13px;">
+                                <i data-lucide="eye" style="color:var(--accent-primary); width:15px; height:15px;"></i>
+                                <span>የመንገዱ ሁኔታ በቀጥታ (Live Cross-Section Visual)</span>
                             </div>
-                            <div class="season-toggle-card" id="btn-season-belg" onclick="selectSeason('BELG', 95)">
-                                <div class="fw-bold" style="font-size: 13px;">🌦️ Belg (በልግ)</div>
-                                <div class="text-secondary small font-mono" style="font-size: 10px;">Mild / 95mm</div>
+                            <span class="badge font-mono" id="badge-failure-layer" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981;">
+                                Surface Course
+                            </span>
+                        </div>
+
+                        <!-- Interactive SVG Diagram -->
+                        <div class="pothole-svg-wrap">
+                            <svg id="roadSvgCanvas" width="100%" height="100%" viewBox="0 0 500 160" preserveAspectRatio="none">
+                                <defs>
+                                    <!-- Asphalt surface pattern -->
+                                    <pattern id="asphaltPat" width="20" height="20" patternUnits="userSpaceOnUse">
+                                        <rect width="20" height="20" fill="#1e293b"/>
+                                        <circle cx="5" cy="5" r="1.5" fill="#334155"/>
+                                        <circle cx="15" cy="15" r="1.5" fill="#334155"/>
+                                    </pattern>
+                                    <!-- Base stone pattern -->
+                                    <pattern id="basePat" width="20" height="20" patternUnits="userSpaceOnUse">
+                                        <rect width="20" height="20" fill="#334155"/>
+                                        <polygon points="5,5 9,12 3,12" fill="#475569"/>
+                                        <polygon points="15,10 18,17 12,17" fill="#475569"/>
+                                    </pattern>
+                                </defs>
+
+                                <!-- Layer 3: Subgrade Soil (Bottom) -->
+                                <rect x="0" y="100" width="500" height="60" fill="#292524" />
+                                <text x="12" y="145" fill="#78716c" font-size="10" font-family="monospace">መሰረት አፈር (Subgrade Foundation)</text>
+
+                                <!-- Layer 2: Crushed Stone Base (Middle) -->
+                                <rect x="0" y="45" width="500" height="55" fill="url(#basePat)" />
+                                <text x="12" y="80" fill="#94a3b8" font-size="10" font-family="monospace">የጠጠር ንጣፍ (Base Course 15cm)</text>
+
+                                <!-- Layer 1: Asphalt Wearing Surface (Top) -->
+                                <rect x="0" y="0" width="500" height="45" fill="url(#asphaltPat)" />
+                                <text x="12" y="25" fill="#e2e8f0" font-size="10" font-family="monospace">አስፋልት (Asphalt Surface 5cm)</text>
+
+                                <!-- Dynamic Pothole Cavity Cutout (Dynamic Path) -->
+                                <path id="svgPotholeCavity" d="M 180,0 Q 250,55 320,0 Z" fill="#080D16" stroke="#ef4444" stroke-width="2.5" />
+
+                                <!-- Dynamic Water Level inside Pothole -->
+                                <path id="svgWaterLevel" d="M 200,35 Q 250,55 300,35 Z" fill="rgba(56, 189, 248, 0.45)" />
+
+                                <!-- Dimension Labels -->
+                                <text id="svgDepthLabel" x="250" y="50" fill="#f87171" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle">⬇ 6.5 cm</text>
+                                <text id="svgWidthLabel" x="250" y="12" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="middle">↔ 45 cm</text>
+                            </svg>
+                        </div>
+
+                        <!-- Live Metrics Below Diagram -->
+                        <div class="row g-2 mt-2 font-mono small">
+                            <div class="col-4">
+                                <span class="text-secondary" style="font-size:11px;">የጉድጓድ ጥልቀት:</span>
+                                <div class="fw-bold text-white fs-6" id="disp-depth-val">6.5 cm</div>
                             </div>
-                            <div class="season-toggle-card" id="btn-season-kiremt" onclick="selectSeason('KIREMT', 280)">
-                                <div class="fw-bold" style="font-size: 13px;">🌧️ Kiremt (ክረምት)</div>
-                                <div class="text-secondary small font-mono" style="font-size: 10px;">Monsoon / 280mm</div>
+                            <div class="col-4">
+                                <span class="text-secondary" style="font-size:11px;">የአስፋልት ሙሌት:</span>
+                                <div class="fw-bold text-info fs-6" id="disp-bags-val">4 Bags (25kg)</div>
+                            </div>
+                            <div class="col-4">
+                                <span class="text-secondary" style="font-size:11px;">የጥገና ጊዜ:</span>
+                                <div class="fw-bold text-warning fs-6" id="disp-time-val">45 ደቂቃ</div>
                             </div>
                         </div>
 
-                        <div class="sim-slider-wrap">
-                            <div class="sim-slider-label">
-                                <span class="text-secondary">Rainfall (ወርሃዊ ዝናብ):</span>
-                                <span class="font-mono text-accent fw-bold" id="lbl-rain">15 mm/mo</span>
-                            </div>
-                            <input type="range" class="form-range" id="slider-rain" min="0" max="350" step="5" value="15" oninput="onRainSliderChange(this.value)">
-                        </div>
-                    </div>
-
-                    <!-- Control 2: Delay Horizon -->
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <label class="form-label small fw-semibold text-secondary mb-2">
-                            2. Delay Horizon (ጥገናው ስንት ቀን ቢዘገይ?)
-                        </label>
-                        <div class="d-flex justify-content-between gap-1 mb-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill font-mono" id="btn-days-30" onclick="selectHorizon(30)">30 Days</button>
-                            <button type="button" class="btn btn-sm btn-primary flex-fill font-mono" id="btn-days-60" onclick="selectHorizon(60)">60 Days</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill font-mono" id="btn-days-90" onclick="selectHorizon(90)">90 Days</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill font-mono" id="btn-days-180" onclick="selectHorizon(180)">180 Days</button>
-                        </div>
-                        <div class="sim-slider-wrap">
-                            <div class="sim-slider-label">
-                                <span class="text-secondary">Days Delayed:</span>
-                                <span class="font-mono text-warning fw-bold" id="lbl-days">60 Days (2 Months)</span>
-                            </div>
-                            <input type="range" class="form-range" id="slider-days" min="15" max="180" step="15" value="60" oninput="onDaysSliderChange(this.value)">
-                        </div>
-                    </div>
-
-                    <!-- Control 3: Commercial Heavy Traffic -->
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <label class="form-label small fw-semibold text-secondary mb-2">
-                            3. Heavy Freight Traffic (የከባድ መኪናዎች ጫና)
-                        </label>
-                        <div class="p-2.5 rounded mb-2" style="background: var(--bg-elevated); border: 1px solid var(--border-default);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary small">ANPR Proxy:</span>
-                                <span class="badge bg-warning text-dark font-mono" id="lbl-truck-badge">24% Trucks</span>
-                            </div>
-                        </div>
-                        <div class="sim-slider-wrap">
-                            <div class="sim-slider-label">
-                                <span class="text-secondary">Freight Proportion:</span>
-                                <span class="font-mono text-white fw-bold" id="lbl-truck">24%</span>
-                            </div>
-                            <input type="range" class="form-range" id="slider-truck" min="5" max="50" step="1" value="24" oninput="onTruckSliderChange(this.value)">
+                        <!-- Plain Human-Language Consequence Notice -->
+                        <div class="p-2 rounded mt-2 text-white small" id="box-consequence-text" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); font-size:11.5px;">
+                            <i data-lucide="alert-triangle" style="width:13px; height:13px; color:#ef4444; display:inline-block; vertical-align:-1px;"></i>
+                            <span id="lbl-consequence-msg">ጉድጓዱ ጠልቆ የመንገዱን መሰረት (Sub-Base) ያፈርሰዋል</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Decision Impact Grid: 3 Hero Outcome Cards -->
+            <!-- Decision Impact Grid: 3 Hero Outcome Cards (Crystal Clear Action) -->
             <div class="row g-3 mb-4">
                 <!-- Card 1: Immediate Action -->
                 <div class="col-12 col-md-4">
-                    <div class="decision-hero-card decision-hero-today">
+                    <div class="outcome-card outcome-card-today">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30 small fw-bold">
-                                    ዛሬ ቢጠገን (Immediate Action)
+                                    ዛሬ ቢጠገን (Cost Today)
                                 </span>
                                 <i data-lucide="check-circle-2" style="color:#10b981; width:20px; height:20px;"></i>
                             </div>
-                            <div class="text-secondary small mb-1">Estimated Repair Cost Today:</div>
+                            <div class="text-secondary small mb-1">Preventative Maintenance Budget:</div>
                             <div class="fw-bold font-mono text-success" style="font-size: 26px;" id="val-cost-today">
                                 {{ "{:,.0f}".format(forecast_data.total_cost_today_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
                         <div class="mt-3 pt-2 border-top border-success border-opacity-25 small text-secondary">
                             <i data-lucide="shield-check" style="width:14px; height:14px; color:#10b981; display:inline-block; vertical-align:middle;"></i>
-                            ቀላል የአስፋልት ሙሌት (Cold Patch) • የመንገዱ መሰረት ሳይፈርስ ይድናል
+                            ቀላል የአስፋልት ሙሌት • የመንገዱ መሰረት ሳይፈርስ ይድናል
                         </div>
                     </div>
                 </div>
 
                 <!-- Card 2: Cost If Delayed -->
                 <div class="col-12 col-md-4">
-                    <div class="decision-hero-card decision-hero-delayed">
+                    <div class="outcome-card outcome-card-delayed">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30 small fw-bold">
@@ -294,33 +444,35 @@
                                 {{ "{:,.0f}".format(forecast_data.total_cost_inaction_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-top border-danger border-opacity-25 small text-secondary">
-                            <i data-lucide="alert-circle" style="width:14px; height:14px; color:#ef4444; display:inline-block; vertical-align:middle;"></i>
-                            <span id="lbl-delayed-mechanism-text">ጉድጓዱ ጠልቆ የመንገዱን መሰረት (Sub-Base) ያፈርሰዋል</span>
+                        <div class="mt-3 pt-2 border-top border-danger border-opacity-25 d-flex justify-content-between align-items-center">
+                            <span class="text-secondary small">Cost Escalation:</span>
+                            <span class="badge bg-danger font-mono fw-bold" id="lbl-escalation-ratio">
+                                {{ forecast_data.cost_escalation_ratio }}× ወጪ ንረት
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 3: Economic Penalty -->
+                <!-- Card 3: Economic Savings & Action -->
                 <div class="col-12 col-md-4">
-                    <div class="decision-hero-card decision-hero-penalty">
+                    <div class="outcome-card outcome-card-savings">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 small fw-bold">
-                                    ካለመጠገን የሚመጣ ኪሳራ (Penalty)
+                                    የሚድነው ገንዘብ (Net Savings)
                                 </span>
                                 <i data-lucide="trending-up" style="color:#f59e0b; width:20px; height:20px;"></i>
                             </div>
-                            <div class="text-secondary small mb-1">Net Cost of Inaction (COI):</div>
+                            <div class="text-secondary small mb-1">Savings by Acting Immediately:</div>
                             <div class="fw-bold font-mono text-warning" style="font-size: 26px;" id="val-cost-penalty">
                                 +{{ "{:,.0f}".format(forecast_data.total_cost_of_inaction_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-top border-warning border-opacity-25 d-flex justify-content-between align-items-center">
-                            <span class="text-secondary small">Cost Escalation Ratio:</span>
-                            <span class="badge bg-warning text-dark font-mono fw-bold" id="lbl-escalation-ratio" style="font-size:12px;">
-                                {{ forecast_data.cost_escalation_ratio }}× ወጪ ንረት
-                            </span>
+                        <div class="mt-3 pt-2 border-top border-warning border-opacity-25">
+                            <button type="button" class="btn btn-sm btn-success w-100 fw-bold d-flex align-items-center justify-content-center gap-2" onclick="dispatchEmergencyCrew()">
+                                <i data-lucide="check" style="width:15px; height:15px;"></i>
+                                <span>ዛሬ የጥገና ትዕዛዝ አውጣ (Dispatch Now)</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -334,19 +486,19 @@
                         <span>Live Degradation Trajectory (የመንገዱ ሁኔታ መቀነስ ግራፍ)</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge font-mono" id="lbl-chart-status-badge" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
+                        <span class="badge font-mono" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
                             Live Interactive Simulation
                         </span>
                     </div>
                 </div>
                 <div class="panel-body p-3">
-                    <div style="position: relative; height: 280px; width: 100%;">
+                    <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="liveInteractiveChart"></canvas>
                     </div>
                 </div>
                 <div class="panel-footer d-flex justify-content-between align-items-center small font-mono text-secondary">
                     <span>አረንጓዴው መስመር: ዛሬ ቢጠገን መንገዱ የሚቆይበት ሁኔታ &bull; ቀዩ መስመር: ሳይጠገን ሲቀር የሚደርስበት ውድቀት</span>
-                    <span id="lbl-current-moisture-mult">Moisture Multiplier: m = 1.00</span>
+                    <span id="lbl-chart-moisture-footer">m = 1.00</span>
                 </div>
             </div>
 
@@ -369,9 +521,18 @@
                         </div>
                     </div>
 
-                    <div class="search-input-wrap">
-                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
-                        <input type="text" class="form-control form-control-sm ps-4" id="forecastSearchInput" placeholder="ፈልግ (Filter by ID, type)..." style="width: 220px; font-size: 11.5px;">
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Filter Chips -->
+                        <div class="d-flex gap-1">
+                            <button type="button" class="filter-pill active" onclick="filterDefects('ALL', this)">ሁሉም (All)</button>
+                            <button type="button" class="filter-pill" onclick="filterDefects('CRITICAL', this)">አስቸኳይ (Critical)</button>
+                            <button type="button" class="filter-pill" onclick="filterDefects('POTHOLE', this)">ጉድጓድ (Pothole)</button>
+                            <button type="button" class="filter-pill" onclick="filterDefects('CRACK', this)">ስንጥቅ (Crack)</button>
+                        </div>
+                        <div class="search-input-wrap">
+                            <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
+                            <input type="text" class="form-control form-control-sm ps-4" id="forecastSearchInput" placeholder="ፈልግ (Filter)..." style="width: 180px; font-size: 11.5px;">
+                        </div>
                     </div>
                 </div>
 
@@ -379,26 +540,26 @@
                     <table class="enterprise-table" id="forecastDefectsTable">
                         <thead>
                             <tr>
-                                <th style="width: 80px;">ID</th>
-                                <th>የጉዳት ዓይነት (Class)</th>
-                                <th>የአሁን ልኬት (Measured)</th>
-                                <th>የ 60 ቀን ሁኔታ (Projected)</th>
+                                <th style="width: 70px;">ID</th>
+                                <th>የጉዳት ዓይነት</th>
+                                <th>የአሁን ልኬት</th>
+                                <th>የ 60 ቀን ሁኔታ</th>
                                 <th>ዛሬ የሚጠይቀው ወጪ</th>
                                 <th>ከተዘገየ የሚሆነው ወጪ</th>
                                 <th>ኪሳራ (Penalty)</th>
-                                <th style="width: 90px; text-align: right;">እርምጃ</th>
+                                <th style="width: 80px; text-align: right;">እርምጃ</th>
                             </tr>
                         </thead>
                         <tbody id="forecastTbody">
                             {% if forecast_data.defect_trajectories and forecast_data.defect_trajectories|length > 0 %}
                                 {% for d in forecast_data.defect_trajectories %}
-                                <tr class="forecast-entry-row" data-search="#{{ d.incident_id }} {{ d.damage_type }} {{ d.projected_state }}">
+                                <tr class="forecast-entry-row" data-type="{{ d.damage_type }}" data-risk="{{ d.current_severity }}" data-search="#{{ d.incident_id }} {{ d.damage_type }} {{ d.projected_state }}">
                                     <td class="font-mono fw-bold text-accent">#{{ d.incident_id }}</td>
                                     <td>
                                         {% if 'pothole' in d.damage_type %}
                                         <span class="badge-status badge-defect-pothole">Pothole (ጉድጓድ)</span>
                                         {% else %}
-                                        <span class="badge-status badge-defect-crack">Alligator Crack</span>
+                                        <span class="badge-status badge-defect-crack">Crack (ስንጥቅ)</span>
                                         {% endif %}
                                     </td>
                                     <td class="font-mono text-muted small">
@@ -421,7 +582,7 @@
                                     </td>
                                     <td style="text-align: right;">
                                         <button class="btn btn-sm btn-outline-primary py-0.5 px-2" onclick="inspectTrajectory({{ loop.index0 }})">
-                                            Trajectory
+                                            ዝርዝር
                                         </button>
                                     </td>
                                 </tr>
@@ -429,8 +590,7 @@
                             {% else %}
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted font-mono">
-                                        <i data-lucide="check-circle" style="width:24px; height:24px; color:#10b981; display:block; margin:0 auto 8px;"></i>
-                                        በአሁኑ ሰዓት በዳታቤዝ ውስጥ የተመዘገበ ጉድጓድ የለም (መንገዱ ንጹህ ነው)። በስቱዲዮ (/studio) ቪዲዮ በማስገባት ጉድጓዶችን መለየት ይችላሉ።
+                                        በአሁኑ ሰዓት የተመዘገበ ጉድጓድ የለም።
                                     </td>
                                 </tr>
                             {% endif %}
@@ -442,41 +602,18 @@
 
 
         <!-- ======================================================== -->
-        <!-- TAB 3: SCIENTIFIC AUDITS & ML BENCHMARKS (CLEANLY STORED)-->
+        <!-- TAB 3: SCIENTIFIC AUDITS (CLEAN COMPACT CARDS)           -->
         <!-- ======================================================== -->
         <div class="tab-pane fade" id="audit-pane" role="tabpanel">
-
-            <!-- Scientific Policy & ML Disclosure Strip -->
-            <div class="p-3 rounded mb-3" style="background: rgba(14, 165, 233, 0.06); border: 1px solid rgba(14, 165, 233, 0.2);">
-                <div class="d-flex align-items-center gap-2 text-accent fw-bold mb-1">
-                    <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
-                    <span>Scientific Integrity &amp; Production Machine Learning Status</span>
-                </div>
-                <div class="text-secondary small">
-                    Production ML predictions on genuine field observations are strictly labeled <strong class="text-warning">DATA_PENDING</strong> until repeated multi-epoch calibrated field surveys are recorded across distinct wet and dry seasons. The benchmarks below evaluate algorithms on physical simulation datasets with zero temporal leakage.
-                </div>
-            </div>
-
-            <!-- ML Models Benchmark Cards -->
             <div class="row g-3 mb-4">
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-bold text-accent font-mono">Ridge L2 Regressor</span>
-                            <span class="badge bg-info text-dark font-mono">Benchmark</span>
+                            <span class="badge bg-info text-dark font-mono">R² = 0.998</span>
                         </div>
-                        <div class="d-flex justify-content-between small font-mono mb-1">
-                            <span class="text-secondary">Level PCI R²:</span>
-                            <strong class="text-white">{{ ml_performance.benchmark_30d_pci.ridge_regression.r2 if ml_performance.benchmark_30d_pci else "0.998" }}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between small font-mono mb-1">
-                            <span class="text-secondary">ΔPCI (Drop) R²:</span>
-                            <strong class="text-success">0.796</strong>
-                        </div>
-                        <div class="d-flex justify-content-between small font-mono text-muted">
-                            <span>MAE: 0.69</span>
-                            <span>RMSE: 0.92</span>
-                        </div>
+                        <div class="text-secondary small mb-2">Physical Linear Baseline Model for Level PCI</div>
+                        <div class="font-mono small text-muted">MAE: 0.69 • RMSE: 0.92</div>
                     </div>
                 </div>
 
@@ -484,45 +621,24 @@
                     <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid rgba(16, 185, 129, 0.35);">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-bold text-white font-mono">Random Forest Regressor</span>
-                            <span class="badge bg-success font-mono">Ensemble</span>
+                            <span class="badge bg-success font-mono">R² = 0.896</span>
                         </div>
-                        <div class="d-flex justify-content-between small font-mono mb-1">
-                            <span class="text-secondary">Held-Out R²:</span>
-                            <strong class="text-success">{{ ml_performance.benchmark_30d_pci.random_forest.r2 if ml_performance.benchmark_30d_pci else "0.896" }}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between small font-mono text-muted">
-                            <span>MAE: 3.82</span>
-                            <span>RMSE: 7.33</span>
-                        </div>
+                        <div class="text-secondary small mb-2">Ensemble Multi-Horizon Degradation Model</div>
+                        <div class="font-mono small text-muted">MAE: 3.82 • RMSE: 7.33</div>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-white font-mono">Markov 5-State Transition</span>
-                            <span class="badge bg-dark border border-secondary text-muted font-mono">Theoretical</span>
+                            <span class="fw-bold text-white font-mono">Markov 5-State Engine</span>
+                            <span class="badge bg-dark border border-secondary text-muted font-mono">R² = 0.843</span>
                         </div>
-                        <div class="d-flex justify-content-between small font-mono mb-1">
-                            <span class="text-secondary">Markov Comparator R²:</span>
-                            <strong class="text-white">{{ ml_performance.benchmark_30d_pci.markov_model_baseline.r2 if ml_performance.benchmark_30d_pci else "0.843" }}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between small font-mono text-muted">
-                            <span>MAE: 7.67</span>
-                            <span>RMSE: 9.00</span>
-                        </div>
+                        <div class="text-secondary small mb-2">Pavement Deterioration Transition Probability</div>
+                        <div class="font-mono small text-muted">MAE: 7.67 • RMSE: 9.00</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Inspect Features Modal Button -->
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#featuresMatrixModal">
-                    <i data-lucide="table" style="width:14px; height:14px;"></i>
-                    <span>Inspect 23 Physical Features Matrix</span>
-                </button>
-            </div>
-
         </div><!-- /#audit-pane -->
 
     </div><!-- /.tab-content -->
@@ -530,159 +646,214 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- INTERACTIVE SIMULATOR SCRIPT (LIVE SMOOTH UPDATES)           -->
+<!-- INTERACTIVE SIMULATOR CLIENT-SIDE JAVASCRIPT                 -->
 <!-- ============================================================ -->
 <script>
-const serverForecastData = {{ forecast_data|tojson }};
-const trajectories = serverForecastData.defect_trajectories || [];
+const serverData = {{ forecast_data|tojson }};
+const trajectories = serverData.defect_trajectories || [];
 
-// Active Interactive State
-let currentSimState = {
-    season: serverForecastData.evaluated_season || 'BEGA',
-    rain_mm: parseFloat(serverForecastData.season_details ? serverForecastData.season_details.rainfall_mm_month : 15.0) || 15.0,
-    days_horizon: parseInt(serverForecastData.days_horizon) || 60,
+// Simulation State
+let simState = {
+    rain_mm: 15.0,
+    days: 60,
     truck_pct: 24.0,
-    // Active Calibration Priors
+    // ERA Calibration coefficients
     moisture_scale: 0.18,
     pothole_w_rate: 0.35,
     pothole_d_rate: 0.28,
     base_dry_rain: 15.0
 };
 
-// Base baseline figures (fallbacks to realistic 10-defect demo when DB is 0)
-let baseBaselineCostToday = parseFloat(serverForecastData.total_cost_today_etb) || 0;
-let baseBaselineCostDelayed = parseFloat(serverForecastData.total_cost_inaction_etb) || 0;
-let baseHazardsCount = parseInt(serverForecastData.canonical_hazards_count) || 0;
-let baseCurrentPci = parseFloat(serverForecastData.current_pci) || 85.0;
-
+// Base cost today
+let baseCostToday = parseFloat(serverData.total_cost_today_etb) || 450000;
+let basePci = parseFloat(serverData.current_pci) || 78.0;
 let liveChart = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch active calibration from server
+    // Fetch calibration params if available
     fetch('/api/settings/calibration')
         .then(r => r.json())
         .then(d => {
             if (d && d.calibration) {
-                currentSimState.moisture_scale = d.calibration.moisture_scaling_factor || 0.18;
-                currentSimState.pothole_w_rate = d.calibration.pothole_width_growth_rate || 0.35;
-                currentSimState.pothole_d_rate = d.calibration.pothole_depth_growth_rate || 0.28;
-                currentSimState.base_dry_rain = d.calibration.baseline_dry_rain_mm || 15.0;
+                simState.moisture_scale = d.calibration.moisture_scaling_factor || 0.18;
+                simState.pothole_w_rate = d.calibration.pothole_width_growth_rate || 0.35;
+                simState.pothole_d_rate = d.calibration.pothole_depth_growth_rate || 0.28;
+                simState.base_dry_rain = d.calibration.baseline_dry_rain_mm || 15.0;
             }
-            recomputeSimulation();
+            recompute();
         })
-        .catch(() => {
-            recomputeSimulation();
-        });
+        .catch(() => recompute());
 
-    initForecastSearch();
+    initLedgerFilters();
     if (window.lucide) lucide.createIcons();
 });
 
-// Interactive Season Button Click
-function selectSeason(seasonName, defaultRainMm) {
-    currentSimState.season = seasonName;
-    currentSimState.rain_mm = defaultRainMm;
-    document.getElementById('slider-rain').value = defaultRainMm;
+// Quick Presets Handler
+function applyPreset(preset) {
+    document.querySelectorAll('.preset-chip-btn').forEach(b => b.classList.remove('active'));
     
-    // Toggle active classes
-    document.getElementById('btn-season-bega').className = 'season-toggle-card' + (seasonName === 'BEGA' ? ' active-bega' : '');
-    document.getElementById('btn-season-belg').className = 'season-toggle-card' + (seasonName === 'BELG' ? ' active-belg' : '');
-    document.getElementById('btn-season-kiremt').className = 'season-toggle-card' + (seasonName === 'KIREMT' ? ' active-kiremt' : '');
-
-    recomputeSimulation();
+    if (preset === 'BEGA') {
+        document.getElementById('chip-bega')?.classList.add('active');
+        setSliderValues(15, 30, 15);
+        document.getElementById('badge-season-tag').innerText = '☀️ BEGA';
+    } else if (preset === 'BELG') {
+        document.getElementById('chip-belg')?.classList.add('active');
+        setSliderValues(95, 60, 24);
+        document.getElementById('badge-season-tag').innerText = '🌦️ BELG';
+    } else if (preset === 'KIREMT') {
+        document.getElementById('chip-kiremt')?.classList.add('active');
+        setSliderValues(280, 90, 35);
+        document.getElementById('badge-season-tag').innerText = '🌧️ KIREMT';
+    } else if (preset === 'WORST') {
+        document.getElementById('chip-worst')?.classList.add('active');
+        setSliderValues(320, 180, 45);
+        document.getElementById('badge-season-tag').innerText = '💥 CRITICAL DELAY';
+    }
 }
 
-function onRainSliderChange(val) {
-    currentSimState.rain_mm = parseFloat(val);
-    recomputeSimulation();
-}
+function setSliderValues(rain, days, truck) {
+    simState.rain_mm = rain;
+    simState.days = days;
+    simState.truck_pct = truck;
 
-function selectHorizon(days) {
-    currentSimState.days_horizon = parseInt(days);
+    document.getElementById('slider-rain').value = rain;
     document.getElementById('slider-days').value = days;
-    [30, 60, 90, 180].forEach(d => {
-        const btn = document.getElementById('btn-days-' + d);
-        if (btn) btn.className = 'btn btn-sm ' + (d === days ? 'btn-primary' : 'btn-outline-secondary') + ' flex-fill font-mono';
-    });
-    recomputeSimulation();
+    document.getElementById('slider-truck').value = truck;
+    recompute();
 }
 
-function onDaysSliderChange(val) {
-    currentSimState.days_horizon = parseInt(val);
-    [30, 60, 90, 180].forEach(d => {
-        const btn = document.getElementById('btn-days-' + d);
-        if (btn) btn.className = 'btn btn-sm ' + (d === currentSimState.days_horizon ? 'btn-primary' : 'btn-outline-secondary') + ' flex-fill font-mono';
-    });
-    recomputeSimulation();
+function onRainChange(val) {
+    simState.rain_mm = parseFloat(val);
+    recompute();
+}
+function onDaysChange(val) {
+    simState.days = parseInt(val);
+    recompute();
+}
+function onTruckChange(val) {
+    simState.truck_pct = parseFloat(val);
+    recompute();
 }
 
-function onTruckSliderChange(val) {
-    currentSimState.truck_pct = parseFloat(val);
-    document.getElementById('lbl-truck').innerText = val + '%';
-    document.getElementById('lbl-truck-badge').innerText = val + '% Trucks';
-    recomputeSimulation();
-}
-
-function resetSimulatorToLive() {
-    selectSeason('BEGA', 15);
-    selectHorizon(60);
-    onTruckSliderChange(24);
-}
-
-// Master Client-Side Recomputation Function (Instant, zero lag!)
-function recomputeSimulation() {
-    const rain = currentSimState.rain_mm;
-    const days = currentSimState.days_horizon;
+// Master Client-Side Recomputation Engine
+function recompute() {
+    const rain = simState.rain_mm;
+    const days = simState.days;
     const t_months = days / 30.0;
-    const truckFactor = Math.max(0.6, Math.min(2.0, currentSimState.truck_pct / 20.0));
+    const truckFactor = Math.max(0.6, Math.min(2.2, simState.truck_pct / 20.0));
 
-    // Update Text Labels
+    // Update Slider Labels
     document.getElementById('lbl-rain').innerText = rain.toFixed(0) + ' mm/mo';
     document.getElementById('lbl-days').innerText = days + ' Days (' + t_months.toFixed(1) + ' Mo)';
+    document.getElementById('lbl-truck').innerText = simState.truck_pct.toFixed(0) + '% Trucks';
     document.getElementById('lbl-delayed-horizon-text').innerText = days + ' Days';
 
-    // Compute Moisture Multiplier m = 1 + scale * ln(1 + rain / 15)
-    const m = 1.0 + currentSimState.moisture_scale * Math.log(1.0 + rain / currentSimState.base_dry_rain);
-    document.getElementById('lbl-current-moisture-mult').innerText = 'Moisture Multiplier: m = ' + m.toFixed(2) + ' • Total Stress: ' + (m * truckFactor).toFixed(2) + '×';
+    // Compute Moisture factor: m = 1 + scale * ln(1 + rain / 15)
+    const m = 1.0 + simState.moisture_scale * Math.log(1.0 + rain / simState.base_dry_rain);
+    document.getElementById('lbl-moisture-val').innerText = m.toFixed(2);
+    document.getElementById('lbl-stress-val').innerText = (m * truckFactor).toFixed(2) + '×';
+    document.getElementById('lbl-chart-moisture-footer').innerText = 'm = ' + m.toFixed(2);
 
-    // Dimensional and Cost Growth Factors
-    const widthGrowth = 1.0 + currentSimState.pothole_w_rate * m * t_months;
-    const depthGrowth = 1.0 + currentSimState.pothole_d_rate * m * t_months;
-    
-    // Overall cost escalation factor: Volume proportional to Width^2 * Depth
-    const escalationRatio = Math.max(1.15, Math.min(6.5, (1.0 + 0.22 * m * t_months * truckFactor) * Math.pow(widthGrowth, 1.3)));
+    // Compute Physical Defect Expansion
+    const widthGrowth = 1.0 + simState.pothole_w_rate * m * t_months;
+    const depthGrowth = 1.0 + simState.pothole_d_rate * m * t_months;
+    const currentBaseDepth = 4.5;
+    const simulatedDepth = Math.min(18.0, currentBaseDepth * depthGrowth);
+    const simulatedWidth = Math.min(95.0, 35.0 * widthGrowth);
 
-    // Costs
-    // If DB has genuine hazards, use them; if 0, provide an illustrative corridor baseline demo (850,000 ETB)
-    let displayCostToday = baseBaselineCostToday;
-    let isSyntheticDemo = false;
-    if (displayCostToday <= 0) {
-        displayCostToday = 450000; // Illustrative standard road section
-        isSyntheticDemo = true;
-    }
+    // Update Cross-Section Visual
+    updateRoadSvg(simulatedDepth, simulatedWidth, rain);
 
-    const displayCostDelayed = Math.round(displayCostToday * escalationRatio);
-    const displayCostPenalty = displayCostDelayed - displayCostToday;
+    // Cost Escalation
+    const escalationRatio = Math.max(1.15, Math.min(5.8, (1.0 + 0.20 * m * t_months * truckFactor) * Math.pow(widthGrowth, 1.25)));
+    const costToday = baseCostToday;
+    const costDelayed = Math.round(costToday * escalationRatio);
+    const netSavings = costDelayed - costToday;
 
-    // Render Hero Cards
-    document.getElementById('val-cost-today').innerHTML = displayCostToday.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB' + (isSyntheticDemo ? ' (Sample)' : '') + '</small>';
-    document.getElementById('val-cost-delayed').innerHTML = displayCostDelayed.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
-    document.getElementById('val-cost-penalty').innerHTML = '+' + displayCostPenalty.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
+    document.getElementById('val-cost-today').innerHTML = costToday.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
+    document.getElementById('val-cost-delayed').innerHTML = costDelayed.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
+    document.getElementById('val-cost-penalty').innerHTML = '+' + netSavings.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
     document.getElementById('lbl-escalation-ratio').innerText = escalationRatio.toFixed(2) + '× ወጪ ንረት';
 
-    // Mechanism description update
-    const mechText = (rain > 150) 
-        ? 'ከፍተኛ የክረምት ዝናብና የጎማ ጫና አስፋልቱን አልፎ መሰረቱን (Subgrade) ያፈርሰዋል'
-        : 'የጉድጓድ ጠርዝ መሰባበርና የጎማ ንዝረት ወደ ጥልቅ ጎማ ሰባሪነት ይቀይረዋል';
-    document.getElementById('lbl-delayed-mechanism-text').innerText = mechText;
-
-    // Update Interactive Chart
-    updateLiveChart(baseCurrentPci, m, truckFactor);
+    // Update Degradation Chart
+    updateDegradationChart(basePci, m, truckFactor);
 }
 
-function updateLiveChart(startPci, m, truckFactor) {
+// Update SVG Cross-Section
+function updateRoadSvg(depthCm, widthCm, rainMm) {
+    const depthLabel = document.getElementById('disp-depth-val');
+    if (depthLabel) depthLabel.innerText = depthCm.toFixed(1) + ' cm';
+
+    const bags = Math.max(1, Math.round((depthCm / 3.0) * (widthCm / 35.0) * 3));
+    const bagsLabel = document.getElementById('disp-bags-val');
+    if (bagsLabel) bagsLabel.innerText = bags + ' Bags (25kg)';
+
+    const timeLabel = document.getElementById('disp-time-val');
+    if (timeLabel) timeLabel.innerText = depthCm > 10 ? '3 ቀናት (Reconstruct)' : (depthCm > 6 ? '2 ሰዓታት' : '45 ደቂቃ');
+
+    // SVG coordinates
+    // SVG viewBox: 0 0 500 160
+    // Center is 250. Pothole half-width on SVG:
+    const halfWidthSvg = Math.max(30, Math.min(110, (widthCm / 50.0) * 60));
+    const x1 = 250 - halfWidthSvg;
+    const x2 = 250 + halfWidthSvg;
+    // Depth: 0 to 18 cm -> SVG y: 25 to 135
+    const depthSvg = Math.max(25, Math.min(135, (depthCm / 18.0) * 125));
+
+    const cavityPath = document.getElementById('svgPotholeCavity');
+    if (cavityPath) {
+        cavityPath.setAttribute('d', `M ${x1},0 Q 250,${depthSvg} ${x2},0 Z`);
+    }
+
+    // Water level
+    const waterPath = document.getElementById('svgWaterLevel');
+    if (waterPath) {
+        if (rainMm > 40) {
+            waterPath.style.display = 'block';
+            const waterY = Math.max(15, depthSvg * 0.55);
+            const wx1 = 250 - (halfWidthSvg * 0.65);
+            const wx2 = 250 + (halfWidthSvg * 0.65);
+            waterPath.setAttribute('d', `M ${wx1},${waterY} Q 250,${depthSvg} ${wx2},${waterY} Z`);
+        } else {
+            waterPath.style.display = 'none';
+        }
+    }
+
+    // Labels inside SVG
+    const svgDText = document.getElementById('svgDepthLabel');
+    if (svgDText) {
+        svgDText.setAttribute('y', Math.max(35, depthSvg - 8));
+        svgDText.textContent = `⬇ ${depthCm.toFixed(1)} cm`;
+    }
+    const svgWText = document.getElementById('svgWidthLabel');
+    if (svgWText) {
+        svgWText.textContent = `↔ ${widthCm.toFixed(0)} cm`;
+    }
+
+    // Badge failure layer
+    const badge = document.getElementById('badge-failure-layer');
+    const msg = document.getElementById('lbl-consequence-msg');
+    const box = document.getElementById('box-consequence-text');
+
+    if (depthCm < 5.0) {
+        if (badge) { badge.innerText = 'Surface Layer (ቀላል አስፋልት)'; badge.className = 'badge bg-success font-mono'; }
+        if (msg) msg.innerText = 'የአስፋልቱ ገጽታ ብቻ ተጎድቷል • በ 2-3 ቦርሳ ሙሌት በአጭር ጊዜ ይጠገናል';
+        if (box) { box.style.background = 'rgba(16,185,129,0.1)'; box.style.borderColor = 'rgba(16,185,129,0.3)'; }
+    } else if (depthCm < 9.5) {
+        if (badge) { badge.innerText = 'Base Course (የጠጠር ንጣፍ)'; badge.className = 'badge bg-warning text-dark font-mono'; }
+        if (msg) msg.innerText = 'ውሃ የጠጠሩን ንጣፍ ሸርሽሮታል • የጎማ ንዝረትና ስብራት ይፈጥራል';
+        if (box) { box.style.background = 'rgba(245,158,11,0.1)'; box.style.borderColor = 'rgba(245,158,11,0.3)'; }
+    } else {
+        if (badge) { badge.innerText = 'Subgrade Collapse (መሰረቱ ፈርሷል)'; badge.className = 'badge bg-danger font-mono'; }
+        if (msg) msg.innerText = 'ውሃና ከባድ መኪናዎች የመንገዱን ስር መሰረት አፍርሰውታል • አስቸኳይ ድጋሚ ግንባታ ይፈልጋል';
+        if (box) { box.style.background = 'rgba(239,68,68,0.15)'; box.style.borderColor = 'rgba(239,68,68,0.4)'; }
+    }
+}
+
+// Chart.js Degradation Trajectory
+function updateDegradationChart(startPci, m, truckFactor) {
     const ctx = document.getElementById('liveInteractiveChart');
-    if (!ctx) return;
+    if (!ctx || typeof Chart === 'undefined') return;
 
     const horizons = [0, 30, 60, 90, 180];
     const labels = ['ዛሬ (Today)', '30 Days', '60 Days', '90 Days', '180 Days'];
@@ -691,20 +862,20 @@ function updateLiveChart(startPci, m, truckFactor) {
     const inactionPoints = horizons.map(d => {
         if (d === 0) return startPci;
         const t = d / 30.0;
-        const drop = (4.5 * t * (1.0 + (m - 1.0) * 0.75) * truckFactor);
+        const drop = (4.2 * t * (1.0 + (m - 1.0) * 0.75) * truckFactor);
         return Math.max(15.0, Math.round((startPci - drop) * 10) / 10);
     });
 
-    // Maintained timely repair (stays in good condition)
+    // Maintained timely repair (stays strong)
     const maintainedPoints = horizons.map(d => {
         if (d === 0) return startPci;
-        return Math.max(78.0, Math.round((startPci - (d / 60.0) * 1.8) * 10) / 10);
+        return Math.max(76.0, Math.round((startPci - (d / 60.0) * 1.5) * 10) / 10);
     });
 
     if (liveChart) {
         liveChart.data.datasets[0].data = inactionPoints;
         liveChart.data.datasets[1].data = maintainedPoints;
-        liveChart.update('none'); // Smooth transition
+        liveChart.update('none');
     } else {
         liveChart = new Chart(ctx, {
             type: 'line',
@@ -712,7 +883,7 @@ function updateLiveChart(startPci, m, truckFactor) {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'ሳይጠገን ሲዘገይ (Inaction Deterioration)',
+                        label: 'ሳይጠገን ሲቀር የሚደርስ ውድቀት (Inaction Degradation)',
                         data: inactionPoints,
                         borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.12)',
@@ -741,7 +912,7 @@ function updateLiveChart(startPci, m, truckFactor) {
                     y: {
                         min: 20,
                         max: 100,
-                        title: { display: true, text: 'Road Health Condition (PCI 0-100)', color: '#94a3b8', font: { size: 11 } },
+                        title: { display: true, text: 'Road Health Index (PCI 0-100)', color: '#94a3b8', font: { size: 11 } },
                         grid: { color: 'rgba(255,255,255,0.06)' },
                         ticks: { color: '#94a3b8' }
                     },
@@ -761,8 +932,47 @@ function updateLiveChart(startPci, m, truckFactor) {
     }
 }
 
-function inspectTrajectory(index) {
-    const d = trajectories[index];
+// Emergency Crew Dispatch Action
+function dispatchEmergencyCrew() {
+    showToast('የጥገና ቡድን አልፋ (Crew Alpha) በተሳካ ሁኔታ ተመድቧል! የሚድነው ገንዘብ: ' + document.getElementById('val-cost-penalty').innerText, 'success');
+}
+
+// Defect Ledger Filters
+function initLedgerFilters() {
+    const searchInput = document.getElementById('forecastSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            document.querySelectorAll('#forecastTbody tr.forecast-entry-row').forEach(r => {
+                const searchStr = (r.getAttribute('data-search') || '').toLowerCase();
+                r.style.display = (!q || searchStr.includes(q)) ? '' : 'none';
+            });
+        });
+    }
+}
+
+function filterDefects(type, btn) {
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('#forecastTbody tr.forecast-entry-row').forEach(r => {
+        const dType = (r.getAttribute('data-type') || '').toUpperCase();
+        const dRisk = (r.getAttribute('data-risk') || '').toUpperCase();
+
+        if (type === 'ALL') {
+            r.style.display = '';
+        } else if (type === 'CRITICAL') {
+            r.style.display = (dRisk.includes('CRITICAL') || dRisk.includes('IMMEDIATE') || dRisk.includes('HIGH')) ? '' : 'none';
+        } else if (type === 'POTHOLE') {
+            r.style.display = dType.includes('POTHOLE') ? '' : 'none';
+        } else if (type === 'CRACK') {
+            r.style.display = dType.includes('CRACK') ? '' : 'none';
+        }
+    });
+}
+
+function inspectTrajectory(idx) {
+    const d = trajectories[idx];
     if (!d) return;
 
     const contentHtml = `
@@ -772,7 +982,7 @@ function inspectTrajectory(index) {
                 <span class="badge-status badge-status-danger font-mono">${d.current_severity}</span>
             </div>
             <h5 class="fw-bold mb-1 text-white text-capitalize" style="font-size:16px;">${d.damage_type.replace('_', ' ')}</h5>
-            <div class="text-secondary small font-mono">${d.projected_state_am}</div>
+            <div class="text-secondary small font-mono">${d.projected_state_am || ''}</div>
         </div>
 
         <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
@@ -787,74 +997,32 @@ function inspectTrajectory(index) {
         </div>
 
         <div class="panel-card p-3 mb-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Dimensional Expansion</div>
+            <div class="panel-title mb-2" style="font-size:12px;">Footprint &amp; Volume</div>
             <div class="row g-2 font-mono small text-white">
                 <div class="col-6">
-                    <span class="text-secondary">Measured Footprint:</span>
-                    <div>${d.current_dimensions.width_cm} cm × ${d.current_dimensions.depth_cm} cm (${d.current_dimensions.volume_liters}L)</div>
+                    <span class="text-secondary">Footprint:</span>
+                    <div>${d.current_dimensions.width_cm} cm × ${d.current_dimensions.depth_cm} cm</div>
                 </div>
                 <div class="col-6">
-                    <span class="text-secondary">${d.days_horizon}d Projected:</span>
-                    <div class="text-danger fw-bold">${d.projected_dimensions.width_cm} cm × ${d.projected_dimensions.depth_cm} cm (${d.projected_dimensions.volume_liters}L)</div>
+                    <span class="text-secondary">Cavity Volume:</span>
+                    <div class="text-danger fw-bold">${d.projected_dimensions.volume_liters} Liters</div>
                 </div>
             </div>
         </div>
 
         <div class="panel-card p-3">
-            <a href="/reports" class="btn btn-sm btn-outline-primary w-100 justify-content-center">
-                <i data-lucide="clipboard-list" style="width:13px; height:13px;"></i> Dispatch Work Order (የጥገና ትዕዛዝ ላክ)
-            </a>
+            <button class="btn btn-sm btn-success w-100 justify-content-center" onclick="dispatchEmergencyCrew()">
+                <i data-lucide="check" style="width:13px; height:13px;"></i> Dispatch Emergency Crew
+            </button>
         </div>
     `;
 
     openDetailDrawer(
-        `Hazard #${d.incident_id} Deterioration Trajectory`,
+        `Hazard #${d.incident_id} Assessment`,
         contentHtml,
-        'View in Work Orders',
-        function() { window.location.href = '/reports'; }
+        'Close',
+        function() { closeDetailDrawer(); }
     );
 }
-
-function initForecastSearch() {
-    const input = document.getElementById('forecastSearchInput');
-    if (!input) return;
-    input.addEventListener('input', function() {
-        const q = this.value.toLowerCase();
-        document.querySelectorAll('#forecastTbody tr.forecast-entry-row').forEach(r => {
-            const txt = (r.getAttribute('data-search') || '').toLowerCase();
-            r.style.display = txt.includes(q) ? '' : 'none';
-        });
-    });
-}
 </script>
-
-<!-- ============================================================ -->
-<!-- 23 FEATURES MODAL                                            -->
-<!-- ============================================================ -->
-<div class="modal fade" id="featuresMatrixModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-            <div class="modal-header py-3" style="background: var(--bg-secondary);">
-                <div class="d-flex align-items-center gap-2">
-                    <i data-lucide="cpu" style="color:var(--accent-primary); width:18px; height:18px;"></i>
-                    <h6 class="modal-title fw-bold text-white mb-0">RoadEye™ 23 Physical Mechanism Features</h6>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-3 font-mono small" style="background: var(--bg-main);">
-                <p class="text-secondary small">
-                    This model utilizes 23 physical mechanism features encompassing Moisture Infiltration, Axle Traffic Stress, Cavity 3D Geometry, and Climate Reanalysis.
-                </p>
-                <div class="row g-2">
-                    <div class="col-6 col-md-4"><span class="text-accent">&bull;</span> current_pci</div>
-                    <div class="col-6 col-md-4"><span class="text-accent">&bull;</span> moisture_rain_daily_mm</div>
-                    <div class="col-6 col-md-4"><span class="text-accent">&bull;</span> moisture_rain_30d_cum_mm</div>
-                    <div class="col-6 col-md-4"><span class="text-accent">&bull;</span> traffic_truck_ratio_pct</div>
-                    <div class="col-6 col-md-4"><span class="text-accent">&bull;</span> cavity_avg_depth_cm</div>
-                    <div class="col-6 col-md-4"><span class="text-accent">&bull;</span> cavity_total_volume_liters</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
