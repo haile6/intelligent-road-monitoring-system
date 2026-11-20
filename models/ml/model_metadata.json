@@ -1,8 +1,8 @@
 {
-  "trained_at": "2026-11-19T09:11:40.790589",
+  "trained_at": "2026-11-19T09:15:46.666636",
   "best_model_name": "Ridge Regression",
   "metrics": {
-    "trained_at": "2026-11-19T09:11:40.790589",
+    "trained_at": "2026-11-19T09:15:46.666636",
     "total_samples": 357,
     "training_samples": 249,
     "validation_samples": 53,
