@@ -193,8 +193,15 @@ def sync_from_csv_if_empty():
     count = cursor.fetchone()[0]
     conn.close()
 
-    if count == 0 and os.path.exists(PHASE9_CSV):
-        import_incidents_from_csv(PHASE9_CSV)
+    if count == 0:
+        if os.path.exists(PHASE9_CSV):
+            import_incidents_from_csv(PHASE9_CSV)
+        else:
+            try:
+                from database.seed_demo_corridor import seed_all_demo_data
+                seed_all_demo_data(force=False)
+            except Exception as e:
+                print(f"Notice: Demo corridor seeding fallback: {e}")
     
     # Check plate readings
     conn = get_db_connection()
