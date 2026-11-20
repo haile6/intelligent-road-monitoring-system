@@ -29,6 +29,7 @@ import os
 from typing import Dict, List, Tuple, Any, Optional
 from risk.maintenance_cost_estimator import MaintenanceCostEstimator, MaintenanceUnitRatesERA
 from risk.fleet_crowdsourcing import SpatialDeDuplicationEngine
+from database import db_manager
 
 # ==============================================================================
 # 1. ETHIOPIAN CLIMATE SEASONS & DISTRESS STATES (COMPARATIVE SIMULATION BENCHMARKS)
@@ -117,8 +118,12 @@ class MarkovPavementDeteriorationEngine:
         season_key = (season or "KIREMT").upper()
         climate = CLIMATE_SEASONS.get(season_key, CLIMATE_SEASONS["KIREMT"])
         rain_mm = float(climate.get("rainfall_mm_month") or 15.0)
+        # Dynamic ERA calibration parameters
+        calib = db_manager.get_calibration_params() if hasattr(db_manager, "get_calibration_params") else {}
+        moisture_scale = float(calib.get("moisture_scaling_factor", 0.18))
+        base_dry_rain = float(calib.get("baseline_dry_rain_mm", 15.0))
         # Relative moisture saturation index derived from monthly precipitation
-        rain_mult = 1.0 + 0.18 * math.log(1.0 + rain_mm / 15.0)
+        rain_mult = 1.0 + moisture_scale * math.log(1.0 + rain_mm / base_dry_rain)
 
         # Truck factor: baseline 20% heavy freight; higher loading increases shear failure
         truck_factor = max(0.6, min(2.0, float(heavy_truck_pct) / 20.0))
@@ -287,7 +292,17 @@ class CostOfInactionForecaster:
         risk = str(incident.get("max_risk_level") or "CAUTION").upper()
         climate = CLIMATE_SEASONS.get(season.upper(), CLIMATE_SEASONS["KIREMT"])
         rain_mm = float(climate.get("rainfall_mm_month") or 15.0)
-        m = 1.0 + 0.18 * math.log(1.0 + rain_mm / 15.0)
+
+        # Dynamic ERA calibration parameters
+        calib = db_manager.get_calibration_params() if hasattr(db_manager, "get_calibration_params") else {}
+        moisture_scale = float(calib.get("moisture_scaling_factor", 0.18))
+        base_dry_rain = float(calib.get("baseline_dry_rain_mm", 15.0))
+        pothole_w_rate = float(calib.get("pothole_width_growth_rate", 0.35))
+        pothole_d_rate = float(calib.get("pothole_depth_growth_rate", 0.28))
+        crack_w_rate = float(calib.get("crack_width_growth_rate", 0.45))
+        crack_d_rate = float(calib.get("crack_depth_growth_rate", 0.40))
+
+        m = 1.0 + moisture_scale * math.log(1.0 + rain_mm / base_dry_rain)
 
         is_pothole = "pothole" in dtype
 
@@ -329,9 +344,9 @@ class CostOfInactionForecaster:
 
         if is_pothole:
             # Potholes expand in area and deepen through traffic churning under moisture
-            growth_mult = (1.0 + 0.35 * m * t_months)
+            growth_mult = (1.0 + pothole_w_rate * m * t_months)
             future_width_cm = round(min(180.0, current_width_cm * growth_mult), 1)
-            future_depth_cm = round(min(18.0, current_depth_cm * (1.0 + 0.28 * m * t_months)), 1)
+            future_depth_cm = round(min(18.0, current_depth_cm * (1.0 + pothole_d_rate * m * t_months)), 1)
             future_vol_liters = round(current_vol_liters * (growth_mult ** 1.8), 2)
 
             if future_depth_cm >= 8.0 or future_width_cm >= 100.0:
@@ -345,9 +360,9 @@ class CostOfInactionForecaster:
                 future_state_am = "መካከለኛ ጉድጓድ"
         else:
             # Cracks branch out into alligator cracking and spall into potholes
-            crack_growth_mult = (1.0 + 0.45 * m * t_months)
+            crack_growth_mult = (1.0 + crack_w_rate * m * t_months)
             future_width_cm = round(min(120.0, current_width_cm * crack_growth_mult), 1)
-            future_depth_cm = round(min(7.0, current_depth_cm * (1.0 + 0.40 * m * t_months)), 1)
+            future_depth_cm = round(min(7.0, current_depth_cm * (1.0 + crack_d_rate * m * t_months)), 1)
             future_vol_liters = round(current_vol_liters * (crack_growth_mult ** 2.1), 2)
 
             if future_depth_cm >= 4.0:

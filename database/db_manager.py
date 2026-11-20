@@ -1120,3 +1120,58 @@ def update_material_rates(new_rates: dict) -> dict:
     return current
 
 
+# ==============================================================================
+# ERA PAVEMENT DETERIORATION & CLIMATE CALIBRATION
+# ==============================================================================
+
+DEFAULT_CALIBRATION_PARAMS = {
+    "pothole_width_growth_rate": 0.35,
+    "pothole_depth_growth_rate": 0.28,
+    "crack_width_growth_rate": 0.45,
+    "crack_depth_growth_rate": 0.40,
+    "moisture_scaling_factor": 0.18,
+    "baseline_dry_rain_mm": 15.0,
+}
+
+
+def get_calibration_params() -> dict:
+    """Retrieve ERA pavement deterioration and climate calibration parameters."""
+    try:
+        import config
+        defaults = {
+            "pothole_width_growth_rate": getattr(config, "POTHOLE_WIDTH_GROWTH_RATE", 0.35),
+            "pothole_depth_growth_rate": getattr(config, "POTHOLE_DEPTH_GROWTH_RATE", 0.28),
+            "crack_width_growth_rate": getattr(config, "CRACK_WIDTH_GROWTH_RATE", 0.45),
+            "crack_depth_growth_rate": getattr(config, "CRACK_DEPTH_GROWTH_RATE", 0.40),
+            "moisture_scaling_factor": getattr(config, "MOISTURE_SCALING_FACTOR", 0.18),
+            "baseline_dry_rain_mm": getattr(config, "BASELINE_DRY_RAIN_MM", 15.0),
+        }
+    except Exception:
+        defaults = dict(DEFAULT_CALIBRATION_PARAMS)
+
+    params = dict(defaults)
+    for k in defaults:
+        stored = get_setting(k)
+        if stored is not None:
+            try:
+                params[k] = float(stored)
+            except (ValueError, TypeError):
+                pass
+    return params
+
+
+def update_calibration_params(new_params: dict) -> dict:
+    """Update ERA pavement deterioration calibration parameters."""
+    current = get_calibration_params()
+    for k, v in new_params.items():
+        if k in DEFAULT_CALIBRATION_PARAMS:
+            try:
+                val = float(v)
+                set_setting(k, val, f"ERA calibration parameter for {k}")
+                current[k] = val
+            except (ValueError, TypeError):
+                pass
+    return current
+
+
+

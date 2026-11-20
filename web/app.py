@@ -1279,10 +1279,12 @@ def audit_view():
 def settings_view():
     """Enterprise Platform Settings."""
     rates = db_manager.get_material_rates()
+    calibration = db_manager.get_calibration_params() if hasattr(db_manager, "get_calibration_params") else {}
     return render_template(
         "settings.html",
         active_page="settings",
-        material_rates=rates
+        material_rates=rates,
+        calibration=calibration
     )
 
 
@@ -1295,6 +1297,17 @@ def api_material_rates():
         return jsonify({"success": True, "rates": updated, "message": "Municipal material procurement rates updated successfully."})
     rates = db_manager.get_material_rates()
     return jsonify({"success": True, "rates": rates})
+
+
+@app.route("/api/settings/calibration", methods=["GET", "POST"])
+def api_calibration_params():
+    """Retrieve or update ERA pavement deterioration calibration parameters."""
+    if request.method == "POST":
+        payload = request.get_json() or {}
+        updated = db_manager.update_calibration_params(payload)
+        return jsonify({"success": True, "calibration": updated, "message": "ERA Pavement Deterioration Calibration updated successfully."})
+    calibration = db_manager.get_calibration_params()
+    return jsonify({"success": True, "calibration": calibration})
 
 
 def get_system_health_status():

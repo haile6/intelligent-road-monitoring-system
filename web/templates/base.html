@@ -141,6 +141,13 @@
             <!-- Group 4: SYSTEM MANAGEMENT -->
             <div class="sidebar-section-title mt-2">System Management</div>
             <nav class="d-flex flex-column gap-1">
+                <a href="{{ url_for('settings_view') }}"
+                   class="nav-link {% if active_page == 'settings' %}active{% endif %}"
+                   title="Platform Settings &amp; ERA Calibration">
+                    <i data-lucide="settings"></i>
+                    <span class="nav-item-label">Platform Settings</span>
+                    <span class="nav-item-badge nav-badge-live" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">ERA</span>
+                </a>
                 <a href="{{ url_for('health_view') }}"
                    class="nav-link {% if active_page == 'health' %}active{% endif %}"
                    title="Health &amp; APIs">
@@ -266,6 +273,11 @@
                     <i data-lucide="sun" class="theme-icon-light" style="width:15px; height:15px;"></i>
                     <i data-lucide="moon" class="theme-icon-dark" style="width:15px; height:15px;"></i>
                 </button>
+
+                <!-- Direct Settings Navigation Button -->
+                <a href="{{ url_for('settings_view') }}" class="btn btn-sm btn-ghost p-1.5 d-flex align-items-center" title="Platform Settings &amp; ERA Calibration" style="color: var(--text-secondary); border-radius: 6px;">
+                    <i data-lucide="settings" style="width:16px; height:16px;"></i>
+                </a>
 
                 <!-- Video Ingest Upload Modal Trigger -->
                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadVideoModal" title="Ingest Survey Footage">

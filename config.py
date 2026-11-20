@@ -225,3 +225,17 @@ DAMAGE_CSV_PHASE9 = os.path.join(
 # PHASE 9: DAMAGE LOCATION SETTINGS
 # ============================================================
 PROJECT_DAMAGE_LOCATION = True
+
+# ============================================================
+# PHASE 10: ERA PAVEMENT DETERIORATION & CLIMATE CALIBRATION
+# ============================================================
+# Authority Calibration Parameters (Default Engineering Priors)
+# Pavement engineers / ERA can adjust these when empirical local surveys are conducted.
+# Telemetry (W0, D0, V0 from camera, rain mm from weather API, truck % from ANPR) is automated.
+POTHOLE_WIDTH_GROWTH_RATE = 0.35      # Monthly pothole width/diameter expansion rate (35%/mo)
+POTHOLE_DEPTH_GROWTH_RATE = 0.28      # Monthly pothole depth expansion rate (28%/mo)
+CRACK_WIDTH_GROWTH_RATE = 0.45        # Monthly crack width/alligator expansion rate (45%/mo)
+CRACK_DEPTH_GROWTH_RATE = 0.40        # Monthly crack depth progression rate (40%/mo)
+MOISTURE_SCALING_FACTOR = 0.18        # Logarithmic moisture saturation dampening coefficient
+BASELINE_DRY_RAIN_MM = 15.0           # Baseline dry month rainfall benchmark (mm/mo)
+
