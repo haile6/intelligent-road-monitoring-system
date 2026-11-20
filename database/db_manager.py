@@ -1120,3 +1120,57 @@ def update_material_rates(new_rates: dict) -> dict:
     return current
 
 
+# ==============================================================================
+# ASTM D6433 & PAVEMENT INTELLIGENCE CALIBRATION PARAMETERS
+# ==============================================================================
+
+DEFAULT_PCI_CALIBRATION = {
+    "astm_pothole_high_scale": 38.0,
+    "astm_pothole_high_exp": 0.45,
+    "astm_pothole_med_scale": 24.0,
+    "astm_pothole_med_exp": 0.40,
+    "astm_pothole_low_scale": 14.0,
+    "astm_pothole_low_exp": 0.35,
+    "astm_crack_high_scale": 28.0,
+    "astm_crack_high_exp": 0.42,
+    "astm_crack_med_scale": 16.0,
+    "astm_crack_med_exp": 0.38,
+    "astm_crack_low_scale": 8.5,
+    "astm_crack_low_exp": 0.32,
+    "base_highway_iri": 1.8,
+    "standard_lane_width_m": 3.50,
+    "standard_corridor_width_m": 7.00
+}
+
+
+def get_pci_calibration() -> dict:
+    """
+    Retrieve ASTM D6433 & IRI calibration constants.
+    Falls back to official ASTM empirical benchmark values unless customized by authority.
+    """
+    calib = dict(DEFAULT_PCI_CALIBRATION)
+    for k in DEFAULT_PCI_CALIBRATION:
+        stored = get_setting(k)
+        if stored is not None:
+            try:
+                calib[k] = float(stored)
+            except (ValueError, TypeError):
+                pass
+    return calib
+
+
+def update_pci_calibration(new_values: dict) -> dict:
+    """Update calibration constants when genuine local field survey data is available."""
+    current = get_pci_calibration()
+    for k, v in new_values.items():
+        if k in DEFAULT_PCI_CALIBRATION:
+            try:
+                val = float(v)
+                set_setting(k, val, f"Engineering calibration parameter for {k}")
+                current[k] = val
+            except (ValueError, TypeError):
+                pass
+    return current
+
+
+

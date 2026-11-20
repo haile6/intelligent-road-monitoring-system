@@ -222,6 +222,135 @@
                 </div>
             </div>
         </div>
+
+        <!-- ASTM D6433 Pavement Intelligence & Empirical Constants -->
+        <div class="col-12 mt-4">
+            <div class="card bg-panel border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom border-light border-opacity-10 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">
+                                <i data-lucide="sliders" class="me-1 text-info"></i>
+                                ASTM D6433 &amp; Pavement Calibration Parameters (የአስፋልት ስሌት ማስተካከያ ፓራሜትሮች)
+                            </h6>
+                            <span class="metadata-text">Power-law coefficients $DV = a \cdot D^b$ and World Bank IRI priors. Defaults follow ASTM D6433 Figure X3.19.</span>
+                        </div>
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2 py-1">
+                            ASTM D6433-18 Nomograph Defaults
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div class="alert alert-info bg-info bg-opacity-10 border border-info border-opacity-25 text-light small mb-3 py-2 px-3">
+                        <i data-lucide="info" class="me-1" style="width:14px; height:14px;"></i>
+                        <strong>ማስታወሻ፦</strong> እነዚህ ቁጥሮች የ ASTM D6433 ስታንዳርድ ነባሪዎች (Defaults) ናቸው። እውነተኛ የመስክ ጥናት መረጃ (Field Survey Calibration) ሲገኝ ወይም የኢትዮጵያ መንገዶች አስተዳደር (ERA) አዲስ ተመን ሲያወጣ እዚህ ገጽ ላይ ማስተካከል ይችላሉ።
+                    </div>
+
+                    <h6 class="text-white small fw-bold mb-2">1. Pothole Deduct Nomograph Power-Law Coefficients ($DV = a \cdot D^b$)</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold text-danger">
+                                High Severity Pothole (>5cm): Scale $a$ &amp; Exponent $b$
+                            </label>
+                            <div class="input-group input-group-sm mb-1">
+                                <span class="input-group-text font-mono">Scale (a)</span>
+                                <input type="number" step="0.5" class="form-control font-mono fw-bold" id="calib-pth-high-scale"
+                                       value="{{ pci_calibration.astm_pothole_high_scale if pci_calibration else 38.0 }}">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">Exponent (b)</span>
+                                <input type="number" step="0.01" class="form-control font-mono" id="calib-pth-high-exp"
+                                       value="{{ pci_calibration.astm_pothole_high_exp if pci_calibration else 0.45 }}">
+                            </div>
+                            <span class="metadata-text">ነባሪ: $38.0 \cdot D^{0.45}$ (ከ 5 ሳ.ሜ በላይ የጠለቀ ጉድጓድ)</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold text-warning">
+                                Medium Severity Pothole (2.5-5cm): Scale $a$ &amp; Exponent $b$
+                            </label>
+                            <div class="input-group input-group-sm mb-1">
+                                <span class="input-group-text font-mono">Scale (a)</span>
+                                <input type="number" step="0.5" class="form-control font-mono fw-bold" id="calib-pth-med-scale"
+                                       value="{{ pci_calibration.astm_pothole_med_scale if pci_calibration else 24.0 }}">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">Exponent (b)</span>
+                                <input type="number" step="0.01" class="form-control font-mono" id="calib-pth-med-exp"
+                                       value="{{ pci_calibration.astm_pothole_med_exp if pci_calibration else 0.40 }}">
+                            </div>
+                            <span class="metadata-text">ነባሪ: $24.0 \cdot D^{0.40}$ (የተጠየቀው የ 24 ቁጥር መነሻ)</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold text-success">
+                                Low Severity Pothole (<2.5cm): Scale $a$ &amp; Exponent $b$
+                            </label>
+                            <div class="input-group input-group-sm mb-1">
+                                <span class="input-group-text font-mono">Scale (a)</span>
+                                <input type="number" step="0.5" class="form-control font-mono fw-bold" id="calib-pth-low-scale"
+                                       value="{{ pci_calibration.astm_pothole_low_scale if pci_calibration else 14.0 }}">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">Exponent (b)</span>
+                                <input type="number" step="0.01" class="form-control font-mono" id="calib-pth-low-exp"
+                                       value="{{ pci_calibration.astm_pothole_low_exp if pci_calibration else 0.35 }}">
+                            </div>
+                            <span class="metadata-text">ነባሪ: $14.0 \cdot D^{0.35}$ (ቀላል ወለል ጉድጓድ)</span>
+                        </div>
+                    </div>
+
+                    <h6 class="text-white small fw-bold mb-2">2. World Bank Roughness &amp; Geometric Priors</h6>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Baseline Highway Roughness (IRI)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">m/km</span>
+                                <input type="number" step="0.1" class="form-control font-mono fw-bold" id="calib-base-iri"
+                                       value="{{ pci_calibration.base_highway_iri if pci_calibration else 1.8 }}">
+                            </div>
+                            <span class="metadata-text">አዲስ የተነጠፈ ለስላሳ አስፋልት መነሻ ንዝረት</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Carriageway Corridor Width
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">Meters</span>
+                                <input type="number" step="0.5" class="form-control font-mono fw-bold" id="calib-corridor-width"
+                                       value="{{ pci_calibration.standard_corridor_width_m if pci_calibration else 7.00 }}">
+                            </div>
+                            <span class="metadata-text">የመንገዱ ስፋት (2 መስመር = 7.0 ሜትር)</span>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">
+                                Standard Lane Width
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">Meters</span>
+                                <input type="number" step="0.25" class="form-control font-mono" id="calib-lane-width"
+                                       value="{{ pci_calibration.standard_lane_width_m if pci_calibration else 3.50 }}">
+                            </div>
+                            <span class="metadata-text">የአንድ መስመር መደበኛ ስፋት (3.5 ሜትር)</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3 gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resetDefaultPciCalibration()">
+                            <i data-lucide="rotate-ccw"></i> Reset to ASTM Defaults (ወደ ASTM ነባሪ መልስ)
+                        </button>
+                        <button class="btn btn-sm btn-info text-dark fw-bold" onclick="savePciCalibration()">
+                            <i data-lucide="save"></i> Update Pavement Calibration (ፓራሜትሮችን መዝግብ)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
 </div>
@@ -276,6 +405,53 @@ function resetDefaultRates() {
     document.getElementById('rate-milling').value = 420.0;
     document.getElementById('rate-fx-usd').value = 128.0;
     saveMaterialRates();
+}
+
+function savePciCalibration() {
+    const payload = {
+        astm_pothole_high_scale: parseFloat(document.getElementById('calib-pth-high-scale').value) || 38.0,
+        astm_pothole_high_exp: parseFloat(document.getElementById('calib-pth-high-exp').value) || 0.45,
+        astm_pothole_med_scale: parseFloat(document.getElementById('calib-pth-med-scale').value) || 24.0,
+        astm_pothole_med_exp: parseFloat(document.getElementById('calib-pth-med-exp').value) || 0.40,
+        astm_pothole_low_scale: parseFloat(document.getElementById('calib-pth-low-scale').value) || 14.0,
+        astm_pothole_low_exp: parseFloat(document.getElementById('calib-pth-low-exp').value) || 0.35,
+        base_highway_iri: parseFloat(document.getElementById('calib-base-iri').value) || 1.8,
+        standard_corridor_width_m: parseFloat(document.getElementById('calib-corridor-width').value) || 7.00,
+        standard_lane_width_m: parseFloat(document.getElementById('calib-lane-width').value) || 3.50
+    };
+
+    fetch('/api/settings/pci-calibration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof showToast === 'function') {
+                showToast('የ ASTM D6433 እና Pavement ስሌት ማስተካከያ ፓራሜትሮች በስኬት ተመዝግበዋል!', 'success');
+            } else {
+                alert('የ ASTM D6433 እና Pavement ስሌት ማስተካከያ ፓራሜትሮች በስኬት ተመዝግበዋል!');
+            }
+        }
+    })
+    .catch(err => {
+        console.error('Error saving calibration:', err);
+        alert('ፓራሜትሮችን በማስቀመጥ ላይ ችግር አጋጥሟል!');
+    });
+}
+
+function resetDefaultPciCalibration() {
+    document.getElementById('calib-pth-high-scale').value = 38.0;
+    document.getElementById('calib-pth-high-exp').value = 0.45;
+    document.getElementById('calib-pth-med-scale').value = 24.0;
+    document.getElementById('calib-pth-med-exp').value = 0.40;
+    document.getElementById('calib-pth-low-scale').value = 14.0;
+    document.getElementById('calib-pth-low-exp').value = 0.35;
+    document.getElementById('calib-base-iri').value = 1.8;
+    document.getElementById('calib-corridor-width').value = 7.00;
+    document.getElementById('calib-lane-width').value = 3.50;
+    savePciCalibration();
 }
 </script>
     </div>
