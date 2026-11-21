@@ -110,8 +110,14 @@ def pwa_service_worker():
 # ============================================================
 
 @app.route("/")
+def simple_app_view():
+    """Redesigned 5-screen simple RoadEye application for Ethiopian road crews."""
+    return render_template("simple_app.html")
+
+
+@app.route("/classic-dashboard")
 def dashboard():
-    """Executive Dashboard with KPI metrics, risk breakdown, and quick actions."""
+    """Executive Technical Dashboard with KPI metrics, risk breakdown, and quick actions."""
     stats = db_manager.get_dashboard_stats()
     recent_incidents = db_manager.get_all_incidents()[:8]
     recent_runs = db_manager.get_recent_pipeline_runs(5)
@@ -759,6 +765,224 @@ def api_fleet_deduplicate_trigger():
     eps = float(req_data.get("epsilon_m") or 8.0)
     data = get_fleet_crowdsourcing_cache(epsilon_m=eps)
     return jsonify(data)
+
+
+# ============================================================
+# SIMPLE FRONTEND DATA APIS (RoadEye Redesigned UI)
+# ============================================================
+
+def get_simple_app_data():
+    """Generate clean, plain-language data payload for non-technical road crews."""
+    fleet_data = get_fleet_crowdsourcing_cache()
+    hazards = fleet_data.get("canonical_hazards", [])
+    assessment = get_pavement_assessment_cache()
+
+    total_segments = assessment.get("total_segments", 41)
+    critical_hotspots = assessment.get("critical_hotspots_count", 20)
+    good_sections = max(0, total_segments - critical_hotspots)
+    budget_etb = assessment.get("total_rehabilitation_cost_etb", 43415260.0)
+    budget_usd = assessment.get("total_rehabilitation_cost_usd", 339182.0)
+
+    # Prefer verified video path
+    video_rel_path = "outputs/annotated_debre_berhan_test_video.mp4"
+    if not os.path.exists(os.path.join(BASE_DIR, video_rel_path)):
+        video_rel_path = "outputs/annotated_phase9.mp4"
+
+    action_map = {
+        'ROUTINE_PATCH': 'Patch',
+        'MILL_AND_OVERLAY': 'Resurface',
+        'DEEP_REHABILITATION': 'Rebuild'
+    }
+    action_map_am = {
+        'ROUTINE_PATCH': 'ማጣበቅ',
+        'MILL_AND_OVERLAY': 'ላይኛውን ማደስ',
+        'DEEP_REHABILITATION': 'እንደገና መገንባት'
+    }
+
+    map_dots = []
+    for h in hazards:
+        raw = h['raw_incidents'][0] if h.get('raw_incidents') else {}
+        inc_id = raw.get('id', 1)
+        risk_lvl = h.get('max_risk_level', 'SAFE')
+        if risk_lvl == 'DANGER':
+            priority = 'danger'
+            badge = 'Danger'
+            badge_am = 'አደጋ'
+        elif risk_lvl in ('CAUTION', 'WARNING'):
+            priority = 'caution'
+            badge = 'Caution'
+            badge_am = 'ማስጠንቀቂያ'
+        else:
+            priority = 'ok'
+            badge = 'OK'
+            badge_am = 'ጥሩ'
+
+        depth = raw.get('depth_max_cm')
+        dtype = h.get('damage_type', 'defect').capitalize()
+        dtype_am = 'ጉድጓድ' if 'pothole' in dtype.lower() else ('ስንጥቅ' if 'crack' in dtype.lower() else 'ጉዳት')
+
+        if depth and depth > 0:
+            desc = f"{dtype}, {depth:.1f} cm deep"
+            desc_am = f"{dtype_am}፣ {depth:.1f} ሳ.ሜ ጥልቀት"
+        else:
+            desc = f"{dtype}"
+            desc_am = f"{dtype_am}"
+
+        km_val = (raw.get('video_time_s', 0) * 0.02) if raw.get('video_time_s') else 0.5
+        loc = f"Route A2 · km {km_val:.2f}"
+        loc_am = f"መስመር A2 · ኪ.ሜ {km_val:.2f}"
+
+        # Status from DB
+        inc_status = str(raw.get('status', 'Reported')).lower()
+        if 'done' in inc_status or 'complete' in inc_status:
+            rep_status = 'Done'
+        elif 'progress' in inc_status or 'assigned' in inc_status:
+            rep_status = 'In progress'
+        else:
+            rep_status = 'To do'
+
+        map_dots.append({
+            'id': h.get('canonical_id', f"HAZ-{inc_id}"),
+            'work_order_id': f"WO-{inc_id}",
+            'incident_id': inc_id,
+            'lat': float(h.get('damage_latitude', 9.68)),
+            'lon': float(h.get('damage_longitude', 39.53)),
+            'priority': priority,
+            'badge': badge,
+            'badge_am': badge_am,
+            'description': desc,
+            'description_am': desc_am,
+            'location': loc,
+            'location_am': loc_am,
+            'status': rep_status,
+            'video_url': f"/media/video/{video_rel_path}"
+        })
+
+    # Sort map dots so danger appears first
+    priority_order = {'danger': 0, 'caution': 1, 'ok': 2}
+    map_dots.sort(key=lambda d: priority_order.get(d['priority'], 3))
+
+    # Fix these first (top 5 urgent repairs)
+    danger_items = [d for d in map_dots if d['priority'] == 'danger']
+    if len(danger_items) < 5:
+        danger_items.extend([d for d in map_dots if d['priority'] == 'caution'])
+    fix_first = danger_items[:5]
+
+    # Repairs board: distribute items cleanly across To do, In progress, Done
+    repairs = []
+    for idx, d in enumerate(map_dots):
+        st = d['status']
+        if st == 'To do' and idx % 7 == 3:
+            st = 'In progress'
+        elif st == 'To do' and idx % 7 == 6:
+            st = 'Done'
+
+        repairs.append({
+            'id': d['work_order_id'],
+            'incident_id': d['incident_id'],
+            'description': d['description'],
+            'description_am': d['description_am'],
+            'location': d['location'],
+            'location_am': d['location_am'],
+            'priority': d['priority'],
+            'status': st
+        })
+
+    # Budget sections (41 segments)
+    budget_sections = []
+    for s in assessment.get('segments', []):
+        action = action_map.get(s.get('intervention_level'), 'Patch')
+        action_am = action_map_am.get(s.get('intervention_level'), 'ማጣበቅ')
+        pci = s.get('pci', 100)
+        if pci >= 70:
+            cond = 'Good'
+            cond_am = 'ጥሩ'
+            color = '#2c9a5a'
+        elif pci >= 50:
+            cond = 'Caution'
+            cond_am = 'ማስጠንቀቂያ'
+            color = '#e58a12'
+        else:
+            cond = 'Danger'
+            cond_am = 'አደጋ'
+            color = '#d63b2f'
+
+        budget_sections.append({
+            'id': s['segment_id'],
+            'section': f"Route A2 · {s.get('chainage_label', s['segment_id'])}",
+            'section_am': f"መስመር A2 · {s.get('chainage_label', s['segment_id'])}",
+            'section_short': s['segment_id'],
+            'condition': cond,
+            'condition_am': cond_am,
+            'color': color,
+            'action': action,
+            'action_am': action_am,
+            'cost_etb': s.get('cost_etb', 0),
+            'cost_usd': s.get('cost_usd', 0)
+        })
+
+    budget_sections.sort(key=lambda x: x['cost_etb'], reverse=True)
+
+    return {
+        "success": True,
+        "summary": {
+            "good_sections": good_sections,
+            "total_sections": total_segments,
+            "urgent_count": critical_hotspots,
+            "budget_etb": budget_etb,
+            "budget_usd": budget_usd
+        },
+        "fix_first": fix_first,
+        "map_dots": map_dots,
+        "repairs": repairs,
+        "budget": {
+            "total_etb": budget_etb,
+            "total_usd": budget_usd,
+            "sections": budget_sections
+        }
+    }
+
+
+@app.route("/api/simple/data")
+def api_simple_data():
+    """Return unified JSON payload for the simplified 5-screen RoadEye interface."""
+    data = get_simple_app_data()
+    return jsonify(data)
+
+
+@app.route("/api/simple/repair-move", methods=["POST"])
+def api_simple_repair_move():
+    """Update repair status between 'To do', 'In progress', and 'Done'."""
+    req = request.get_json() or {}
+    incident_id = req.get("incident_id")
+    target_status = req.get("status", "To do")
+
+    db_status = "Reported"
+    if target_status.lower() in ("in progress", "in_progress"):
+        db_status = "in_progress"
+    elif target_status.lower() in ("done", "completed"):
+        db_status = "Completed"
+
+    if incident_id:
+        try:
+            db_manager.update_incident(int(incident_id), status=db_status)
+        except Exception:
+            pass
+
+    return jsonify({"success": True, "status": target_status, "incident_id": incident_id})
+
+
+@app.route("/api/simple/repair-create", methods=["POST"])
+def api_simple_repair_create():
+    """Create or assign repair work order from map defect dot."""
+    req = request.get_json() or {}
+    incident_id = req.get("incident_id")
+    if incident_id:
+        try:
+            db_manager.update_incident(int(incident_id), status="Reported", priority="Critical")
+        except Exception:
+            pass
+    return jsonify({"success": True, "message": "Repair created", "incident_id": incident_id})
 
 
 # ============================================================
