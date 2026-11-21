@@ -6,7 +6,7 @@
 {% block extra_head %}
 <!-- Leaflet GIS Mapping CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
-<link rel="stylesheet" href="/static/css/patrol_simulator.css?v=1.0" />
+<link rel="stylesheet" href="/static/css/patrol_simulator.css?v=1.1" />
 <style>
     #map {
         height: 650px;
@@ -110,79 +110,119 @@
                 </select>
             </div>
 
-            <!-- Patrol Display View Modes: Split-Screen / Full Map / PiP -->
-            <div class="btn-group btn-group-sm me-1" role="group" title="Patrol Visualization Layout">
-                <button class="btn btn-outline-primary active" id="btnPatrolSplitView" onclick="setPatrolDisplayMode('split')" title="Dual Live Sync: GIS Map + Dashcam Video">
-                    <i class="bi bi-layout-split"></i> Split-Screen
+            <!-- Map Layers Dropdown Menu -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1.5" type="button" id="mapLayersDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Toggle Map Layers">
+                    <i class="bi bi-layers-half text-primary"></i>
+                    <span class="fw-semibold">Map Layers</span>
                 </button>
-                <button class="btn btn-outline-secondary" id="btnPatrolFullMap" onclick="setPatrolDisplayMode('map')" title="Full Map GIS View">
-                    <i class="bi bi-map"></i> Map Only
-                </button>
-                <button class="btn btn-outline-secondary" id="btnPatrolPipView" onclick="setPatrolDisplayMode('pip')" title="Floating Picture-in-Picture Video">
-                    <i class="bi bi-pip"></i> PiP
-                </button>
+                <div class="dropdown-menu dropdown-menu-end p-2.5 shadow-lg" aria-labelledby="mapLayersDropdown" style="min-width: 270px; background: var(--bg-surface); border: 1px solid var(--border-default); z-index: 1050;">
+                    <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom" style="border-color: var(--border-default) !important;">
+                        <span class="small fw-bold text-white font-mono"><i class="bi bi-layers me-1 text-primary"></i>MAP LAYERS</span>
+                        <span class="badge bg-secondary font-mono" style="font-size: 10px;">5 Active</span>
+                    </div>
+
+                    <!-- 1. National Corridors -->
+                    <div class="form-check py-1 mb-1">
+                        <input class="form-check-input" type="checkbox" id="toggleContractors" checked onchange="toggleLayer('contractors', this.checked)">
+                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleContractors" style="cursor: pointer;">
+                            <span>
+                                <span class="gis-legend-line" style="background: #10B981;"></span>
+                                <span>National Corridors</span>
+                            </span>
+                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">{{ contractors|length }}</span>
+                        </label>
+                    </div>
+
+                    <!-- 2. Debre Berhan OSM -->
+                    <div class="form-check py-1 mb-1">
+                        <input class="form-check-input" type="checkbox" id="toggleOsm" checked onchange="toggleLayer('osm', this.checked)">
+                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleOsm" style="cursor: pointer;">
+                            <span>
+                                <span class="gis-legend-line" style="background: #0284C7;"></span>
+                                <span>Debre Berhan OSM</span>
+                            </span>
+                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">66</span>
+                        </label>
+                    </div>
+
+                    <!-- 3. GPS Trajectory -->
+                    <div class="form-check py-1 mb-1">
+                        <input class="form-check-input" type="checkbox" id="toggleGps" checked onchange="toggleLayer('gps', this.checked)">
+                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleGps" style="cursor: pointer;">
+                            <span>
+                                <span class="gis-legend-line" style="background: #38BDF8;"></span>
+                                <span>GPS Trajectory</span>
+                            </span>
+                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">Live</span>
+                        </label>
+                    </div>
+
+                    <!-- 4. Detected Hazards -->
+                    <div class="form-check py-1 mb-1">
+                        <input class="form-check-input" type="checkbox" id="toggleHazards" checked onchange="toggleLayer('hazards', this.checked)">
+                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleHazards" style="cursor: pointer;">
+                            <span>
+                                <span class="gis-legend-dot" style="background: #EF4444;"></span>
+                                <span>Detected Hazards</span>
+                            </span>
+                            <span class="badge bg-danger text-white font-mono" style="font-size: 10px;">{{ incidents|length }}</span>
+                        </label>
+                    </div>
+
+                    <!-- 5. PCI Heatmap -->
+                    <div class="form-check py-1 mb-2">
+                        <input class="form-check-input" type="checkbox" id="togglePciHeatmap" onchange="toggleLayer('pci', this.checked)">
+                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="togglePciHeatmap" style="cursor: pointer;">
+                            <span>
+                                <span class="gis-legend-dot" style="background: linear-gradient(90deg, #10b981, #eab308, #ef4444);"></span>
+                                <span>PCI Heatmap</span>
+                            </span>
+                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">ASTM</span>
+                        </label>
+                    </div>
+
+                    <div class="border-top pt-2 mt-1 d-flex align-items-center justify-content-between" style="border-color: var(--border-default) !important;">
+                        <span class="small text-secondary" style="font-size: 11px;"><i class="bi bi-moon-stars me-1"></i>Basemap:</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0.5 px-2" style="font-size: 11px;" id="toggleBasemapBtn" onclick="toggleBasemapStyle()">
+                            <span id="basemapLabel">Dark</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- View Switcher -->
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary active" id="btnViewMap" onclick="switchView('map')">
-                    <i class="bi bi-map"></i> Map
+            <!-- Display Layout & View Dropdown Menu -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1.5" type="button" id="layoutViewDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Display Layout">
+                    <i class="bi bi-layout-split text-primary" id="layoutDropdownIcon"></i>
+                    <span class="fw-semibold" id="layoutDropdownLabel">Split-Screen</span>
                 </button>
-                <button class="btn btn-outline-secondary" id="btnViewTable" onclick="switchView('table')">
-                    <i class="bi bi-table"></i> Table
-                </button>
+                <ul class="dropdown-menu dropdown-menu-end p-2 shadow-lg" aria-labelledby="layoutViewDropdown" style="min-width: 240px; background: var(--bg-surface); border: 1px solid var(--border-default); z-index: 1050;">
+                    <li class="dropdown-header small text-secondary font-mono px-2 py-1">PATROL LAYOUT</li>
+                    <li>
+                        <button class="dropdown-item d-flex align-items-center justify-content-between rounded py-1.5 px-2 active" id="btnPatrolSplitView" onclick="switchView('map'); setPatrolDisplayMode('split');">
+                            <span><i class="bi bi-layout-split me-2 text-primary"></i>Split-Screen (Video + Map)</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item d-flex align-items-center justify-content-between rounded py-1.5 px-2" id="btnPatrolFullMap" onclick="switchView('map'); setPatrolDisplayMode('map');">
+                            <span><i class="bi bi-map me-2 text-primary"></i>Full Map View</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item d-flex align-items-center justify-content-between rounded py-1.5 px-2" id="btnPatrolPipView" onclick="switchView('map'); setPatrolDisplayMode('pip');">
+                            <span><i class="bi bi-pip me-2 text-primary"></i>Floating Video (PiP)</span>
+                        </button>
+                    </li>
+                    <li><hr class="dropdown-divider my-1.5" style="border-color: var(--border-default) !important;"></li>
+                    <li class="dropdown-header small text-secondary font-mono px-2 py-1">DATA FORMAT</li>
+                    <li>
+                        <button class="dropdown-item d-flex align-items-center justify-content-between rounded py-1.5 px-2" id="btnViewTable" onclick="switchView('table');">
+                            <span><i class="bi bi-table me-2 text-warning"></i>Telemetry Data Table</span>
+                        </button>
+                    </li>
+                </ul>
             </div>
-
-            <!-- Direct Link to Registry -->
-            <a href="/contractors" class="btn btn-sm btn-primary">
-                <i class="bi bi-shield-check me-1"></i>
-                <span>Contractors Registry</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Quick Layer Toggle Toolbar -->
-    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 p-2 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-        <span class="small fw-bold text-white font-mono"><i class="bi bi-layers-half text-primary me-1"></i>MAP LAYERS:</span>
-        <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="checkbox" id="toggleContractors" checked onchange="toggleLayer('contractors', this.checked)">
-            <label class="form-check-label small fw-semibold text-secondary" for="toggleContractors">
-                <span class="gis-legend-line" style="background: #10B981;"></span>
-                <span>National Corridors ({{ contractors|length }})</span>
-            </label>
-        </div>
-        <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="checkbox" id="toggleOsm" checked onchange="toggleLayer('osm', this.checked)">
-            <label class="form-check-label small fw-semibold text-secondary" for="toggleOsm">
-                <span class="gis-legend-line" style="background: #0284C7;"></span>
-                <span>Debre Berhan OSM (66)</span>
-            </label>
-        </div>
-        <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="checkbox" id="toggleGps" checked onchange="toggleLayer('gps', this.checked)">
-            <label class="form-check-label small fw-semibold text-secondary" for="toggleGps">
-                <span class="gis-legend-line" style="background: #38BDF8;"></span>
-                <span>GPS Trajectory</span>
-            </label>
-        </div>
-        <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="checkbox" id="toggleHazards" checked onchange="toggleLayer('hazards', this.checked)">
-            <label class="form-check-label small fw-semibold text-secondary" for="toggleHazards">
-                <span class="gis-legend-dot" style="background: #EF4444;"></span>
-                <span>Detected Hazards ({{ incidents|length }})</span>
-            </label>
-        </div>
-        <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="checkbox" id="togglePciHeatmap" onchange="toggleLayer('pci', this.checked)">
-            <label class="form-check-label small fw-semibold text-secondary" for="togglePciHeatmap">
-                <span class="gis-legend-dot" style="background: linear-gradient(90deg, #10b981, #eab308, #ef4444);"></span>
-                <span>PCI Heatmap</span>
-            </label>
-        </div>
-        <div class="ms-auto d-flex align-items-center gap-2">
-            <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:11px;" id="toggleBasemapBtn" onclick="toggleBasemapStyle()">
-                <i class="bi bi-moon-stars me-1"></i> Basemap: <span id="basemapLabel">Dark</span>
-            </button>
         </div>
     </div>
 
@@ -380,8 +420,9 @@
         </div>
 
         <!-- Synchronized Dashcam AI Vision Column (Split-Screen / PiP) -->
-        <div class="col-12 col-xl-5 patrol-dashcam-col" id="patrolDashcamCol">
-            <div class="patrol-dashcam-card" id="patrolDashcamCard">
+        <div class="col-12 col-xl-5 patrol-dashcam-col d-flex flex-column" id="patrolDashcamCol">
+            <!-- 1. Video Player Card -->
+            <div class="patrol-dashcam-card mb-3 shadow-sm" id="patrolDashcamCard">
                 <div class="dashcam-header">
                     <div class="dashcam-title">
                         <i class="bi bi-camera-video-fill text-danger"></i>
@@ -393,66 +434,21 @@
                             <option value="/media/video/outputs/annotated_gemini_generated_video_dadfa683.mp4">🏙️ Real Traffic Dashcam (3m 29s)</option>
                             <option value="/media/video/data/debre_berhan_test_video.mp4">📹 Raw 40s Camera View</option>
                         </select>
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;">
-                            <i class="bi bi-broadcast me-1"></i>LIVE SYNC
-                        </span>
                         <button class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 11px;" onclick="toggleDashcamMute(this)" title="Mute/Unmute Video Audio">
                             <i class="bi bi-volume-mute-fill" id="dashcamAudioIcon"></i>
                         </button>
                     </div>
                 </div>
                 <div class="dashcam-video-wrapper">
-                    <video id="patrolDashcamVideo" class="dashcam-video-player" playsinline preload="auto" muted>
+                    <video id="patrolDashcamVideo" class="dashcam-video-player" playsinline preload="auto" muted style="object-fit: contain !important; width: 100%; height: 100%; aspect-ratio: 16/9;">
                         <source src="/media/video/outputs/final_integrated_video.mp4" type="video/mp4">
                         Your browser does not support HTML5 video streaming.
                     </video>
-
-                    <!-- Neural Vision HUD Overlays on top of Video -->
-                    <div class="dashcam-neural-hud">
-                        <div class="dashcam-hud-top">
-                            <div class="dashcam-hud-badge">
-                                <span class="dashcam-hud-sync-pulse"></span>
-                                <span>Detection Stream</span>
-                            </div>
-                            <div class="dashcam-hud-badge text-info" id="dashcamSyncLockBadge">
-                                <i class="bi bi-lock-fill me-1 text-success"></i>SYNC: 0.00 km &bull; 00:00
-                            </div>
-                        </div>
-
-                        <div class="dashcam-target-box"></div>
-
-                        <div class="dashcam-hud-bottom">
-                            <div class="dashcam-hud-badge">
-                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                <span id="dashcamGpsReadout">9.12346° N, 39.12346° E</span>
-                            </div>
-                            <div class="dashcam-hud-badge text-warning">
-                                <i class="bi bi-speedometer2 me-1"></i>
-                                <span id="dashcamSpeedReadout">30 km/h</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rapid Hazard Keyframe Jump Bar -->
-                <div class="dashcam-quick-jumps p-2 bg-dark border-top border-secondary-subtle d-flex align-items-center gap-1 flex-wrap">
-                    <span class="text-white-50 small fw-bold me-1" style="font-size: 10px;"><i class="bi bi-fast-forward me-1 text-info"></i>KEYFRAME JUMP:</span>
-                    <button class="btn btn-sm btn-outline-info py-0 px-2" style="font-size: 10.5px;" onclick="simulatorJumpKeyframe(5.0, 53)" title="Jump to 0.05 km / 05s (Defect #53)">
-                        📍 0.05 km &bull; 05s (#53)
-                    </button>
-                    <button class="btn btn-sm btn-outline-warning py-0 px-2 active fw-bold" style="font-size: 10.5px;" onclick="simulatorJumpKeyframe(15.0, 50)" title="Jump to 0.15 km / 15s (Defect #50)">
-                        🎯 0.15 km &bull; 15s (#50)
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 10.5px;" onclick="simulatorJumpKeyframe(28.9, 55)" title="Jump to 0.28 km / 29s (Defect #55 Danger)">
-                        🚨 0.28 km &bull; 29s (#55)
-                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Sidebar / Hazard Hotspots & Corridors List -->
-        <div class="col-12 col-xl-3" id="hazardSidebarCol" style="display: none;">
-            <div class="card h-100 mb-0 shadow-sm">
+            <!-- 2. Hazard Hotspots & Corridors List Card -->
+            <div class="card mb-0 shadow-sm flex-grow-1" id="hazardSidebarCol">
                 <div class="card-header py-2">
                     <ul class="nav nav-pills nav-fill card-header-pills" id="sidebarTabs" role="tablist">
                         <li class="nav-item">
@@ -467,7 +463,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="card-body p-2 overflow-auto" style="max-height: 615px;">
+                <div class="card-body p-2 overflow-auto" style="max-height: 295px;">
                     <div class="tab-content">
                         <!-- Tab 1: Corridors List -->
                         <div class="tab-pane fade show active" id="tabCorridors">
@@ -1048,19 +1044,24 @@ function filterMapMarkers() {
 function switchView(mode) {
     const mapCont = document.getElementById('mapViewContainer');
     const tableCont = document.getElementById('tableViewContainer');
-    const btnMap = document.getElementById('btnViewMap');
     const btnTable = document.getElementById('btnViewTable');
+    const lbl = document.getElementById('layoutDropdownLabel');
+    const ico = document.getElementById('layoutDropdownIcon');
 
     if (mode === 'table') {
         mapCont.style.display = 'none';
         tableCont.style.display = 'block';
-        btnTable.classList.add('active');
-        btnMap.classList.remove('active');
+        if (btnTable) btnTable.classList.add('active');
+        if (lbl) lbl.textContent = 'Telemetry Table';
+        if (ico) ico.className = 'bi bi-table text-warning';
     } else {
         tableCont.style.display = 'none';
         mapCont.style.display = 'flex';
-        btnMap.classList.add('active');
-        btnTable.classList.remove('active');
+        if (btnTable) btnTable.classList.remove('active');
+        if (lbl && lbl.textContent === 'Telemetry Table') {
+            lbl.textContent = 'Split-Screen';
+            if (ico) ico.className = 'bi bi-layout-split text-primary';
+        }
         if (map) setTimeout(() => map.invalidateSize(), 150);
     }
 }
@@ -1191,17 +1192,7 @@ function initPatrolSimulator() {
                 }
             }
 
-            // Update Synchronized Dashcam Video HUD Overlays
-            const dGps = document.getElementById('dashcamGpsReadout');
-            const dSpd = document.getElementById('dashcamSpeedReadout');
-            const syncLock = document.getElementById('dashcamSyncLockBadge');
-            if (dGps) dGps.textContent = `${t.lat.toFixed(5)}° N, ${t.lon.toFixed(5)}° E`;
-            if (dSpd) dSpd.textContent = `${t.speedKmh} km/h`;
-            if (syncLock) {
-                const distKm = (t.distanceTraveledM / 1000).toFixed(2);
-                const vidSec = (t.progress * 34.0).toFixed(1);
-                syncLock.innerHTML = `<i class="bi bi-lock-fill me-1 text-success"></i>SYNC: ${distKm} km &bull; ${vidSec}s`;
-            }
+            // Scrubber update
 
             if (scrubberEl && !scrubberEl.matches(':active')) {
                 scrubberEl.value = Math.round(t.progress * 1000);
@@ -1399,46 +1390,56 @@ function setPatrolDisplayMode(mode) {
     const btnSplit = document.getElementById('btnPatrolSplitView');
     const btnMap = document.getElementById('btnPatrolFullMap');
     const btnPip = document.getElementById('btnPatrolPipView');
+    const btnTable = document.getElementById('btnViewTable');
 
-    [btnSplit, btnMap, btnPip].forEach(b => {
-        if (b) {
-            b.classList.remove('active', 'btn-primary');
-            b.classList.add('btn-outline-secondary');
-        }
+    const lbl = document.getElementById('layoutDropdownLabel');
+    const ico = document.getElementById('layoutDropdownIcon');
+
+    [btnSplit, btnMap, btnPip, btnTable].forEach(b => {
+        if (b) b.classList.remove('active');
     });
 
     if (mode === 'split') {
-        if (btnSplit) {
-            btnSplit.classList.add('active', 'btn-primary');
-            btnSplit.classList.remove('btn-outline-secondary');
-        }
+        if (btnSplit) btnSplit.classList.add('active');
+        if (lbl) lbl.textContent = 'Split-Screen';
+        if (ico) ico.className = 'bi bi-layout-split text-primary';
         if (mapCol) mapCol.className = 'col-12 col-xl-7';
         if (dashcamCol) {
-            dashcamCol.style.display = 'block';
-            dashcamCol.className = 'col-12 col-xl-5 patrol-dashcam-col';
+            dashcamCol.style.display = 'flex';
+            dashcamCol.className = 'col-12 col-xl-5 patrol-dashcam-col d-flex flex-column';
         }
-        if (dashcamCard) dashcamCard.classList.remove('patrol-pip-mode');
-        if (sidebarCol) sidebarCol.style.display = 'none';
+        if (dashcamCard) {
+            dashcamCard.style.display = 'flex';
+            dashcamCard.classList.remove('patrol-pip-mode');
+        }
+        if (sidebarCol) sidebarCol.style.display = 'block';
     } else if (mode === 'pip') {
-        if (btnPip) {
-            btnPip.classList.add('active', 'btn-primary');
-            btnPip.classList.remove('btn-outline-secondary');
-        }
-        if (mapCol) mapCol.className = 'col-12 col-xl-9';
+        if (btnPip) btnPip.classList.add('active');
+        if (lbl) lbl.textContent = 'Floating Video (PiP)';
+        if (ico) ico.className = 'bi bi-pip text-primary';
+        if (mapCol) mapCol.className = 'col-12 col-xl-8';
         if (dashcamCol) {
-            dashcamCol.style.display = 'block';
-            dashcamCol.className = 'patrol-dashcam-col';
+            dashcamCol.style.display = 'flex';
+            dashcamCol.className = 'col-12 col-xl-4 patrol-dashcam-col d-flex flex-column';
         }
-        if (dashcamCard) dashcamCard.classList.add('patrol-pip-mode');
+        if (dashcamCard) {
+            dashcamCard.style.display = 'flex';
+            dashcamCard.classList.add('patrol-pip-mode');
+        }
         if (sidebarCol) sidebarCol.style.display = 'block';
     } else { // 'map'
-        if (btnMap) {
-            btnMap.classList.add('active', 'btn-primary');
-            btnMap.classList.remove('btn-outline-secondary');
+        if (btnMap) btnMap.classList.add('active');
+        if (lbl) lbl.textContent = 'Full Map';
+        if (ico) ico.className = 'bi bi-map text-primary';
+        if (mapCol) mapCol.className = 'col-12 col-xl-8';
+        if (dashcamCol) {
+            dashcamCol.style.display = 'flex';
+            dashcamCol.className = 'col-12 col-xl-4 patrol-dashcam-col d-flex flex-column';
         }
-        if (mapCol) mapCol.className = 'col-12 col-xl-9';
-        if (dashcamCol) dashcamCol.style.display = 'none';
-        if (dashcamCard) dashcamCard.classList.remove('patrol-pip-mode');
+        if (dashcamCard) {
+            dashcamCard.style.display = 'none';
+            dashcamCard.classList.remove('patrol-pip-mode');
+        }
         if (sidebarCol) sidebarCol.style.display = 'block';
     }
 
