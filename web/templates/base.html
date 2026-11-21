@@ -68,12 +68,6 @@
                     <span class="nav-item-label">GIS Patrol Map</span>
                     <span class="nav-item-badge nav-badge-live">Live</span>
                 </a>
-                <a href="{{ url_for('incidents_view') }}"
-                   class="nav-link {% if active_page == 'incidents' %}active{% endif %}"
-                   title="Incident Ledger">
-                    <i data-lucide="alert-triangle"></i>
-                    <span class="nav-item-label">Incident Ledger</span>
-                </a>
                 <a href="{{ url_for('video_studio') }}"
                    class="nav-link {% if active_page == 'studio' %}active{% endif %}"
                    title="Telemetry Studio">

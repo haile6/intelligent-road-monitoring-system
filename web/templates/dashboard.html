@@ -68,40 +68,40 @@
     <div class="kpi-row-grid">
 
         <!-- 1. Total Verified Hazards -->
-        <a href="{{ url_for('incidents_view') }}" class="kpi-metric-card accent-primary text-decoration-none">
+        <div onclick="openAndFilterLedger('ALL');" class="kpi-metric-card accent-primary text-decoration-none" style="cursor: pointer;" title="Click to view all incidents on dashboard">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Total Hazards</span>
                 <div class="kpi-icon-pill"><i data-lucide="cone"></i></div>
             </div>
             <div class="kpi-number-display">{{ stats.total_hazards or stats.total_incidents or 0 }}</div>
-        </a>
+        </div>
 
         <!-- 2. Immediate Danger -->
-        <a href="{{ url_for('incidents_view') }}?risk=IMMEDIATE" class="kpi-metric-card accent-danger text-decoration-none">
+        <div onclick="openAndFilterLedger('DANGER');" class="kpi-metric-card accent-danger text-decoration-none" style="cursor: pointer;" title="Click to view Immediate Danger incidents">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-danger">Immediate Danger</span>
                 <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
             </div>
             <div class="kpi-number-display text-danger">{{ stats.immediate_danger or 0 }}</div>
-        </a>
+        </div>
 
         <!-- 3. Warning / Caution -->
-        <a href="{{ url_for('incidents_view') }}?risk=CAUTION" class="kpi-metric-card accent-warning text-decoration-none">
+        <div onclick="openAndFilterLedger('WARNING');" class="kpi-metric-card accent-warning text-decoration-none" style="cursor: pointer;" title="Click to view Warning incidents">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-warning">Warning</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="alert-triangle"></i></div>
             </div>
             <div class="kpi-number-display" style="color:var(--warning);">{{ stats.warning_caution or stats.caution_count or 0 }}</div>
-        </a>
+        </div>
 
         <!-- 4. Safe / Monitoring -->
-        <a href="{{ url_for('incidents_view') }}?risk=SAFE" class="kpi-metric-card accent-success text-decoration-none">
+        <div onclick="openAndFilterLedger('SAFE');" class="kpi-metric-card accent-success text-decoration-none" style="cursor: pointer;" title="Click to view Safe incidents">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-success">Safe</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
             </div>
             <div class="kpi-number-display text-success">{{ stats.safe_count or 0 }}</div>
-        </a>
+        </div>
 
         <!-- 5. Corridor Coverage -->
         <a href="{{ url_for('map_view') }}" class="kpi-metric-card accent-primary text-decoration-none">
@@ -537,6 +537,19 @@ function toggleRecentIncidents(forceOpen) {
         if (hint) hint.textContent = '(Click to view / ለማየት ይጫኑ)';
     }
     if (window.lucide) lucide.createIcons();
+}
+
+// Open Recent Incidents and apply specific risk filter from KPI cards
+function openAndFilterLedger(filterType) {
+    toggleRecentIncidents(true);
+    const btn = document.querySelector(`.filter-pills-row .filter-pill-btn[onclick*="'${filterType}'"]`);
+    if (btn) {
+        filterLedger(filterType, btn);
+    }
+    const panel = document.getElementById('recentIncidentsPanel');
+    if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // Filter Chips handler
