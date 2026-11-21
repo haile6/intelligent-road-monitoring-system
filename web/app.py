@@ -1280,11 +1280,13 @@ def settings_view():
     """Enterprise Platform Settings."""
     rates = db_manager.get_material_rates()
     calibration = db_manager.get_calibration_params() if hasattr(db_manager, "get_calibration_params") else {}
+    pci_calib = db_manager.get_pci_calibration() if hasattr(db_manager, "get_pci_calibration") else {}
     return render_template(
         "settings.html",
         active_page="settings",
         material_rates=rates,
-        calibration=calibration
+        calibration=calibration,
+        pci_calibration=pci_calib
     )
 
 
@@ -1308,6 +1310,21 @@ def api_calibration_params():
         return jsonify({"success": True, "calibration": updated, "message": "ERA Pavement Deterioration Calibration updated successfully."})
     calibration = db_manager.get_calibration_params()
     return jsonify({"success": True, "calibration": calibration})
+
+
+@app.route("/api/settings/pci-calibration", methods=["GET", "POST"])
+def api_pci_calibration():
+    """Retrieve or update ASTM D6433 & Pavement Engineering empirical calibration constants."""
+    if request.method == "POST":
+        payload = request.get_json() or {}
+        updated = db_manager.update_pci_calibration(payload)
+        return jsonify({
+            "success": True,
+            "calibration": updated,
+            "message": "Pavement engineering calibration constants updated successfully."
+        })
+    calib = db_manager.get_pci_calibration()
+    return jsonify({"success": True, "calibration": calib})
 
 
 def get_system_health_status():

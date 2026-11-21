@@ -19,12 +19,12 @@ from typing import Dict, List, Tuple, Any, Optional
 
 PCI_RATING_THRESHOLDS = [
     (85.0, 100.0, "Good", "ጥሩ", "#10b981", "rgba(16, 185, 129, 0.85)", "Routine maintenance / preservation only"),
-    (70.0, 84.99, "Satisfactory", "አጥጋቢ", "#84cc16", "rgba(132, 204, 22, 0.85)", "Preventive sealing, isolated crack fill"),
-    (55.0, 69.99, "Fair", "መካከለኛ", "#eab308", "rgba(234, 179, 8, 0.85)", "Patching, thin surface treatment"),
-    (40.0, 54.99, "Poor", "ዝቅተኛ", "#f97316", "rgba(249, 115, 22, 0.85)", "Cold milling & 50mm Asphalt Concrete overlay"),
-    (25.0, 39.99, "Very Poor", "እጅግ ዝቅተኛ", "#ef4444", "rgba(239, 68, 68, 0.85)", "Structural overlay / partial base reconstruction"),
-    (10.0, 24.99, "Serious", "አደገኛ", "#b91c1c", "rgba(185, 28, 28, 0.85)", "Major full-depth reconstruction required"),
-    (0.0, 9.99, "Failed", "የወደቀ", "#7f1d1d", "rgba(127, 29, 29, 0.90)", "Complete structural failure / road impassable"),
+    (70.0, 85.0, "Satisfactory", "አጥጋቢ", "#84cc16", "rgba(132, 204, 22, 0.85)", "Preventive sealing, isolated crack fill"),
+    (55.0, 70.0, "Fair", "መካከለኛ", "#eab308", "rgba(234, 179, 8, 0.85)", "Patching, thin surface treatment"),
+    (40.0, 55.0, "Poor", "ዝቅተኛ", "#f97316", "rgba(249, 115, 22, 0.85)", "Cold milling & 50mm Asphalt Concrete overlay"),
+    (25.0, 40.0, "Very Poor", "እጅግ ዝቅተኛ", "#ef4444", "rgba(239, 68, 68, 0.85)", "Structural overlay / partial base reconstruction"),
+    (10.0, 25.0, "Serious", "አደገኛ", "#b91c1c", "rgba(185, 28, 28, 0.85)", "Major full-depth reconstruction required"),
+    (0.0, 10.0, "Failed", "የወደቀ", "#7f1d1d", "rgba(127, 29, 29, 0.90)", "Complete structural failure / road impassable"),
 ]
 
 IRI_RATING_THRESHOLDS = [
@@ -72,7 +72,7 @@ class PavementConditionIndex:
     def calculate_pothole_deduct(count: int, severity: str, sample_area_m2: float = 700.0) -> float:
         """
         Calculate ASTM D6433 Deduct Value for Potholes based on area density.
-        ASTM curves parameterized by power-law fits.
+        ASTM curves parameterized by power-law fits (configurable via database/settings).
         """
         if count <= 0 or sample_area_m2 <= 0:
             return 0.0
@@ -81,17 +81,34 @@ class PavementConditionIndex:
         density = (count / sample_area_m2) * 100.0
         sev = (severity or "MEDIUM").upper()
 
+        # Realistic defaults from ASTM D6433-18 nomographs (Figure X3.19 Metric)
+        # Dynamically overridable when municipal or researcher field calibration is provided
+        a_high, b_high = 38.0, 0.45
+        a_med, b_med = 24.0, 0.40
+        a_low, b_low = 14.0, 0.35
+        try:
+            from database import db_manager
+            calib = db_manager.get_pci_calibration()
+            a_high = float(calib.get("astm_pothole_high_scale", a_high))
+            b_high = float(calib.get("astm_pothole_high_exp", b_high))
+            a_med = float(calib.get("astm_pothole_med_scale", a_med))
+            b_med = float(calib.get("astm_pothole_med_exp", b_med))
+            a_low = float(calib.get("astm_pothole_low_scale", a_low))
+            b_low = float(calib.get("astm_pothole_low_exp", b_low))
+        except Exception:
+            pass
+
         if "IMMEDIATE" in sev or "HIGH" in sev or "DANGER" in sev:
             # High severity pothole: deep (> 5cm), sharp edges, tire blowout risk
-            dv = 38.0 * (density ** 0.45)
+            dv = a_high * (density ** b_high)
             return min(95.0, max(8.0, dv))
         elif "CAUTION" in sev or "MEDIUM" in sev or "WARN" in sev:
             # Medium severity: moderate depth (2.5 - 5cm)
-            dv = 24.0 * (density ** 0.40)
+            dv = a_med * (density ** b_med)
             return min(70.0, max(5.0, dv))
         else:
             # Low severity: shallow (< 2.5cm)
-            dv = 14.0 * (density ** 0.35)
+            dv = a_low * (density ** b_low)
             return min(45.0, max(2.0, dv))
 
     @staticmethod
@@ -105,14 +122,29 @@ class PavementConditionIndex:
         density = (length_or_count / sample_area_m2) * 100.0
         sev = (severity or "MEDIUM").upper()
 
+        a_high, b_high = 28.0, 0.42
+        a_med, b_med = 16.0, 0.38
+        a_low, b_low = 8.5, 0.32
+        try:
+            from database import db_manager
+            calib = db_manager.get_pci_calibration()
+            a_high = float(calib.get("astm_crack_high_scale", a_high))
+            b_high = float(calib.get("astm_crack_high_exp", b_high))
+            a_med = float(calib.get("astm_crack_med_scale", a_med))
+            b_med = float(calib.get("astm_crack_med_exp", b_med))
+            a_low = float(calib.get("astm_crack_low_scale", a_low))
+            b_low = float(calib.get("astm_crack_low_exp", b_low))
+        except Exception:
+            pass
+
         if "IMMEDIATE" in sev or "HIGH" in sev or "DANGER" in sev:
-            dv = 28.0 * (density ** 0.42)
+            dv = a_high * (density ** b_high)
             return min(85.0, max(6.0, dv))
         elif "CAUTION" in sev or "MEDIUM" in sev or "WARN" in sev:
-            dv = 16.0 * (density ** 0.38)
+            dv = a_med * (density ** b_med)
             return min(60.0, max(3.5, dv))
         else:
-            dv = 8.5 * (density ** 0.32)
+            dv = a_low * (density ** b_low)
             return min(38.0, max(1.5, dv))
 
     @classmethod
@@ -258,11 +290,19 @@ class InternationalRoughnessIndex:
         # Cracking contribution to surface texture roughness
         delta_cracking = ((c_high * 0.12) + (c_other * 0.05)) / seg_km
 
-        estimated_iri = min(16.0, max(cls.BASE_HIGHWAY_IRI, cls.BASE_HIGHWAY_IRI + delta_potholes + delta_cracking))
+        base_iri = cls.BASE_HIGHWAY_IRI
+        try:
+            from database import db_manager
+            calib = db_manager.get_pci_calibration()
+            base_iri = float(calib.get("base_highway_iri", base_iri))
+        except Exception:
+            pass
+
+        estimated_iri = min(16.0, max(base_iri, base_iri + delta_potholes + delta_cracking))
         
         result = cls.get_rating_info(estimated_iri)
         result.update({
-            "base_iri": cls.BASE_HIGHWAY_IRI,
+            "base_iri": base_iri,
             "delta_potholes": round(delta_potholes, 2),
             "delta_cracking": round(delta_cracking, 2),
             "segment_length_km": seg_km
@@ -352,11 +392,24 @@ class AsphaltBudgetEstimator:
         # 3. 70 <= PCI < 85: Satisfactory -> Localized Patching & Crack Sealing
         # 4. PCI >= 85: Good -> Routine Preservation
 
+        trigger_reason = ""
+        trigger_reason_am = ""
+
         if pci_score < 40.0 or iri_score >= 7.0:
             intervention_level = "FULL_RECONSTRUCTION"
             treatment_en = "Full-Depth Carriageway Reconstruction (Crushed Rock Base + DBM + 50mm AC)"
             treatment_am = "ሙሉ የመንገድ መሰረት መልሶ ግንባታ (ሰብ-ቤዝ + ባይንደር + 50ሚሜ አስፋልት)"
             urgency = "Critical (Immediate Priority)"
+
+            if pci_score < 40.0 and iri_score >= 7.0:
+                trigger_reason = f"Combined Structural Failure (PCI {pci_score:.1f} < 40 & IRI {iri_score:.1f} ≥ 7.0 m/km)"
+                trigger_reason_am = "የመዋቅር መፈራረስ እና ከፍተኛ ንዝረት"
+            elif iri_score >= 7.0:
+                trigger_reason = f"Severe Bump Impact (IRI {iri_score:.1f} ≥ 7.0 m/km)"
+                trigger_reason_am = "ከፍተኛ የመኪና ንዝረትና ድንጋጤ"
+            else:
+                trigger_reason = f"Structural Pavement Failure (PCI {pci_score:.1f} < 40)"
+                trigger_reason_am = "የመንገድ ወለል ከባድ መፈራረስ"
 
             # Reconstruction of entire segment carriageway
             qty_reconstruct = total_surface_area_m2
@@ -381,6 +434,13 @@ class AsphaltBudgetEstimator:
             treatment_en = "Cold Planar Milling (50mm) + Tack Coat + 50mm Asphalt Concrete Overlay"
             treatment_am = "ሚሊንግ (50ሚሜ) + ታክ ኮት + 50ሚሜ የአስፋልት ኮንክሪት ሽፋን"
             urgency = "High (Quarterly Remediation)"
+
+            if iri_score >= 4.0 and pci_score >= 70.0:
+                trigger_reason = f"Localized Bump Roughness (IRI {iri_score:.1f} ≥ 4.0 m/km)"
+                trigger_reason_am = "የተወሰነ ቦታ ንዝረት ማስተካከያ"
+            else:
+                trigger_reason = f"Functional Distress (PCI {pci_score:.1f} < 70)"
+                trigger_reason_am = "የአስፋልት ወለል ማሻሻያ"
 
             cost_milling = total_surface_area_m2 * rate_milling
             cost_tack = total_surface_area_m2 * rate_tack
@@ -420,6 +480,8 @@ class AsphaltBudgetEstimator:
             treatment_en = "Emergency Cold-Mix Pothole Patching & Polymer Crack Sealing"
             treatment_am = "የጉድጓድ አስፋልት ማጣፊያ እና የስንጥቅ ማሸጊያ ጥገና"
             urgency = "Standard (Maintenance Patrol)"
+            trigger_reason = f"Isolated Surface Defect ({potholes_count} PTH, {cracks_count} CRK)"
+            trigger_reason_am = "የነጠላ ጉድጓድ ማጣፊያ"
 
             total_patch_cost = 0.0
             total_crack_cost = 0.0
@@ -457,6 +519,8 @@ class AsphaltBudgetEstimator:
             treatment_en = "Routine Pavement Preservation & Drainage Clearing"
             treatment_am = "መደበኛ የውሃ ማፍሰሻ ማጽዳት እና ጥበቃ"
             urgency = "Routine (Quarterly Monitoring)"
+            trigger_reason = "Satisfactory Pavement (PCI ≥ 85)"
+            trigger_reason_am = "ጥሩ የመንገድ ሁኔታ (መደበኛ ፍተሻ)"
 
             # Baseline monitoring fee per 250m
             baseline_fee = 18500.0
@@ -506,6 +570,8 @@ class AsphaltBudgetEstimator:
             "recommended_treatment": treatment_en,
             "recommended_treatment_am": treatment_am,
             "urgency": urgency,
+            "trigger_reason": trigger_reason,
+            "trigger_reason_am": trigger_reason_am,
             "total_surface_area_m2": round(total_surface_area_m2, 1),
             "total_cost_etb": round(total_etb, 2),
             "total_cost_usd": round(total_usd, 2),
@@ -696,6 +762,8 @@ class CorridorPavementSegmenter:
                 "treatment": budget_data["recommended_treatment"],
                 "treatment_am": budget_data["recommended_treatment_am"],
                 "urgency": budget_data["urgency"],
+                "trigger_reason": budget_data.get("trigger_reason", ""),
+                "trigger_reason_am": budget_data.get("trigger_reason_am", ""),
                 "intervention_level": budget_data["intervention_level"],
                 "cost_etb": budget_data["total_cost_etb"],
                 "cost_usd": budget_data["total_cost_usd"],
@@ -712,8 +780,8 @@ class CorridorPavementSegmenter:
         total_tack_liters = sum(s["materials"]["tack_coat_liters"] for s in processed_segments)
 
         # Distance-weighted average PCI and IRI
-        weighted_pci = sum(s["pci"] * s["length_m"] for s in processed_segments) / max(1.0, total_corridor_length_m)
-        weighted_iri = sum(s["iri"] * s["length_m"] for s in processed_segments) / max(1.0, total_corridor_length_m)
+        weighted_pci = round(sum(s["pci"] * s["length_m"] for s in processed_segments) / max(1.0, total_corridor_length_m), 1)
+        weighted_iri = round(sum(s["iri"] * s["length_m"] for s in processed_segments) / max(1.0, total_corridor_length_m), 2)
 
         corridor_pci_info = PavementConditionIndex.get_rating_info(weighted_pci)
         corridor_iri_info = InternationalRoughnessIndex.get_rating_info(weighted_iri)
