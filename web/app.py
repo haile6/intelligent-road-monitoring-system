@@ -112,7 +112,8 @@ def pwa_service_worker():
 @app.route("/")
 def simple_app_view():
     """Redesigned 5-screen simple RoadEye application for Ethiopian road crews."""
-    return render_template("simple_app.html")
+    initial_data = get_simple_app_data()
+    return render_template("simple_app.html", initial_data=initial_data)
 
 
 @app.route("/classic-dashboard")
