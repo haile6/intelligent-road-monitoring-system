@@ -43,9 +43,9 @@
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">Default Alert Language</label>
                         <select class="form-select form-select-sm" id="set-lang">
-                            <option value="both" selected>Bilingual: English &amp; አማርኛ (Amharic)</option>
-                            <option value="am">አማርኛ (Amharic Primary)</option>
-                            <option value="en">English (English Primary)</option>
+                            <option value="both" selected>Bilingual (English &amp; Amharic)</option>
+                            <option value="am">Amharic Primary</option>
+                            <option value="en">English Primary</option>
                         </select>
                     </div>
 
@@ -99,7 +99,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <i data-lucide="calculator" style="color:var(--accent-primary); width:18px; height:18px;"></i>
                         <h6 class="card-title mb-0" style="color:var(--text-primary); font-weight:700;">
-                            Municipal Material Procurement Schedule (የጥሬ ዕቃና የአስፋልት የገበያ ዋጋ መመሪያ)
+                            Municipal Material Procurement Schedule
                         </h6>
                     </div>
                     <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
@@ -107,57 +107,49 @@
                     </span>
                 </div>
                 <div class="card-body p-3">
-                    <p class="text-secondary small mb-3">
-                        የአስፋልት እና የጥገና ጥሬ ዕቃዎች የገበያ ዋጋ በዋጋ ግሽበት (Inflation) ወይም በአቅራቢዎች ምክንያት ሲለዋወጥ፣ ማዘጋጃ ቤቱ ወይም የተፈቀደለት ኦፕሬተር ወቅታዊውን ዋጋ እዚህ በማስገባት የበጀት ስሌቱን በቅጽበት ማስተካከል ይችላል።
-                    </p>
-
                     <div class="row g-3">
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">
-                                Cold-Patch Asphalt (25kg Bag) ዋጋ (ETB)
+                                Cold-Patch Asphalt (25kg Bag)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB</span>
                                 <input type="number" step="10" class="form-control font-mono fw-bold" id="rate-bag-price" 
                                        value="{{ material_rates.cold_patch_bag_price_etb or 850.0 }}">
                             </div>
-                            <span class="metadata-text">የአንድ ቦርሳ (25kg) የቀዝቃዛ አስፋልት የፋብሪካ/የገበያ ዋጋ</span>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">
-                                Labor &amp; Compaction Rate (per m²) ዋጋ (ETB)
+                                Labor &amp; Compaction Rate (per m²)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB/m²</span>
                                 <input type="number" step="10" class="form-control font-mono fw-bold" id="rate-labor-m2" 
                                        value="{{ material_rates.labor_compaction_rate_m2_etb or 450.0 }}">
                             </div>
-                            <span class="metadata-text">የሰራተኛ ጉልበት፣ የማጽጃና የኮምፓክተር ማሽን ኪራይ በካሬ ሜትር</span>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">
-                                Bitumen Tack Coat Emulsion (per Liter) ዋጋ (ETB)
+                                Bitumen Tack Coat Emulsion (per Liter)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB/L</span>
                                 <input type="number" step="5" class="form-control font-mono fw-bold" id="rate-tack-coat" 
                                        value="{{ material_rates.tack_coat_per_liter_etb or 120.0 }}">
                             </div>
-                            <span class="metadata-text">የሬንጅ ኢመልሽን ማጣበቂያ በሊትር</span>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <label class="form-label small fw-semibold">
-                                Hot Mix Asphalt AC 60/70 (per Ton) ዋጋ (ETB)
+                                Hot Mix Asphalt AC 60/70 (per Ton)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB/Ton</span>
                                 <input type="number" step="100" class="form-control font-mono fw-bold" id="rate-hot-mix" 
                                        value="{{ material_rates.hot_mix_ton_etb or 14500.0 }}">
                             </div>
-                            <span class="metadata-text">ትላልቅ መንገዶችን መልሶ ለመሸፈን (Resurfacing) የፍል አስፋልት ዋጋ</span>
                         </div>
 
                         <div class="col-12 col-md-6">
@@ -170,53 +162,49 @@
                                        value="{{ material_rates.etb_to_usd_rate or 128.0 }}">
                                 <span class="input-group-text font-mono">ETB</span>
                             </div>
-                            <span class="metadata-text">ለአለም አቀፍ ለጋሾችና ለአይኤምኤፍ ሪፖርት ማቅረቢያ ምንዛሪ</span>
                         </div>
 
                         <!-- Corridor Civil Engineering Schedule Rates -->
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">
-                                Full-Depth Reconstruction Rate (per m²) ዋጋ (ETB)
+                                Full-Depth Reconstruction Rate (per m²)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB/m²</span>
                                 <input type="number" step="100" class="form-control font-mono fw-bold" id="rate-reconstruct" 
                                        value="{{ material_rates.reconstruction_rate_m2_etb or 7800.0 }}">
                             </div>
-                            <span class="metadata-text">መሰረቱ የፈረሰ መንገድ ሙሉ መልሶ ግንባታ (ሰብ-ቤዝ + ባይንደር + አስፋልት)</span>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">
-                                50mm Asphalt Overlay Rate (per m²) ዋጋ (ETB)
+                                50mm Asphalt Overlay Rate (per m²)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB/m²</span>
                                 <input type="number" step="50" class="form-control font-mono fw-bold" id="rate-overlay" 
                                        value="{{ material_rates.overlay_rate_m2_etb or 2650.0 }}">
                             </div>
-                            <span class="metadata-text">የተሰነጣጠቀ መንገድ ላይ አዲስ 50ሚሜ አስፋልት ኮንክሪት ማልበስ</span>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">
-                                Cold Planar Milling Rate (per m²) ዋጋ (ETB)
+                                Cold Planar Milling Rate (per m²)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">ETB/m²</span>
                                 <input type="number" step="20" class="form-control font-mono fw-bold" id="rate-milling" 
                                        value="{{ material_rates.milling_rate_m2_etb or 420.0 }}">
                             </div>
-                            <span class="metadata-text">የድሮውን አስፋልት በማሽን የመፈልፈል ስራ በካሬ ሜትር</span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end mt-3 gap-2">
                         <button class="btn btn-sm btn-outline-secondary" onclick="resetDefaultRates()">
-                            <i data-lucide="rotate-ccw"></i> Reset Defaults (ወደ ነባሪ መልስ)
+                            <i data-lucide="rotate-ccw"></i> Reset Defaults
                         </button>
                         <button class="btn btn-sm btn-primary" onclick="saveMaterialRates()">
-                            <i data-lucide="save"></i> Update Material Rates (ወቅታዊውን ዋጋ መዝግብ)
+                            <i data-lucide="save"></i> Update Material Rates
                         </button>
                     </div>
                 </div>
@@ -232,7 +220,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <i data-lucide="sliders" style="color:#10b981; width:18px; height:18px;"></i>
                         <h6 class="card-title mb-0" style="color:var(--text-primary); font-weight:700;">
-                            ERA Pavement Deterioration Calibration (የመንገድ ብልሽት ትንበያ መለኪያዎች)
+                            ERA Pavement Deterioration Calibration
                         </h6>
                     </div>
                     <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
@@ -240,74 +228,66 @@
                     </span>
                 </div>
                 <div class="card-body p-3">
-                    <!-- Clear informational banner to avoid any confusion -->
-                    <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2" style="font-size: 0.85rem; border-left: 4px solid #38bdf8;">
-                        <i data-lucide="info" style="min-width: 18px; height: 18px; color: #0284c7;"></i>
-                        <div>
-                            <strong>ማስታወሻ፦</strong> የጉድጓድ ስፋት/ጥልቀት (በካሜራ AI)፣ የዝናብ መጠን (በአየር ሁኔታ API) እና የከባድ መኪናዎች ድርሻ (በ ANPR) በሲስተሙ <strong>በራስ-ሰር</strong> ይሰበሰባሉ። እዚህ ጋር የመንገዶች ባለስልጣን (ERA) የሚያስተካክለው በመስክ ጥናት የተረጋገጠውን <strong>የእድገት ሬት (Growth Rate)</strong> ብቻ ነው።
-                        </div>
-                    </div>
-
                     <div class="row g-3">
                         <!-- 1. Pothole Width Growth Rate -->
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label small fw-semibold">
-                                Pothole Width Growth Rate (ስፋት እድገት)
+                                Pothole Width Growth Rate
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">Rate/mo</span>
                                 <input type="number" step="0.01" min="0.05" max="1.50" class="form-control font-mono fw-bold" 
                                        id="calib-pothole-width" value="{{ calibration.pothole_width_growth_rate or 0.35 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: 0.35 (የጉድጓድ ስፋት በወር 35% ያድጋል)</span>
+                            <span class="metadata-text">Default: 0.35/mo</span>
                         </div>
 
                         <!-- 2. Pothole Depth Growth Rate -->
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label small fw-semibold">
-                                Pothole Depth Growth Rate (ጥልቀት እድገት)
+                                Pothole Depth Growth Rate
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">Rate/mo</span>
                                 <input type="number" step="0.01" min="0.05" max="1.00" class="form-control font-mono fw-bold" 
                                        id="calib-pothole-depth" value="{{ calibration.pothole_depth_growth_rate or 0.28 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: 0.28 (የጉድጓድ ጥልቀት በወር 28% ይጠልቃል)</span>
+                            <span class="metadata-text">Default: 0.28/mo</span>
                         </div>
 
                         <!-- 3. Crack Width Growth Rate -->
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label small fw-semibold">
-                                Crack Growth Rate (የስንጥቅ እድገት)
+                                Crack Growth Rate
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">Rate/mo</span>
                                 <input type="number" step="0.01" min="0.05" max="1.50" class="form-control font-mono fw-bold" 
                                        id="calib-crack-width" value="{{ calibration.crack_width_growth_rate or 0.45 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: 0.45 (የአዞ ቆዳ ስንጥቅ በወር 45% ይስፋፋል)</span>
+                            <span class="metadata-text">Default: 0.45/mo</span>
                         </div>
 
                         <!-- 4. Moisture Scaling Factor -->
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label small fw-semibold">
-                                Moisture Scale Factor (የዝናብ ተፅዕኖ ሚዛን)
+                                Moisture Scale Factor
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text font-mono">Factor</span>
                                 <input type="number" step="0.01" min="0.05" max="0.50" class="form-control font-mono fw-bold" 
                                        id="calib-moisture-scale" value="{{ calibration.moisture_scaling_factor or 0.18 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: 0.18 (የዝናብ እርጥበት ማባዣ ቀመር ሚዛን)</span>
+                            <span class="metadata-text">Default: 0.18</span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end mt-3 gap-2">
                         <button class="btn btn-sm btn-outline-secondary" onclick="resetDefaultCalibration()">
-                            <i data-lucide="rotate-ccw"></i> Reset Defaults (ወደ ነባሪ መልስ)
+                            <i data-lucide="rotate-ccw"></i> Reset Defaults
                         </button>
                         <button class="btn btn-sm btn-success" onclick="saveCalibrationParams()">
-                            <i data-lucide="save"></i> Save Calibration (መለኪያዎቹን መዝግብ)
+                            <i data-lucide="save"></i> Save Calibration
                         </button>
                     </div>
                 </div>
@@ -322,9 +302,9 @@
                         <div>
                             <h6 class="card-title mb-0">
                                 <i data-lucide="sliders" class="me-1 text-info"></i>
-                                ASTM D6433 &amp; Pavement Calibration Parameters (የአስፋልት ስሌት ማስተካከያ ፓራሜትሮች)
+                                ASTM D6433 &amp; Pavement Calibration Parameters
                             </h6>
-                            <span class="metadata-text">Power-law coefficients $DV = a \cdot D^b$ and World Bank IRI priors. Defaults follow ASTM D6433 Figure X3.19.</span>
+                            <span class="metadata-text">Power-law coefficients $DV = a \cdot D^b$ and World Bank IRI priors. Defaults follow ASTM D6433.</span>
                         </div>
                         <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2 py-1">
                             ASTM D6433-18 Nomograph Defaults
@@ -332,11 +312,6 @@
                     </div>
                 </div>
                 <div class="card-body p-3">
-                    <div class="alert alert-info bg-info bg-opacity-10 border border-info border-opacity-25 text-light small mb-3 py-2 px-3">
-                        <i data-lucide="info" class="me-1" style="width:14px; height:14px;"></i>
-                        <strong>ማስታወሻ፦</strong> እነዚህ ቁጥሮች የ ASTM D6433 ስታንዳርድ ነባሪዎች (Defaults) ናቸው። እውነተኛ የመስክ ጥናት መረጃ (Field Survey Calibration) ሲገኝ ወይም የኢትዮጵያ መንገዶች አስተዳደር (ERA) አዲስ ተመን ሲያወጣ እዚህ ገጽ ላይ ማስተካከል ይችላሉ።
-                    </div>
-
                     <h6 class="text-white small fw-bold mb-2">1. Pothole Deduct Nomograph Power-Law Coefficients ($DV = a \cdot D^b$)</h6>
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-md-4">
@@ -353,7 +328,6 @@
                                 <input type="number" step="0.01" class="form-control font-mono" id="calib-pth-high-exp"
                                        value="{{ pci_calibration.astm_pothole_high_exp if pci_calibration else 0.45 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: $38.0 \cdot D^{0.45}$ (ከ 5 ሳ.ሜ በላይ የጠለቀ ጉድጓድ)</span>
                         </div>
 
                         <div class="col-12 col-md-4">
@@ -370,7 +344,6 @@
                                 <input type="number" step="0.01" class="form-control font-mono" id="calib-pth-med-exp"
                                        value="{{ pci_calibration.astm_pothole_med_exp if pci_calibration else 0.40 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: $24.0 \cdot D^{0.40}$ (የተጠየቀው የ 24 ቁጥር መነሻ)</span>
                         </div>
 
                         <div class="col-12 col-md-4">
@@ -387,7 +360,6 @@
                                 <input type="number" step="0.01" class="form-control font-mono" id="calib-pth-low-exp"
                                        value="{{ pci_calibration.astm_pothole_low_exp if pci_calibration else 0.35 }}">
                             </div>
-                            <span class="metadata-text">ነባሪ: $14.0 \cdot D^{0.35}$ (ቀላል ወለል ጉድጓድ)</span>
                         </div>
                     </div>
 
@@ -402,7 +374,6 @@
                                 <input type="number" step="0.1" class="form-control font-mono fw-bold" id="calib-base-iri"
                                        value="{{ pci_calibration.base_highway_iri if pci_calibration else 1.8 }}">
                             </div>
-                            <span class="metadata-text">አዲስ የተነጠፈ ለስላሳ አስፋልት መነሻ ንዝረት</span>
                         </div>
 
                         <div class="col-12 col-md-4">
@@ -414,7 +385,6 @@
                                 <input type="number" step="0.5" class="form-control font-mono fw-bold" id="calib-corridor-width"
                                        value="{{ pci_calibration.standard_corridor_width_m if pci_calibration else 7.00 }}">
                             </div>
-                            <span class="metadata-text">የመንገዱ ስፋት (2 መስመር = 7.0 ሜትር)</span>
                         </div>
 
                         <div class="col-12 col-md-4">
@@ -426,16 +396,15 @@
                                 <input type="number" step="0.25" class="form-control font-mono" id="calib-lane-width"
                                        value="{{ pci_calibration.standard_lane_width_m if pci_calibration else 3.50 }}">
                             </div>
-                            <span class="metadata-text">የአንድ መስመር መደበኛ ስፋት (3.5 ሜትር)</span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end mt-3 gap-2">
                         <button class="btn btn-sm btn-outline-secondary" onclick="resetDefaultPciCalibration()">
-                            <i data-lucide="rotate-ccw"></i> Reset to ASTM Defaults (ወደ ASTM ነባሪ መልስ)
+                            <i data-lucide="rotate-ccw"></i> Reset to ASTM Defaults
                         </button>
                         <button class="btn btn-sm btn-info text-dark fw-bold" onclick="savePciCalibration()">
-                            <i data-lucide="save"></i> Update Pavement Calibration (ፓራሜትሮችን መዝግብ)
+                            <i data-lucide="save"></i> Update Pavement Calibration
                         </button>
                     </div>
                 </div>
@@ -451,7 +420,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <i data-lucide="cpu" style="color:var(--accent-primary); width:18px; height:18px;"></i>
                         <h6 class="card-title mb-0" style="color:var(--text-primary); font-weight:700;">
-                            AI Perception &amp; Camera Calibration (የ AI ሞዴል እና የካሜራ ጂኦሜትሪ ማስተካከያ)
+                            AI Perception &amp; Camera Calibration
                         </h6>
                     </div>
                     <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: var(--accent-primary); border: 1px solid rgba(56, 189, 248, 0.4);">
@@ -459,13 +428,6 @@
                     </span>
                 </div>
                 <div class="card-body p-3">
-                    <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2" style="font-size: 0.85rem; border-left: 4px solid var(--accent-primary);">
-                        <i data-lucide="info" style="min-width: 18px; height: 18px; color: var(--accent-primary);"></i>
-                        <div>
-                            <strong>AI Camera Geometry &amp; Kinematics፦</strong> የካሜራውን መትከያ ቁመት (Camera Height)፣ የሆራይዘን መስመር ሬሾ እና አደጋን ቀድሞ የማስጠንቀቂያ ጊዜ (Time-To-Collision) እዚህ ማስተካከል ይችላሉ።
-                        </div>
-                    </div>
-
                     <!-- Neural Inference Models Benchmark -->
                     <h6 class="text-white small fw-bold mb-2">1. Active Neural Inference Models Benchmark</h6>
                     <div class="table-responsive border rounded mb-4" style="background: var(--bg-card, #0f172a);">
@@ -518,38 +480,38 @@
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">Camera Height (H, meters)</label>
                             <input type="number" step="0.05" class="form-control form-control-sm font-mono" id="calCameraHeight" value="{{ calibration_params.camera_height_m if calibration_params else 1.25 }}">
-                            <span class="metadata-text">ከመንገድ ወለል እስከ ካሜራ ሌንስ ያለው ከፍታ</span>
+                            <span class="metadata-text">Height above roadway surface</span>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">Horizon Row Ratio</label>
                             <input type="number" step="0.01" class="form-control form-control-sm font-mono" id="calHorizonRatio" value="{{ calibration_params.horizon_ratio if calibration_params else 0.45 }}">
-                            <span class="metadata-text">የሰማይና የምድር መለያያ መስመር ሬሾ</span>
+                            <span class="metadata-text">Vanishing line ratio (0.0 - 1.0)</span>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">Focal Length (f_y, px)</label>
                             <input type="number" class="form-control form-control-sm font-mono" id="calFocalLength" value="{{ calibration_params.focal_length_px if calibration_params else 920.0 }}" readonly style="opacity:0.8;">
-                            <span class="metadata-text">የሌንስ የትኩረት ርቀት በፒክስል (Optical Constant)</span>
+                            <span class="metadata-text">Lens optical focal length</span>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">Immediate Danger Threshold (s)</label>
                             <input type="number" step="0.1" class="form-control form-control-sm font-mono" id="calTtcDanger" value="{{ calibration_params.ttc_danger_s if calibration_params else 1.5 }}">
-                            <span class="metadata-text">ወዲያውኑ ድንገተኛ ማስጠንቀቂያ የሚሰጥበት የጊዜ ገደብ (ሰከንድ)</span>
+                            <span class="metadata-text">Kinematic TTC emergency threshold</span>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">Warning Threshold (s)</label>
                             <input type="number" step="0.1" class="form-control form-control-sm font-mono" id="calTtcWarning" value="{{ calibration_params.ttc_warning_s if calibration_params else 3.0 }}">
-                            <span class="metadata-text">ቅድመ ጥንቃቄ ማስጠንቀቂያ የሚሰጥበት የጊዜ ገደብ (ሰከንድ)</span>
+                            <span class="metadata-text">Kinematic TTC warning threshold</span>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label small fw-semibold">Inspection Patrol Speed (km/h)</label>
                             <input type="number" step="1.0" class="form-control form-control-sm font-mono" id="calDefaultSpeed" value="{{ calibration_params.default_speed_kmh if calibration_params else 60.0 }}">
-                            <span class="metadata-text">የፓትሮል መኪና መደበኛ የፍተሻ ፍጥነት በሰዓት</span>
+                            <span class="metadata-text">Nominal patrol vehicle speed</span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end mt-3 gap-2">
                         <button class="btn btn-sm btn-primary" onclick="submitCalibrationUpdate()">
-                            <i data-lucide="save"></i> Save AI Calibration (የ AI መለኪያዎችን መዝግብ)
+                            <i data-lucide="save"></i> Save AI Calibration
                         </button>
                     </div>
                 </div>
@@ -590,9 +552,9 @@ function submitCalibrationUpdate() {
     .then(data => {
         if (data.success) {
             if (typeof showToast === 'function') {
-                showToast('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!', 'success');
+                showToast('AI perception and camera calibration saved successfully.', 'success');
             } else {
-                alert('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!');
+                alert('AI perception and camera calibration saved successfully.');
             }
         } else {
             if (typeof showToast === 'function') {
@@ -604,12 +566,13 @@ function submitCalibrationUpdate() {
     })
     .catch(err => {
         if (typeof showToast === 'function') {
-            showToast('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!', 'success');
+            showToast('AI perception and camera calibration saved successfully.', 'success');
         } else {
-            alert('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!');
+            alert('AI perception and camera calibration saved successfully.');
         }
     });
 }
+
 function saveMaterialRates() {
     const payload = {
         cold_patch_bag_price_etb: parseFloat(document.getElementById('rate-bag-price').value) || 850.0,
@@ -622,12 +585,10 @@ function saveMaterialRates() {
         etb_to_usd_rate: parseFloat(document.getElementById('rate-fx-usd').value) || 128.0
     };
 
-    // Save to localStorage for instant client-side budgeting
     localStorage.setItem('roadeye_material_rates', JSON.stringify(payload));
     localStorage.setItem('roadeye_bag_price', payload.cold_patch_bag_price_etb);
     localStorage.setItem('roadeye_labor_m2', payload.labor_compaction_rate_m2_etb);
 
-    // Save to server backend database
     fetch('/api/settings/material-rates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -637,15 +598,15 @@ function saveMaterialRates() {
     .then(data => {
         if (data.success) {
             if (typeof showToast === 'function') {
-                showToast('የአስፋልትና ጥሬ ዕቃ ዋጋዎች በስኬት ተመዝግበዋል! አጠቃላይ የከተማው በጀት በአዲሱ ዋጋ ተሰልቷል።', 'success');
+                showToast('Material procurement rates updated successfully.', 'success');
             } else {
-                alert('የአስፋልትና ጥሬ ዕቃ ዋጋዎች በስኬት ተመዝግበዋል!');
+                alert('Material procurement rates updated successfully.');
             }
         }
     })
     .catch(err => {
         console.error('Error saving rates:', err);
-        alert('የዋጋ መረጃዎችን በማስቀመጥ ላይ ችግር አጋጥሟል!');
+        alert('Error saving material procurement rates.');
     });
 }
 
@@ -678,15 +639,15 @@ function saveCalibrationParams() {
     .then(data => {
         if (data.success) {
             if (typeof showToast === 'function') {
-                showToast('የመንገድ ብልሽት መለኪያ መረጃዎች (ERA Calibration) በስኬት ተመዝግበዋል!', 'success');
+                showToast('ERA pavement deterioration calibration saved successfully.', 'success');
             } else {
-                alert('የመንገድ ብልሽት መለኪያ መረጃዎች (ERA Calibration) በስኬት ተመዝግበዋል!');
+                alert('ERA pavement deterioration calibration saved successfully.');
             }
         }
     })
     .catch(err => {
         console.error('Error saving calibration:', err);
-        alert('መለኪያዎችን በማስቀመጥ ላይ ችግር አጋጥሟል!');
+        alert('Error saving calibration parameters.');
     });
 }
 
@@ -720,15 +681,15 @@ function savePciCalibration() {
     .then(data => {
         if (data.success) {
             if (typeof showToast === 'function') {
-                showToast('የ ASTM D6433 እና Pavement ስሌት ማስተካከያ ፓራሜትሮች በስኬት ተመዝግበዋል!', 'success');
+                showToast('ASTM D6433 pavement calibration saved successfully.', 'success');
             } else {
-                alert('የ ASTM D6433 እና Pavement ስሌት ማስተካከያ ፓራሜትሮች በስኬት ተመዝግበዋል!');
+                alert('ASTM D6433 pavement calibration saved successfully.');
             }
         }
     })
     .catch(err => {
         console.error('Error saving calibration:', err);
-        alert('ፓራሜትሮችን በማስቀመጥ ላይ ችግር አጋጥሟል!');
+        alert('Error saving pavement calibration parameters.');
     });
 }
 

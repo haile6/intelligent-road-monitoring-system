@@ -787,8 +787,9 @@ def seed_contractors_if_empty():
             with open(csv_path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for r in reader:
+                    road_title = r.get("corridor") or r.get("road_name", "")
                     seed_data.append((
-                        r.get("road_name", ""),
+                        road_title,
                         r.get("segment_code", ""),
                         r.get("contractor_name", ""),
                         r.get("supervising_consultant", ""),
