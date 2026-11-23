@@ -4,57 +4,608 @@
 {% block breadcrumb %}Pavement Health (PCI / IRI){% endblock %}
 
 {% block extra_head %}
-<!-- Leaflet GIS CSS -->
+<!-- Leaflet GIS CSS & JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <style>
-/* Pavement Heatmap Layout */
-#pavementGisMap {
-    height: 480px;
-    width: 100%;
-    border-radius: var(--radius-sm);
-    background: #080D16;
+/* ============================================================ */
+/* ROAIEYE PROFESSIONAL GIS & PAVEMENT HEALTH DASHBOARD THEME   */
+/* ============================================================ */
+:root {
+    --roadeye-navy: #0B111A;
+    --roadeye-surface: #111C2B;
+    --roadeye-surface-elevated: #172438;
+    --roadeye-border: #1E293B;
+    --roadeye-border-accent: rgba(56, 189, 248, 0.25);
+    --roadeye-cyan: #38BDF8;
+    --roadeye-emerald: #10B981;
+    --roadeye-amber: #F59E0B;
+    --roadeye-rose: #EF4444;
 }
 
-.pci-score-badge {
+[data-theme="bright"], [data-theme="light"] {
+    --roadeye-navy: #F8FAFC;
+    --roadeye-surface: #FFFFFF;
+    --roadeye-surface-elevated: #F8FAFC;
+    --roadeye-border: #CBD5E1;
+    --roadeye-border-accent: rgba(2, 132, 199, 0.25);
+    --roadeye-cyan: #0284C7;
+    --roadeye-emerald: #10B981;
+    --roadeye-amber: #D97706;
+    --roadeye-rose: #DC2626;
+}
+
+/* Map Container */
+#pavementGisMap {
+    height: 440px;
+    width: 100%;
+    border-radius: 8px;
+    background: #080D16;
+    border: 1px solid var(--roadeye-border);
+}
+
+[data-theme="bright"] #pavementGisMap,
+[data-theme="light"] #pavementGisMap {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+}
+
+.leaflet-dark-tiles {
+    filter: brightness(0.65) invert(1) contrast(3.2) hue-rotate(200deg) saturate(0.35);
+}
+
+[data-theme="bright"] .leaflet-dark-tiles,
+[data-theme="light"] .leaflet-dark-tiles {
+    filter: none !important;
+}
+
+/* Leaflet Custom Popups */
+.pavement-map-popup .leaflet-popup-content-wrapper {
+    background: #111C2B;
+    color: #F1F5F9;
+    border: 1px solid #334763;
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+    padding: 2px;
+}
+.pavement-map-popup .leaflet-popup-tip {
+    background: #111C2B;
+    border: 1px solid #334763;
+}
+
+[data-theme="bright"] .pavement-map-popup .leaflet-popup-content-wrapper,
+[data-theme="light"] .pavement-map-popup .leaflet-popup-content-wrapper {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+[data-theme="bright"] .pavement-map-popup .leaflet-popup-tip,
+[data-theme="light"] .pavement-map-popup .leaflet-popup-tip {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+}
+
+/* KPI Responsive 12-Column Grid */
+.pavement-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px;
+}
+.pavement-kpi-grid .kpi-col-4 {
+    grid-column: span 3; /* 4 cards per row on desktop */
+}
+.pavement-kpi-grid .kpi-col-3 {
+    grid-column: span 4; /* 3 cards per row on desktop */
+}
+
+@media (max-width: 1280px) {
+    .pavement-kpi-grid .kpi-col-4 {
+        grid-column: span 6; /* 2 cards per row on laptops/tablets */
+    }
+    .pavement-kpi-grid .kpi-col-3 {
+        grid-column: span 6; /* 2 cards per row on laptops/tablets */
+    }
+    .pavement-kpi-grid .kpi-col-3:last-child {
+        grid-column: span 12; /* Last card spans full row */
+    }
+}
+
+@media (max-width: 680px) {
+    .pavement-kpi-grid .kpi-col-4,
+    .pavement-kpi-grid .kpi-col-3,
+    .pavement-kpi-grid .kpi-col-3:last-child {
+        grid-column: span 12; /* 1 card per row on mobile */
+    }
+}
+
+.kpi-card-refined {
+    background: var(--roadeye-surface) !important;
+    border: 1px solid var(--roadeye-border) !important;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 96px;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.kpi-card-refined:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark Mode KPI Card Background */
+[data-theme="dark"] .kpi-card-refined {
+    background: linear-gradient(180deg, #131E2E 0%, #0D1623 100%) !important;
+    border: 1px solid #1E2F45 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Bright / Light Mode White KPI Card Background */
+[data-theme="bright"] .kpi-card-refined,
+[data-theme="light"] .kpi-card-refined {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06) !important;
+}
+[data-theme="bright"] .kpi-card-refined:hover,
+[data-theme="light"] .kpi-card-refined:hover {
+    border-color: #0284C7 !important;
+    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.15) !important;
+}
+
+.kpi-card-refined::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--roadeye-border);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.kpi-card-refined.accent-pci::before { background: var(--roadeye-emerald); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+.kpi-card-refined.accent-iri::before { background: var(--roadeye-amber); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+.kpi-card-refined.accent-budget::before { background: var(--roadeye-rose); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+.kpi-card-refined.accent-usd::before { background: #818CF8; box-shadow: 0 0 10px rgba(129, 140, 248, 0.5); }
+.kpi-card-refined.accent-hma::before { background: #F97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.5); }
+.kpi-card-refined.accent-tack::before { background: var(--roadeye-cyan); box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+.kpi-card-refined.accent-hotspots::before { background: var(--roadeye-rose); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+
+/* Typography contrast for both Dark and Bright modes */
+.kpi-card-refined .kpi-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #94A3B8;
+}
+[data-theme="dark"] .kpi-card-refined .kpi-title {
+    color: #94A3B8 !important;
+}
+[data-theme="bright"] .kpi-card-refined .kpi-title,
+[data-theme="light"] .kpi-card-refined .kpi-title {
+    color: #475569 !important;
+}
+
+.kpi-card-refined .kpi-unit {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #CBD5E1;
+}
+[data-theme="dark"] .kpi-card-refined .kpi-unit {
+    color: #CBD5E1 !important;
+}
+[data-theme="bright"] .kpi-card-refined .kpi-unit,
+[data-theme="light"] .kpi-card-refined .kpi-unit {
+    color: #475569 !important;
+}
+
+.kpi-card-refined .kpi-number {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+[data-theme="dark"] .kpi-card-refined .kpi-number {
+    color: #FFFFFF !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
+}
+[data-theme="bright"] .kpi-card-refined .kpi-number,
+[data-theme="light"] .kpi-card-refined .kpi-number {
+    color: #0F172A !important;
+    text-shadow: none !important;
+}
+
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.kpi-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #94A3B8;
+}
+.kpi-icon-pill {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.kpi-body {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+.kpi-number {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+.kpi-badge {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    font-size: 0.7rem;
     font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.kpi-unit {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
-.boq-table {
+/* Table Styling */
+.table-pavement-ledger {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+}
+.table-pavement-ledger thead th {
+    background: #0D1520;
+    color: #94A3B8;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #1E293B;
+    white-space: nowrap;
+}
+.table-pavement-ledger tbody tr.segment-entry-row {
+    background: var(--roadeye-surface);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+}
+.table-pavement-ledger tbody tr.segment-entry-row:hover {
+    background-color: #172438 !important;
+}
+.table-pavement-ledger tbody tr.segment-entry-row.row-expanded {
+    background-color: #1A293E !important;
+    border-left: 3px solid var(--roadeye-cyan);
+}
+.table-pavement-ledger td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.7);
+    color: #F1F5F9;
+    vertical-align: middle;
+}
+
+/* Bright / Light Mode Table Overrides */
+[data-theme="bright"] .table-pavement-ledger,
+[data-theme="light"] .table-pavement-ledger {
+    background: #FFFFFF !important;
+}
+[data-theme="bright"] .table-pavement-ledger thead th,
+[data-theme="light"] .table-pavement-ledger thead th {
+    background: #F8FAFC !important;
+    color: #475569 !important;
+    border-bottom: 2px solid #CBD5E1 !important;
+}
+[data-theme="bright"] .table-pavement-ledger tbody tr.segment-entry-row,
+[data-theme="light"] .table-pavement-ledger tbody tr.segment-entry-row {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+[data-theme="bright"] .table-pavement-ledger tbody tr.segment-entry-row:hover,
+[data-theme="light"] .table-pavement-ledger tbody tr.segment-entry-row:hover {
+    background-color: #F1F5F9 !important;
+}
+[data-theme="bright"] .table-pavement-ledger tbody tr.segment-entry-row.row-expanded,
+[data-theme="light"] .table-pavement-ledger tbody tr.segment-entry-row.row-expanded {
+    background-color: #E0F2FE !important;
+    border-left: 3px solid #0284C7 !important;
+}
+[data-theme="bright"] .table-pavement-ledger td,
+[data-theme="light"] .table-pavement-ledger td {
+    color: #0F172A !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+[data-theme="bright"] .table-pavement-ledger .font-mono.fw-semibold,
+[data-theme="light"] .table-pavement-ledger .font-mono.fw-semibold {
+    color: #0F172A !important;
+}
+[data-theme="bright"] .table-pavement-ledger .text-secondary,
+[data-theme="light"] .table-pavement-ledger .text-secondary {
+    color: #64748B !important;
+}
+
+/* Expandable Detail Row Container */
+.segment-expanded-panel {
+    background: #0A101A;
+    border: 1px solid #223247;
+    border-radius: 8px;
+    box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="bright"] .segment-expanded-panel,
+[data-theme="light"] .segment-expanded-panel {
+    background: #F8FAFC !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+}
+[data-theme="bright"] .segment-expanded-panel .text-white,
+[data-theme="light"] .segment-expanded-panel .text-white {
+    color: #0F172A !important;
+}
+[data-theme="bright"] .segment-expanded-panel .text-secondary,
+[data-theme="light"] .segment-expanded-panel .text-secondary {
+    color: #475569 !important;
+}
+[data-theme="bright"] .segment-expanded-panel .p-2\.5\.rounded,
+[data-theme="light"] .segment-expanded-panel .p-2\.5\.rounded,
+[data-theme="bright"] .segment-expanded-panel div[style*="background: #111C2B"],
+[data-theme="light"] .segment-expanded-panel div[style*="background: #111C2B"] {
+    background: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+}
+
+/* BoQ Nested Table */
+.nested-boq-table {
     width: 100%;
     font-size: 11px;
     border-collapse: separate;
     border-spacing: 0;
 }
-.boq-table th {
-    background: var(--bg-sunken);
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
+.nested-boq-table th {
+    background: #111C2B;
+    color: #94A3B8;
+    padding: 6px 10px;
     font-size: 10px;
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--border-default);
+    text-transform: uppercase;
+    border-bottom: 1px solid #223247;
 }
-.boq-table td {
+.nested-boq-table td {
     padding: 6px 10px;
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--text-primary);
+    border-bottom: 1px solid #172438;
+    color: #E2E8F0;
 }
 
-.rating-pill-sm {
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
+[data-theme="bright"] .nested-boq-table th,
+[data-theme="light"] .nested-boq-table th {
+    background: #E2E8F0 !important;
+    color: #475569 !important;
+    border-bottom: 1px solid #CBD5E1 !important;
+}
+[data-theme="bright"] .nested-boq-table td,
+[data-theme="light"] .nested-boq-table td {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+
+/* Filter Pills */
+.filter-pill-btn {
+    background: transparent;
+    border: 1px solid #223247;
+    color: #94A3B8;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
     font-weight: 600;
+    transition: all 0.15s ease;
+}
+.filter-pill-btn:hover {
+    border-color: #38BDF8;
+    color: #F1F5F9;
+}
+.filter-pill-btn.active {
+    background: #0284C7;
+    border-color: #0284C7;
+    color: #FFFFFF;
+}
+
+[data-theme="bright"] .filter-pill-btn,
+[data-theme="light"] .filter-pill-btn {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    color: #475569 !important;
+}
+[data-theme="bright"] .filter-pill-btn:hover,
+[data-theme="light"] .filter-pill-btn:hover {
+    border-color: #0284C7 !important;
+    color: #0284C7 !important;
+}
+[data-theme="bright"] .filter-pill-btn.active,
+[data-theme="light"] .filter-pill-btn.active {
+    background: #0284C7 !important;
+    border-color: #0284C7 !important;
+    color: #FFFFFF !important;
+}
+
+/* General Bright Mode Card Styling */
+[data-theme="bright"] .card,
+[data-theme="light"] .card {
+    background: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+}
+[data-theme="bright"] .card-header,
+[data-theme="light"] .card-header {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+}
+[data-theme="bright"] .card-header h6,
+[data-theme="light"] .card-header h6,
+[data-theme="bright"] .card-header .text-white,
+[data-theme="light"] .card-header .text-white {
+    color: #0F172A !important;
+}
+[data-theme="bright"] .card-header .text-secondary,
+[data-theme="light"] .card-header .text-secondary {
+    color: #64748B !important;
+}
+
+[data-theme="bright"] #segmentFilterInput,
+[data-theme="light"] #segmentFilterInput {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    border-color: #CBD5E1 !important;
+}
+[data-theme="bright"] #segmentFilterInput::placeholder,
+[data-theme="light"] #segmentFilterInput::placeholder {
+    color: #94A3B8 !important;
+}
+
+[data-theme="bright"] .accordion-item,
+[data-theme="light"] .accordion-item {
+    background: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+}
+[data-theme="bright"] .accordion-button,
+[data-theme="light"] .accordion-button {
+    background: #F8FAFC !important;
+    color: #0F172A !important;
+}
+[data-theme="bright"] .accordion-body,
+[data-theme="light"] .accordion-body {
+    background: #FFFFFF !important;
+    color: #475569 !important;
+}
+.filter-pill-btn.active {
+    background: #38BDF8;
+    border-color: #38BDF8;
+    color: #080D16;
+}
+
+/* Intervention Standards Compact Cards */
+.intervention-standard-card {
+    background: #0D1623;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 11px 15px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.intervention-standard-card:hover {
+    transform: translateX(3px);
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.intervention-standard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.intervention-standard-card.accent-reconstruct::before { background: #EF4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+.intervention-standard-card.accent-overlay::before { background: #F59E0B; box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+.intervention-standard-card.accent-patch::before { background: #38BDF8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
+.intervention-standard-card.accent-routine::before { background: #10B981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+
+.standard-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF !important;
+    line-height: 1.25;
+    margin-bottom: 2px;
+}
+.standard-criteria {
+    font-size: 11px;
+    color: #CBD5E1 !important;
+}
+.standard-rate {
+    font-size: 13.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    text-align: right;
+}
+.rate-red { color: #F87171; }
+.rate-amber { color: #FBBF24; }
+.rate-cyan { color: #38BDF8; }
+.rate-green { color: #34D399; }
+
+/* Bright / Light Mode Support for Intervention Standards */
+[data-theme="bright"] .intervention-standard-card,
+[data-theme="light"] .intervention-standard-card {
+    background: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+}
+[data-theme="bright"] .standard-title,
+[data-theme="light"] .standard-title {
+    color: #0F172A !important;
+}
+[data-theme="bright"] .standard-criteria,
+[data-theme="light"] .standard-criteria {
+    color: #64748B !important;
+}
+[data-theme="bright"] .rate-red,
+[data-theme="light"] .rate-red {
+    color: #DC2626 !important;
+}
+[data-theme="bright"] .rate-amber,
+[data-theme="light"] .rate-amber {
+    color: #D97706 !important;
+}
+[data-theme="bright"] .rate-cyan,
+[data-theme="light"] .rate-cyan {
+    color: #0284C7 !important;
+}
+[data-theme="bright"] .rate-green,
+[data-theme="light"] .rate-green {
+    color: #059669 !important;
+}
+
+.chevron-icon {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-block;
+}
+.row-expanded .chevron-icon {
+    transform: rotate(90deg);
+    color: #38BDF8 !important;
 }
 </style>
 {% endblock %}
@@ -65,263 +616,258 @@
     <!-- ============================================================ -->
     <!-- 1. OPERATIONS HEADER                                         -->
     <!-- ============================================================ -->
-    <div class="page-header-row mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
         <div>
-            <h1 class="page-main-title">Pavement Health &amp; Rehabilitation Budget</h1>
-            <div class="text-secondary small font-mono">
-                ASTM D6433 Pavement Condition Index • World Bank HDM-4 IRI • ERA Schedule of Rates
-            </div>
+            <h1 class="h4 mb-0 fw-bold text-white">Pavement Health &amp; Rehabilitation Budget</h1>
         </div>
 
-        <div class="page-actions-bar">
-            <!-- Block Size Selector -->
-            <div class="btn-group btn-group-sm">
-                <a href="?block_size=50" class="btn btn-secondary {% if request.args.get('block_size', '50') == '50' %}active{% endif %}" title="50m Fine Resolution">50m Blocks</a>
-                <a href="?block_size=100" class="btn btn-secondary {% if request.args.get('block_size') == '100' %}active{% endif %}" title="100m Standard Resolution">100m Blocks</a>
-                <a href="?block_size=250" class="btn btn-secondary {% if request.args.get('block_size') == '250' %}active{% endif %}" title="250m Engineering Blocks">250m Blocks</a>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <!-- Block Size Resolution Selector -->
+            <div class="btn-group btn-group-sm shadow-sm" role="group" title="Road Block Analysis Resolution">
+                <a href="?block_size=50" class="btn btn-outline-secondary {% if request.args.get('block_size', '50') == '50' %}active bg-secondary text-white{% endif %} py-1 px-2.5">50m Blocks</a>
+                <a href="?block_size=100" class="btn btn-outline-secondary {% if request.args.get('block_size') == '100' %}active bg-secondary text-white{% endif %} py-1 px-2.5">100m</a>
+                <a href="?block_size=250" class="btn btn-outline-secondary {% if request.args.get('block_size') == '250' %}active bg-secondary text-white{% endif %} py-1 px-2.5">250m</a>
             </div>
 
-            <!-- Rainy Forecast Link -->
-            <a href="/forecast" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1" title="Simulate Monsoon Deterioration Forecast">
+            <!-- Monsoon Deterioration Forecast -->
+            <a href="/forecast" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1.5 py-1 px-2.5 fw-semibold shadow-sm" title="Simulate Monsoon Rainfall Road Degradation">
                 <i data-lucide="cloud-rain" style="width:14px; height:14px;"></i>
-                <span class="d-none d-md-inline">Rainy Forecast</span>
+                <span>Rainy Forecast</span>
             </a>
 
-            <!-- Export BoQ CSV -->
-            <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-primary" title="Export ERA Schedule of Rates BoQ">
-                <i data-lucide="download"></i> Export BoQ CSV
+            <!-- Export Full BoQ CSV -->
+            <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1.5 py-1 px-3 fw-semibold shadow-sm" title="Export Complete BoQ & Pavement Inventory">
+                <i data-lucide="download" style="width:14px; height:14px;"></i>
+                <span>Export BoQ CSV</span>
             </a>
 
-            <button class="btn btn-ghost" onclick="window.location.reload()" title="Refresh Telemetry">
-                <i data-lucide="rotate-cw"></i>
+            <!-- Calibration Settings -->
+            <a href="/settings" class="btn btn-sm btn-outline-info d-flex align-items-center gap-1.5 py-1 px-2.5 font-mono" title="Adjust Material Unit Rates or Nomograph Parameters">
+                <i data-lucide="sliders" style="width:13px; height:13px;"></i>
+                <span>Calibration Settings</span>
+            </a>
+
+            <!-- Refresh View -->
+            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="window.location.reload()" title="Refresh Telemetry">
+                <i data-lucide="rotate-cw" style="width:14px; height:14px;"></i>
             </button>
         </div>
     </div>
 
-    <!-- Data Integrity & Configurable Parameters Banner -->
-    <div class="alert text-light py-2 px-3 rounded-lg mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12);">
-        <div class="d-flex flex-wrap align-items-center gap-2 small">
-            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 px-2 py-0.5 font-mono">
-                <i data-lucide="check-circle" style="width:12px; height:12px; display:inline;"></i> Verified Field Telemetry
-            </span>
-            <span class="text-secondary">•</span>
-            <span class="text-white-50">Detections: <strong class="text-white">{{ stats.total_incidents if stats else 101 }} raw sightings</strong></span>
-            <span class="text-secondary">•</span>
-            <span class="text-white-50">Deduplicated Hazards: <strong class="text-cyan-400 font-mono">66 canonical</strong></span>
-            <span class="text-secondary">•</span>
-            <span class="text-white-50">Priors: <strong class="text-info">ASTM D6433 Nomographs &amp; ERA Schedule of Rates</strong></span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="/settings" class="btn btn-sm btn-outline-info py-0 px-2 font-mono" style="font-size:11px;" title="Adjust material rates or ASTM calibration parameters">
-                <i data-lucide="sliders" style="width:11px; height:11px; display:inline;"></i> Calibration Settings (ፓራሜትሮችን ቀይር)
-            </a>
-        </div>
-    </div>
-
     <!-- ============================================================ -->
-    <!-- 2. HIGH-DENSITY EXECUTIVE KPI GRID                           -->
+    <!-- 2. MAIN DASHBOARD OVERVIEW: 7 MINIMAL KPI CARDS             -->
     <!-- ============================================================ -->
-    <div class="kpi-row-grid">
+    <div class="pavement-kpi-grid mb-3">
 
-        <!-- 1. Corridor Average PCI -->
-        <div class="kpi-metric-card accent-primary">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Overall Corridor PCI</span>
-                <div class="kpi-icon-pill" style="color: {{ assessment.pci_color }};">
-                    <i data-lucide="gauge"></i>
+        <!-- 1. Overall PCI -->
+        <div class="kpi-card-refined accent-pci kpi-col-4">
+            <div class="kpi-header">
+                <span class="kpi-title">Overall PCI</span>
+                <div class="kpi-icon-pill" style="background: rgba(16, 185, 129, 0.15); color: {{ assessment.pci_color }};">
+                    <i data-lucide="gauge" style="width:15px; height:15px;"></i>
                 </div>
             </div>
-            <div class="d-flex align-items-baseline gap-2">
-                <div class="kpi-number-display" style="color: {{ assessment.pci_color }};">{{ assessment.average_pci }}</div>
-                <span class="badge-status" style="background: rgba(255,255,255,0.06); color: {{ assessment.pci_color }}; border: 1px solid {{ assessment.pci_color }}; font-size: 10px;">
-                    {{ assessment.pci_rating|upper }} ({{ assessment.pci_rating_am }})
+            <div class="kpi-body">
+                <span class="kpi-number">{{ assessment.average_pci }}</span>
+                <span class="kpi-badge" style="background: rgba(16, 185, 129, 0.15); color: {{ assessment.pci_color }} !important; border: 1px solid {{ assessment.pci_color }};">
+                    {{ assessment.pci_rating|upper }}
                 </span>
             </div>
         </div>
 
-        <!-- 2. World Bank Average IRI -->
-        <div class="kpi-metric-card accent-warning">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Roughness (IRI)</span>
-                <div class="kpi-icon-pill" style="color: {{ assessment.iri_color }};">
-                    <i data-lucide="activity"></i>
+        <!-- 2. Roughness (IRI) -->
+        <div class="kpi-card-refined accent-iri kpi-col-4">
+            <div class="kpi-header">
+                <span class="kpi-title">Roughness (IRI)</span>
+                <div class="kpi-icon-pill" style="background: rgba(245, 158, 11, 0.15); color: {{ assessment.iri_color }};">
+                    <i data-lucide="activity" style="width:15px; height:15px;"></i>
                 </div>
             </div>
-            <div class="d-flex align-items-baseline gap-2">
-                <div class="kpi-number-display" style="color: {{ assessment.iri_color }};">{{ assessment.average_iri }}</div>
-                <small class="text-secondary font-mono" style="font-size: 11px;">m/km</small>
-                <span class="badge-status" style="background: rgba(255,255,255,0.06); color: {{ assessment.iri_color }}; font-size: 9.5px;">
-                    {{ assessment.iri_rating }}
+            <div class="kpi-body">
+                <span class="kpi-number">{{ assessment.average_iri }}</span>
+                <span class="kpi-unit">m/km</span>
+                {% if assessment.iri_rating %}
+                <span class="kpi-badge ms-auto" style="background: rgba(245, 158, 11, 0.15); color: {{ assessment.iri_color }} !important; border: 1px solid {{ assessment.iri_color }};">
+                    {{ assessment.iri_rating|upper }}
                 </span>
+                {% endif %}
             </div>
         </div>
 
-        <!-- 3. Total Resurfacing Budget (ETB) -->
-        <div class="kpi-metric-card accent-danger">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Rehabilitation Budget (ETB)</span>
-                <div class="kpi-icon-pill" style="color: var(--danger);"><i data-lucide="coins"></i></div>
+        <!-- 3. Rehabilitation Budget -->
+        <div class="kpi-card-refined accent-budget kpi-col-4">
+            <div class="kpi-header">
+                <span class="kpi-title">Rehabilitation Budget</span>
+                <div class="kpi-icon-pill" style="background: rgba(239, 68, 68, 0.15); color: var(--roadeye-rose);">
+                    <i data-lucide="coins" style="width:15px; height:15px;"></i>
+                </div>
             </div>
-            <div class="kpi-number-display font-mono" style="font-size: 20px;">
-                {{ "{:,.0f}".format(assessment.total_rehabilitation_cost_etb) }}
-                <small class="text-secondary fs-6 fw-normal">ETB</small>
-            </div>
-        </div>
-
-        <!-- 4. Resurfacing Budget (USD) -->
-        <div class="kpi-metric-card accent-indigo">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Rehabilitation Budget (USD)</span>
-                <div class="kpi-icon-pill" style="color: #6366f1;"><i data-lucide="dollar-sign"></i></div>
-            </div>
-            <div class="kpi-number-display font-mono" style="font-size: 20px; color: #818cf8;">
-                ${{ "{:,.0f}".format(assessment.total_rehabilitation_cost_usd) }}
-                <small class="text-secondary fs-6 fw-normal">USD</small>
+            <div class="kpi-body">
+                <span class="kpi-number">{{ "{:,.0f}".format(assessment.total_rehabilitation_cost_etb) }}</span>
+                <span class="kpi-unit fw-bold" style="color: var(--roadeye-rose) !important;">ETB</span>
             </div>
         </div>
 
-        <!-- 5. Hot-Mix Asphalt Required -->
-        <div class="kpi-metric-card accent-warning">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Required HMA Asphalt</span>
-                <div class="kpi-icon-pill" style="color: var(--warning);"><i data-lucide="truck"></i></div>
+        <!-- 4. Budget in USD -->
+        <div class="kpi-card-refined accent-usd kpi-col-4">
+            <div class="kpi-header">
+                <span class="kpi-title">Budget in USD</span>
+                <div class="kpi-icon-pill" style="background: rgba(129, 140, 248, 0.15); color: #818CF8;">
+                    <i data-lucide="dollar-sign" style="width:15px; height:15px;"></i>
+                </div>
             </div>
-            <div class="kpi-number-display font-mono">
-                {{ "{:,.1f}".format(assessment.materials_summary.total_hot_mix_asphalt_tonnes) }}
-                <small class="text-secondary fs-6 fw-normal">Tonnes</small>
-            </div>
-        </div>
-
-        <!-- 6. Bitumen Tack Coat -->
-        <div class="kpi-metric-card accent-primary">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Tack Coat Emulsion</span>
-                <div class="kpi-icon-pill" style="color: var(--accent-primary);"><i data-lucide="droplet"></i></div>
-            </div>
-            <div class="kpi-number-display font-mono">
-                {{ "{:,.0f}".format(assessment.materials_summary.total_tack_coat_liters) }}
-                <small class="text-secondary fs-6 fw-normal">Liters</small>
+            <div class="kpi-body">
+                <span class="kpi-number">${{ "{:,.0f}".format(assessment.total_rehabilitation_cost_usd) }}</span>
+                <span class="kpi-unit" style="color: #818CF8 !important;">USD</span>
             </div>
         </div>
 
-        <!-- 7. Evaluated Blocks & Hotspots -->
-        <div class="kpi-metric-card accent-danger">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Critical Hotspots</span>
-                <div class="kpi-icon-pill" style="color: var(--danger);"><i data-lucide="alert-octagon"></i></div>
+        <!-- 5. Required HMA Asphalt -->
+        <div class="kpi-card-refined accent-hma kpi-col-3">
+            <div class="kpi-header">
+                <span class="kpi-title">Required HMA Asphalt</span>
+                <div class="kpi-icon-pill" style="background: rgba(249, 115, 22, 0.15); color: #F97316;">
+                    <i data-lucide="truck" style="width:15px; height:15px;"></i>
+                </div>
             </div>
-            <div class="kpi-number-display text-danger">
-                {{ assessment.critical_hotspots_count }}
-                <small class="text-secondary fs-6 fw-normal">/ {{ assessment.total_segments }} Blocks</small>
+            <div class="kpi-body">
+                <span class="kpi-number">{{ "{:,.1f}".format(assessment.materials_summary.total_hot_mix_asphalt_tonnes) }}</span>
+                <span class="kpi-unit">Tonnes</span>
+            </div>
+        </div>
+
+        <!-- 6. Tack Coat Emulsion -->
+        <div class="kpi-card-refined accent-tack kpi-col-3">
+            <div class="kpi-header">
+                <span class="kpi-title">Tack Coat Emulsion</span>
+                <div class="kpi-icon-pill" style="background: rgba(56, 189, 248, 0.15); color: var(--roadeye-cyan);">
+                    <i data-lucide="droplet" style="width:15px; height:15px;"></i>
+                </div>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-number">{{ "{:,.0f}".format(assessment.materials_summary.total_tack_coat_liters) }}</span>
+                <span class="kpi-unit">Liters</span>
+            </div>
+        </div>
+
+        <!-- 7. Critical Hotspots -->
+        <div class="kpi-card-refined accent-hotspots kpi-col-3">
+            <div class="kpi-header">
+                <span class="kpi-title">Critical Hotspots</span>
+                <div class="kpi-icon-pill" style="background: rgba(239, 68, 68, 0.15); color: var(--roadeye-rose);">
+                    <i data-lucide="alert-octagon" style="width:15px; height:15px;"></i>
+                </div>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-number">{{ assessment.critical_hotspots_count }}</span>
+                <span class="kpi-unit">/ {{ assessment.total_segments }} Blocks</span>
             </div>
         </div>
 
     </div>
 
     <!-- ============================================================ -->
-    <!-- 3. INTERACTIVE GIS HEATMAP & RATING BREAKDOWN                 -->
+    <!-- 3. CORRIDOR GIS MAP & INTERVENTION STANDARDS                 -->
     <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-3">
 
-        <!-- Column A: Leaflet Segmented Heatmap -->
+        <!-- Column A: Leaflet Segmented Map (70% on Desktop) -->
         <div class="col-12 col-xl-8">
-            <div class="panel-card h-100">
-                <div class="panel-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div class="panel-title">
-                        <i data-lucide="map" style="color:var(--accent-primary);"></i>
-                        Corridor Heatmap · Route A2 Debre Berhan
+            <div class="card h-100 shadow-sm border" style="background: var(--roadeye-surface); border-color: var(--roadeye-border) !important;">
+                <div class="card-header py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: var(--roadeye-surface-elevated); border-color: var(--roadeye-border) !important;">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i data-lucide="map" style="width:16px; height:16px; color: var(--roadeye-cyan);"></i>
+                            <h6 class="mb-0 fw-bold text-white" style="font-size: 0.88rem;">Corridor Condition Map</h6>
+                        </div>
+                        <div class="text-secondary small font-mono" style="font-size: 0.72rem;">Route A2 – Debre Berhan | {{ assessment.total_segments }} Blocks</div>
                     </div>
 
-                    <!-- Heatmap Metric Toggle & Legend -->
+                    <!-- Heatmap Metric Toggle & Basemap Switcher -->
                     <div class="d-flex align-items-center gap-2">
-                        <div class="btn-group btn-group-sm" id="heatmapModeToggle">
-                            <button class="btn btn-sm btn-outline-primary active" id="btnModePci" onclick="switchHeatmapMetric('PCI')">PCI Health</button>
-                            <button class="btn btn-sm btn-outline-primary" id="btnModeIri" onclick="switchHeatmapMetric('IRI')">IRI Roughness</button>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary active py-0.5 px-2.5 font-mono" id="btnModePci" onclick="switchHeatmapMetric('PCI')" style="font-size: 0.75rem;">PCI</button>
+                            <button type="button" class="btn btn-outline-primary py-0.5 px-2.5 font-mono" id="btnModeIri" onclick="switchHeatmapMetric('IRI')" style="font-size: 0.75rem;">IRI</button>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:11px;" id="toggleBasemapBtn" onclick="toggleBasemapStyle()">
-                            <span id="basemapLabel">Tiles</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0.5 px-2 font-mono" id="toggleBasemapBtn" onclick="toggleBasemapStyle()" style="font-size: 0.75rem;">
+                            <span id="basemapLabel">Dark Tiles</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="panel-body p-2 position-relative">
+                <div class="card-body p-2 position-relative">
                     <div id="pavementGisMap"></div>
 
-                    <!-- Interactive Legend Strip Overlay -->
-                    <div style="position: absolute; bottom: 18px; left: 18px; z-index: 1000; background: rgba(8, 13, 22, 0.90); backdrop-filter: blur(8px); border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px;">
-                        <div class="fw-bold mb-1 text-white" id="legendTitle" style="font-size: 10.5px; text-transform: uppercase;">ASTM D6433 PCI Condition Scale (ደረጃ)</div>
-                        <div class="d-flex align-items-center gap-3 font-mono" id="legendItems">
-                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#10b981; border-radius:2px; display:inline-block;"></span> Good (85-100 / ጥሩ)</div>
-                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#84cc16; border-radius:2px; display:inline-block;"></span> Satisfactory (70-84 / አጥጋቢ)</div>
-                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#eab308; border-radius:2px; display:inline-block;"></span> Fair (55-69 / መካከለኛ)</div>
-                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#f97316; border-radius:2px; display:inline-block;"></span> Poor (40-54 / ዝቅተኛ)</div>
-                            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#ef4444; border-radius:2px; display:inline-block;"></span> Critical (&lt;40 / የወደቀ)</div>
+                    <!-- Clean Compact Map Legend Strip Overlay -->
+                    <div style="position: absolute; bottom: 18px; left: 18px; z-index: 1000; background: rgba(11, 17, 26, 0.92); backdrop-filter: blur(8px); border: 1px solid var(--roadeye-border); border-radius: 6px; padding: 6px 12px; font-size: 11px;">
+                        <div class="d-flex flex-wrap align-items-center gap-3 font-mono" id="legendItems" style="font-size: 10.5px;">
+                            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#10b981; border-radius:2px; display:inline-block;"></span> Good (85–100)</div>
+                            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#84cc16; border-radius:2px; display:inline-block;"></span> Satisfactory (70–84)</div>
+                            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#eab308; border-radius:2px; display:inline-block;"></span> Fair (55–69)</div>
+                            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#f97316; border-radius:2px; display:inline-block;"></span> Poor (40–54)</div>
+                            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#ef4444; border-radius:2px; display:inline-block;"></span> Critical (&lt;40)</div>
                         </div>
                     </div>
-                </div>
-
-                <div class="panel-footer d-flex justify-content-between align-items-center font-mono">
-                    <span>{{ assessment.total_segments }} Surveyed Blocks ({{ assessment.total_length_km }} km)</span>
-                    <span class="text-secondary">Click any road block for detailed BoQ</span>
                 </div>
             </div>
         </div>
 
-        <!-- Column B: Strategy Distribution & Cost Breakdown -->
+        <!-- Column B: Intervention Standards (4 Compact Cards) -->
         <div class="col-12 col-xl-4">
-            <div class="panel-card h-100 d-flex flex-column justify-content-between">
-                <div class="panel-header">
-                    <div class="panel-title">
-                        <i data-lucide="pie-chart" style="color:var(--warning);"></i>
-                        Pavement Condition Distribution
+            <div class="card h-100 shadow-sm border" style="background: var(--roadeye-surface); border-color: var(--roadeye-border) !important;">
+                <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center" style="background: var(--roadeye-surface-elevated); border-color: var(--roadeye-border) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="shield-check" style="width:16px; height:16px; color: var(--roadeye-cyan);"></i>
+                        <h6 class="mb-0 fw-bold text-white" style="font-size: 0.88rem;">Intervention Standards</h6>
                     </div>
                 </div>
 
-                <div class="panel-body p-3">
-                    <!-- Chart Canvas -->
-                    <div style="position: relative; height: 190px; width: 100%; margin-bottom: 16px;">
-                        <canvas id="pciDistributionChart"></canvas>
-                    </div>
-
-                    <!-- ERA Treatment Matrix Summary -->
-                    <div class="sidebar-section-title mb-2">ERA Standardized Intervention Triggers</div>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #7f1d1d;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Full Reconstruction</span>
-                                <span class="badge bg-danger text-white font-mono" style="font-size: 9px;">PCI &lt; 40 / IRI &ge; 7.0</span>
+                <div class="card-body p-2.5 d-flex flex-column justify-content-between gap-2">
+                    
+                    <!-- 1. Full Reconstruction -->
+                    <div class="intervention-standard-card accent-reconstruct">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="standard-title" style="color: #FFFFFF !important; font-weight: 700;">Full Reconstruction</div>
+                                <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">PCI &lt; 40 / IRI &ge; 7.0</div>
                             </div>
-                            <div class="text-muted small mt-1">Crushed rock base + DBM + 50mm AC (7,800 ETB/m²)</div>
-                        </div>
-
-                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #f97316;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Mill &amp; 50mm Overlay</span>
-                                <span class="badge bg-warning text-dark font-mono" style="font-size: 9px;">40 &le; PCI &lt; 70</span>
-                            </div>
-                            <div class="text-muted small mt-1">Cold milling 50mm + Tack + Wearing Course (3,250 ETB/m²)</div>
-                        </div>
-
-                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #eab308;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Localized Patch &amp; Seal</span>
-                                <span class="badge bg-info text-dark font-mono" style="font-size: 9px;">70 &le; PCI &lt; 85</span>
-                            </div>
-                            <div class="text-muted small mt-1">Cold-mix patch (2,850 ETB/m²) + Crack sealant (480 ETB/m)</div>
-                        </div>
-
-                        <div class="p-2 rounded" style="background: var(--bg-elevated); border-left: 3px solid #10b981;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-semibold text-white" style="font-size: 11.5px;">Routine Preservation</span>
-                                <span class="badge bg-success text-white font-mono" style="font-size: 9px;">PCI &ge; 85</span>
-                            </div>
-                            <div class="text-muted small mt-1">Corridor inspection &amp; drainage clearance (18,500 ETB/block)</div>
+                            <div class="standard-rate rate-red font-mono" style="color: #F87171 !important; font-weight: 800;">7,800 ETB/m²</div>
                         </div>
                     </div>
-                </div>
 
-                <div class="panel-footer font-mono text-muted text-center" style="font-size: 11px;">
-                    Authority: Ethiopian Roads Administration (ERA) Standard Specifications
+                    <!-- 2. Mill & 50mm Overlay -->
+                    <div class="intervention-standard-card accent-overlay">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="standard-title" style="color: #FFFFFF !important; font-weight: 700;">Mill &amp; 50mm Overlay</div>
+                                <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">40 &le; PCI &lt; 70</div>
+                            </div>
+                            <div class="standard-rate rate-amber font-mono" style="color: #FBBF24 !important; font-weight: 800;">3,250 ETB/m²</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Localized Patch & Seal -->
+                    <div class="intervention-standard-card accent-patch">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="standard-title" style="color: #FFFFFF !important; font-weight: 700;">Localized Patch &amp; Seal</div>
+                                <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">70 &le; PCI &lt; 85</div>
+                            </div>
+                            <div class="standard-rate rate-cyan font-mono" style="color: #38BDF8 !important; font-weight: 800;">2,850 ETB/m²</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Routine Preservation -->
+                    <div class="intervention-standard-card accent-routine">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="standard-title" style="color: #FFFFFF !important; font-weight: 700;">Routine Preservation</div>
+                                <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">PCI &ge; 85</div>
+                            </div>
+                            <div class="standard-rate rate-green font-mono" style="color: #34D399 !important; font-weight: 800;">18,500 ETB/block</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -329,73 +875,107 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 4. DETAILED ROAD SEGMENTS & BILL OF QUANTITIES (BOQ) TABLE   -->
+    <!-- 5. CORRIDOR SEGMENT ASSESSMENT LEDGER (MAIN PRIORITY)        -->
     <!-- ============================================================ -->
-    <div class="panel-card mb-4">
-        <div class="panel-header py-3">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 w-100">
-                <div>
-                    <div class="panel-title">
-                        <i data-lucide="layers" style="color:var(--accent-primary);"></i>
-                        Corridor Segment Assessment Ledger
-                    </div>
+    <div class="card shadow-sm border mb-4" style="background: var(--roadeye-surface); border-color: var(--roadeye-border) !important;">
+        <div class="card-header py-3 px-3" style="background: var(--roadeye-surface-elevated); border-color: var(--roadeye-border) !important;">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="layers" style="width:18px; height:18px; color: var(--roadeye-cyan);"></i>
+                    <h6 class="mb-0 fw-bold text-white">Corridor Segment Assessment Ledger</h6>
+                    <span class="badge bg-primary font-mono ms-2" id="segmentCounterBadge">{{ assessment.segments|length }} of {{ assessment.segments|length }} Blocks</span>
                 </div>
 
-                <!-- Search and Filters -->
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <div class="search-input-wrap">
-                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
-                        <input type="text" class="form-control form-control-sm ps-4" id="segmentFilterInput" placeholder="Filter ID, chainage..." style="width: 180px; font-size: 11.5px;">
-                    </div>
-
-                    <div class="filter-pills-row">
-                        <button class="filter-pill-btn active" onclick="filterSegments('ALL', this)">All ({{ assessment.segments|length }})</button>
-                        <button class="filter-pill-btn" onclick="filterSegments('CRITICAL', this)">Critical (&lt;40)</button>
-                        <button class="filter-pill-btn" onclick="filterSegments('POOR', this)">Poor (40-54)</button>
-                        <button class="filter-pill-btn" onclick="filterSegments('FAIR', this)">Fair (55-69)</button>
-                        <button class="filter-pill-btn" onclick="filterSegments('GOOD', this)">Good (70+)</button>
-                    </div>
-
-                    <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-sm btn-outline-secondary">
-                        <i data-lucide="download" style="width:12px; height:12px;"></i> CSV
-                    </a>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Toggle Visibility Button -->
+                    <button type="button" class="btn btn-sm btn-info d-flex align-items-center gap-1.5 fw-semibold px-3 shadow-sm font-mono" id="btnToggleLedger" onclick="toggleLedgerTable()">
+                        <i data-lucide="eye-off" id="iconToggleLedger" style="width:14px; height:14px;"></i>
+                        <span id="labelToggleLedger">Hide Ledger Table</span>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="table-container-responsive border-0">
-            <table class="enterprise-table" id="pavementSegmentsTable">
-                <thead>
+        <!-- Ledger Content (Visible by default; click row to inspect BoQ) -->
+        <div id="ledgerContentWrapper" style="display: block;">
+            <!-- Filter & Search Toolbar inside wrapper -->
+            <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style="background: rgba(15, 23, 42, 0.4); border-color: var(--roadeye-border) !important;">
+                <!-- Search Input -->
+                <div class="input-group input-group-sm" style="width: 240px;">
+                    <span class="input-group-text border-secondary border-opacity-25 bg-dark text-secondary">
+                        <i data-lucide="search" style="width:13px; height:13px;"></i>
+                    </span>
+                    <input type="text" class="form-control form-control-sm font-mono text-white border-secondary border-opacity-25" id="segmentFilterInput" placeholder="Filter ID, chainage, condition..." style="background: #080D16; font-size: 11.5px;">
+                    <button class="btn btn-outline-secondary border-secondary border-opacity-25 py-0 px-2" type="button" onclick="clearSegmentSearch()" title="Clear Search">
+                        <i data-lucide="x" style="width:12px; height:12px;"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Pills -->
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="filter-pill-btn active" onclick="filterSegments('ALL', this)">All ({{ assessment.segments|length }})</button>
+                    <button type="button" class="filter-pill-btn" onclick="filterSegments('CRITICAL', this)">Critical (&lt;40)</button>
+                    <button type="button" class="filter-pill-btn" onclick="filterSegments('POOR', this)">Poor (40-54)</button>
+                    <button type="button" class="filter-pill-btn" onclick="filterSegments('FAIR', this)">Fair (55-69)</button>
+                    <button type="button" class="filter-pill-btn" onclick="filterSegments('GOOD', this)">Good (70+)</button>
+                </div>
+
+                <!-- Expand / Collapse All Toggle & CSV -->
+                <div class="d-flex align-items-center gap-2">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 font-mono" onclick="expandAllSegments()" title="Expand All Segments">
+                            <i data-lucide="chevrons-down" style="width:13px; height:13px; display:inline;"></i> Expand All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 font-mono" onclick="collapseAllSegments()" title="Collapse All Segments">
+                            <i data-lucide="chevrons-up" style="width:13px; height:13px; display:inline;"></i> Collapse
+                        </button>
+                    </div>
+                    <a href="{{ url_for('api_pavement_export_csv') }}" class="btn btn-sm btn-outline-secondary py-1 px-2.5 d-flex align-items-center gap-1 font-mono" title="Export Segment Ledger CSV">
+                        <i data-lucide="download" style="width:13px; height:13px;"></i> CSV
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="max-height: 800px; overflow-y: auto;">
+            <table class="table-pavement-ledger mb-0 font-mono" id="pavementSegmentsTable">
+                <thead class="sticky-top" style="z-index: 10;">
                     <tr>
-                        <th style="width: 85px;">Block ID</th>
-                        <th>Chainage (KP)</th>
+                        <th style="width: 32px;" class="text-center ps-3"></th>
+                        <th style="width: 90px;">Block ID</th>
+                        <th>Chainage</th>
                         <th>Length</th>
-                        <th>PCI Score</th>
-                        <th>ASTM Rating</th>
-                        <th>IRI Roughness</th>
+                        <th>PCI</th>
+                        <th>Condition</th>
+                        <th>IRI</th>
                         <th>Defects</th>
-                        <th>Recommended Intervention</th>
-                        <th>Budget (ETB)</th>
-                        <th>Budget (USD)</th>
-                        <th style="width: 100px; text-align: right;">Action</th>
+                        <th>Intervention</th>
+                        <th>Cost</th>
+                        <th style="width: 80px; text-align: right;" class="pe-3">Action</th>
                     </tr>
                 </thead>
                 <tbody id="segmentsTbody">
                     {% for seg in assessment.segments %}
+                    {% set clean_intervention = 'Full Reconstruction' if seg.intervention_level == 'FULL_RECONSTRUCTION' else ('Mill & 50mm Overlay' if seg.intervention_level == 'MILL_AND_OVERLAY' else ('Localized Patch & Seal' if seg.intervention_level == 'LOCALIZED_REPAIR' else 'Routine Preservation')) %}
                     <tr class="segment-entry-row"
+                        id="row-{{ seg.segment_id }}"
+                        data-segment-id="{{ seg.segment_id }}"
                         data-pci="{{ seg.pci }}"
                         data-rating="{{ seg.pci_rating|upper }}"
-                        data-search="{{ seg.segment_id }} {{ seg.chainage_label }} {{ seg.pci_rating }} {{ seg.treatment }}">
-                        <td class="font-mono fw-bold text-accent">{{ seg.segment_id }}</td>
-                        <td class="font-mono text-white fw-semibold">{{ seg.chainage_label }}</td>
-                        <td class="font-mono">{{ seg.length_m }} m</td>
+                        data-search="{{ seg.segment_id }} {{ seg.chainage_label }} {{ seg.pci_rating }} {{ clean_intervention }} {{ seg.treatment }}"
+                        onclick="toggleSegmentRow('{{ seg.segment_id }}')">
+                        <td class="text-center ps-3">
+                            <i data-lucide="chevron-right" class="chevron-icon text-secondary" id="icon-chevron-{{ seg.segment_id }}" style="width:15px; height:15px;"></i>
+                        </td>
+                        <td class="font-mono fw-bold" style="color: #38BDF8;">{{ seg.segment_id }}</td>
+                        <td class="font-mono fw-semibold">{{ seg.chainage_label }}</td>
+                        <td class="font-mono text-secondary">{{ seg.length_m }} m</td>
                         <td>
                             <span class="pci-score-badge" style="background: rgba(255,255,255,0.05); color: {{ seg.color }}; border: 1px solid {{ seg.color }};">
                                 {{ seg.pci }}
                             </span>
                         </td>
                         <td>
-                            <span class="badge-status" style="background: {{ seg.color_rgba }}; color: white;">
+                            <span class="badge-status" style="background: {{ seg.color_rgba }}; color: white; font-size: 11px;">
                                 {{ seg.pci_rating }}
                             </span>
                         </td>
@@ -406,44 +986,224 @@
                             <small class="text-secondary">m/km</small>
                         </td>
                         <td class="font-mono">
-                            <span class="text-danger fw-bold" title="Potholes">{{ seg.potholes_count }} PTH</span> &bull; 
-                            <span class="text-warning fw-bold" title="Cracks">{{ seg.cracks_count }} CRK</span>
+                            <span class="badge font-mono py-0.5 px-1.5" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                {{ seg.potholes_count }} PTH
+                            </span>
+                            <span class="badge font-mono py-0.5 px-1.5 ms-1" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                {{ seg.cracks_count }} CRK
+                            </span>
                         </td>
                         <td>
-                            <div class="fw-semibold text-white" style="font-size: 11.5px;">{{ seg.treatment }}</div>
-                            <div class="d-flex flex-wrap align-items-center gap-1 mt-0.5">
-                                <span class="text-secondary font-mono" style="font-size: 10px;">{{ seg.urgency }}</span>
-                                {% if seg.trigger_reason %}
-                                <span class="badge font-mono" style="font-size: 9px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1;" title="{{ seg.trigger_reason_am }}">
-                                    {{ seg.trigger_reason }}
+                            <!-- Clean short intervention name (No paragraph clutter) -->
+                            {% if seg.intervention_level == 'FULL_RECONSTRUCTION' %}
+                                <span class="badge font-mono py-1 px-2 border" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border-color: rgba(239, 68, 68, 0.35);">
+                                    <i data-lucide="alert-octagon" style="width:11px; height:11px; display:inline;" class="me-1"></i>Full Reconstruction
                                 </span>
-                                {% endif %}
-                            </div>
+                            {% elif seg.intervention_level == 'MILL_AND_OVERLAY' %}
+                                <span class="badge font-mono py-1 px-2 border" style="background: rgba(249, 115, 22, 0.15); color: #FB923C; border-color: rgba(249, 115, 22, 0.35);">
+                                    <i data-lucide="layers" style="width:11px; height:11px; display:inline;" class="me-1"></i>Mill &amp; 50mm Overlay
+                                </span>
+                            {% elif seg.intervention_level == 'LOCALIZED_REPAIR' %}
+                                <span class="badge font-mono py-1 px-2 border" style="background: rgba(234, 179, 8, 0.15); color: #FACC15; border-color: rgba(234, 179, 8, 0.35);">
+                                    <i data-lucide="wrench" style="width:11px; height:11px; display:inline;" class="me-1"></i>Localized Patch &amp; Seal
+                                </span>
+                            {% else %}
+                                <span class="badge font-mono py-1 px-2 border" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35);">
+                                    <i data-lucide="shield-check" style="width:11px; height:11px; display:inline;" class="me-1"></i>Routine Preservation
+                                </span>
+                            {% endif %}
                         </td>
-                        <td class="font-mono fw-bold" style="color: var(--accent-primary);">
+                        <td class="font-mono fw-bold" style="color: #38BDF8;">
                             {{ "{:,.0f}".format(seg.cost_etb) }} ETB
                         </td>
-                        <td class="font-mono text-muted">
-                            ${{ "{:,.0f}".format(seg.cost_usd) }}
-                        </td>
-                        <td style="text-align: right;">
-                            <button class="btn btn-sm btn-outline-primary row-hover-action py-0.5 px-2"
-                                    onclick="inspectSegmentDetails({{ seg.segment_index - 1 }})"
-                                    title="Open Full Engineering BoQ">
-                                <i data-lucide="file-spreadsheet" style="width:12px; height:12px;"></i> BoQ
+                        <td style="text-align: right;" class="pe-3">
+                            <button type="button" class="btn btn-sm btn-outline-info py-0.5 px-2 font-mono" onclick="event.stopPropagation(); toggleSegmentRow('{{ seg.segment_id }}');" title="Expand Detailed BoQ">
+                                <span>Inspect</span>
                             </button>
+                        </td>
+                    </tr>
+
+                    <!-- INTERACTIVE EXPANDABLE DETAIL ROW -->
+                    <tr class="segment-detail-row" id="detail-{{ seg.segment_id }}" style="display: none;">
+                        <td colspan="11" class="p-0 border-0">
+                            <div class="segment-expanded-panel p-3 mx-2 my-2 rounded" style="border-left: 4px solid {{ seg.color }} !important;">
+                                
+                                <!-- Header Strip of Expanded Section -->
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-3 border-bottom" style="border-color: #223247 !important;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge font-mono py-1 px-2 text-white" style="background: {{ seg.color_rgba }}; font-size: 12px;">
+                                            {{ seg.segment_id }} &bull; {{ seg.chainage_label }} ({{ seg.length_m }} m)
+                                        </span>
+                                        <h6 class="mb-0 fw-bold text-white" style="font-size: 14px;">Detailed Engineering Assessment &amp; BoQ</h6>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-0.5 px-2.5 font-mono d-flex align-items-center gap-1" onclick="centerMapOnSegment({{ seg.segment_index - 1 }})" title="Pan Map to this Road Block">
+                                            <i data-lucide="map-pin" style="width:13px; height:13px;"></i>
+                                            <span>View on Map</span>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-secondary py-0.5 px-2" onclick="toggleSegmentRow('{{ seg.segment_id }}')" title="Collapse Section">
+                                            <i data-lucide="x" style="width:13px; height:13px;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 4-Section Organized Grid -->
+                                <div class="row g-2 mb-3">
+                                    
+                                    <!-- Mini Card 1: Recommended Rehabilitation & Rationale -->
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
+                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Recommended Intervention</div>
+                                            <div class="fw-bold text-white mb-2" style="font-size: 12.5px;">{{ seg.treatment }}</div>
+                                            <div class="d-flex flex-wrap align-items-center gap-1">
+                                                <span class="badge bg-secondary font-mono" style="font-size: 0.65rem;">Priority: {{ seg.urgency }}</span>
+                                                {% if seg.trigger_reason %}
+                                                <span class="badge border font-mono text-warning" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); font-size: 0.65rem;">
+                                                    {{ seg.trigger_reason }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mini Card 2: PCI & Roughness Assessment -->
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
+                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">PCI &amp; IRI Condition</div>
+                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
+                                                <span class="text-secondary small">PCI:</span>
+                                                <span class="fw-bold fs-6" style="color: {{ seg.color }};">{{ seg.pci }} ({{ seg.pci_rating }})</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
+                                                <span class="text-secondary small">IRI:</span>
+                                                <span class="fw-bold" style="color: {% if seg.iri >= 7.0 %}#ef4444{% elif seg.iri >= 4.0 %}#f97316{% else %}#10b981{% endif %};">{{ seg.iri }} m/km ({{ seg.iri_rating }})</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-baseline font-mono small border-top pt-1 mt-1" style="border-color: #1E293B !important;">
+                                                <span class="text-secondary">Defects:</span>
+                                                <span class="text-danger fw-bold">{{ seg.potholes_count }} PTH</span> &bull; <span class="text-warning fw-bold">{{ seg.cracks_count }} CRK</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mini Card 3: Material Requirements -->
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
+                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Required Materials</div>
+                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
+                                                <span class="text-secondary small">HMA Asphalt:</span>
+                                                <span class="fw-bold text-white">{{ seg.materials.hot_mix_asphalt_tonnes }} Tonnes</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
+                                                <span class="text-secondary small">Tack Coat:</span>
+                                                <span class="fw-bold text-cyan" style="color: #38BDF8;">{{ seg.materials.tack_coat_liters }} Liters</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mini Card 4: Rehabilitation Financials -->
+                                    <div class="col-12 col-md-6 col-xl-3">
+                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
+                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Estimated Cost</div>
+                                            <div class="fs-5 fw-bold font-mono text-white mb-0.5">{{ "{:,.0f}".format(seg.cost_etb) }} ETB</div>
+                                            <div class="font-mono text-info small" style="font-size: 11.5px;">${{ "{:,.0f}".format(seg.cost_usd) }} USD</div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- Bill of Quantities (BoQ) Nested Table -->
+                                <div class="card border mb-3" style="background: #111C2B; border-color: #1E293B !important;">
+                                    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center" style="background: #172438; border-color: #1E293B !important;">
+                                        <span class="fw-bold text-white font-mono small" style="font-size: 11.5px;">
+                                            <i data-lucide="file-spreadsheet" style="width:13px; height:13px; display:inline;" class="text-cyan me-1"></i>
+                                            Bill of Quantities (BoQ) &bull; Block {{ seg.segment_id }}
+                                        </span>
+                                        <span class="font-mono fw-bold" style="color: #38BDF8; font-size: 12px;">Total: {{ "{:,.0f}".format(seg.cost_etb) }} ETB</span>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="nested-boq-table font-mono">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 100px;">Item Code</th>
+                                                    <th>Description of Work</th>
+                                                    <th style="width: 140px;">Quantity &amp; Unit</th>
+                                                    <th style="width: 140px;" class="text-end">Unit Rate (ETB)</th>
+                                                    <th style="width: 150px;" class="text-end">Subtotal (ETB)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in seg.boq_items %}
+                                                <tr>
+                                                    <td class="font-mono text-info fw-semibold">{{ item.item_code }}</td>
+                                                    <td class="text-white">{{ item.description }}</td>
+                                                    <td class="font-mono">{{ item.quantity }} {{ item.unit }}</td>
+                                                    <td class="font-mono text-end text-secondary">{{ "{:,.0f}".format(item.unit_rate_etb) }}</td>
+                                                    <td class="font-mono text-end fw-bold text-white">{{ "{:,.0f}".format(item.total_etb) }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Required Construction Equipment Fleet -->
+                                <div class="p-2.5 rounded border" style="background: #111C2B; border-color: #1E293B !important;">
+                                    <span class="fw-bold text-secondary font-mono small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Required Construction Fleet:</span>
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        {% for eq in seg.equipment_fleet %}
+                                        <span class="badge border font-mono text-white-50" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); font-size: 0.72rem;">
+                                            &bull; {{ eq }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 4. COLLAPSIBLE ENGINEERING REFERENCES                        -->
+    <!-- ============================================================ -->
+    <div class="accordion mb-4" id="pavementDocumentationAccordion">
+        <div class="accordion-item border rounded" style="background: var(--roadeye-surface); border-color: var(--roadeye-border) !important;">
+            <h2 class="accordion-header" id="headingEngineeringDoc">
+                <button class="accordion-button collapsed py-2 px-3 text-secondary font-mono small fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEngineeringDoc" aria-expanded="false" aria-controls="collapseEngineeringDoc" style="background: var(--roadeye-surface-elevated); color: #94A3B8;">
+                    <i data-lucide="book-open" style="width:14px; height:14px; display:inline;" class="me-2 text-cyan"></i>
+                    <span>Engineering References</span>
+                </button>
+            </h2>
+            <div id="collapseEngineeringDoc" class="accordion-collapse collapse" aria-labelledby="headingEngineeringDoc" data-bs-parent="#pavementDocumentationAccordion">
+                <div class="accordion-body p-3 font-mono small text-secondary" style="font-size: 11.5px; line-height: 1.5; background: var(--roadeye-surface);">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="fw-bold mb-1" style="color: var(--text-primary);">ASTM D6433</div>
+                            <div>Standard Test Method for Pavement Condition Index surveys. Deduct values computed from severity-weighted defect densities.</div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="fw-bold mb-1" style="color: var(--text-primary);">HDM-4</div>
+                            <div>World Bank Highway Development and Management standard for International Roughness Index (IRI, m/km).</div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="fw-bold mb-1" style="color: var(--text-primary);">ERA Standard Specifications</div>
+                            <div>Ethiopian Roads Administration schedule of unit rates: Cold Milling (450 ETB/m²), AC Overlay (2,800 ETB/m²), Tack Coat (180 ETB/L).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
 
 <!-- ============================================================ -->
-<!-- 5. JAVASCRIPT: MAP, HEATMAP SWITCHER & CHARTS                -->
+<!-- 7. JAVASCRIPT: MAP, HEATMAP SWITCHER, EXPANDABLE LEDGER & CHARTS -->
 <!-- ============================================================ -->
 <script>
 const corridorData = {{ assessment|tojson }};
@@ -452,14 +1212,20 @@ const segmentsList = corridorData.segments || [];
 let pavementMap = null;
 let polylineLayers = [];
 let currentMetric = 'PCI';
+let activeTierFilter = 'ALL';
 
 document.addEventListener('DOMContentLoaded', function() {
     initPavementMap();
     initDistributionChart();
     initTableSearch();
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 });
 
-// Initialize Leaflet Map
+// ============================================================
+// LEAFLET MAP INITIALIZATION & POLYLINES
+// ============================================================
 function initPavementMap() {
     if (!segmentsList || segmentsList.length === 0) return;
 
@@ -469,7 +1235,6 @@ function initPavementMap() {
         scrollWheelZoom: true
     }).setView(startPt, 16);
 
-    // Standard OpenStreetMap tiles with dynamic dark filter
     window.darkTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
@@ -485,7 +1250,6 @@ function initPavementMap() {
 
     renderSegmentPolylines();
 
-    // Fit map bounds to encompass full corridor
     const allCoords = [];
     segmentsList.forEach(s => {
         if (s.polyline) {
@@ -497,9 +1261,7 @@ function initPavementMap() {
     }
 }
 
-// Render Segment Polylines
 function renderSegmentPolylines() {
-    // Clear existing layers
     polylineLayers.forEach(l => pavementMap.removeLayer(l));
     polylineLayers = [];
 
@@ -518,27 +1280,49 @@ function renderSegmentPolylines() {
         const line = L.polyline(seg.polyline, {
             color: strokeColor,
             weight: 7,
-            opacity: 0.90,
+            opacity: 0.92,
             lineCap: 'round',
             lineJoin: 'round'
         }).addTo(pavementMap);
 
+        const cleanIntervention = seg.intervention_level === 'FULL_RECONSTRUCTION' ? 'Full Reconstruction' :
+                                  (seg.intervention_level === 'MILL_AND_OVERLAY' ? 'Mill & 50mm Overlay' :
+                                  (seg.intervention_level === 'LOCALIZED_REPAIR' ? 'Localized Patch & Seal' : 'Routine Preservation'));
+
+        // Compact High-Tech Map Popup
+        const popupContent = `
+            <div style="font-family: inherit; min-width: 200px; padding: 4px;">
+                <div style="font-weight: 700; color: #38BDF8; font-size: 13px; margin-bottom: 2px;">
+                    Block ${seg.segment_id} (${seg.chainage_label})
+                </div>
+                <div style="font-size: 11.5px; margin: 4px 0; color: #E2E8F0;">
+                    <span style="color: ${seg.color}; font-weight: 700;">PCI: ${seg.pci}</span> (${seg.pci_rating}) &bull;
+                    <span style="font-weight: 700; color: ${seg.iri >= 7 ? '#EF4444' : (seg.iri >= 4 ? '#F59E0B' : '#10B981')};">IRI: ${seg.iri} m/km</span>
+                </div>
+                <div style="font-size: 11px; color: #94A3B8; margin-bottom: 3px;">
+                    <strong>Intervention:</strong> <span style="color: #FFFFFF;">${cleanIntervention}</span>
+                </div>
+                <div style="font-size: 11.5px; color: #38BDF8; font-weight: 700; margin-bottom: 6px;">
+                    Budget: ${seg.cost_etb.toLocaleString()} ETB ($${seg.cost_usd.toLocaleString()})
+                </div>
+                <button type="button" class="btn btn-sm btn-primary w-100 py-1 font-mono" style="font-size: 11px;" onclick="inspectFromMap('${seg.segment_id}')">
+                    Inspect Detailed BoQ
+                </button>
+            </div>
+        `;
+
+        line.bindPopup(popupContent, { className: 'pavement-map-popup' });
+
         // Tooltip hover
-        line.bindTooltip(`<b>${seg.segment_id} (${seg.chainage_label})</b><br>${currentMetric === 'PCI' ? 'PCI: ' + seg.pci + ' (' + seg.pci_rating + ')' : 'IRI: ' + seg.iri + ' m/km'}<br>Budget: ${seg.cost_etb.toLocaleString()} ETB`, {
+        line.bindTooltip(`<b>${seg.segment_id} (${seg.chainage_label})</b><br>${currentMetric === 'PCI' ? 'PCI: ' + seg.pci + ' (' + seg.pci_rating + ')' : 'IRI: ' + seg.iri + ' m/km'}<br>${cleanIntervention}`, {
             sticky: true,
             className: 'pavement-map-tooltip'
-        });
-
-        // Click handler to open detailed drawer
-        line.on('click', function() {
-            inspectSegmentDetails(idx);
         });
 
         polylineLayers.push(line);
     });
 }
 
-// Switch between PCI and IRI mode
 function switchHeatmapMetric(metric) {
     currentMetric = metric;
     const btnPci = document.getElementById('btnModePci');
@@ -549,30 +1333,29 @@ function switchHeatmapMetric(metric) {
     if (metric === 'PCI') {
         btnPci.classList.add('active');
         btnIri.classList.remove('active');
-        title.textContent = 'ASTM D6433 PCI Condition';
+        if (title) title.textContent = 'PCI Condition Scale';
         items.innerHTML = `
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#10b981; border-radius:2px; display:inline-block;"></span> Good (85-100)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#84cc16; border-radius:2px; display:inline-block;"></span> Satisfactory</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#eab308; border-radius:2px; display:inline-block;"></span> Fair (55-69)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#f97316; border-radius:2px; display:inline-block;"></span> Poor (40-54)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#ef4444; border-radius:2px; display:inline-block;"></span> Critical (&lt;40)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#10b981; border-radius:2px; display:inline-block;"></span> Good (85–100)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#84cc16; border-radius:2px; display:inline-block;"></span> Satisfactory (70–84)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#eab308; border-radius:2px; display:inline-block;"></span> Fair (55–69)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#f97316; border-radius:2px; display:inline-block;"></span> Poor (40–54)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#ef4444; border-radius:2px; display:inline-block;"></span> Critical (&lt;40)</div>
         `;
     } else {
         btnIri.classList.add('active');
         btnPci.classList.remove('active');
-        title.textContent = 'World Bank HDM-4 IRI Roughness (m/km)';
+        if (title) title.textContent = 'IRI Roughness Scale (m/km)';
         items.innerHTML = `
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#10b981; border-radius:2px; display:inline-block;"></span> &lt; 2.5 (Smooth)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#84cc16; border-radius:2px; display:inline-block;"></span> 2.5 - 4.0 (Good)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#eab308; border-radius:2px; display:inline-block;"></span> 4.0 - 5.5 (Fair)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#f97316; border-radius:2px; display:inline-block;"></span> 5.5 - 7.5 (Rough)</div>
-            <div class="d-flex align-items-center gap-1"><span style="width:10px; height:10px; background:#ef4444; border-radius:2px; display:inline-block;"></span> &gt; 7.5 (Severe)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#10b981; border-radius:2px; display:inline-block;"></span> &lt; 2.5 (Smooth)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#84cc16; border-radius:2px; display:inline-block;"></span> 2.5–4.0 (Good)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#eab308; border-radius:2px; display:inline-block;"></span> 4.0–5.5 (Fair)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#f97316; border-radius:2px; display:inline-block;"></span> 5.5–7.5 (Rough)</div>
+            <div class="d-flex align-items-center gap-1.5"><span style="width:9px; height:9px; background:#ef4444; border-radius:2px; display:inline-block;"></span> &gt; 7.5 (Severe)</div>
         `;
     }
     renderSegmentPolylines();
 }
 
-// Basemap toggle
 window.toggleBasemapStyle = function() {
     if (window.currentBasemap === 'dark') {
         pavementMap.removeLayer(window.darkTiles);
@@ -587,117 +1370,171 @@ window.toggleBasemapStyle = function() {
     }
 };
 
-// Inspect Segment Details in Slide-in Drawer
-function inspectSegmentDetails(index) {
+function centerMapOnSegment(index) {
     const seg = segmentsList[index];
-    if (!seg) return;
-
-    let boqRows = '';
-    (seg.boq_items || []).forEach(item => {
-        boqRows += `
-            <tr>
-                <td class="font-mono text-accent">${item.item_code}</td>
-                <td>${item.description}</td>
-                <td class="font-mono">${item.quantity} ${item.unit}</td>
-                <td class="font-mono text-end">${item.unit_rate_etb.toLocaleString()}</td>
-                <td class="font-mono text-end fw-bold text-white">${item.total_etb.toLocaleString()}</td>
-            </tr>
-        `;
-    });
-
-    let fleetItems = '';
-    (seg.equipment_fleet || []).forEach(eq => {
-        fleetItems += `<li class="small text-secondary mb-1">&bull; ${eq}</li>`;
-    });
-
-    const contentHtml = `
-        <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="badge-status" style="background:${seg.color_rgba}; color:white; font-size:11px;">
-                    ${seg.pci_rating} • PCI ${seg.pci}
-                </span>
-                <span class="font-mono text-secondary small">${seg.chainage_label} (${seg.length_m} m)</span>
-            </div>
-            <h5 class="fw-bold mb-1" style="font-size:16px; color:var(--text-primary);">${seg.treatment}</h5>
-            <div class="text-secondary small font-mono">${seg.treatment_am}</div>
-        </div>
-
-        <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">PCI Index</span>
-                <div class="fw-bold font-mono" style="color:${seg.color}; font-size:18px;">${seg.pci} <small class="text-secondary fs-6">/100</small></div>
-            </div>
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">World Bank IRI</span>
-                <div class="fw-bold font-mono text-white" style="font-size:18px;">${seg.iri} <small class="text-secondary fs-6">m/km</small></div>
-            </div>
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">Verified Potholes</span>
-                <div class="fw-bold font-mono text-danger" style="font-size:18px;">${seg.potholes_count}</div>
-            </div>
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">Alligator Cracks</span>
-                <div class="fw-bold font-mono text-warning" style="font-size:18px;">${seg.cracks_count}</div>
-            </div>
-        </div>
-
-        <!-- Material Requirements -->
-        <div class="panel-card p-3 mb-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Required Material Quantities</div>
-            <div class="row g-2 font-mono" style="font-size:12px;">
-                <div class="col-6">
-                    <span class="text-secondary">Hot-Mix Asphalt:</span>
-                    <div class="text-white fw-bold">${seg.materials.hot_mix_asphalt_tonnes} Tonnes</div>
-                </div>
-                <div class="col-6">
-                    <span class="text-secondary">Bitumen Tack Coat:</span>
-                    <div class="text-white fw-bold">${seg.materials.tack_coat_liters} Liters</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bill of Quantities -->
-        <div class="panel-card p-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="panel-title" style="font-size:12px;">ERA Schedule of Rates (BoQ)</div>
-                <div class="font-mono fw-bold" style="color:var(--accent-primary); font-size:13px;">${seg.cost_etb.toLocaleString()} ETB ($${seg.cost_usd.toLocaleString()})</div>
-            </div>
-            <div class="table-responsive">
-                <table class="boq-table">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Description</th>
-                            <th>Qty</th>
-                            <th class="text-end">Rate (ETB)</th>
-                            <th class="text-end">Total (ETB)</th>
-                        </tr>
-                    </thead>
-                    <tbody>${boqRows}</tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Equipment Fleet -->
-        <div class="panel-card p-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Required Construction Fleet</div>
-            <ul class="list-unstyled mb-0">${fleetItems}</ul>
-        </div>
-    `;
-
-    openDetailDrawer(
-        `Block ${seg.segment_id} Engineering Assessment`,
-        contentHtml,
-        'View on Map',
-        function() {
-            if (pavementMap && seg.midpoint) {
-                pavementMap.setView(seg.midpoint, 18);
-            }
-        }
-    );
+    if (pavementMap && seg && seg.midpoint) {
+        pavementMap.setView(seg.midpoint, 18, { animate: true });
+        // Smoothly scroll up to the map
+        document.getElementById('pavementGisMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
-// Donut Chart for PCI Distribution
+function inspectFromMap(segmentId) {
+    const wrapper = document.getElementById('ledgerContentWrapper');
+    if (wrapper && wrapper.style.display === 'none') {
+        toggleLedgerTable();
+    }
+    toggleSegmentRow(segmentId, true);
+}
+
+function toggleLedgerTable() {
+    const wrapper = document.getElementById('ledgerContentWrapper');
+    const label = document.getElementById('labelToggleLedger');
+    const btn = document.getElementById('btnToggleLedger');
+    if (!wrapper) return;
+
+    const isHidden = wrapper.style.display === 'none';
+    if (isHidden) {
+        wrapper.style.display = 'block';
+        if (label) label.textContent = 'Hide Ledger Table';
+        if (btn) {
+            btn.classList.remove('btn-outline-info');
+            btn.classList.add('btn-info');
+            btn.innerHTML = '<i data-lucide="eye-off" id="iconToggleLedger" style="width:14px; height:14px;"></i><span id="labelToggleLedger">Hide Ledger Table</span>';
+        }
+    } else {
+        wrapper.style.display = 'none';
+        if (label) label.textContent = 'View Ledger Table';
+        if (btn) {
+            btn.classList.remove('btn-info');
+            btn.classList.add('btn-outline-info');
+            btn.innerHTML = '<i data-lucide="eye" id="iconToggleLedger" style="width:14px; height:14px;"></i><span id="labelToggleLedger">View Ledger Table</span>';
+        }
+    }
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+// ============================================================
+// INTERACTIVE EXPANDABLE TABLE ROWS (ACCORDION & EXPANSION)
+// ============================================================
+function toggleSegmentRow(segmentId, scrollToRow = false) {
+    const detailRow = document.getElementById('detail-' + segmentId);
+    const parentRow = document.getElementById('row-' + segmentId);
+    if (!detailRow || !parentRow) return;
+
+    const isCurrentlyOpen = detailRow.style.display !== 'none';
+
+    if (isCurrentlyOpen) {
+        detailRow.style.display = 'none';
+        parentRow.classList.remove('row-expanded');
+    } else {
+        detailRow.style.display = 'table-row';
+        parentRow.classList.add('row-expanded');
+        if (scrollToRow) {
+            parentRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+function expandAllSegments() {
+    document.querySelectorAll('.segment-entry-row').forEach(row => {
+        const segId = row.getAttribute('data-segment-id');
+        const detailRow = document.getElementById('detail-' + segId);
+        if (detailRow && row.style.display !== 'none') {
+            detailRow.style.display = 'table-row';
+            row.classList.add('row-expanded');
+        }
+    });
+    if (window.lucide) lucide.createIcons();
+}
+
+function collapseAllSegments() {
+    document.querySelectorAll('.segment-entry-row').forEach(row => {
+        const segId = row.getAttribute('data-segment-id');
+        const detailRow = document.getElementById('detail-' + segId);
+        if (detailRow) {
+            detailRow.style.display = 'none';
+            row.classList.remove('row-expanded');
+        }
+    });
+}
+
+// ============================================================
+// COMBINED SEARCH & FILTERING (TIERS + TEXT SEARCH)
+// ============================================================
+function filterSegments(tier, btn) {
+    activeTierFilter = tier;
+    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    applyCombinedFilters();
+}
+
+function initTableSearch() {
+    const input = document.getElementById('segmentFilterInput');
+    if (!input) return;
+    input.addEventListener('input', function() {
+        applyCombinedFilters();
+    });
+}
+
+function clearSegmentSearch() {
+    const input = document.getElementById('segmentFilterInput');
+    if (input) {
+        input.value = '';
+        applyCombinedFilters();
+    }
+}
+
+function applyCombinedFilters() {
+    const searchInput = document.getElementById('segmentFilterInput');
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const rows = document.querySelectorAll('.segment-entry-row');
+    let visibleCount = 0;
+
+    rows.forEach(r => {
+        const segId = r.getAttribute('data-segment-id');
+        const detailRow = document.getElementById('detail-' + segId);
+        const pci = parseFloat(r.getAttribute('data-pci'));
+        const searchData = (r.getAttribute('data-search') || '').toLowerCase();
+
+        let matchesTier = false;
+        if (activeTierFilter === 'ALL') {
+            matchesTier = true;
+        } else if (activeTierFilter === 'CRITICAL' && pci < 40.0) {
+            matchesTier = true;
+        } else if (activeTierFilter === 'POOR' && pci >= 40.0 && pci < 55.0) {
+            matchesTier = true;
+        } else if (activeTierFilter === 'FAIR' && pci >= 55.0 && pci < 70.0) {
+            matchesTier = true;
+        } else if (activeTierFilter === 'GOOD' && pci >= 70.0) {
+            matchesTier = true;
+        }
+
+        const matchesSearch = !query || searchData.includes(query);
+
+        if (matchesTier && matchesSearch) {
+            r.style.display = '';
+            visibleCount++;
+        } else {
+            r.style.display = 'none';
+            if (detailRow) detailRow.style.display = 'none';
+            r.classList.remove('row-expanded');
+        }
+    });
+
+    const countBadge = document.getElementById('segmentCounterBadge');
+    if (countBadge) countBadge.textContent = `${visibleCount} of ${rows.length} Blocks Shown`;
+}
+
+// ============================================================
+// DOUGHNUT CHART FOR PCI DISTRIBUTION
+// ============================================================
 function initDistributionChart() {
     const ctx = document.getElementById('pciDistributionChart');
     if (!ctx) return;
@@ -726,7 +1563,7 @@ function initDistributionChart() {
                 data: values,
                 backgroundColor: bgColors,
                 borderWidth: 2,
-                borderColor: 'var(--bg-surface)'
+                borderColor: '#111C2B'
             }]
         },
         options: {
@@ -734,54 +1571,25 @@ function initDistributionChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'right',
+                    position: 'bottom',
                     labels: {
                         color: '#94a3b8',
-                        font: { size: 10, family: 'Inter' },
-                        boxWidth: 10
+                        font: { size: 11, family: 'monospace' },
+                        boxWidth: 12,
+                        padding: 10
                     }
+                },
+                tooltip: {
+                    backgroundColor: '#172438',
+                    titleColor: '#F1F5F9',
+                    bodyColor: '#38BDF8',
+                    borderColor: '#334763',
+                    borderWidth: 1
                 }
             },
-            cutout: '68%'
+            cutout: '66%'
         }
-    });
-}
-
-// Table Filter
-function filterSegments(tier, btn) {
-    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const rows = document.querySelectorAll('.segment-entry-row');
-    rows.forEach(r => {
-        const pci = parseFloat(r.getAttribute('data-pci'));
-        if (tier === 'ALL') {
-            r.style.display = '';
-        } else if (tier === 'CRITICAL' && pci < 40.0) {
-            r.style.display = '';
-        } else if (tier === 'POOR' && pci >= 40.0 && pci < 55.0) {
-            r.style.display = '';
-        } else if (tier === 'FAIR' && pci >= 55.0 && pci < 70.0) {
-            r.style.display = '';
-        } else if (tier === 'GOOD' && pci >= 70.0) {
-            r.style.display = '';
-        } else {
-            r.style.display = 'none';
-        }
-    });
-}
-
-function initTableSearch() {
-    const input = document.getElementById('segmentFilterInput');
-    if (!input) return;
-    input.addEventListener('input', function() {
-        const q = this.value.toLowerCase();
-        document.querySelectorAll('.segment-entry-row').forEach(r => {
-            const txt = (r.getAttribute('data-search') || '').toLowerCase();
-            r.style.display = txt.includes(q) ? '' : 'none';
-        });
     });
 }
 </script>
 {% endblock %}
-

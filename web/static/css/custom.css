@@ -1403,8 +1403,8 @@ table.enterprise-table tbody tr:hover .row-hover-action {
 }
 
 /* ── 18. BRIGHT THEME ADAPTIVE CONTRASTS & OVERRIDES ──────────────────────── */
-[data-theme="bright"] .text-white,
-[data-theme="light"] .text-white {
+[data-theme="bright"] .text-white:not(.btn *):not(.badge):not(.badge *):not(.brand-badge),
+[data-theme="light"] .text-white:not(.btn *):not(.badge):not(.badge *):not(.brand-badge) {
     color: var(--text-primary) !important;
 }
 
