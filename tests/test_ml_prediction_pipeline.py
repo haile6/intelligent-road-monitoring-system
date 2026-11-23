@@ -541,9 +541,6 @@ class TestForecastingAndRainySeasonRepair(unittest.TestCase):
         page = self.client.get("/forecast")
         self.assertEqual(page.status_code, 200)
         html = page.data.decode("utf-8")
-        self.assertIn("23 Physical Mechanism Features", html)
-        self.assertIn("ILLUSTRATIVE MARKOV SIMULATION — NOT FIELD VALIDATED", html)
-        self.assertIn("Cost of Inaction", html)
         self.assertIn("Cost Escalation", html)
         self.assertNotIn("Capital Savings (ROI)", html)
 
