@@ -103,97 +103,85 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- SUMMARY KPI ROW                                              -->
+    <!-- UNIFIED TOP KPI & REPAIR RATES ROW (SINGLE ROW LAYOUT)        -->
     <!-- ============================================================ -->
-    <div class="kpi-row-grid mb-4">
+    <div class="row g-2 mb-4 align-items-stretch">
         <!-- KPI 1: Monitored Corridors -->
-        <div class="kpi-metric-card accent-primary">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text">Monitored Corridors</span>
-                <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
+        <div class="col-6 col-sm-6 col-md-3 col-xl-2">
+            <div class="kpi-metric-card accent-primary h-100 d-flex flex-column justify-content-between">
+                <div class="kpi-top-meta">
+                    <span class="kpi-label-text">Monitored Corridors</span>
+                    <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
+                </div>
+                <div class="kpi-number-display">{{ analytics.total_contractors }}</div>
             </div>
-            <div class="kpi-number-display">{{ analytics.total_contractors }}</div>
         </div>
 
         <!-- KPI 2: Active Warranties -->
-        <div class="kpi-metric-card accent-success">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text text-success">Active Warranties</span>
-                <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="shield-check"></i></div>
+        <div class="col-6 col-sm-6 col-md-3 col-xl-2">
+            <div class="kpi-metric-card accent-success h-100 d-flex flex-column justify-content-between">
+                <div class="kpi-top-meta">
+                    <span class="kpi-label-text text-success">Active Warranties</span>
+                    <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="shield-check"></i></div>
+                </div>
+                <div class="kpi-number-display text-success">{{ analytics.active_warranties }}</div>
             </div>
-            <div class="kpi-number-display text-success">{{ analytics.active_warranties }}</div>
         </div>
 
-        <!-- KPI 3: Defects Under Warranty -->
-        <div class="kpi-metric-card accent-danger">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text text-danger">Warranty Claims</span>
-                <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
+        <!-- KPI 3: Warranty Claims -->
+        <div class="col-6 col-sm-6 col-md-3 col-xl-2">
+            <div class="kpi-metric-card accent-danger h-100 d-flex flex-column justify-content-between">
+                <div class="kpi-top-meta">
+                    <span class="kpi-label-text text-danger">Warranty Claims</span>
+                    <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
+                </div>
+                <div class="kpi-number-display text-danger">{{ analytics.total_defects_in_warranty }}</div>
             </div>
-            <div class="kpi-number-display text-danger">{{ analytics.total_defects_in_warranty }}</div>
         </div>
 
         <!-- KPI 4: Public Fund Savings -->
-        <div class="kpi-metric-card accent-warning">
-            <div class="kpi-top-meta">
-                <span class="kpi-label-text text-warning">Liabilities Transferred</span>
-                <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="coins"></i></div>
-            </div>
-            <div class="kpi-number-display text-white" style="font-size:20px;">
-                <span id="kpiSavingsDisplay">{{ "{:,.0f}".format(analytics.estimated_contractor_savings_etb) }}</span>
-                <small class="text-secondary fs-6">ETB</small>
-            </div>
-            <div class="small text-secondary mt-1 font-mono" style="font-size: 10px;">
-                @ <span id="kpiRateSummary">{{ "{:,.0f}".format(analytics.pothole_unit_rate) }} / {{ "{:,.0f}".format(analytics.crack_unit_rate) }}</span> ETB unit rates
+        <div class="col-6 col-sm-6 col-md-3 col-xl-2">
+            <div class="kpi-metric-card accent-warning h-100 d-flex flex-column justify-content-between">
+                <div class="kpi-top-meta">
+                    <span class="kpi-label-text text-warning">Liabilities Transferred</span>
+                    <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="coins"></i></div>
+                </div>
+                <div class="kpi-number-display text-white" style="font-size:20px;">
+                    <span id="kpiSavingsDisplay">{{ "{:,.0f}".format(analytics.estimated_contractor_savings_etb) }}</span>
+                    <small class="text-secondary fs-6">ETB</small>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ============================================================ -->
-    <!-- RATE CUSTOMIZER PANEL (የጥገና ተመን አስሊና ማስተካከያ)               -->
-    <!-- ============================================================ -->
-    <div class="card border mb-4 shadow-sm" style="background: var(--bg-card); border-color: var(--borders) !important;">
-        <div class="card-body p-3">
-            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                <div class="d-flex align-items-center gap-2">
-                    <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(56, 189, 248, 0.12); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
-                        <i class="bi bi-sliders2-vertical" style="font-size: 18px;"></i>
+        <!-- Rate Customizer Panel (Combined in the same row) -->
+        <div class="col-12 col-xl-4">
+            <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between p-3" style="border-left: 3px solid var(--accent-primary);">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-1.5 fw-bold text-dark" style="font-size: 13px;">
+                        <i class="bi bi-sliders2-vertical text-primary"></i>
+                        <span>Municipal Unit Repair Rates</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono" style="font-size: 9px;">Configurable</span>
                     </div>
-                    <div>
-                        <div class="fw-bold text-dark d-flex align-items-center gap-2" style="font-size: 14px;">
-                            <span>Municipal Unit Repair Rates</span>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 10px;">Configurable</span>
-                        </div>
-                        <div class="small text-secondary" style="font-size: 11px;">
-                            Customize unit repair rates to match current ERA schedule of rates, bitumen market inflation, or regional municipal contract terms.
-                        </div>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" onclick="resetStandardRates()" title="Reset to standard ERA baseline rates (28,000 / 18,000 ETB)" style="font-size: 11px;">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
                 </div>
 
-                <div class="d-flex align-items-center flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-1 bg-light border rounded px-2 py-1">
-                        <span class="small fw-semibold text-secondary" style="font-size: 11px;">🕳️ Pothole Rate:</span>
-                        <div class="input-group input-group-sm" style="width: 145px;">
-                            <input type="number" id="inputPotholeRate" class="form-control form-control-sm font-mono text-end fw-bold" value="{{ (pothole_rate if pothole_rate is defined else analytics.pothole_unit_rate)|int }}" step="500" min="1000">
-                            <span class="input-group-text font-mono" style="font-size: 10px;">ETB</span>
-                        </div>
+                <div class="d-flex align-items-center gap-2 flex-nowrap">
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 115px;">
+                        <span class="input-group-text px-1.5 font-mono text-muted" style="font-size: 10px;">Pothole</span>
+                        <input type="number" id="inputPotholeRate" class="form-control form-control-sm font-mono text-end fw-bold px-1" value="{{ (pothole_rate if pothole_rate is defined else analytics.pothole_unit_rate)|int }}" step="500" min="1000">
+                        <span class="input-group-text px-1 font-mono text-muted" style="font-size: 9px;">ETB</span>
                     </div>
 
-                    <div class="d-flex align-items-center gap-1 bg-light border rounded px-2 py-1">
-                        <span class="small fw-semibold text-secondary" style="font-size: 11px;">🦎 Crack Rate:</span>
-                        <div class="input-group input-group-sm" style="width: 145px;">
-                            <input type="number" id="inputCrackRate" class="form-control form-control-sm font-mono text-end fw-bold" value="{{ (crack_rate if crack_rate is defined else analytics.crack_unit_rate)|int }}" step="500" min="1000">
-                            <span class="input-group-text font-mono" style="font-size: 10px;">ETB</span>
-                        </div>
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 115px;">
+                        <span class="input-group-text px-1.5 font-mono text-muted" style="font-size: 10px;">Crack</span>
+                        <input type="number" id="inputCrackRate" class="form-control form-control-sm font-mono text-end fw-bold px-1" value="{{ (crack_rate if crack_rate is defined else analytics.crack_unit_rate)|int }}" step="500" min="1000">
+                        <span class="input-group-text px-1 font-mono text-muted" style="font-size: 9px;">ETB</span>
                     </div>
 
-                    <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" onclick="applyCustomRates()">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Apply Rates</span>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" onclick="resetStandardRates()" title="Reset to standard ERA baseline rates (28,000 / 18,000 ETB)">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                        <span>Reset Baseline</span>
+                    <button type="button" class="btn btn-sm btn-primary px-2.5 font-mono" onclick="applyCustomRates()" style="font-size: 11px; white-space: nowrap;">
+                        Apply
                     </button>
                 </div>
             </div>
@@ -230,14 +218,16 @@
             <table class="table table-hover align-middle mb-0" id="contractorsTable">
                 <thead class="table-light text-uppercase font-mono" style="font-size: 11px; letter-spacing: 0.05em; color: var(--text-secondary);">
                     <tr>
-                        <th style="width: 28%;">Road Segment</th>
-                        <th style="width: 22%;">Contractor</th>
-                        <th style="width: 12%;">Handover Date</th>
-                        <th style="width: 14%;">Warranty Status</th>
+                        <th style="width: 24%;">Road Segment</th>
+                        <th style="width: 9%;">Code</th>
+                        <th style="width: 7%;">Length</th>
+                        <th style="width: 18%;">Contractor</th>
+                        <th style="width: 10%;">Handover Date</th>
+                        <th style="width: 10%;">Warranty Status</th>
                         <th style="width: 6%;" class="text-center">Defects</th>
-                        <th style="width: 11%;" class="text-end">Liability Cost</th>
+                        <th style="width: 10%;" class="text-end">Liability Cost</th>
                         <th style="width: 4%;" class="text-center">Grade</th>
-                        <th style="width: 3%;" class="text-end action-cell"></th>
+                        <th style="width: 2%;" class="text-end action-cell"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -250,95 +240,76 @@
                         data-is-under="{{ 1 if c.is_under_warranty else 0 }}"
                         onclick="openContractorDetailModal({{ c.id }})"
                         title="Click to view full road specifications and contractor dossier">
-                        <!-- Road Segment -->
+                        <!-- 1. Road Segment -->
                         <td>
-                            <div class="fw-bold text-dark text-truncate" style="max-width: 320px;">
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 280px;">
                                 {{ c.road_name }}
-                            </div>
-                            <div class="d-flex align-items-center gap-2 mt-1">
-                                <span class="badge bg-light text-dark border font-mono" style="font-size: 10px;">{{ c.segment_code }}</span>
-                                <span class="text-secondary small font-mono">{{ c.length_km }} km</span>
                             </div>
                         </td>
 
-                        <!-- Contractor & Consultant -->
+                        <!-- 2. Segment Code -->
                         <td>
-                            <div class="fw-bold text-dark d-flex align-items-center gap-1 text-truncate" style="max-width: 260px;">
+                            <span class="badge bg-light text-dark border font-mono" style="font-size: 10.5px;">{{ c.segment_code }}</span>
+                        </td>
+
+                        <!-- 3. Corridor Length -->
+                        <td>
+                            <span class="font-mono text-secondary small">{{ c.length_km }} km</span>
+                        </td>
+
+                        <!-- 4. Contractor -->
+                        <td>
+                            <div class="fw-bold text-dark d-flex align-items-center gap-1.5 text-truncate" style="max-width: 220px;">
                                 <i class="bi bi-building-fill-gear text-secondary small"></i>
                                 <span>{{ c.contractor_name }}</span>
                             </div>
-                            <div class="text-secondary small mt-0.5 text-truncate" style="max-width: 260px;">
-                                <span class="text-muted">Consultant:</span> {{ c.consultant_name or 'Independent Engineer' }}
-                            </div>
                         </td>
 
-                        <!-- Handover Date -->
+                        <!-- 5. Handover Date -->
                         <td>
-                            <div class="fw-semibold text-dark font-mono" style="font-size: 12.5px;">{{ c.handover_date }}</div>
-                            <div class="text-muted small font-mono" style="font-size: 11px;">DLP: {{ c.warranty_years }} Years</div>
+                            <div class="fw-semibold text-dark font-mono" style="font-size: 12px;">{{ c.handover_date }}</div>
                         </td>
 
-                        <!-- Warranty Status Badge -->
+                        <!-- 6. Warranty Status -->
                         <td>
                             {% if c.is_under_warranty %}
                             <span class="badge badge-warranty-active px-2 py-1 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 10.5px;">
                                 <i class="bi bi-shield-fill-check"></i>
                                 <span>Active</span>
                             </span>
-                            <div class="small text-success font-mono mt-1" style="font-size: 10.5px;">
-                                Exp: {{ c.warranty_expiry_date }}
-                            </div>
                             {% else %}
                             <span class="badge badge-warranty-expired px-2 py-1 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 10.5px;">
                                 <i class="bi bi-clock-history"></i>
                                 <span>Expired</span>
                             </span>
-                            <div class="small text-muted font-mono mt-1" style="font-size: 10.5px;">
-                                Exp: {{ c.warranty_expiry_date }}
-                            </div>
                             {% endif %}
                         </td>
 
-                        <!-- Defects Count -->
+                        <!-- 7. Defects Count -->
                         <td class="text-center">
-                            <span class="badge {% if c.incident_count > 10 %}bg-danger{% elif c.incident_count > 0 %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 px-2 py-1 font-mono">
+                            <span class="badge {% if c.incident_count > 10 %}bg-danger{% elif c.incident_count > 0 %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 px-2 py-0.5 font-mono">
                                 {{ c.incident_count }}
                             </span>
-                            <div class="text-secondary small font-mono mt-1" style="font-size: 10px;">
-                                {{ c.defect_rate_per_10km }}/10km
-                            </div>
                         </td>
 
-                        <!-- Estimated Liability Cost -->
+                        <!-- 8. Estimated Liability Cost -->
                         <td class="text-end">
                             <div class="fw-bold font-mono text-dark row-cost-display" id="rowCost-{{ c.id }}" style="font-size: 13px;">
                                 ETB {{ "{:,.0f}".format(c.repair_cost_etb) }}
                             </div>
-                            <div class="mt-1">
-                                {% if c.is_under_warranty %}
-                                <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle font-mono" style="font-size: 9px;" title="100% Contractor Warranty Liability">
-                                    Contractor
-                                </span>
-                                {% else %}
-                                <span class="badge bg-secondary-subtle text-secondary-emphasis border font-mono" style="font-size: 9px;" title="Municipal Maintenance Responsibility">
-                                    City Budget
-                                </span>
-                                {% endif %}
-                            </div>
                         </td>
 
-                        <!-- Quality Grade -->
+                        <!-- 9. Quality Grade -->
                         <td class="text-center">
-                            <div class="grade-badge bg-{{ c.grade_color }}-subtle text-{{ c.grade_color }} border border-{{ c.grade_color }}">
+                            <div class="grade-badge bg-{{ c.grade_color }}-subtle text-{{ c.grade_color }} border border-{{ c.grade_color }}" style="width: 32px; height: 32px; font-size: 14px;">
                                 {{ c.quality_grade }}
                             </div>
-                            <div class="small text-muted font-mono" style="font-size: 10px;">{{ c.quality_score }}/100</div>
                         </td>
 
-                        <!-- Action Buttons -->
+                        <!-- 10. Action Dropdown -->
                         <td class="text-end action-cell" onclick="event.stopPropagation()">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary p-1 px-2" type="button" data-bs-toggle="dropdown" title="Row actions">
+                                <button class="btn btn-sm btn-outline-secondary p-1 px-1.5" type="button" data-bs-toggle="dropdown" title="Row actions">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
