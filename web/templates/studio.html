@@ -96,7 +96,7 @@
 <div class="container-fluid px-0">
     <!-- Top Studio View Tabs (Video Studio vs Tabular Ledger) -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <ul class="nav nav-pills gap-1 p-1 rounded-3 shadow-sm border" style="background: var(--bg-surface, #111C2B); border-color: var(--border-default, #223247) !important;">
+        <ul class="nav nav-pills gap-1 p-1 rounded-3 shadow-sm border bg-white" style="border-color: var(--border-default, #CBD5E1) !important;">
             <li class="nav-item">
                 <button class="nav-link active fw-semibold py-1.5 px-3 d-flex align-items-center gap-2" id="tab-btn-video" onclick="switchStudioView('video')">
                     <i class="bi bi-camera-reels text-primary"></i> <span>Video Telemetry Studio</span>
@@ -113,312 +113,303 @@
             <a href="/api/export/csv" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5 fw-semibold shadow-sm" title="Download CV Telemetry Ledger as CSV File">
                 <i class="bi bi-download text-primary"></i> <span>Export CSV</span>
             </a>
-            <div class="d-none d-md-flex align-items-center gap-1.5 text-secondary small font-mono border-start ps-2" style="border-color: var(--border-default, #223247) !important;">
+            <div class="d-none d-md-flex align-items-center gap-1.5 text-secondary small font-mono border-start ps-2" style="border-color: var(--border-default, #CBD5E1) !important;">
                 <i class="bi bi-shield-check text-success"></i> <span>{{ incidents|length }} Events Logged</span>
             </div>
         </div>
     </div>
 
-    <!-- VIEW 1: VIDEO TELEMETRY STUDIO (Full-Width, No Distracting Sidebar on Front) -->
+    <!-- VIEW 1: VIDEO TELEMETRY STUDIO (Side-by-Side Video & GIS Map) -->
     <div id="studio-video-view">
-        <div class="row g-3">
-            <!-- Main Video & Inspection Column (Full Width col-12) -->
-            <div class="col-12">
-            <div class="card shadow-sm mb-3" style="overflow: visible;">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" style="position: relative; z-index: 1050; background: var(--bg-surface, #111C2B);">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-camera-reels text-primary fs-5"></i>
-                        <span class="fw-bold" style="color: var(--text-primary, #F1F5F9);">Video:</span>
-                        <select class="form-select form-select-sm" style="width: auto; background-color: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border-color: var(--border-default, #223247);" onchange="location.href='/studio?file=' + this.value">
-                            {% for v in video_files %}
-                            <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <!-- Unified Viewer Mode Dropdown -->
-                    <div class="dropdown" style="position: relative; z-index: 1060;">
-                        <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1.5 fw-semibold shadow-sm" type="button" id="viewerModeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Viewer Mode">
-                            <i class="bi bi-play-btn-fill text-primary" id="viewerModeIcon"></i>
-                            <span id="viewerModeLabel">Recorded Stream</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg p-2" aria-labelledby="viewerModeDropdown" style="min-width: 285px; background-color: #172438 !important; border: 1px solid #334763 !important; box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 1px 1px rgba(56, 189, 248, 0.25) !important; z-index: 1070;">
-                            <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">INSPECTION MODE</li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2 active" id="btn-mode-video" onclick="toggleViewerMode('video')">
-                                    <i class="bi bi-play-btn-fill text-primary fs-5"></i>
-                                    <div>
-                                        <div class="fw-semibold text-white">Recorded Stream</div>
-                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Analyzed dashcam footage with AI telemetry</div>
-                                    </div>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-live" onclick="toggleViewerMode('live_camera')">
-                                    <i class="bi bi-camera-video-fill text-danger fs-5"></i>
-                                    <div>
-                                        <div class="fw-semibold text-white">Live Phone / Web Camera</div>
-                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Real-time camera feed with live detection</div>
-                                    </div>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-frame" onclick="toggleViewerMode('frame')">
-                                    <i class="bi bi-layers-half text-info fs-5"></i>
-                                    <div>
-                                        <div class="fw-semibold text-white">Frame Inspector</div>
-                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Step-by-step OpenCV keyframe analysis</div>
-                                    </div>
-                                </button>
-                            </li>
-                            <li><hr class="dropdown-divider my-1.5" style="border-color: #334763 !important;"></li>
-                            <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">HARDWARE CONFIG</li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
-                                    <i class="bi bi-gear-wide-connected text-secondary fs-5"></i>
-                                    <div>
-                                        <div class="fw-semibold text-white">Hardware Setup Guide</div>
-                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Mounting instructions & IP camera URL setup</div>
-                                    </div>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Persistent ADAS Voice Audio Notification Bar (Hidden to eliminate duplication with bottom media controls) -->
-                <div id="audio-alert-banner" style="display: none !important;">
-                    <span id="audio-status-badge"></span>
-                    <button id="btn-unmute-banner" onclick="unmuteAudio()"></button>
-                    <span id="unmute-banner-text"></span>
-                </div>
-
-                <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden cockpit-viewport">
-                    <!-- Automotive Cockpit Framing Brackets -->
-                    <div class="cockpit-bracket cockpit-bracket-tl"></div>
-                    <div class="cockpit-bracket cockpit-bracket-tr"></div>
-                    <div class="cockpit-bracket cockpit-bracket-bl"></div>
-                    <div class="cockpit-bracket cockpit-bracket-br"></div>
-
-                    <!-- Live Telemetry Radar Badge -->
-                    <div class="cockpit-radar-badge d-flex align-items-center gap-2">
-                        <span class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
-                        <span class="fw-bold tracking-wide">ADAS ACTIVE</span>
-                        <span class="text-white-50">| 1080p 24FPS</span>
-                    </div>
-
-                    <!-- Single Unified HTML5 Video Player Mode (Default Primary Viewport) -->
-                    <div id="video-container" class="w-100 position-relative" style="min-height: 480px;">
-                        <video id="main-video" controls preload="metadata" playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
-                            <source src="/media/video/{{ selected_video }}" type="video/mp4">
-                            <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
-                            <track id="hazard-subtitles-track-am" kind="subtitles" srclang="am" label="አማርኛ (Amharic)" src="/api/subtitles.vtt?lang=am">
-                            Your browser does not support HTML5 video streaming with this codec. Use the Precision Frame Scrubber.
-                        </video>
-                        <!-- Interactive Play/Pause Click Overlay Feedback -->
-                        <div id="video-click-ripple" class="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center rounded-circle bg-dark bg-opacity-75 text-white" style="width: 72px; height: 72px; display: none !important; pointer-events: none; z-index: 12; transition: opacity 0.3s;">
-                            <i class="bi bi-play-fill fs-1" id="video-click-icon"></i>
-                        </div>
-                    </div>
-
-                    <!-- Precision OpenCV Frame Inspector Mode (Strictly Hidden by Default - Never Stacked) -->
-                    <div id="frame-container" class="w-100 p-2 position-relative d-none" style="display: none !important; min-height: 480px; background: #111;">
-                        <img id="frame-image" src="/api/video/frame?file={{ selected_video }}&time=0" 
-                             class="img-fluid rounded border border-secondary border-opacity-50 cursor-pointer" 
-                             style="max-height: 520px; object-fit: contain; cursor: pointer;" alt="Video Frame" title="Click to Step Frame Forward (+1)">
-                        <div id="frame-loading" class="spinner-border text-primary position-absolute" style="display: none;" role="status">
-                            <span class="visually-hidden">Loading frame...</span>
-                        </div>
-                    </div>
-
-                    <!-- Live Device Camera Mode (Strictly Hidden by Default - Never Stacked) -->
-                    <div id="live-camera-container" class="w-100 position-relative d-none" style="display: none !important; min-height: 480px; background: #000;">
-                        <video id="live-camera-video" playsinline autoplay muted class="w-100" style="max-height: 540px; object-fit: contain; background: #000;"></video>
-                        <canvas id="live-camera-canvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 10;"></canvas>
-                        
-                        <!-- Floating Live Camera Overlay Controls -->
-                        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex align-items-center gap-2 p-2 rounded shadow" style="background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); z-index: 20;">
-                            <span class="badge bg-danger d-flex align-items-center gap-1 font-mono">
-                                <span class="spinner-grow spinner-grow-sm text-light" style="width: 8px; height: 8px;"></span> LIVE FEED
-                            </span>
-                            <button class="btn btn-sm btn-outline-light fw-semibold" onclick="switchLiveCameraFacing()" title="Switch between Front and Back camera">
-                                <i class="bi bi-arrow-repeat me-1"></i> Flip Camera
-                            </button>
-                            <button class="btn btn-sm btn-danger fw-semibold" onclick="toggleViewerMode('video')" title="Return to Recorded Video">
-                                <i class="bi bi-stop-circle-fill me-1"></i> Stop Camera
-                            </button>
-                            <div class="form-check form-switch text-white small mb-0 ms-1">
-                                <input class="form-check-input" type="checkbox" id="live-ai-switch" checked>
-                                <label class="form-check-label" for="live-ai-switch">AI Detection</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Live Glassmorphism HUD Subtitle & ADAS Warning Overlay (Isolated from clicks) -->
-                    <div id="hud-subtitle-container" class="position-absolute start-50 translate-middle-x" style="bottom: 58px; z-index: 15; width: 92%; max-width: 840px; pointer-events: none !important; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
-                        <div id="hud-subtitle-card" class="card border-0 shadow-lg px-3 py-2 rounded-4 text-white" style="pointer-events: none !important; user-select: none !important; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 30px rgba(0,0,0,0.65);">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2" style="pointer-events: none !important;">
-                                <div class="d-flex align-items-center gap-2" style="pointer-events: none !important;">
-                                    <span id="hud-risk-badge" class="badge bg-success px-2 py-1 font-mono fs-6 d-flex align-items-center gap-1">
-                                        <i class="bi bi-shield-check" id="hud-risk-icon"></i>
-                                        <span id="hud-risk-text">ROAD CLEAR</span>
-                                    </span>
-                                    <span id="hud-hazard-title" class="fw-bold fs-6 text-white text-uppercase font-mono">LANE MONITORED • ALL CLEAR</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-3 font-mono small text-white-50" style="pointer-events: none !important;">
-                                    <div id="hud-dist-item"><i class="bi bi-arrows-expand text-info me-1"></i><span id="label-dist">Dist</span>: <strong id="hud-dist-val" class="text-white">--</strong></div>
-                                    <div id="hud-ttc-item"><i class="bi bi-stopwatch text-warning me-1"></i><span id="label-ttc">TTC</span>: <strong id="hud-ttc-val" class="text-white">--</strong></div>
-                                    <div id="hud-path-item"><i class="bi bi-sign-merge-right text-primary me-1"></i><span id="label-corridor">Corridor</span>: <strong id="hud-path-val" class="text-white">CLEAR</strong></div>
-                                    <div id="hud-speed-item"><i class="bi bi-speedometer text-secondary me-1"></i><span id="label-speed">Speed</span>: <strong id="hud-speed-val" class="text-white">30 km/h</strong></div>
-                                    <div id="hud-gps-item" class="d-flex align-items-center"><i class="bi bi-geo-alt-fill text-danger me-1"></i><span id="label-gps">Hazard Location</span>: <strong id="hud-gps-val" class="text-warning font-mono ms-1">--</strong></div>
-                                </div>
-                            </div>
-                            <!-- Live ADAS Voice Spoken Alert ticker -->
-                            <div id="hud-speech-bar" class="mt-1 pt-1 border-top border-white border-opacity-10 d-flex align-items-center justify-content-between text-info small" style="display: none !important; pointer-events: none !important;">
-                                <div class="d-flex align-items-center gap-2" style="pointer-events: none !important;">
-                                    <div class="sound-wave-anim d-flex align-items-center gap-1">
-                                        <span class="bar bg-info"></span><span class="bar bg-info"></span><span class="bar bg-info"></span>
-                                    </div>
-                                    <i class="bi bi-megaphone-fill me-1"></i>
-                                    <span id="hud-speech-text" class="fw-semibold">"Alert: Road hazard ahead"</span>
-                                </div>
-                                <span id="hud-speech-badge" class="badge bg-danger-subtle text-danger" style="font-size: 0.65rem;">ADAS VOICE DISPATCH</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Inspection Controls Toolbar (Unified in One Single Clean Bar) -->
-                <div class="card-footer py-2.5 px-3">
-                    <!-- 1. Interactive Timeline Scrubber & Hazard Markers -->
-                    <div class="position-relative mb-2">
-                        <div class="timeline-track-container" id="timeline-pins-track" title="Click any hazard dot on timeline to jump directly to event">
-                            <!-- Injected via JavaScript dynamically -->
-                        </div>
-                        <input type="range" class="form-range cursor-pointer w-100" id="time-slider" min="0" max="10" step="0.05" value="0" style="cursor: pointer;" title="Drag or click to scrub timeline">
-                    </div>
-
-                    <!-- 2. Single Unified Responsive Controls Bar ("በአንድ ወጥ") -->
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <!-- Left Group: Frame Stepping, Play/Pause, and Clock -->
-                        <div class="d-flex align-items-center gap-1.5">
-                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
-                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i></button>
-                            <button class="btn btn-sm btn-primary px-3 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)">
-                                <i class="bi bi-play-fill me-1"></i> Play
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
-
-                            <div class="d-flex align-items-center gap-1.5 ms-1 border-start ps-2">
-                                <span class="badge border font-mono fs-6 text-primary" style="background: var(--bg-surface, #111C2B); border-color: var(--border-default, #223247);" id="time-display">00:00.00</span>
-                                <span class="badge bg-secondary font-mono" id="frame-display" style="font-size: 0.72rem;">Frame: 0</span>
-                            </div>
-                        </div>
-
-                        <!-- Right Group: Speed, CC, Voice, Volume, Language, Fullscreen -->
-                        <div class="d-flex align-items-center gap-1.5">
-                            <!-- Speed Selector Group -->
-                            <div class="btn-group btn-group-sm" role="group" title="Playback Speed">
-                                <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-05x" onclick="setSpeed(0.5)">0.5x</button>
-                                <button type="button" class="btn btn-outline-secondary active py-1 px-1.5" id="speed-10x" onclick="setSpeed(1.0)">1.0x</button>
-                                <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-15x" onclick="setSpeed(1.5)">1.5x</button>
-                                <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-20x" onclick="setSpeed(2.0)">2.0x</button>
-                            </div>
-
-                            <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
-                            <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold py-1 px-2" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
-                                <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC</span>
-                            </button>
-                            <button class="btn btn-sm btn-primary shadow-sm fw-semibold py-1 px-2" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
-                                <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice</span>
-                            </button>
-
-                            <!-- Volume & Mute Controls -->
-                            <div class="d-flex align-items-center gap-1 border-start ps-1.5 ms-0.5">
-                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" id="btn-mute" onclick="toggleMute()" title="Toggle Mute (Key: M)">
-                                    <i class="bi bi-volume-up-fill" id="mute-icon"></i>
-                                </button>
-                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 55px; cursor: pointer;" oninput="setVolume(this.value)" title="Volume">
-                            </div>
-
-                            <!-- Language Switcher Dropdown (English 🇬🇧 / አማርኛ 🇪🇹) -->
-                            <div class="dropdown d-inline-block">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1 py-1 px-2" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language / ቋንቋ ይምረጡ">
-                                    <span id="current-lang-icon">🇬🇧</span>
-                                    <span id="current-lang-label" class="d-none d-sm-inline">English</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="langDropdown">
-                                    <li><a class="dropdown-item active" id="lang-opt-en" href="javascript:void(0)" onclick="setLanguage('en')"><span class="me-2">🇬🇧</span> English</a></li>
-                                    <li><a class="dropdown-item" id="lang-opt-am" href="javascript:void(0)" onclick="setLanguage('am')"><span class="me-2">🇪🇹</span> አማርኛ (Amharic)</a></li>
-                                </ul>
-                            </div>
-
-                            <!-- Fullscreen Button -->
-                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
-                                <i class="bi bi-arrows-fullscreen"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Keyboard Quick Shortcuts Bar -->
-                    <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 pt-2 border-top text-secondary" style="font-size: 0.72rem; border-color: var(--border-default, #223247) !important;">
+        <div class="row g-3 align-items-stretch">
+            <!-- Left Column: Video Telemetry Player (Side by Side) -->
+            <div class="col-12 col-lg-6 d-flex flex-column">
+                <div class="card shadow-sm mb-3 flex-grow-1 d-flex flex-column bg-white border" id="studio-video-card" style="border-color: var(--border-default, #CBD5E1) !important; overflow: visible;">
+                    <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white border-bottom" style="position: relative; z-index: 1050; border-color: var(--border-default, #CBD5E1) !important;">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-keyboard text-primary"></i>
-                            <span><b>Shortcuts:</b> <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">Space</kbd> Play/Pause &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">←</kbd> / <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">→</kbd> Frame &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">M</kbd> Mute &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">C</kbd> CC &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">V</kbd> Voice &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">F</kbd> Fullscreen</span>
+                            <i class="bi bi-camera-reels text-primary fs-5"></i>
+                            <span class="fw-bold text-dark">Video:</span>
+                            <select class="form-select form-select-sm bg-white text-dark" style="width: auto; border-color: var(--border-default, #CBD5E1);" onchange="location.href='/studio?file=' + this.value">
+                                {% for v in video_files %}
+                                <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge border font-mono" style="background: var(--bg-surface, #111C2B); color: var(--text-muted, #64748B); border-color: var(--border-default, #223247);"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
+                        <!-- Unified Viewer Mode Dropdown -->
+                        <div class="dropdown" style="position: relative; z-index: 1060;">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1.5 fw-semibold shadow-sm" type="button" id="viewerModeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Viewer Mode">
+                                <i class="bi bi-play-btn-fill text-primary" id="viewerModeIcon"></i>
+                                <span id="viewerModeLabel">Recorded Stream</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg p-2 bg-white border" aria-labelledby="viewerModeDropdown" style="min-width: 285px; z-index: 1070; border-color: var(--border-default, #CBD5E1) !important;">
+                                <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">INSPECTION MODE</li>
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2 active" id="btn-mode-video" onclick="toggleViewerMode('video')">
+                                        <i class="bi bi-play-btn-fill text-primary fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Recorded Stream</div>
+                                            <div class="small text-secondary" style="font-size: 0.75rem;">Analyzed dashcam footage with AI telemetry</div>
+                                        </div>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-live" onclick="toggleViewerMode('live_camera')">
+                                        <i class="bi bi-camera-video-fill text-danger fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Live Phone / Web Camera</div>
+                                            <div class="small text-secondary" style="font-size: 0.75rem;">Real-time camera feed with live detection</div>
+                                        </div>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-frame" onclick="toggleViewerMode('frame')">
+                                        <i class="bi bi-layers-half text-info fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Frame Inspector</div>
+                                            <div class="small text-secondary" style="font-size: 0.75rem;">Step-by-step OpenCV keyframe analysis</div>
+                                        </div>
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider my-1.5" style="border-color: var(--border-default, #CBD5E1) !important;"></li>
+                                <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">HARDWARE CONFIG</li>
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
+                                        <i class="bi bi-gear-wide-connected text-secondary fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Hardware Setup Guide</div>
+                                            <div class="small text-secondary" style="font-size: 0.75rem;">Mounting instructions & IP camera URL setup</div>
+                                        </div>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Persistent ADAS Voice Audio Notification Bar (Hidden to eliminate duplication with bottom media controls) -->
+                    <div id="audio-alert-banner" style="display: none !important;">
+                        <span id="audio-status-badge"></span>
+                        <button id="btn-unmute-banner" onclick="unmuteAudio()"></button>
+                        <span id="unmute-banner-text"></span>
+                    </div>
+
+                    <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden cockpit-viewport flex-grow-1 d-flex flex-column justify-content-center" style="min-height: 380px;">
+                        <!-- Automotive Cockpit Framing Brackets -->
+                        <div class="cockpit-bracket cockpit-bracket-tl"></div>
+                        <div class="cockpit-bracket cockpit-bracket-tr"></div>
+                        <div class="cockpit-bracket cockpit-bracket-bl"></div>
+                        <div class="cockpit-bracket cockpit-bracket-br"></div>
+
+                        <!-- Live Telemetry Radar Badge -->
+                        <div class="cockpit-radar-badge d-flex align-items-center gap-2">
+                            <span class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
+                            <span class="fw-bold tracking-wide">ADAS ACTIVE</span>
+                            <span class="text-white-50">| 1080p 24FPS</span>
+                        </div>
+
+                        <!-- Single Unified HTML5 Video Player Mode (Default Primary Viewport) -->
+                        <div id="video-container" class="w-100 position-relative d-flex align-items-center justify-content-center" style="min-height: 380px; max-height: 450px; background: #000;">
+                            <video id="main-video" controls preload="metadata" playsinline class="w-100" style="max-height: 450px; object-fit: contain; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
+                                <source src="/media/video/{{ selected_video }}" type="video/mp4">
+                                <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
+                                <track id="hazard-subtitles-track-am" kind="subtitles" srclang="am" label="አማርኛ (Amharic)" src="/api/subtitles.vtt?lang=am">
+                                Your browser does not support HTML5 video streaming with this codec. Use the Precision Frame Scrubber.
+                            </video>
+                            <!-- Interactive Play/Pause Click Overlay Feedback -->
+                            <div id="video-click-ripple" class="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center rounded-circle bg-dark bg-opacity-75 text-white" style="width: 72px; height: 72px; display: none !important; pointer-events: none; z-index: 12; transition: opacity 0.3s;">
+                                <i class="bi bi-play-fill fs-1" id="video-click-icon"></i>
+                            </div>
+                        </div>
+
+                        <!-- Precision OpenCV Frame Inspector Mode (Strictly Hidden by Default - Never Stacked) -->
+                        <div id="frame-container" class="w-100 p-2 position-relative d-none" style="display: none !important; min-height: 380px; background: #111;">
+                            <img id="frame-image" src="/api/video/frame?file={{ selected_video }}&time=0" 
+                                 class="img-fluid rounded border border-secondary border-opacity-50 cursor-pointer" 
+                                 style="max-height: 440px; object-fit: contain; cursor: pointer;" alt="Video Frame" title="Click to Step Frame Forward (+1)">
+                            <div id="frame-loading" class="spinner-border text-primary position-absolute" style="display: none;" role="status">
+                                <span class="visually-hidden">Loading frame...</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Device Camera Mode (Strictly Hidden by Default - Never Stacked) -->
+                        <div id="live-camera-container" class="w-100 position-relative d-none" style="display: none !important; min-height: 380px; background: #000;">
+                            <video id="live-camera-video" playsinline autoplay muted class="w-100" style="max-height: 440px; object-fit: contain; background: #000;"></video>
+                            <canvas id="live-camera-canvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 10;"></canvas>
+                            
+                            <!-- Floating Live Camera Overlay Controls -->
+                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex align-items-center gap-2 p-2 rounded shadow" style="background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); z-index: 20;">
+                                <span class="badge bg-danger d-flex align-items-center gap-1 font-mono">
+                                    <span class="spinner-grow spinner-grow-sm text-light" style="width: 8px; height: 8px;"></span> LIVE FEED
+                                </span>
+                                <button class="btn btn-sm btn-outline-light fw-semibold" onclick="switchLiveCameraFacing()" title="Switch between Front and Back camera">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Flip Camera
+                                </button>
+                                <button class="btn btn-sm btn-danger fw-semibold" onclick="toggleViewerMode('video')" title="Return to Recorded Video">
+                                    <i class="bi bi-stop-circle-fill me-1"></i> Stop Camera
+                                </button>
+                                <div class="form-check form-switch text-white small mb-0 ms-1">
+                                    <input class="form-check-input" type="checkbox" id="live-ai-switch" checked>
+                                    <label class="form-check-label" for="live-ai-switch">AI Detection</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Glassmorphism HUD Subtitle & ADAS Warning Overlay (Isolated from clicks) -->
+                        <div id="hud-subtitle-container" class="position-absolute start-50 translate-middle-x" style="bottom: 12px; z-index: 15; width: 94%; max-width: 600px; pointer-events: none !important; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+                            <div id="hud-subtitle-card" class="card border-0 shadow-lg px-2.5 py-1.5 rounded-3 text-white" style="pointer-events: none !important; user-select: none !important; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 30px rgba(0,0,0,0.65);">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1.5" style="pointer-events: none !important;">
+                                    <div class="d-flex align-items-center gap-1.5" style="pointer-events: none !important;">
+                                        <span id="hud-risk-badge" class="badge bg-success px-1.5 py-0.5 font-mono d-flex align-items-center gap-1" style="font-size: 11px;">
+                                            <i class="bi bi-shield-check" id="hud-risk-icon"></i>
+                                            <span id="hud-risk-text">ROAD CLEAR</span>
+                                        </span>
+                                        <span id="hud-hazard-title" class="fw-bold text-white text-uppercase font-mono" style="font-size: 11px;">LANE MONITORED • ALL CLEAR</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 font-mono small text-white-50" style="pointer-events: none !important; font-size: 10.5px;">
+                                        <div id="hud-dist-item"><i class="bi bi-arrows-expand text-info me-0.5"></i><span id="label-dist">Dist</span>: <strong id="hud-dist-val" class="text-white">--</strong></div>
+                                        <div id="hud-ttc-item"><i class="bi bi-stopwatch text-warning me-0.5"></i><span id="label-ttc">TTC</span>: <strong id="hud-ttc-val" class="text-white">--</strong></div>
+                                        <div id="hud-path-item"><i class="bi bi-sign-merge-right text-primary me-0.5"></i><span id="label-corridor">Corridor</span>: <strong id="hud-path-val" class="text-white">CLEAR</strong></div>
+                                        <div id="hud-speed-item"><i class="bi bi-speedometer text-secondary me-0.5"></i><span id="label-speed">Speed</span>: <strong id="hud-speed-val" class="text-white">30 km/h</strong></div>
+                                        <div id="hud-gps-item" class="d-flex align-items-center"><i class="bi bi-geo-alt-fill text-danger me-0.5"></i><span id="label-gps">Hazard</span>: <strong id="hud-gps-val" class="text-warning font-mono ms-0.5">--</strong></div>
+                                    </div>
+                                </div>
+                                <!-- Live ADAS Voice Spoken Alert ticker -->
+                                <div id="hud-speech-bar" class="mt-1 pt-1 border-top border-white border-opacity-10 d-flex align-items-center justify-content-between text-info small" style="display: none !important; pointer-events: none !important; font-size: 11px;">
+                                    <div class="d-flex align-items-center gap-1.5" style="pointer-events: none !important;">
+                                        <div class="sound-wave-anim d-flex align-items-center gap-1">
+                                            <span class="bar bg-info"></span><span class="bar bg-info"></span><span class="bar bg-info"></span>
+                                        </div>
+                                        <i class="bi bi-megaphone-fill me-0.5"></i>
+                                        <span id="hud-speech-text" class="fw-semibold">"Alert: Road hazard ahead"</span>
+                                    </div>
+                                    <span id="hud-speech-badge" class="badge bg-danger-subtle text-danger" style="font-size: 0.65rem;">ADAS VOICE DISPATCH</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inspection Controls Toolbar (Unified in One Clean White Bar) -->
+                    <div class="card-footer py-2 px-3 bg-white border-top" style="border-color: var(--border-default, #CBD5E1) !important;">
+                        <!-- 1. Interactive Timeline Scrubber & Hazard Markers -->
+                        <div class="position-relative mb-2">
+                            <div class="timeline-track-container" id="timeline-pins-track" title="Click any hazard dot on timeline to jump directly to event">
+                                <!-- Injected via JavaScript dynamically -->
+                            </div>
+                            <input type="range" class="form-range cursor-pointer w-100" id="time-slider" min="0" max="10" step="0.05" value="0" style="cursor: pointer;" title="Drag or click to scrub timeline">
+                        </div>
+
+                        <!-- 2. Single Unified Responsive Controls Bar -->
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-1.5">
+                            <!-- Left Group: Frame Stepping, Play/Pause, and Clock -->
+                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i></button>
+                                <button class="btn btn-sm btn-primary px-2.5 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)">
+                                    <i class="bi bi-play-fill me-1"></i> Play
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
+
+                                <div class="d-flex align-items-center gap-1 ms-1 border-start ps-1.5">
+                                    <span class="badge border font-mono text-primary bg-light" id="time-display" style="font-size: 12px; border-color: var(--border-default, #CBD5E1) !important;">00:00.00</span>
+                                    <span class="badge bg-secondary font-mono" id="frame-display" style="font-size: 0.72rem;">Frame: 0</span>
+                                </div>
+                            </div>
+
+                            <!-- Right Group: Speed, CC, Voice, Volume, Language, Fullscreen -->
+                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                                <!-- Speed Selector Group -->
+                                <div class="btn-group btn-group-sm" role="group" title="Playback Speed">
+                                    <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-05x" onclick="setSpeed(0.5)">0.5x</button>
+                                    <button type="button" class="btn btn-outline-secondary active py-1 px-1.5" id="speed-10x" onclick="setSpeed(1.0)">1.0x</button>
+                                    <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-15x" onclick="setSpeed(1.5)">1.5x</button>
+                                    <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-20x" onclick="setSpeed(2.0)">2.0x</button>
+                                </div>
+
+                                <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
+                                <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold py-1 px-2" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
+                                    <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC</span>
+                                </button>
+                                <button class="btn btn-sm btn-primary shadow-sm fw-semibold py-1 px-2" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
+                                    <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice</span>
+                                </button>
+
+                                <!-- Volume & Mute Controls -->
+                                <div class="d-flex align-items-center gap-1 border-start ps-1.5 ms-0.5">
+                                    <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" id="btn-mute" onclick="toggleMute()" title="Toggle Mute (Key: M)">
+                                        <i class="bi bi-volume-up-fill" id="mute-icon"></i>
+                                    </button>
+                                    <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 50px; cursor: pointer;" oninput="setVolume(this.value)" title="Volume">
+                                </div>
+
+                                <!-- Language Switcher Dropdown (English 🇬🇧 / አማርኛ 🇪🇹) -->
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1 py-1 px-1.5" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language">
+                                        <span id="current-lang-icon">🇬🇧</span>
+                                        <span id="current-lang-label" class="d-none d-xl-inline">English</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 bg-white" aria-labelledby="langDropdown">
+                                        <li><a class="dropdown-item active text-dark" id="lang-opt-en" href="javascript:void(0)" onclick="setLanguage('en')"><span class="me-2">🇬🇧</span> English</a></li>
+                                        <li><a class="dropdown-item text-dark" id="lang-opt-am" href="javascript:void(0)" onclick="setLanguage('am')"><span class="me-2">🇪🇹</span> አማርኛ (Amharic)</a></li>
+                                    </ul>
+                                </div>
+
+                                <!-- Fullscreen Button -->
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
+                                    <i class="bi bi-arrows-fullscreen"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- SYNCHRONIZED GIS ROAD MAP (DASHCAM ON TOP, LIVE MAP ON BOTTOM) -->
-            <!-- ============================================================ -->
-            <div class="card shadow-sm mb-3" id="sync-map-card">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: var(--color-surface-elevated);">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-primary font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
-                        <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
-                        <span class="fw-bold small" style="color: var(--color-text-primary);">Corridor Track:</span>
+            <!-- Right Column: Synchronized GIS Road Map (Side by Side) -->
+            <div class="col-12 col-lg-6 d-flex flex-column">
+                <div class="card shadow-sm mb-3 flex-grow-1 d-flex flex-column bg-white border" id="sync-map-card" style="border-color: var(--border-default, #CBD5E1) !important;">
+                    <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white border-bottom" style="border-color: var(--border-default, #CBD5E1) !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
+                            <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
+                            <span class="fw-bold small text-dark">Corridor Track:</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
+                                <i class="bi bi-crosshair text-primary"></i> <span id="map-live-lat">9.123456</span>, <span id="map-live-lon">39.123456</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
+                                <i class="bi bi-compass text-info"></i> <strong id="map-live-heading">45° NE</strong>
+                            </div>
+                            <div id="map-hazard-badge" class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm d-flex align-items-center gap-1" style="font-size: 11px; display: none;">
+                                <i class="bi bi-geo-alt-fill"></i><span id="map-hazard-text">Pothole: --</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary py-0 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
+                                <i class="bi bi-crosshair2 me-1 text-primary"></i> Recenter
+                            </button>
+                            <div class="form-check form-switch mb-0 ms-1 small">
+                                <input class="form-check-input" type="checkbox" id="sync-map-autopan" checked>
+                                <label class="form-check-label text-secondary small" for="sync-map-autopan">Auto-Pan</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
-                            <i class="bi bi-crosshair text-primary"></i> <span id="map-live-lat">9.123456</span>, <span id="map-live-lon">39.123456</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
-                            <i class="bi bi-compass text-info"></i> <strong id="map-live-heading">45° NE</strong>
-                        </div>
-                        <div id="map-hazard-badge" class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm d-flex align-items-center gap-1" style="font-size: 11px; display: none;">
-                            <i class="bi bi-geo-alt-fill"></i><span id="map-hazard-text">Pothole: --</span>
-                        </div>
-                        <button class="btn btn-sm btn-outline-secondary py-0 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
-                            <i class="bi bi-crosshair2 me-1 text-primary"></i> Recenter
-                        </button>
-                        <div class="form-check form-switch mb-0 ms-1 small">
-                            <input class="form-check-input" type="checkbox" id="sync-map-autopan" checked>
-                            <label class="form-check-label text-secondary small" for="sync-map-autopan">Auto-Pan</label>
+                    <div class="card-body p-0 position-relative flex-grow-1" style="min-height: 420px;">
+                        <div id="studio-leaflet-map" style="position: absolute; top:0; bottom:0; left:0; right:0; width: 100%; height: 100%; min-height: 420px; z-index: 1;"></div>
+                        <!-- Live Sync Floating Pill -->
+                        <div id="map-status-pill" class="position-absolute bottom-0 start-0 m-3 px-3 py-1 rounded-pill shadow-sm d-flex align-items-center gap-2 text-white" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 1000; font-size: 11.5px; pointer-events: none; transition: all 0.3s ease;">
+                            <span id="map-status-dot" class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
+                            <span id="map-status-text" class="font-mono">LIVE GPS CORRIDOR &bull; POSITION SYNCHRONIZED</span>
                         </div>
                     </div>
-                </div>
-                <div class="card-body p-0 position-relative">
-                    <div id="studio-leaflet-map" style="height: 380px; width: 100%; z-index: 1;"></div>
-                    <!-- Live Sync Floating Pill -->
-                    <div id="map-status-pill" class="position-absolute bottom-0 start-0 m-3 px-3 py-1 rounded-pill shadow-sm d-flex align-items-center gap-2 text-white" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 1000; font-size: 11.5px; pointer-events: none; transition: all 0.3s ease;">
-                        <span id="map-status-dot" class="live-pulse-dot" style="width: 7px; height: 7px;"></span>
-                        <span id="map-status-text" class="font-mono">LIVE GPS CORRIDOR &bull; POSITION SYNCHRONIZED</span>
-                    </div>
-                </div>
-                <div class="card-footer py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary" style="background: var(--color-surface-elevated); border-top: 1px solid var(--color-border);">
-                    <div class="d-flex align-items-center gap-3">
-                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #0284c7;"></span><b>Vehicle</b></span>
-                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #dc2626;"></span><b>Critical Pothole</b></span>
-                        <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #f59e0b;"></span><b>Alligator Crack</b></span>
-                        <span><span class="d-inline-block me-1" style="width: 14px; height: 3px; background: #2563eb; vertical-align: middle;"></span><b>GPS Corridor</b></span>
+                    <div class="card-footer py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary bg-white border-top" style="border-color: var(--border-default, #CBD5E1) !important;">
+                        <div class="d-flex align-items-center gap-3">
+                            <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #0284c7;"></span><b>Vehicle</b></span>
+                            <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #dc2626;"></span><b>Critical Pothole</b></span>
+                            <span><span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background: #f59e0b;"></span><b>Alligator Crack</b></span>
+                            <span><span class="d-inline-block me-1" style="width: 14px; height: 3px; background: #2563eb; vertical-align: middle;"></span><b>GPS Corridor</b></span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
             <!-- Computer Vision Overlays & Engineering Telemetry Stream (Hidden per user request) -->
             <div class="row g-3 mb-3" id="cv-telemetry-panel-row" style="display: none !important;">
@@ -558,18 +549,18 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- col-12 (Main Video & Inspection Column) -->
-    </div> <!-- row g-3 -->
+        </div>
+    </div> <!-- #cv-telemetry-panel-row -->
 </div> <!-- #studio-video-view -->
 
 <!-- VIEW 2: CV TELEMETRY LEDGER (TABLE WITH ROWS AND COLUMNS - "ፅድት ያለ Row and Column ያለው File") -->
 <div id="studio-table-view" style="display: none;">
-    <div class="card shadow-sm border mb-3" style="background: var(--bg-surface, #111C2B); border-color: var(--border-default, #223247) !important;">
-        <div class="card-header py-2.5 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: var(--bg-elevated, #172438); border-color: var(--border-default, #223247) !important;">
+    <div class="card shadow-sm border mb-3 bg-white" style="border-color: var(--border-default, #CBD5E1) !important;">
+        <div class="card-header py-2.5 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white border-bottom" style="border-color: var(--border-default, #CBD5E1) !important;">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-table text-info fs-5"></i>
                 <div>
-                    <h6 class="mb-0 fw-bold text-white">Computer Vision Telemetry &amp; Defect Ledger</h6>
+                    <h6 class="mb-0 fw-bold text-dark">Computer Vision Telemetry &amp; Defect Ledger</h6>
                     <small class="text-secondary font-mono" style="font-size: 0.72rem;">Structured Tabular Record of Detected Road Defect Events</small>
                 </div>
                 <span class="badge bg-primary font-mono ms-2" id="table-record-count">{{ incidents|length }} Records</span>
@@ -579,10 +570,10 @@
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <!-- Live Search Box -->
                 <div class="input-group input-group-sm" style="max-width: 260px;">
-                    <span class="input-group-text border-secondary border-opacity-25 bg-dark text-secondary">
+                    <span class="input-group-text border-secondary border-opacity-25 bg-light text-secondary">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" class="form-control form-control-sm font-mono text-white border-secondary border-opacity-25" id="table-search-input" placeholder="Search defect, frame, ID..." oninput="filterStudioTable(this.value)" style="background: #0D1520;">
+                    <input type="text" class="form-control form-control-sm font-mono text-dark bg-white border-secondary border-opacity-25" id="table-search-input" placeholder="Search defect, frame, ID..." oninput="filterStudioTable(this.value)">
                 </div>
 
                 <!-- Risk Filter Buttons -->
@@ -602,9 +593,9 @@
 
         <div class="card-body p-0">
             <div class="table-responsive" style="max-height: 720px; overflow-y: auto;">
-                <table class="table table-dark table-hover table-striped align-middle mb-0 font-mono" id="studio-incident-table" style="background: transparent;">
-                    <thead class="sticky-top" style="background: #0D1520; z-index: 10;">
-                        <tr class="text-secondary small border-bottom" style="border-color: #223247 !important;">
+                <table class="table table-hover table-striped align-middle mb-0 font-mono" id="studio-incident-table">
+                    <thead class="table-light sticky-top" style="z-index: 10;">
+                        <tr class="text-secondary small border-bottom" style="border-color: var(--border-default, #CBD5E1) !important;">
                             <th class="ps-3 py-2.5" style="width: 50px;">#</th>
                             <th class="py-2.5">Time (s)</th>
                             <th class="py-2.5">Defect Type</th>
@@ -620,20 +611,20 @@
                     <tbody>
                         {% for inc in incidents %}
                         {% set risk_cat = 'danger' if ('IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level) else ('warning' if 'WARNING' in inc.max_risk_level else 'safe') %}
-                        <tr data-risk="{{ risk_cat }}" class="table-row-hover border-bottom" style="border-color: rgba(34, 50, 71, 0.6) !important;">
+                        <tr data-risk="{{ risk_cat }}" class="table-row-hover border-bottom">
                             <td class="ps-3 text-secondary small fw-bold">{{ loop.index }}</td>
                             <td>
-                                <span class="badge font-mono py-1 px-1.5 text-primary border border-primary border-opacity-25" style="background: rgba(56, 189, 248, 0.1); font-size: 0.78rem;">
+                                <span class="badge font-mono py-1 px-1.5 text-primary border border-primary border-opacity-25 bg-light" style="font-size: 0.78rem;">
                                     <i class="bi bi-clock-history me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
                                 </span>
                             </td>
                             <td>
-                                <span class="fw-bold text-white text-capitalize">
+                                <span class="fw-bold text-dark text-capitalize">
                                     <i class="bi bi-cone-striped text-warning me-1"></i>{{ inc.damage_type }}
                                 </span>
                             </td>
                             <td>
-                                <span class="badge bg-secondary bg-opacity-25 text-info font-mono">#{{ inc.track_id or '--' }}</span>
+                                <span class="badge bg-secondary bg-opacity-25 text-dark font-mono">#{{ inc.track_id or '--' }}</span>
                             </td>
                             <td>
                                 <span class="font-mono text-secondary small">FR {{ inc.frame_number or '--' }}</span>
@@ -698,12 +689,12 @@
 <!-- High-Tech Computer Vision Keyframe Inspection Modal ("ስንነካው የሚወጣ") -->
 <div class="modal fade" id="cvInspectorModal" tabindex="-1" aria-labelledby="cvInspectorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0" style="background-color: #111C2B; color: #F1F5F9; border: 1px solid #334763 !important; border-radius: 12px; overflow: hidden;">
-            <div class="modal-header py-2.5 px-3 border-bottom" style="background-color: #172438; border-color: #223247 !important;">
+        <div class="modal-content shadow-lg border bg-white" style="border-radius: 12px; overflow: hidden; border-color: var(--border-default, #CBD5E1) !important;">
+            <div class="modal-header py-2.5 px-3 border-bottom bg-white" style="border-color: var(--border-default, #CBD5E1) !important;">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-gpu-card text-primary fs-5"></i>
                     <div>
-                        <h6 class="modal-title fw-bold mb-0 text-white" id="cvInspectorModalLabel">
+                        <h6 class="modal-title fw-bold mb-0 text-dark" id="cvInspectorModalLabel">
                             <span id="cv-modal-title">Pothole #92</span>
                         </h6>
                         <small class="text-secondary font-mono" style="font-size: 0.72rem;">YOLOv8x + DeepSORT Computer Vision Detection</small>
@@ -711,7 +702,7 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge font-mono py-1 px-2" id="cv-modal-risk-badge">IMMEDIATE DANGER</span>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             </div>
 
@@ -727,25 +718,25 @@
                 <!-- CV Telemetry Badges in 4 Columns -->
                 <div class="row g-2 mb-3">
                     <div class="col-6 col-sm-3">
-                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                        <div class="p-2 rounded border bg-light">
                             <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Timestamp</div>
                             <div class="fs-6 fw-bold font-mono text-primary mt-0.5" id="cv-modal-time">38.04s</div>
                         </div>
                     </div>
                     <div class="col-6 col-sm-3">
-                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                        <div class="p-2 rounded border bg-light">
                             <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Video Frame</div>
-                            <div class="fs-6 fw-bold font-mono text-white mt-0.5" id="cv-modal-frame">Frame #951</div>
+                            <div class="fs-6 fw-bold font-mono text-dark mt-0.5" id="cv-modal-frame">Frame #951</div>
                         </div>
                     </div>
                     <div class="col-6 col-sm-3">
-                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                        <div class="p-2 rounded border bg-light">
                             <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Distance</div>
                             <div class="fs-6 fw-bold font-mono text-info mt-0.5" id="cv-modal-dist">6.1 m</div>
                         </div>
                     </div>
                     <div class="col-6 col-sm-3">
-                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                        <div class="p-2 rounded border bg-light">
                             <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Time To Collision</div>
                             <div class="fs-6 fw-bold font-mono text-danger mt-0.5" id="cv-modal-ttc">0.56 s</div>
                         </div>
@@ -753,19 +744,19 @@
                 </div>
 
                 <!-- GPS Location Information -->
-                <div class="p-2.5 rounded border border-secondary border-opacity-20 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.02);">
+                <div class="p-2.5 rounded border bg-light d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
                         <div>
                             <div class="text-secondary small fw-semibold" style="font-size: 0.68rem; text-transform: uppercase;">GPS Coordinate</div>
-                            <div class="font-mono fw-bold small text-white" id="cv-modal-gps">9.672788° N, 39.540692° E</div>
+                            <div class="font-mono fw-bold small text-dark" id="cv-modal-gps">9.672788° N, 39.540692° E</div>
                         </div>
                     </div>
-                    <span class="badge bg-dark text-secondary font-mono border border-secondary border-opacity-25">WGS84 High Precision</span>
+                    <span class="badge bg-white text-secondary font-mono border">WGS84 High Precision</span>
                 </div>
             </div>
 
-            <div class="modal-footer py-2 px-3 border-top d-flex justify-content-between" style="background-color: #172438; border-color: #223247 !important;">
+            <div class="modal-footer py-2 px-3 border-top bg-white d-flex justify-content-between" style="border-color: var(--border-default, #CBD5E1) !important;">
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-sm btn-primary fw-semibold" onclick="playFromModal()">
                         <i class="bi bi-play-fill me-1"></i> Play Stream from Here
@@ -784,54 +775,54 @@
 {% block scripts %}
 <style>
     :root {
-        --color-surface: var(--bg-surface, #111C2B);
-        --color-surface-elevated: var(--bg-elevated, #172438);
-        --color-text-primary: var(--text-primary, #F1F5F9);
-        --color-text-secondary: var(--text-secondary, #94A3B8);
+        --color-surface: var(--bg-surface, #ffffff);
+        --color-surface-elevated: var(--bg-elevated, #f8fafc);
+        --color-text-primary: var(--text-primary, #0f172a);
+        --color-text-secondary: var(--text-secondary, #475569);
         --color-text-muted: var(--text-muted, #64748B);
-        --color-border: var(--border-default, #223247);
-        --color-primary: var(--accent-primary, #38BDF8);
+        --color-border: var(--border-default, #CBD5E1);
+        --color-primary: var(--accent-primary, #0284c7);
     }
 
-    /* Viewer Mode Dropdown Menu Styling - Strict Solid Opaque Background & High Stacking */
+    /* Viewer Mode Dropdown Menu Styling */
     #viewerModeDropdown + .dropdown-menu {
-        background-color: #172438 !important; /* Solid opaque surface */
-        border: 1px solid #334763 !important;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(56, 189, 248, 0.25) !important;
+        background-color: var(--bg-surface, #ffffff) !important;
+        border: 1px solid var(--border-default, #CBD5E1) !important;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
         z-index: 1070 !important;
         border-radius: 8px !important;
         padding: 6px !important;
     }
     #viewerModeDropdown + .dropdown-menu .dropdown-item {
-        color: #F1F5F9 !important;
+        color: var(--text-primary, #0f172a) !important;
         background: transparent;
         border-radius: 6px;
         transition: background-color 0.15s ease, color 0.15s ease;
     }
     #viewerModeDropdown + .dropdown-menu .dropdown-item:hover {
-        background-color: rgba(56, 189, 248, 0.15) !important;
-        color: #FFFFFF !important;
+        background-color: rgba(2, 132, 199, 0.1) !important;
+        color: var(--accent-primary, #0284c7) !important;
     }
     #viewerModeDropdown + .dropdown-menu .dropdown-item.active {
-        background-color: rgba(56, 189, 248, 0.22) !important;
-        border-left: 3px solid #38BDF8 !important;
+        background-color: rgba(2, 132, 199, 0.15) !important;
+        border-left: 3px solid #0284c7 !important;
     }
 
     /* Streamlined CV Hazard Cards */
     .hazard-card {
-        background-color: var(--bg-surface, #111C2B);
-        border: 1px solid var(--border-default, #223247) !important;
+        background-color: var(--bg-surface, #ffffff);
+        border: 1px solid var(--border-default, #CBD5E1) !important;
         transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
     }
     .hazard-card:hover {
         transform: translateY(-1px);
-        border-color: #38BDF8 !important;
-        background-color: rgba(56, 189, 248, 0.08) !important;
+        border-color: #0284c7 !important;
+        background-color: rgba(2, 132, 199, 0.05) !important;
     }
     .hazard-card.active-hazard-card {
-        border-color: #38BDF8 !important;
-        background-color: rgba(56, 189, 248, 0.18) !important;
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+        border-color: #0284c7 !important;
+        background-color: rgba(2, 132, 199, 0.12) !important;
+        box-shadow: 0 0 10px rgba(2, 132, 199, 0.25) !important;
     }
 
     /* Automotive ADAS HUD Subtitle Styling */
@@ -2448,7 +2439,13 @@
 
         setTimeout(() => {
             if (studioMap) studioMap.invalidateSize();
-        }, 400);
+        }, 150);
+        setTimeout(() => {
+            if (studioMap) studioMap.invalidateSize();
+        }, 500);
+        window.addEventListener('resize', () => {
+            if (studioMap) studioMap.invalidateSize();
+        });
 
         syncMapWithTime(currentTime || 0);
     }
