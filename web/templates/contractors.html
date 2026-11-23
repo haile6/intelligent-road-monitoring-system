@@ -27,6 +27,14 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     }
 
+    .contractor-row {
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+    .contractor-row:hover td {
+        background-color: rgba(56, 189, 248, 0.08) !important;
+    }
+
     .grade-badge {
         width: 36px;
         height: 36px;
@@ -153,7 +161,7 @@
                     </div>
                     <div>
                         <div class="fw-bold text-dark d-flex align-items-center gap-2" style="font-size: 14px;">
-                            <span>Municipal Unit Repair Rates (የአስፋልት ጥገና ተመን ማስተካከያ)</span>
+                            <span>Municipal Unit Repair Rates</span>
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 10px;">Configurable</span>
                         </div>
                         <div class="small text-secondary" style="font-size: 11px;">
@@ -181,7 +189,7 @@
 
                     <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" onclick="applyCustomRates()">
                         <i class="bi bi-check-circle-fill"></i>
-                        <span>Apply / አስላ</span>
+                        <span>Apply Rates</span>
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" onclick="resetStandardRates()" title="Reset to standard ERA baseline rates (28,000 / 18,000 ETB)">
                         <i class="bi bi-arrow-counterclockwise"></i>
@@ -222,142 +230,94 @@
             <table class="table table-hover align-middle mb-0" id="contractorsTable">
                 <thead class="table-light text-uppercase font-mono" style="font-size: 11px; letter-spacing: 0.05em; color: var(--text-secondary);">
                     <tr>
-                        <th style="width: 20%;">Road Segment (የመንገዱ ስም)</th>
-                        <th style="width: 17%;">Contractor (ኮንትራክተር)</th>
-                        <th style="width: 13%;">GPS Bounds (ጅማሬ - ማብቂያ)</th>
-                        <th style="width: 11%;">Handover Date (የተረከበበት)</th>
-                        <th style="width: 12%;">Warranty Status (የዋስትና ሁኔታ)</th>
-                        <th style="width: 7%;" class="text-center">Defects</th>
-                        <th style="width: 11%;" class="text-end">Liability Cost (ተመን)</th>
+                        <th style="width: 28%;">Road Segment</th>
+                        <th style="width: 22%;">Contractor</th>
+                        <th style="width: 12%;">Handover Date</th>
+                        <th style="width: 14%;">Warranty Status</th>
+                        <th style="width: 6%;" class="text-center">Defects</th>
+                        <th style="width: 11%;" class="text-end">Liability Cost</th>
                         <th style="width: 4%;" class="text-center">Grade</th>
-                        <th style="width: 5%;" class="text-end action-cell">Actions</th>
+                        <th style="width: 3%;" class="text-end action-cell"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for c in contractors %}
-                    <tr data-status="{% if c.is_under_warranty %}ACTIVE{% else %}EXPIRED{% endif %}"
+                    <tr class="contractor-row"
+                        data-status="{% if c.is_under_warranty %}ACTIVE{% else %}EXPIRED{% endif %}"
                         data-cid="{{ c.id }}"
                         data-potholes="{{ c.potholes_count }}"
                         data-cracks="{{ c.cracks_count }}"
-                        data-is-under="{{ 1 if c.is_under_warranty else 0 }}">
+                        data-is-under="{{ 1 if c.is_under_warranty else 0 }}"
+                        onclick="openContractorDetailModal({{ c.id }})"
+                        title="Click to view full road specifications and contractor dossier">
                         <!-- Road Segment -->
                         <td>
-                            <div class="fw-bold text-dark">
-                                {% if c.source_url %}
-                                <a href="{{ c.source_url }}" target="_blank" rel="noopener noreferrer" class="text-dark text-decoration-none hover-primary d-inline-flex align-items-center gap-1" title="Click to view official project documentation source">
-                                    <span>{{ c.road_name }}</span>
-                                    <i class="bi bi-box-arrow-up-right text-info" style="font-size: 11px;"></i>
-                                </a>
-                                {% else %}
-                                <span>{{ c.road_name }}</span>
-                                {% endif %}
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 320px;">
+                                {{ c.road_name }}
                             </div>
-                            <div class="d-flex align-items-center flex-wrap gap-1 mt-1">
+                            <div class="d-flex align-items-center gap-2 mt-1">
                                 <span class="badge bg-light text-dark border font-mono" style="font-size: 10px;">{{ c.segment_code }}</span>
                                 <span class="text-secondary small font-mono">{{ c.length_km }} km</span>
-                                <span class="text-muted small">• {{ c.pavement_type }}</span>
                             </div>
-                            {% if c.source_url %}
-                            <div class="mt-1">
-                                <a href="{{ c.source_url }}" target="_blank" rel="noopener noreferrer" class="badge bg-info-subtle text-info-emphasis border border-info-subtle text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 10px;" title="Official verification source link">
-                                    <i class="bi bi-patch-check-fill text-info"></i>
-                                    <span>Project Source (የመረጃ ምንጭ)</span>
-                                    <i class="bi bi-arrow-up-right" style="font-size: 9px;"></i>
-                                </a>
-                            </div>
-                            {% endif %}
                         </td>
 
                         <!-- Contractor & Consultant -->
                         <td>
-                            <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                                <i class="bi bi-building-fill-gear text-secondary"></i>
-                                {% if c.website_url %}
-                                <a href="{{ c.website_url }}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none hover-underline d-inline-flex align-items-center gap-1" title="Click to visit contractor official website">
-                                    <span>{{ c.contractor_name }}</span>
-                                    <i class="bi bi-box-arrow-up-right text-primary" style="font-size: 11px;"></i>
-                                </a>
-                                {% else %}
+                            <div class="fw-bold text-dark d-flex align-items-center gap-1 text-truncate" style="max-width: 260px;">
+                                <i class="bi bi-building-fill-gear text-secondary small"></i>
                                 <span>{{ c.contractor_name }}</span>
-                                {% endif %}
                             </div>
-                            <div class="text-secondary small mt-1">
+                            <div class="text-secondary small mt-0.5 text-truncate" style="max-width: 260px;">
                                 <span class="text-muted">Consultant:</span> {{ c.consultant_name or 'Independent Engineer' }}
-                            </div>
-                            <div class="d-flex align-items-center flex-wrap gap-1 mt-1">
-                                {% if c.website_url %}
-                                <a href="{{ c.website_url }}" target="_blank" rel="noopener noreferrer" class="badge bg-primary-subtle text-primary border border-primary-subtle text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 10px;" title="Open contractor website">
-                                    <i class="bi bi-globe"></i>
-                                    <span>Official Website (ይፋዊ ድረ-ገጽ)</span>
-                                    <i class="bi bi-arrow-up-right" style="font-size: 9px;"></i>
-                                </a>
-                                {% endif %}
-                                {% if c.contact_email %}
-                                <span class="font-mono text-muted small" style="font-size: 10px;">{{ c.contact_email }}</span>
-                                {% endif %}
-                            </div>
-                        </td>
-
-                        <!-- GPS Range -->
-                        <td>
-                            <div class="font-mono small text-dark">
-                                <i class="bi bi-geo-alt-fill text-danger" style="font-size: 10px;"></i>
-                                {{ "{:.4f}".format(c.start_lat) }}° N, {{ "{:.4f}".format(c.start_lon) }}° E
-                            </div>
-                            <div class="font-mono small text-secondary">
-                                <i class="bi bi-arrow-down" style="font-size: 10px;"></i>
-                                {{ "{:.4f}".format(c.end_lat) }}° N, {{ "{:.4f}".format(c.end_lon) }}° E
                             </div>
                         </td>
 
                         <!-- Handover Date -->
                         <td>
-                            <div class="fw-semibold text-dark">{{ c.handover_date }}</div>
-                            <div class="text-muted small font-mono">DLP: {{ c.warranty_years }} Years</div>
+                            <div class="fw-semibold text-dark font-mono" style="font-size: 12.5px;">{{ c.handover_date }}</div>
+                            <div class="text-muted small font-mono" style="font-size: 11px;">DLP: {{ c.warranty_years }} Years</div>
                         </td>
 
                         <!-- Warranty Status Badge -->
                         <td>
                             {% if c.is_under_warranty %}
-                            <span class="badge badge-warranty-active p-2 d-inline-flex align-items-center gap-1">
+                            <span class="badge badge-warranty-active px-2 py-1 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 10.5px;">
                                 <i class="bi bi-shield-fill-check"></i>
-                                <span>Active Warranty</span>
+                                <span>Active</span>
                             </span>
-                            <div class="small text-success fw-semibold mt-1" style="font-size: 11px;">
-                                Expires: {{ c.warranty_expiry_date }}
+                            <div class="small text-success font-mono mt-1" style="font-size: 10.5px;">
+                                Exp: {{ c.warranty_expiry_date }}
                             </div>
-                            <div class="badge bg-light text-success border mt-1" style="font-size: 9px;">100% Free Contractor Repair</div>
                             {% else %}
-                            <span class="badge badge-warranty-expired p-2 d-inline-flex align-items-center gap-1">
+                            <span class="badge badge-warranty-expired px-2 py-1 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 10.5px;">
                                 <i class="bi bi-clock-history"></i>
-                                <span>Warranty Expired</span>
+                                <span>Expired</span>
                             </span>
-                            <div class="small text-secondary mt-1" style="font-size: 11px;">
-                                Expired: {{ c.warranty_expiry_date }}
+                            <div class="small text-muted font-mono mt-1" style="font-size: 10.5px;">
+                                Exp: {{ c.warranty_expiry_date }}
                             </div>
-                            <div class="badge bg-light text-secondary border mt-1" style="font-size: 9px;">Municipal Budget Responsibility</div>
                             {% endif %}
                         </td>
 
                         <!-- Defects Count -->
                         <td class="text-center">
-                            <span class="badge {% if c.incident_count > 10 %}bg-danger{% elif c.incident_count > 0 %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 px-2 py-1">
+                            <span class="badge {% if c.incident_count > 10 %}bg-danger{% elif c.incident_count > 0 %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 px-2 py-1 font-mono">
                                 {{ c.incident_count }}
                             </span>
                             <div class="text-secondary small font-mono mt-1" style="font-size: 10px;">
-                                {{ c.defect_rate_per_10km }} / 10km
+                                {{ c.defect_rate_per_10km }}/10km
                             </div>
                         </td>
 
                         <!-- Estimated Liability Cost -->
                         <td class="text-end">
-                            <div class="fw-bold font-mono text-dark row-cost-display" id="rowCost-{{ c.id }}">
+                            <div class="fw-bold font-mono text-dark row-cost-display" id="rowCost-{{ c.id }}" style="font-size: 13px;">
                                 ETB {{ "{:,.0f}".format(c.repair_cost_etb) }}
                             </div>
                             <div class="mt-1">
                                 {% if c.is_under_warranty %}
                                 <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle font-mono" style="font-size: 9px;" title="100% Contractor Warranty Liability">
-                                    100% Contractor
+                                    Contractor
                                 </span>
                                 {% else %}
                                 <span class="badge bg-secondary-subtle text-secondary-emphasis border font-mono" style="font-size: 9px;" title="Municipal Maintenance Responsibility">
@@ -376,31 +336,37 @@
                         </td>
 
                         <!-- Action Buttons -->
-                        <td class="text-end action-cell">
+                        <td class="text-end action-cell" onclick="event.stopPropagation()">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    Options
+                                <button class="btn btn-sm btn-outline-secondary p-1 px-2" type="button" data-bs-toggle="dropdown" title="Row actions">
+                                    <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                     <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2" onclick="openContractorDetailModal({{ c.id }})">
+                                            <i class="bi bi-info-circle text-primary"></i>
+                                            <span>View Details</span>
+                                        </button>
+                                    </li>
+                                    <li>
                                         <button class="dropdown-item d-flex align-items-center gap-2" onclick="openClaimNoticeModal({{ c.id }})">
                                             <i class="bi bi-file-earmark-text text-danger"></i>
-                                            <span>Generate Warranty Claim Notice</span>
+                                            <span>Warranty Claim Notice</span>
                                         </button>
                                     </li>
                                     {% if c.website_url %}
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center gap-2 text-primary" href="{{ c.website_url }}" target="_blank" rel="noopener noreferrer">
                                             <i class="bi bi-globe"></i>
-                                            <span>Visit Contractor Website (ይፋዊ ድረ-ገጽ)</span>
+                                            <span>Contractor Website</span>
                                         </a>
                                     </li>
                                     {% endif %}
                                     {% if c.source_url %}
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center gap-2 text-info" href="{{ c.source_url }}" target="_blank" rel="noopener noreferrer">
-                                            <i class="bi bi-patch-check"></i>
-                                            <span>View Project Evidence Link (የመረጃ ምንጭ)</span>
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                            <span>Project Source</span>
                                         </a>
                                     </li>
                                     {% endif %}
@@ -488,6 +454,195 @@
         </div>
     </div>
 
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: DETAILED CORRIDOR & CONTRACTOR SPECIFICATIONS         -->
+<!-- ============================================================ -->
+<div class="modal fade" id="contractorDetailModal" tabindex="-1" aria-labelledby="contractorDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom py-3" style="background: var(--bg-card, #f8fafc);">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 me-2 text-truncate">
+                    <div class="p-2 rounded bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-signpost-split fs-5"></i>
+                    </div>
+                    <div class="text-truncate">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span id="detailRoadName" class="modal-title fw-bold fs-6 text-dark text-truncate">Road Corridor</span>
+                            <span id="detailSegmentCode" class="badge bg-light text-dark border font-mono" style="font-size: 11px;"></span>
+                        </div>
+                        <div class="small text-secondary" id="detailHeaderSub">Infrastructure Corridor Dossier</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span id="detailWarrantyBadge"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal-body p-4 space-y-4">
+                <!-- Top Key Metrics Row -->
+                <div class="row g-2 mb-3">
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded border bg-light text-center">
+                            <div class="text-muted small text-uppercase font-mono" style="font-size: 10px;">Corridor Length</div>
+                            <div class="fs-5 fw-bold text-dark font-mono mt-1" id="detailLength">-- km</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded border bg-light text-center">
+                            <div class="text-muted small text-uppercase font-mono" style="font-size: 10px;">Quality Score &amp; Grade</div>
+                            <div class="fs-5 fw-bold font-mono mt-1" id="detailScoreGrade">--</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded border bg-light text-center">
+                            <div class="text-muted small text-uppercase font-mono" style="font-size: 10px;">Defects / Liability</div>
+                            <div class="fs-5 fw-bold text-dark font-mono mt-1" id="detailDefectCount">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 1: Pavement Engineering & Structure -->
+                <div class="card border p-3 mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-layers-fill text-primary"></i>
+                            <span>Pavement Engineering &amp; Structure</span>
+                        </h6>
+                        <span class="badge bg-secondary-subtle text-secondary font-mono" style="font-size: 10px;">ERA Spec</span>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-12">
+                            <div class="small text-muted">Pavement Type &amp; Cross-Section:</div>
+                            <div class="fw-semibold text-dark mt-0.5" id="detailPavementType">--</div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="small text-muted">Contract &amp; Administrative Notes:</div>
+                            <div class="text-secondary small mt-0.5" id="detailNotes">--</div>
+                        </div>
+                        <div class="col-md-12" id="detailSourceBox" style="display: none;">
+                            <div class="small text-muted mb-1">Official Project Documentation / Loan Verification:</div>
+                            <a id="detailSourceLink" href="#" target="_blank" rel="noopener noreferrer" class="badge bg-info-subtle text-info-emphasis border border-info-subtle text-decoration-none p-2 d-inline-flex align-items-center gap-1 font-mono">
+                                <i class="bi bi-patch-check-fill text-info"></i>
+                                <span>Official Project Evidence Link (የመረጃ ምንጭ)</span>
+                                <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 10px;"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Isolated GPS Bounds & Spatial Alignment -->
+                <div class="card border p-3 mb-3 border-danger-subtle" style="background: rgba(239, 68, 68, 0.02);">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-alt-fill text-danger"></i>
+                            <span>GPS Corridor Bounds (ጅማሬ - ማብቂያ)</span>
+                        </h6>
+                        <span class="badge bg-danger-subtle text-danger font-mono" style="font-size: 10px;">GIS Alignment</span>
+                    </div>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-5">
+                            <div class="p-2 rounded bg-white border">
+                                <div class="text-muted small font-mono" style="font-size: 10px;">
+                                    <i class="bi bi-geo-fill text-success me-1"></i>Start Coordinates (ጅማሬ)
+                                </div>
+                                <div class="fw-bold font-mono text-dark mt-1" id="detailStartCoords" style="font-size: 13px;">--</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center text-muted">
+                            <i class="bi bi-arrow-right fs-4 d-none d-md-inline-block"></i>
+                            <i class="bi bi-arrow-down fs-4 d-inline-block d-md-none"></i>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="p-2 rounded bg-white border">
+                                <div class="text-muted small font-mono" style="font-size: 10px;">
+                                    <i class="bi bi-flag-fill text-danger me-1"></i>End Coordinates (ማብቂያ)
+                                </div>
+                                <div class="fw-bold font-mono text-dark mt-1" id="detailEndCoords" style="font-size: 13px;">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-end">
+                        <a id="detailGisLink" href="/map" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 font-mono" style="font-size: 11px;">
+                            <i class="bi bi-geo-alt"></i> Locate Corridor on Interactive GIS Map
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Section 3: Contractor & Supervising Consultant -->
+                <div class="card border p-3 mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-building text-primary"></i>
+                            <span>Contractor &amp; Supervision Engineering</span>
+                        </h6>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="small text-muted">Construction Firm:</div>
+                            <div class="fw-bold text-dark mt-0.5" id="detailContractorName">--</div>
+                            <div id="detailWebsiteBox" class="mt-2" style="display: none;">
+                                <a id="detailWebsiteLink" href="#" target="_blank" rel="noopener noreferrer" class="badge bg-primary-subtle text-primary border border-primary-subtle text-decoration-none p-2 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 11px;">
+                                    <i class="bi bi-globe"></i>
+                                    <span>Official Website</span>
+                                    <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 9px;"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="small text-muted">Supervising Consultant Engineer:</div>
+                            <div class="fw-semibold text-secondary mt-0.5" id="detailConsultantName">--</div>
+                            <div class="small text-muted mt-2">Contractor Liaison Contact:</div>
+                            <div class="font-mono text-secondary small" id="detailContactInfo">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: DLP Warranty & Financial Liability -->
+                <div class="card border p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check text-success"></i>
+                            <span>Defects Liability Period (DLP) &amp; Financial Exposure</span>
+                        </h6>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-sm-4">
+                            <div class="small text-muted">Handover Date:</div>
+                            <div class="fw-bold font-mono text-dark" id="detailHandover">--</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="small text-muted">DLP Duration:</div>
+                            <div class="fw-bold font-mono text-dark" id="detailWarrantyYears">--</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="small text-muted">Warranty Expiry Date:</div>
+                            <div class="fw-bold font-mono text-dark" id="detailWarrantyExpiry">--</div>
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <div class="small text-muted">Estimated Rectification Cost:</div>
+                            <div class="fs-5 fw-bold font-mono text-dark mt-0.5" id="detailLiabilityCost">ETB 0</div>
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <div class="small text-muted">Legally Obligated Party:</div>
+                            <div class="mt-0.5" id="detailLiabilityParty">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-top py-2 px-4 d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-outline-danger d-inline-flex align-items-center gap-1 font-mono" id="detailClaimBtn" style="font-size: 12px;">
+                    <i class="bi bi-file-earmark-text"></i> Generate Warranty Claim Notice
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ============================================================ -->
@@ -716,6 +871,103 @@
 </div>
 
 <script>
+    const contractorsData = {{ contractors | tojson | safe }};
+
+    function openContractorDetailModal(cid) {
+        const c = contractorsData.find(item => item.id == cid);
+        if (!c) {
+            console.error('Contractor not found with ID:', cid);
+            return;
+        }
+
+        // Road Header
+        document.getElementById('detailRoadName').innerText = c.road_name || 'Highway Segment';
+        document.getElementById('detailSegmentCode').innerText = c.segment_code || 'ET-N/A';
+        document.getElementById('detailHeaderSub').innerText = `${c.length_km || 0} km • ${c.contractor_name || ''}`;
+
+        // Warranty Badge in Header
+        const wBadge = document.getElementById('detailWarrantyBadge');
+        if (c.is_under_warranty) {
+            wBadge.innerHTML = `<span class="badge badge-warranty-active px-2 py-1 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 11px;"><i class="bi bi-shield-fill-check"></i> Active Warranty</span>`;
+        } else {
+            wBadge.innerHTML = `<span class="badge badge-warranty-expired px-2 py-1 d-inline-flex align-items-center gap-1 font-mono" style="font-size: 11px;"><i class="bi bi-clock-history"></i> Warranty Expired</span>`;
+        }
+
+        // Top Metrics
+        document.getElementById('detailLength').innerText = `${c.length_km || 0} km`;
+        const gradeColor = c.grade_color || 'success';
+        document.getElementById('detailScoreGrade').innerHTML = `<span class="badge bg-${gradeColor}-subtle text-${gradeColor} border border-${gradeColor} me-1 font-mono">${c.quality_grade || 'A'}</span> <span class="text-secondary small font-mono">(${c.quality_score || 0}/100)</span>`;
+        document.getElementById('detailDefectCount').innerText = `${c.incident_count || 0} defects (${c.potholes_count || 0} potholes, ${c.cracks_count || 0} cracks)`;
+
+        // Pavement & Notes
+        document.getElementById('detailPavementType').innerText = c.pavement_type || 'Standard Asphalt Concrete Surface';
+        document.getElementById('detailNotes').innerText = c.notes || 'Official Ethiopian Roads Administration registered roadway segment.';
+
+        // Project Source Link
+        const srcBox = document.getElementById('detailSourceBox');
+        const srcLink = document.getElementById('detailSourceLink');
+        if (c.source_url) {
+            srcLink.href = c.source_url;
+            srcBox.style.display = 'block';
+        } else {
+            srcBox.style.display = 'none';
+        }
+
+        // GPS Bounds (Isolated section)
+        const startLat = (typeof c.start_lat === 'number') ? c.start_lat.toFixed(4) : c.start_lat;
+        const startLon = (typeof c.start_lon === 'number') ? c.start_lon.toFixed(4) : c.start_lon;
+        const endLat = (typeof c.end_lat === 'number') ? c.end_lat.toFixed(4) : c.end_lat;
+        const endLon = (typeof c.end_lon === 'number') ? c.end_lon.toFixed(4) : c.end_lon;
+
+        document.getElementById('detailStartCoords').innerText = `${startLat}° N, ${startLon}° E`;
+        document.getElementById('detailEndCoords').innerText = `${endLat}° N, ${endLon}° E`;
+        document.getElementById('detailGisLink').href = `/map?lat=${startLat}&lon=${startLon}&zoom=14`;
+
+        // Contractor & Consultant
+        document.getElementById('detailContractorName').innerText = c.contractor_name || 'N/A';
+        document.getElementById('detailConsultantName').innerText = c.consultant_name || 'Independent Supervising Engineer';
+
+        const webBox = document.getElementById('detailWebsiteBox');
+        const webLink = document.getElementById('detailWebsiteLink');
+        if (c.website_url) {
+            webLink.href = c.website_url;
+            webBox.style.display = 'block';
+        } else {
+            webBox.style.display = 'none';
+        }
+
+        const email = c.contact_email || 'liaison@contractor.com';
+        const phone = c.contact_phone || '+251 11 000 0000';
+        document.getElementById('detailContactInfo').innerText = `${email} • ${phone}`;
+
+        // Warranty & Liability
+        document.getElementById('detailHandover').innerText = c.handover_date || 'N/A';
+        document.getElementById('detailWarrantyYears').innerText = `${c.warranty_years || 3} Years DLP`;
+        document.getElementById('detailWarrantyExpiry').innerText = c.warranty_expiry_date || 'N/A';
+
+        // Recalculate cost with active unit rates
+        const cost = ((c.potholes_count || 0) * currentPotholeRate) + ((c.cracks_count || 0) * currentCrackRate);
+        document.getElementById('detailLiabilityCost').innerText = 'ETB ' + Math.round(cost).toLocaleString();
+
+        const liabilityPartyEl = document.getElementById('detailLiabilityParty');
+        if (c.is_under_warranty) {
+            liabilityPartyEl.innerHTML = `<span class="badge bg-success-subtle text-success border border-success font-mono">100% Contractor Warranty Liability (Free Rectification)</span>`;
+        } else {
+            liabilityPartyEl.innerHTML = `<span class="badge bg-secondary-subtle text-secondary border font-mono">City / Municipal Road Fund Maintenance Budget</span>`;
+        }
+
+        // Claim button
+        const claimBtn = document.getElementById('detailClaimBtn');
+        claimBtn.onclick = function() {
+            const modalEl = document.getElementById('contractorDetailModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+            openClaimNoticeModal(c.id);
+        };
+
+        const modal = new bootstrap.Modal(document.getElementById('contractorDetailModal'));
+        modal.show();
+    }
     function filterContractorsTable() {
         const query = (document.getElementById('contractorSearchInput').value || '').toLowerCase();
         const warrantyFilter = document.getElementById('warrantyFilterSelect').value;
