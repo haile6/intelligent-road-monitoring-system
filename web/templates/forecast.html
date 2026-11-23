@@ -10,117 +10,85 @@
 <style>
 /* Modern Interactive Simulator Styling */
 .sim-hero-panel {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    padding: 18px;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px;
+    padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
-.preset-chip-btn {
-    border: 1px solid var(--border-default);
-    background: var(--bg-elevated);
-    color: var(--text-secondary);
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    user-select: none;
-}
-.preset-chip-btn:hover {
-    color: #fff;
-    border-color: var(--accent-primary);
-    transform: translateY(-1px);
-}
-.preset-chip-btn.active {
-    background: var(--accent-primary);
-    color: #04121e;
-    border-color: var(--accent-primary);
-    font-weight: 700;
+[data-theme="dark"] .sim-hero-panel {
+    background: #111C2B !important;
+    border-color: #223247 !important;
 }
 
 .range-slider-row {
-    margin-bottom: 16px;
+    margin-bottom: 0px;
 }
 .range-slider-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     font-size: 13px;
     font-weight: 600;
 }
 
-/* Road Cross-Section Interactive Diagram */
-.road-cross-section-box {
-    background: #080D16;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-    min-height: 290px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-.road-layer-legend {
-    display: flex;
-    gap: 12px;
-    font-size: 11px;
-    font-family: var(--font-mono);
-    color: var(--text-muted);
-    margin-bottom: 10px;
-}
-.road-layer-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    vertical-align: middle;
-    margin-right: 4px;
-}
-
-/* Interactive SVG Pothole Cross-Section */
-.pothole-svg-wrap {
-    width: 100%;
-    height: 160px;
-    background: linear-gradient(180deg, #182232 0%, #111a26 40%, #0d141e 100%);
-    border-radius: 6px;
-    position: relative;
-    border: 1px solid rgba(255,255,255,0.06);
-}
-
 .outcome-card {
-    border-radius: var(--radius-md);
+    border-radius: 10px;
     padding: 18px 20px;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 .outcome-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
-.outcome-card-today {
-    background: linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.03) 100%);
-    border: 1.5px solid rgba(16, 185, 129, 0.4);
+
+[data-theme="dark"] .outcome-card {
+    background: #111C2B !important;
+    border-color: #223247 !important;
 }
-.outcome-card-delayed {
-    background: linear-gradient(145deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.03) 100%);
-    border: 1.5px solid rgba(239, 68, 68, 0.4);
+
+.btn-dispatch-white {
+    background: #FFFFFF !important;
+    color: #059669 !important;
+    border: 1.5px solid #10B981 !important;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
-.outcome-card-savings {
-    background: linear-gradient(145deg, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.03) 100%);
-    border: 1.5px solid rgba(245, 158, 11, 0.4);
+.btn-dispatch-white:hover {
+    background: #F0FDF4 !important;
+    color: #047857 !important;
+    border-color: #059669 !important;
+}
+[data-theme="dark"] .btn-dispatch-white {
+    background: #16253A !important;
+    color: #34D399 !important;
+    border-color: #059669 !important;
+}
+[data-theme="dark"] .btn-dispatch-white:hover {
+    background: #1E3A5F !important;
+}
+
+.panel-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+[data-theme="dark"] .panel-card {
+    background: #111C2B !important;
+    border-color: #223247 !important;
 }
 
 .sim-nav-tabs .nav-link {
@@ -171,9 +139,6 @@
                 <i data-lucide="cloud-rain" style="color:var(--accent-primary);"></i>
                 Pavement Deterioration &amp; Rainy Season Simulator
             </h1>
-            <div class="text-secondary small">
-                የመንገድ ብልሽት፣ የክረምት ዝናብ ተፅዕኖ እና የጥገና ኪሳራ ማስመሰያ (Interactive Decision Engine)
-            </div>
         </div>
 
         <div class="page-actions-bar">
@@ -190,52 +155,25 @@
         </div>
     </div>
 
-    <!-- Quick Scenario Presets Strip (One Click Instant Feedback) -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5 rounded mb-3" style="background:var(--bg-surface); border:1px solid var(--border-default);">
-        <div class="d-flex align-items-center gap-2">
-            <span class="small fw-bold text-white d-flex align-items-center gap-1">
-                <i data-lucide="zap" style="width:15px; height:15px; color:#f59e0b;"></i>
-                <span>ፈጣን ሁኔታዎች (Quick Presets):</span>
-            </span>
-            <div class="d-flex flex-wrap gap-1.5">
-                <button type="button" class="preset-chip-btn active" id="chip-bega" onclick="applyPreset('BEGA')">
-                    <span>☀️ ደረቅ በጋ (Bega Dry)</span>
-                </button>
-                <button type="button" class="preset-chip-btn" id="chip-belg" onclick="applyPreset('BELG')">
-                    <span>🌦️ በልግ (Belg Mild Rain)</span>
-                </button>
-                <button type="button" class="preset-chip-btn" id="chip-kiremt" onclick="applyPreset('KIREMT')">
-                    <span>🌧️ ክረምት (Heavy Monsoon)</span>
-                </button>
-                <button type="button" class="preset-chip-btn" id="chip-worst" onclick="applyPreset('WORST')">
-                    <span>💥 የከፋ መዘግየት (180d Delay)</span>
-                </button>
-            </div>
-        </div>
-        <div class="text-secondary small font-mono d-none d-lg-block">
-            Corridor: <strong class="text-success">Debre Berhan Highway (Route A2)</strong>
-        </div>
-    </div>
-
     <!-- Navigation Tabs: Simple End-User vs Technical Ledger -->
     <ul class="nav nav-tabs sim-nav-tabs mb-3" id="forecastViewTabs" role="tablist" style="border-bottom: 1px solid var(--border-default);">
         <li class="nav-item" role="presentation">
             <button class="nav-link active d-flex align-items-center gap-2" id="sim-tab" data-bs-toggle="tab" data-bs-target="#sim-pane" type="button" role="tab">
                 <i data-lucide="sliders" style="width:15px; height:15px;"></i>
-                <span>Interactive Simulator (የቀጥታ ማስመሰያ)</span>
+                <span>Interactive Simulator</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link d-flex align-items-center gap-2" id="ledger-tab" data-bs-toggle="tab" data-bs-target="#ledger-pane" type="button" role="tab">
                 <i data-lucide="layers" style="width:15px; height:15px;"></i>
-                <span>Defect Ledger (የጉድጓዶች ዝርዝር)</span>
+                <span>Defect Ledger</span>
                 <span class="badge bg-secondary font-mono" id="hazardCountBadge" style="font-size:10px;">{{ forecast_data.canonical_hazards_count }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link d-flex align-items-center gap-2" id="audit-tab" data-bs-toggle="tab" data-bs-target="#audit-pane" type="button" role="tab">
                 <i data-lucide="cpu" style="width:15px; height:15px;"></i>
-                <span>Model Audits &amp; Science (ቴክኒካል ዝርዝር)</span>
+                <span>Model Information</span>
             </button>
         </li>
     </ul>
@@ -250,156 +188,69 @@
         <!-- ======================================================== -->
         <div class="tab-pane fade show active" id="sim-pane" role="tabpanel">
 
-            <!-- Main Interactive Simulator Row (Controls + Visual Road Diagram) -->
+            <!-- Main Interactive Simulator Row (Full Width 3-Slider Controls) -->
             <div class="row g-3 mb-4">
-
-                <!-- Left: Tactile Sliders Deck -->
-                <div class="col-12 col-lg-6">
-                    <div class="sim-hero-panel h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                <div class="col-12">
+                    <div class="sim-hero-panel">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                            <div class="fw-bold d-flex align-items-center gap-2" style="font-size: 14px; color: var(--text-primary);">
                                 <i data-lucide="sliders-horizontal" style="color:var(--accent-primary); width:16px; height:16px;"></i>
-                                <span>የተፅዕኖ መቆጣጠሪያዎች (What-If Controls)</span>
-                            </h6>
-                            <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-30 font-mono" id="badge-season-tag">
-                                BEGA
-                            </span>
-                        </div>
-
-                        <!-- Slider 1: Rainfall -->
-                        <div class="range-slider-row">
-                            <div class="range-slider-header">
-                                <span class="text-secondary d-flex align-items-center gap-1.5">
-                                    <i data-lucide="cloud-drizzle" style="width:14px; height:14px; color:#38bdf8;"></i>
-                                    <span>ወርሃዊ ዝናብ (Monthly Rainfall):</span>
-                                </span>
-                                <span class="font-mono text-accent fw-bold fs-6" id="lbl-rain">15 mm/mo</span>
+                                <span>What-If Scenario Controls</span>
                             </div>
-                            <input type="range" class="form-range" id="slider-rain" min="0" max="350" step="5" value="15" oninput="onRainChange(this.value)">
-                            <div class="d-flex justify-content-between text-muted font-mono" style="font-size:10px;">
-                                <span>0mm (ደረቅ)</span>
-                                <span>100mm (በልግ)</span>
-                                <span>250mm+ (ክረምት)</span>
+                            <div class="d-flex align-items-center gap-1.5">
+                                <label for="scenarioPresetSelect" class="small text-muted font-mono d-none d-sm-inline" style="font-size: 11px;">Scenario:</label>
+                                <select id="scenarioPresetSelect" class="form-select form-select-sm font-mono" onchange="applyPreset(this.value)" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-default); font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 28px 4px 10px; cursor: pointer; min-width: 195px;">
+                                    <option value="BEGA" selected>Bega (Dry Season)</option>
+                                    <option value="BELG">Belg (Mild Rain)</option>
+                                    <option value="KIREMT">Kiremt (Monsoon)</option>
+                                    <option value="WORST">Critical 180d Delay</option>
+                                    <option value="CUSTOM" id="opt-custom" disabled>Custom Parameters</option>
+                                </select>
                             </div>
                         </div>
 
-                        <!-- Slider 2: Delay Horizon -->
-                        <div class="range-slider-row">
-                            <div class="range-slider-header">
-                                <span class="text-secondary d-flex align-items-center gap-1.5">
-                                    <i data-lucide="calendar" style="width:14px; height:14px; color:#f59e0b;"></i>
-                                    <span>የጥገና መዘግየት (Days Delayed):</span>
-                                </span>
-                                <span class="font-mono text-warning fw-bold fs-6" id="lbl-days">60 Days (2 Months)</span>
+                        <div class="row g-3">
+                            <!-- Slider 1: Rainfall -->
+                            <div class="col-12 col-md-4">
+                                <div class="range-slider-row">
+                                    <div class="range-slider-header">
+                                        <span class="text-secondary d-flex align-items-center gap-1.5">
+                                            <i data-lucide="cloud-drizzle" style="width:14px; height:14px; color:#38bdf8;"></i>
+                                            <span>Monthly Rainfall:</span>
+                                        </span>
+                                        <span class="font-mono text-accent fw-bold fs-6" id="lbl-rain">15 mm/mo</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="slider-rain" min="0" max="350" step="5" value="15" oninput="onRainChange(this.value)">
+                                </div>
                             </div>
-                            <input type="range" class="form-range" id="slider-days" min="15" max="180" step="15" value="60" oninput="onDaysChange(this.value)">
-                            <div class="d-flex justify-content-between text-muted font-mono" style="font-size:10px;">
-                                <span>15 ቀናት</span>
-                                <span>60 ቀናት (2 ወር)</span>
-                                <span>180 ቀናት (6 ወር)</span>
+
+                            <!-- Slider 2: Delay Horizon -->
+                            <div class="col-12 col-md-4">
+                                <div class="range-slider-row">
+                                    <div class="range-slider-header">
+                                        <span class="text-secondary d-flex align-items-center gap-1.5">
+                                            <i data-lucide="calendar" style="width:14px; height:14px; color:#f59e0b;"></i>
+                                            <span>Intervention Delay:</span>
+                                        </span>
+                                        <span class="font-mono text-warning fw-bold fs-6" id="lbl-days">60 Days (2 Months)</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="slider-days" min="15" max="180" step="15" value="60" oninput="onDaysChange(this.value)">
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Slider 3: Heavy Truck Freight -->
-                        <div class="range-slider-row mb-0">
-                            <div class="range-slider-header">
-                                <span class="text-secondary d-flex align-items-center gap-1.5">
-                                    <i data-lucide="truck" style="width:14px; height:14px; color:#ef4444;"></i>
-                                    <span>የከባድ መኪናዎች ጫና (Heavy Freight Ratio):</span>
-                                </span>
-                                <span class="font-mono text-white fw-bold fs-6" id="lbl-truck">24% Trucks</span>
+                            <!-- Slider 3: Heavy Truck Freight -->
+                            <div class="col-12 col-md-4">
+                                <div class="range-slider-row mb-0">
+                                    <div class="range-slider-header">
+                                        <span class="text-secondary d-flex align-items-center gap-1.5">
+                                            <i data-lucide="truck" style="width:14px; height:14px; color:#ef4444;"></i>
+                                            <span>Heavy Freight Proportion:</span>
+                                        </span>
+                                        <span class="font-mono fw-bold fs-6" id="lbl-truck" style="color: var(--text-primary) !important;">24% Trucks</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="slider-truck" min="5" max="50" step="1" value="24" oninput="onTruckChange(this.value)">
+                                </div>
                             </div>
-                            <input type="range" class="form-range" id="slider-truck" min="5" max="50" step="1" value="24" oninput="onTruckChange(this.value)">
-                            <div class="d-flex justify-content-between text-muted font-mono" style="font-size:10px;">
-                                <span>5% (ቀላል ትራፊክ)</span>
-                                <span>25% (አማካይ አውራ ጎዳና)</span>
-                                <span>50% (ከፍተኛ የጭነት መስመር)</span>
-                            </div>
-                        </div>
-
-                        <!-- Moisture & Traffic Multiplier Status -->
-                        <div class="mt-3 pt-2.5 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center small font-mono">
-                            <span class="text-secondary">Moisture Index (m): <strong class="text-info" id="lbl-moisture-val">1.00</strong></span>
-                            <span class="text-secondary">Total Road Stress: <strong class="text-danger" id="lbl-stress-val">1.20×</strong></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: REAL-TIME ROAD DAMAGE CROSS-SECTION DIAGRAM -->
-                <div class="col-12 col-lg-6">
-                    <div class="road-cross-section-box">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="panel-title fw-bold text-white d-flex align-items-center gap-2" style="font-size:13px;">
-                                <i data-lucide="eye" style="color:var(--accent-primary); width:15px; height:15px;"></i>
-                                <span>የመንገዱ ሁኔታ በቀጥታ (Live Cross-Section Visual)</span>
-                            </div>
-                            <span class="badge font-mono" id="badge-failure-layer" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981;">
-                                Surface Course
-                            </span>
-                        </div>
-
-                        <!-- Interactive SVG Diagram -->
-                        <div class="pothole-svg-wrap">
-                            <svg id="roadSvgCanvas" width="100%" height="100%" viewBox="0 0 500 160" preserveAspectRatio="none">
-                                <defs>
-                                    <!-- Asphalt surface pattern -->
-                                    <pattern id="asphaltPat" width="20" height="20" patternUnits="userSpaceOnUse">
-                                        <rect width="20" height="20" fill="#1e293b"/>
-                                        <circle cx="5" cy="5" r="1.5" fill="#334155"/>
-                                        <circle cx="15" cy="15" r="1.5" fill="#334155"/>
-                                    </pattern>
-                                    <!-- Base stone pattern -->
-                                    <pattern id="basePat" width="20" height="20" patternUnits="userSpaceOnUse">
-                                        <rect width="20" height="20" fill="#334155"/>
-                                        <polygon points="5,5 9,12 3,12" fill="#475569"/>
-                                        <polygon points="15,10 18,17 12,17" fill="#475569"/>
-                                    </pattern>
-                                </defs>
-
-                                <!-- Layer 3: Subgrade Soil (Bottom) -->
-                                <rect x="0" y="100" width="500" height="60" fill="#292524" />
-                                <text x="12" y="145" fill="#78716c" font-size="10" font-family="monospace">መሰረት አፈር (Subgrade Foundation)</text>
-
-                                <!-- Layer 2: Crushed Stone Base (Middle) -->
-                                <rect x="0" y="45" width="500" height="55" fill="url(#basePat)" />
-                                <text x="12" y="80" fill="#94a3b8" font-size="10" font-family="monospace">የጠጠር ንጣፍ (Base Course 15cm)</text>
-
-                                <!-- Layer 1: Asphalt Wearing Surface (Top) -->
-                                <rect x="0" y="0" width="500" height="45" fill="url(#asphaltPat)" />
-                                <text x="12" y="25" fill="#e2e8f0" font-size="10" font-family="monospace">አስፋልት (Asphalt Surface 5cm)</text>
-
-                                <!-- Dynamic Pothole Cavity Cutout (Dynamic Path) -->
-                                <path id="svgPotholeCavity" d="M 180,0 Q 250,55 320,0 Z" fill="#080D16" stroke="#ef4444" stroke-width="2.5" />
-
-                                <!-- Dynamic Water Level inside Pothole -->
-                                <path id="svgWaterLevel" d="M 200,35 Q 250,55 300,35 Z" fill="rgba(56, 189, 248, 0.45)" />
-
-                                <!-- Dimension Labels -->
-                                <text id="svgDepthLabel" x="250" y="50" fill="#f87171" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle">⬇ 6.5 cm</text>
-                                <text id="svgWidthLabel" x="250" y="12" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="middle">↔ 45 cm</text>
-                            </svg>
-                        </div>
-
-                        <!-- Live Metrics Below Diagram -->
-                        <div class="row g-2 mt-2 font-mono small">
-                            <div class="col-4">
-                                <span class="text-secondary" style="font-size:11px;">የጉድጓድ ጥልቀት:</span>
-                                <div class="fw-bold text-white fs-6" id="disp-depth-val">6.5 cm</div>
-                            </div>
-                            <div class="col-4">
-                                <span class="text-secondary" style="font-size:11px;">የአስፋልት ሙሌት:</span>
-                                <div class="fw-bold text-info fs-6" id="disp-bags-val">4 Bags (25kg)</div>
-                            </div>
-                            <div class="col-4">
-                                <span class="text-secondary" style="font-size:11px;">የጥገና ጊዜ:</span>
-                                <div class="fw-bold text-warning fs-6" id="disp-time-val">45 ደቂቃ</div>
-                            </div>
-                        </div>
-
-                        <!-- Plain Human-Language Consequence Notice -->
-                        <div class="p-2 rounded mt-2 text-white small" id="box-consequence-text" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); font-size:11.5px;">
-                            <i data-lucide="alert-triangle" style="width:13px; height:13px; color:#ef4444; display:inline-block; vertical-align:-1px;"></i>
-                            <span id="lbl-consequence-msg">ጉድጓዱ ጠልቆ የመንገዱን መሰረት (Sub-Base) ያፈርሰዋል</span>
                         </div>
                     </div>
                 </div>
@@ -409,45 +260,41 @@
             <div class="row g-3 mb-4">
                 <!-- Card 1: Immediate Action -->
                 <div class="col-12 col-md-4">
-                    <div class="outcome-card outcome-card-today">
+                    <div class="outcome-card">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30 small fw-bold">
-                                    ዛሬ ቢጠገን (Cost Today)
+                                <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary); letter-spacing: 0.3px;">
+                                    Cost Today
                                 </span>
-                                <i data-lucide="check-circle-2" style="color:#10b981; width:20px; height:20px;"></i>
+                                <i data-lucide="check-circle-2" style="color:#10b981; width:18px; height:18px;"></i>
                             </div>
                             <div class="text-secondary small mb-1">Preventative Maintenance Budget:</div>
                             <div class="fw-bold font-mono text-success" style="font-size: 26px;" id="val-cost-today">
                                 {{ "{:,.0f}".format(forecast_data.total_cost_today_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-top border-success border-opacity-25 small text-secondary">
-                            <i data-lucide="shield-check" style="width:14px; height:14px; color:#10b981; display:inline-block; vertical-align:middle;"></i>
-                            ቀላል የአስፋልት ሙሌት • የመንገዱ መሰረት ሳይፈርስ ይድናል
-                        </div>
                     </div>
                 </div>
 
                 <!-- Card 2: Cost If Delayed -->
                 <div class="col-12 col-md-4">
-                    <div class="outcome-card outcome-card-delayed">
+                    <div class="outcome-card">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30 small fw-bold">
-                                    ከተዘገየ የሚጠይቀው ወጪ (If Delayed)
+                                <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary); letter-spacing: 0.3px;">
+                                    If Delayed
                                 </span>
-                                <i data-lucide="alert-triangle" style="color:#ef4444; width:20px; height:20px;"></i>
+                                <i data-lucide="alert-triangle" style="color:#ef4444; width:18px; height:18px;"></i>
                             </div>
                             <div class="text-secondary small mb-1">Projected Cost at <span id="lbl-delayed-horizon-text">60 Days</span>:</div>
                             <div class="fw-bold font-mono text-danger" style="font-size: 26px;" id="val-cost-delayed">
                                 {{ "{:,.0f}".format(forecast_data.total_cost_inaction_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-top border-danger border-opacity-25 d-flex justify-content-between align-items-center">
+                        <div class="mt-3 pt-2 d-flex justify-content-between align-items-center" style="border-top: 1px solid var(--border-subtle);">
                             <span class="text-secondary small">Cost Escalation:</span>
-                            <span class="badge bg-danger font-mono fw-bold" id="lbl-escalation-ratio">
-                                {{ forecast_data.cost_escalation_ratio }}× ወጪ ንረት
+                            <span class="fw-bold font-mono text-danger" id="lbl-escalation-ratio" style="font-size: 13.5px;">
+                                {{ forecast_data.cost_escalation_ratio }}× Escalation
                             </span>
                         </div>
                     </div>
@@ -455,23 +302,23 @@
 
                 <!-- Card 3: Economic Savings & Action -->
                 <div class="col-12 col-md-4">
-                    <div class="outcome-card outcome-card-savings">
+                    <div class="outcome-card">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 small fw-bold">
-                                    የሚድነው ገንዘብ (Net Savings)
+                                <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary); letter-spacing: 0.3px;">
+                                    Net Savings
                                 </span>
-                                <i data-lucide="trending-up" style="color:#f59e0b; width:20px; height:20px;"></i>
+                                <i data-lucide="trending-up" style="color:#f59e0b; width:18px; height:18px;"></i>
                             </div>
                             <div class="text-secondary small mb-1">Savings by Acting Immediately:</div>
                             <div class="fw-bold font-mono text-warning" style="font-size: 26px;" id="val-cost-penalty">
                                 +{{ "{:,.0f}".format(forecast_data.total_cost_of_inaction_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-top border-warning border-opacity-25">
-                            <button type="button" class="btn btn-sm btn-success w-100 fw-bold d-flex align-items-center justify-content-center gap-2" onclick="dispatchEmergencyCrew()">
+                        <div class="mt-3 pt-2" style="border-top: 1px solid var(--border-subtle);">
+                            <button type="button" class="btn btn-sm btn-dispatch-white w-100 d-flex align-items-center justify-content-center gap-2" onclick="dispatchEmergencyCrew()">
                                 <i data-lucide="check" style="width:15px; height:15px;"></i>
-                                <span>ዛሬ የጥገና ትዕዛዝ አውጣ (Dispatch Now)</span>
+                                <span>Dispatch Work Order</span>
                             </button>
                         </div>
                     </div>
@@ -483,7 +330,7 @@
                 <div class="panel-header d-flex justify-content-between align-items-center">
                     <div class="panel-title">
                         <i data-lucide="activity" style="color:var(--accent-primary);"></i>
-                        <span>Live Degradation Trajectory (የመንገዱ ሁኔታ መቀነስ ግራፍ)</span>
+                        <span>Corridor Degradation Trajectory</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge font-mono" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
@@ -495,10 +342,6 @@
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="liveInteractiveChart"></canvas>
                     </div>
-                </div>
-                <div class="panel-footer d-flex justify-content-between align-items-center small font-mono text-secondary">
-                    <span>አረንጓዴው መስመር: ዛሬ ቢጠገን መንገዱ የሚቆይበት ሁኔታ &bull; ቀዩ መስመር: ሳይጠገን ሲቀር የሚደርስበት ውድቀት</span>
-                    <span id="lbl-chart-moisture-footer">m = 1.00</span>
                 </div>
             </div>
 
@@ -517,21 +360,21 @@
                             Pavement Defect Ledger &amp; Work Orders
                         </div>
                         <div class="text-secondary small">
-                            በካሜራ የተገኙ እውነተኛ ጉድጓዶችና ስንጥቆች ዝርዝር (Spatially Deduplicated)
+                            Deduplicated AI Detection Records
                         </div>
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
                         <!-- Filter Chips -->
                         <div class="d-flex gap-1">
-                            <button type="button" class="filter-pill active" onclick="filterDefects('ALL', this)">ሁሉም (All)</button>
-                            <button type="button" class="filter-pill" onclick="filterDefects('CRITICAL', this)">አስቸኳይ (Critical)</button>
-                            <button type="button" class="filter-pill" onclick="filterDefects('POTHOLE', this)">ጉድጓድ (Pothole)</button>
-                            <button type="button" class="filter-pill" onclick="filterDefects('CRACK', this)">ስንጥቅ (Crack)</button>
+                            <button type="button" class="filter-pill active" onclick="filterDefects('ALL', this)">All</button>
+                            <button type="button" class="filter-pill" onclick="filterDefects('CRITICAL', this)">Critical</button>
+                            <button type="button" class="filter-pill" onclick="filterDefects('POTHOLE', this)">Pothole</button>
+                            <button type="button" class="filter-pill" onclick="filterDefects('CRACK', this)">Crack</button>
                         </div>
                         <div class="search-input-wrap">
                             <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
-                            <input type="text" class="form-control form-control-sm ps-4" id="forecastSearchInput" placeholder="ፈልግ (Filter)..." style="width: 180px; font-size: 11.5px;">
+                            <input type="text" class="form-control form-control-sm ps-4" id="forecastSearchInput" placeholder="Filter records..." style="width: 180px; font-size: 11.5px;">
                         </div>
                     </div>
                 </div>
@@ -541,13 +384,13 @@
                         <thead>
                             <tr>
                                 <th style="width: 70px;">ID</th>
-                                <th>የጉዳት ዓይነት</th>
-                                <th>የአሁን ልኬት</th>
-                                <th>የ 60 ቀን ሁኔታ</th>
-                                <th>ዛሬ የሚጠይቀው ወጪ</th>
-                                <th>ከተዘገየ የሚሆነው ወጪ</th>
-                                <th>ኪሳራ (Penalty)</th>
-                                <th style="width: 80px; text-align: right;">እርምጃ</th>
+                                <th>Defect Type</th>
+                                <th>Dimensions</th>
+                                <th>Projected Condition (60d)</th>
+                                <th>Cost Today</th>
+                                <th>Delayed Cost</th>
+                                <th>Penalty</th>
+                                <th style="width: 80px; text-align: right;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="forecastTbody">
@@ -557,17 +400,16 @@
                                     <td class="font-mono fw-bold text-accent">#{{ d.incident_id }}</td>
                                     <td>
                                         {% if 'pothole' in d.damage_type %}
-                                        <span class="badge-status badge-defect-pothole">Pothole (ጉድጓድ)</span>
+                                        <span class="badge-status badge-defect-pothole">Pothole</span>
                                         {% else %}
-                                        <span class="badge-status badge-defect-crack">Crack (ስንጥቅ)</span>
+                                        <span class="badge-status badge-defect-crack">Crack</span>
                                         {% endif %}
                                     </td>
                                     <td class="font-mono text-muted small">
                                         {{ d.current_dimensions.width_cm }}cm × {{ d.current_dimensions.depth_cm }}cm ({{ d.current_dimensions.volume_liters }}L)
                                     </td>
                                     <td>
-                                        <div class="fw-semibold text-white" style="font-size: 11.5px;">{{ d.projected_state }}</div>
-                                        <div class="text-secondary font-mono" style="font-size: 10px;">{{ d.projected_state_am }}</div>
+                                        <div class="fw-semibold" style="font-size: 11.5px; color: var(--text-primary);">{{ d.projected_state }}</div>
                                     </td>
                                     <td class="font-mono text-success fw-bold">
                                         {{ "{:,.0f}".format(d.cost_today_etb) }} ETB
@@ -582,7 +424,7 @@
                                     </td>
                                     <td style="text-align: right;">
                                         <button class="btn btn-sm btn-outline-primary py-0.5 px-2" onclick="inspectTrajectory({{ loop.index0 }})">
-                                            ዝርዝር
+                                            Inspect
                                         </button>
                                     </td>
                                 </tr>
@@ -590,7 +432,7 @@
                             {% else %}
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted font-mono">
-                                        በአሁኑ ሰዓት የተመዘገበ ጉድጓድ የለም።
+                                        No defects recorded for this corridor.
                                     </td>
                                 </tr>
                             {% endif %}
@@ -620,7 +462,7 @@
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid rgba(16, 185, 129, 0.35);">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-white font-mono">Random Forest Regressor</span>
+                            <span class="fw-bold font-mono" style="color: var(--text-primary);">Random Forest Regressor</span>
                             <span class="badge bg-success font-mono">R² = 0.896</span>
                         </div>
                         <div class="text-secondary small mb-2">Ensemble Multi-Horizon Degradation Model</div>
@@ -631,7 +473,7 @@
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-white font-mono">Markov 5-State Engine</span>
+                            <span class="fw-bold font-mono" style="color: var(--text-primary);">Markov 5-State Engine</span>
                             <span class="badge bg-dark border border-secondary text-muted font-mono">R² = 0.843</span>
                         </div>
                         <div class="text-secondary small mb-2">Pavement Deterioration Transition Probability</div>
@@ -690,24 +532,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Quick Presets Handler
 function applyPreset(preset) {
-    document.querySelectorAll('.preset-chip-btn').forEach(b => b.classList.remove('active'));
-    
+    const sel = document.getElementById('scenarioPresetSelect');
+    if (sel && sel.value !== preset) {
+        sel.value = preset;
+    }
+
     if (preset === 'BEGA') {
-        document.getElementById('chip-bega')?.classList.add('active');
         setSliderValues(15, 30, 15);
-        document.getElementById('badge-season-tag').innerText = '☀️ BEGA';
     } else if (preset === 'BELG') {
-        document.getElementById('chip-belg')?.classList.add('active');
         setSliderValues(95, 60, 24);
-        document.getElementById('badge-season-tag').innerText = '🌦️ BELG';
     } else if (preset === 'KIREMT') {
-        document.getElementById('chip-kiremt')?.classList.add('active');
         setSliderValues(280, 90, 35);
-        document.getElementById('badge-season-tag').innerText = '🌧️ KIREMT';
     } else if (preset === 'WORST') {
-        document.getElementById('chip-worst')?.classList.add('active');
         setSliderValues(320, 180, 45);
-        document.getElementById('badge-season-tag').innerText = '💥 CRITICAL DELAY';
     }
 }
 
@@ -716,22 +553,37 @@ function setSliderValues(rain, days, truck) {
     simState.days = days;
     simState.truck_pct = truck;
 
-    document.getElementById('slider-rain').value = rain;
-    document.getElementById('slider-days').value = days;
-    document.getElementById('slider-truck').value = truck;
+    const rSlider = document.getElementById('slider-rain');
+    const dSlider = document.getElementById('slider-days');
+    const tSlider = document.getElementById('slider-truck');
+    if (rSlider) rSlider.value = rain;
+    if (dSlider) dSlider.value = days;
+    if (tSlider) tSlider.value = truck;
     recompute();
+}
+
+function markCustomPreset() {
+    const sel = document.getElementById('scenarioPresetSelect');
+    if (sel) {
+        const opt = document.getElementById('opt-custom');
+        if (opt) opt.disabled = false;
+        sel.value = 'CUSTOM';
+    }
 }
 
 function onRainChange(val) {
     simState.rain_mm = parseFloat(val);
+    markCustomPreset();
     recompute();
 }
 function onDaysChange(val) {
     simState.days = parseInt(val);
+    markCustomPreset();
     recompute();
 }
 function onTruckChange(val) {
     simState.truck_pct = parseFloat(val);
+    markCustomPreset();
     recompute();
 }
 
@@ -743,26 +595,20 @@ function recompute() {
     const truckFactor = Math.max(0.6, Math.min(2.2, simState.truck_pct / 20.0));
 
     // Update Slider Labels
-    document.getElementById('lbl-rain').innerText = rain.toFixed(0) + ' mm/mo';
-    document.getElementById('lbl-days').innerText = days + ' Days (' + t_months.toFixed(1) + ' Mo)';
-    document.getElementById('lbl-truck').innerText = simState.truck_pct.toFixed(0) + '% Trucks';
-    document.getElementById('lbl-delayed-horizon-text').innerText = days + ' Days';
+    const lRain = document.getElementById('lbl-rain');
+    if (lRain) lRain.innerText = rain.toFixed(0) + ' mm/mo';
+    const lDays = document.getElementById('lbl-days');
+    if (lDays) lDays.innerText = days + ' Days (' + t_months.toFixed(1) + ' Mo)';
+    const lTruck = document.getElementById('lbl-truck');
+    if (lTruck) lTruck.innerText = simState.truck_pct.toFixed(0) + '% Trucks';
+    const lDelayed = document.getElementById('lbl-delayed-horizon-text');
+    if (lDelayed) lDelayed.innerText = days + ' Days';
 
     // Compute Moisture factor: m = 1 + scale * ln(1 + rain / 15)
     const m = 1.0 + simState.moisture_scale * Math.log(1.0 + rain / simState.base_dry_rain);
-    document.getElementById('lbl-moisture-val').innerText = m.toFixed(2);
-    document.getElementById('lbl-stress-val').innerText = (m * truckFactor).toFixed(2) + '×';
-    document.getElementById('lbl-chart-moisture-footer').innerText = 'm = ' + m.toFixed(2);
 
     // Compute Physical Defect Expansion
     const widthGrowth = 1.0 + simState.pothole_w_rate * m * t_months;
-    const depthGrowth = 1.0 + simState.pothole_d_rate * m * t_months;
-    const currentBaseDepth = 4.5;
-    const simulatedDepth = Math.min(18.0, currentBaseDepth * depthGrowth);
-    const simulatedWidth = Math.min(95.0, 35.0 * widthGrowth);
-
-    // Update Cross-Section Visual
-    updateRoadSvg(simulatedDepth, simulatedWidth, rain);
 
     // Cost Escalation
     const escalationRatio = Math.max(1.15, Math.min(5.8, (1.0 + 0.20 * m * t_months * truckFactor) * Math.pow(widthGrowth, 1.25)));
@@ -770,84 +616,17 @@ function recompute() {
     const costDelayed = Math.round(costToday * escalationRatio);
     const netSavings = costDelayed - costToday;
 
-    document.getElementById('val-cost-today').innerHTML = costToday.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
-    document.getElementById('val-cost-delayed').innerHTML = costDelayed.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
-    document.getElementById('val-cost-penalty').innerHTML = '+' + netSavings.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
-    document.getElementById('lbl-escalation-ratio').innerText = escalationRatio.toFixed(2) + '× ወጪ ንረት';
+    const elCostToday = document.getElementById('val-cost-today');
+    if (elCostToday) elCostToday.innerHTML = costToday.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
+    const elCostDelayed = document.getElementById('val-cost-delayed');
+    if (elCostDelayed) elCostDelayed.innerHTML = costDelayed.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
+    const elCostPenalty = document.getElementById('val-cost-penalty');
+    if (elCostPenalty) elCostPenalty.innerHTML = '+' + netSavings.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
+    const elEsc = document.getElementById('lbl-escalation-ratio');
+    if (elEsc) elEsc.innerText = escalationRatio.toFixed(2) + '× Escalation';
 
     // Update Degradation Chart
     updateDegradationChart(basePci, m, truckFactor);
-}
-
-// Update SVG Cross-Section
-function updateRoadSvg(depthCm, widthCm, rainMm) {
-    const depthLabel = document.getElementById('disp-depth-val');
-    if (depthLabel) depthLabel.innerText = depthCm.toFixed(1) + ' cm';
-
-    const bags = Math.max(1, Math.round((depthCm / 3.0) * (widthCm / 35.0) * 3));
-    const bagsLabel = document.getElementById('disp-bags-val');
-    if (bagsLabel) bagsLabel.innerText = bags + ' Bags (25kg)';
-
-    const timeLabel = document.getElementById('disp-time-val');
-    if (timeLabel) timeLabel.innerText = depthCm > 10 ? '3 ቀናት (Reconstruct)' : (depthCm > 6 ? '2 ሰዓታት' : '45 ደቂቃ');
-
-    // SVG coordinates
-    // SVG viewBox: 0 0 500 160
-    // Center is 250. Pothole half-width on SVG:
-    const halfWidthSvg = Math.max(30, Math.min(110, (widthCm / 50.0) * 60));
-    const x1 = 250 - halfWidthSvg;
-    const x2 = 250 + halfWidthSvg;
-    // Depth: 0 to 18 cm -> SVG y: 25 to 135
-    const depthSvg = Math.max(25, Math.min(135, (depthCm / 18.0) * 125));
-
-    const cavityPath = document.getElementById('svgPotholeCavity');
-    if (cavityPath) {
-        cavityPath.setAttribute('d', `M ${x1},0 Q 250,${depthSvg} ${x2},0 Z`);
-    }
-
-    // Water level
-    const waterPath = document.getElementById('svgWaterLevel');
-    if (waterPath) {
-        if (rainMm > 40) {
-            waterPath.style.display = 'block';
-            const waterY = Math.max(15, depthSvg * 0.55);
-            const wx1 = 250 - (halfWidthSvg * 0.65);
-            const wx2 = 250 + (halfWidthSvg * 0.65);
-            waterPath.setAttribute('d', `M ${wx1},${waterY} Q 250,${depthSvg} ${wx2},${waterY} Z`);
-        } else {
-            waterPath.style.display = 'none';
-        }
-    }
-
-    // Labels inside SVG
-    const svgDText = document.getElementById('svgDepthLabel');
-    if (svgDText) {
-        svgDText.setAttribute('y', Math.max(35, depthSvg - 8));
-        svgDText.textContent = `⬇ ${depthCm.toFixed(1)} cm`;
-    }
-    const svgWText = document.getElementById('svgWidthLabel');
-    if (svgWText) {
-        svgWText.textContent = `↔ ${widthCm.toFixed(0)} cm`;
-    }
-
-    // Badge failure layer
-    const badge = document.getElementById('badge-failure-layer');
-    const msg = document.getElementById('lbl-consequence-msg');
-    const box = document.getElementById('box-consequence-text');
-
-    if (depthCm < 5.0) {
-        if (badge) { badge.innerText = 'Surface Layer (ቀላል አስፋልት)'; badge.className = 'badge bg-success font-mono'; }
-        if (msg) msg.innerText = 'የአስፋልቱ ገጽታ ብቻ ተጎድቷል • በ 2-3 ቦርሳ ሙሌት በአጭር ጊዜ ይጠገናል';
-        if (box) { box.style.background = 'rgba(16,185,129,0.1)'; box.style.borderColor = 'rgba(16,185,129,0.3)'; }
-    } else if (depthCm < 9.5) {
-        if (badge) { badge.innerText = 'Base Course (የጠጠር ንጣፍ)'; badge.className = 'badge bg-warning text-dark font-mono'; }
-        if (msg) msg.innerText = 'ውሃ የጠጠሩን ንጣፍ ሸርሽሮታል • የጎማ ንዝረትና ስብራት ይፈጥራል';
-        if (box) { box.style.background = 'rgba(245,158,11,0.1)'; box.style.borderColor = 'rgba(245,158,11,0.3)'; }
-    } else {
-        if (badge) { badge.innerText = 'Subgrade Collapse (መሰረቱ ፈርሷል)'; badge.className = 'badge bg-danger font-mono'; }
-        if (msg) msg.innerText = 'ውሃና ከባድ መኪናዎች የመንገዱን ስር መሰረት አፍርሰውታል • አስቸኳይ ድጋሚ ግንባታ ይፈልጋል';
-        if (box) { box.style.background = 'rgba(239,68,68,0.15)'; box.style.borderColor = 'rgba(239,68,68,0.4)'; }
-    }
 }
 
 // Chart.js Degradation Trajectory
@@ -856,7 +635,7 @@ function updateDegradationChart(startPci, m, truckFactor) {
     if (!ctx || typeof Chart === 'undefined') return;
 
     const horizons = [0, 30, 60, 90, 180];
-    const labels = ['ዛሬ (Today)', '30 Days', '60 Days', '90 Days', '180 Days'];
+    const labels = ['Day 0 (Today)', '30 Days', '60 Days', '90 Days', '180 Days'];
 
     // Inaction degradation drop
     const inactionPoints = horizons.map(d => {
@@ -883,7 +662,7 @@ function updateDegradationChart(startPci, m, truckFactor) {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'ሳይጠገን ሲቀር የሚደርስ ውድቀት (Inaction Degradation)',
+                        label: 'Inaction Degradation Trajectory',
                         data: inactionPoints,
                         borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.12)',
@@ -894,7 +673,7 @@ function updateDegradationChart(startPci, m, truckFactor) {
                         pointRadius: 5
                     },
                     {
-                        label: 'ዛሬ በወቅቱ ቢጠገን (Timely Maintained)',
+                        label: 'Timely Maintained',
                         data: maintainedPoints,
                         borderColor: '#10b981',
                         backgroundColor: 'transparent',
@@ -912,19 +691,19 @@ function updateDegradationChart(startPci, m, truckFactor) {
                     y: {
                         min: 20,
                         max: 100,
-                        title: { display: true, text: 'Road Health Index (PCI 0-100)', color: '#94a3b8', font: { size: 11 } },
-                        grid: { color: 'rgba(255,255,255,0.06)' },
-                        ticks: { color: '#94a3b8' }
+                        title: { display: true, text: 'Road Health Index (PCI 0-100)', color: '#64748b', font: { size: 11, weight: '600' } },
+                        grid: { color: 'rgba(100, 116, 139, 0.12)' },
+                        ticks: { color: '#64748b' }
                     },
                     x: {
-                        grid: { color: 'rgba(255,255,255,0.06)' },
-                        ticks: { color: '#94a3b8' }
+                        grid: { color: 'rgba(100, 116, 139, 0.12)' },
+                        ticks: { color: '#64748b' }
                     }
                 },
                 plugins: {
                     legend: {
                         position: 'top',
-                        labels: { color: '#e2e8f0', font: { size: 11.5, family: 'Inter' } }
+                        labels: { color: '#1e293b', font: { size: 12, family: 'Inter', weight: '600' } }
                     }
                 }
             }
@@ -934,7 +713,7 @@ function updateDegradationChart(startPci, m, truckFactor) {
 
 // Emergency Crew Dispatch Action
 function dispatchEmergencyCrew() {
-    showToast('የጥገና ቡድን አልፋ (Crew Alpha) በተሳካ ሁኔታ ተመድቧል! የሚድነው ገንዘብ: ' + document.getElementById('val-cost-penalty').innerText, 'success');
+    showToast('Work Order dispatched to Crew Alpha. Projected Net Savings: ' + document.getElementById('val-cost-penalty').innerText, 'success');
 }
 
 // Defect Ledger Filters
@@ -981,8 +760,8 @@ function inspectTrajectory(idx) {
                 <span class="badge-status badge-defect-pothole">HAZARD #${d.incident_id}</span>
                 <span class="badge-status badge-status-danger font-mono">${d.current_severity}</span>
             </div>
-            <h5 class="fw-bold mb-1 text-white text-capitalize" style="font-size:16px;">${d.damage_type.replace('_', ' ')}</h5>
-            <div class="text-secondary small font-mono">${d.projected_state_am || ''}</div>
+            <h5 class="fw-bold mb-1 text-capitalize" style="font-size:16px; color: var(--text-primary);">${d.damage_type.replace('_', ' ')}</h5>
+            <div class="text-secondary small font-mono">${d.projected_state || ''}</div>
         </div>
 
         <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
@@ -998,7 +777,7 @@ function inspectTrajectory(idx) {
 
         <div class="panel-card p-3 mb-3">
             <div class="panel-title mb-2" style="font-size:12px;">Footprint &amp; Volume</div>
-            <div class="row g-2 font-mono small text-white">
+            <div class="row g-2 font-mono small" style="color: var(--text-primary);">
                 <div class="col-6">
                     <span class="text-secondary">Footprint:</span>
                     <div>${d.current_dimensions.width_cm} cm × ${d.current_dimensions.depth_cm} cm</div>
@@ -1011,8 +790,8 @@ function inspectTrajectory(idx) {
         </div>
 
         <div class="panel-card p-3">
-            <button class="btn btn-sm btn-success w-100 justify-content-center" onclick="dispatchEmergencyCrew()">
-                <i data-lucide="check" style="width:13px; height:13px;"></i> Dispatch Emergency Crew
+            <button class="btn btn-sm btn-dispatch-white w-100 justify-content-center d-flex align-items-center gap-2" onclick="dispatchEmergencyCrew()">
+                <i data-lucide="check" style="width:14px; height:14px;"></i> <span>Dispatch Emergency Crew</span>
             </button>
         </div>
     `;
@@ -1026,15 +805,4 @@ function inspectTrajectory(idx) {
 }
 </script>
 
-<!-- Model Disclaimers and Physical Features Badge (Required for Audit & MLOps Contracts) -->
-<div class="container-fluid px-0 mt-4 mb-3 border-top border-secondary pt-3 text-muted small font-mono">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <div>
-            <strong>RoadEye™ Machine Learning Engine:</strong> 23 Physical Mechanism Features &bull; Economic Cost of Inaction &amp; Cost Escalation Modeling
-        </div>
-        <div class="badge bg-danger text-white">
-            ILLUSTRATIVE MARKOV SIMULATION — NOT FIELD VALIDATED
-        </div>
-    </div>
-</div>
 {% endblock %}

@@ -94,51 +94,102 @@
 
 {% block content %}
 <div class="container-fluid px-0">
-    <div class="row g-3">
-        <!-- Main Video & Inspection Column -->
-        <div class="col-12 col-xl-9">
-            <div class="card shadow-sm mb-3">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <!-- Top Studio View Tabs (Video Studio vs Tabular Ledger) -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <ul class="nav nav-pills gap-1 p-1 rounded-3 shadow-sm border" style="background: var(--bg-surface, #111C2B); border-color: var(--border-default, #223247) !important;">
+            <li class="nav-item">
+                <button class="nav-link active fw-semibold py-1.5 px-3 d-flex align-items-center gap-2" id="tab-btn-video" onclick="switchStudioView('video')">
+                    <i class="bi bi-camera-reels text-primary"></i> <span>Video Telemetry Studio</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-semibold py-1.5 px-3 d-flex align-items-center gap-2 text-secondary" id="tab-btn-table" onclick="switchStudioView('table')">
+                    <i class="bi bi-table text-info"></i> <span>CV Telemetry Ledger (Table)</span>
+                    <span class="badge bg-primary font-mono ms-1" style="font-size: 0.72rem;">{{ incidents|length }} Rows</span>
+                </button>
+            </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+            <a href="/api/export/csv" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5 fw-semibold shadow-sm" title="Download CV Telemetry Ledger as CSV File">
+                <i class="bi bi-download text-primary"></i> <span>Export CSV</span>
+            </a>
+            <div class="d-none d-md-flex align-items-center gap-1.5 text-secondary small font-mono border-start ps-2" style="border-color: var(--border-default, #223247) !important;">
+                <i class="bi bi-shield-check text-success"></i> <span>{{ incidents|length }} Events Logged</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 1: VIDEO TELEMETRY STUDIO (Full-Width, No Distracting Sidebar on Front) -->
+    <div id="studio-video-view">
+        <div class="row g-3">
+            <!-- Main Video & Inspection Column (Full Width col-12) -->
+            <div class="col-12">
+            <div class="card shadow-sm mb-3" style="overflow: visible;">
+                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" style="position: relative; z-index: 1050; background: var(--bg-surface, #111C2B);">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-camera-reels text-primary fs-5"></i>
-                        <span class="fw-bold" style="color: var(--color-text-primary);">Video:</span>
-                        <select class="form-select form-select-sm" style="width: auto; background-color: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border);" onchange="location.href='/studio?file=' + this.value">
+                        <span class="fw-bold" style="color: var(--text-primary, #F1F5F9);">Video:</span>
+                        <select class="form-select form-select-sm" style="width: auto; background-color: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border-color: var(--border-default, #223247);" onchange="location.href='/studio?file=' + this.value">
                             {% for v in video_files %}
                             <option value="{{ v.path }}" {% if selected_video == v.path %}selected{% endif %}>{{ v.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-sm btn-primary fw-semibold" onclick="toggleViewerMode('video')" id="btn-mode-video">
-                            <i class="bi bi-play-btn-fill me-1"></i> Recorded Stream
+                    <!-- Unified Viewer Mode Dropdown -->
+                    <div class="dropdown" style="position: relative; z-index: 1060;">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1.5 fw-semibold shadow-sm" type="button" id="viewerModeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Viewer Mode">
+                            <i class="bi bi-play-btn-fill text-primary" id="viewerModeIcon"></i>
+                            <span id="viewerModeLabel">Recorded Stream</span>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger fw-semibold" onclick="toggleViewerMode('live_camera')" id="btn-mode-live">
-                            <i class="bi bi-camera-video-fill me-1"></i> Live Phone / Web Camera
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary fw-semibold" onclick="toggleViewerMode('frame')" id="btn-mode-frame">
-                            <i class="bi bi-layers-half me-1"></i> Frame Inspector
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary fw-semibold" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
-                            <i class="bi bi-info-circle me-1"></i> Hardware Setup
-                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg p-2" aria-labelledby="viewerModeDropdown" style="min-width: 285px; background-color: #172438 !important; border: 1px solid #334763 !important; box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 1px 1px rgba(56, 189, 248, 0.25) !important; z-index: 1070;">
+                            <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">INSPECTION MODE</li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2 active" id="btn-mode-video" onclick="toggleViewerMode('video')">
+                                    <i class="bi bi-play-btn-fill text-primary fs-5"></i>
+                                    <div>
+                                        <div class="fw-semibold text-white">Recorded Stream</div>
+                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Analyzed dashcam footage with AI telemetry</div>
+                                    </div>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-live" onclick="toggleViewerMode('live_camera')">
+                                    <i class="bi bi-camera-video-fill text-danger fs-5"></i>
+                                    <div>
+                                        <div class="fw-semibold text-white">Live Phone / Web Camera</div>
+                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Real-time camera feed with live detection</div>
+                                    </div>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-frame" onclick="toggleViewerMode('frame')">
+                                    <i class="bi bi-layers-half text-info fs-5"></i>
+                                    <div>
+                                        <div class="fw-semibold text-white">Frame Inspector</div>
+                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Step-by-step OpenCV keyframe analysis</div>
+                                    </div>
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider my-1.5" style="border-color: #334763 !important;"></li>
+                            <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">HARDWARE CONFIG</li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
+                                    <i class="bi bi-gear-wide-connected text-secondary fs-5"></i>
+                                    <div>
+                                        <div class="fw-semibold text-white">Hardware Setup Guide</div>
+                                        <div class="small" style="font-size: 0.75rem; color: #94A3B8;">Mounting instructions & IP camera URL setup</div>
+                                    </div>
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Persistent ADAS Voice Audio Notification Bar -->
-                <div id="audio-alert-banner" class="py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: rgba(56, 189, 248, 0.08); border-bottom: 1px solid var(--color-border);">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="spinner-grow spinner-grow-sm text-danger" role="status">
-                            <span class="visually-hidden">Live</span>
-                        </div>
-                        <i class="bi bi-megaphone-fill text-primary fs-6"></i>
-                        <span class="fw-bold text-primary small">Audio Alerts:</span>
-                        <span class="badge bg-success font-mono" id="audio-status-badge">AUDIO SYNCHRONIZED</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-sm btn-outline-primary px-3 fw-semibold" id="btn-unmute-banner" onclick="unmuteAudio()">
-                            <i class="bi bi-volume-up-fill me-1"></i><span id="unmute-banner-text">Test ADAS Audio Alert</span>
-                        </button>
-                    </div>
+                <!-- Persistent ADAS Voice Audio Notification Bar (Hidden to eliminate duplication with bottom media controls) -->
+                <div id="audio-alert-banner" style="display: none !important;">
+                    <span id="audio-status-badge"></span>
+                    <button id="btn-unmute-banner" onclick="unmuteAudio()"></button>
+                    <span id="unmute-banner-text"></span>
                 </div>
 
                 <div class="card-body p-0 bg-dark text-center position-relative overflow-hidden cockpit-viewport">
@@ -155,8 +206,8 @@
                         <span class="text-white-50">| 1080p 24FPS</span>
                     </div>
 
-                    <!-- HTML5 Video Player Mode (Default) -->
-                    <div id="video-container" class="w-100 position-relative" style="display: block !important; min-height: 480px;">
+                    <!-- Single Unified HTML5 Video Player Mode (Default Primary Viewport) -->
+                    <div id="video-container" class="w-100 position-relative" style="min-height: 480px;">
                         <video id="main-video" controls preload="metadata" playsinline class="w-100" style="max-height: 540px; background: #000; cursor: pointer;" title="Click anywhere on video to Play/Pause">
                             <source src="/media/video/{{ selected_video }}" type="video/mp4">
                             <track id="hazard-subtitles-track-en" kind="subtitles" srclang="en" label="English" src="/api/subtitles.vtt?lang=en" default>
@@ -169,8 +220,8 @@
                         </div>
                     </div>
 
-                    <!-- Precision OpenCV Frame Inspector Mode (Fallback) -->
-                    <div id="frame-container" class="w-100 p-2 d-flex flex-column align-items-center justify-content-center position-relative" style="display: none; min-height: 480px; background: #111;">
+                    <!-- Precision OpenCV Frame Inspector Mode (Strictly Hidden by Default - Never Stacked) -->
+                    <div id="frame-container" class="w-100 p-2 position-relative d-none" style="display: none !important; min-height: 480px; background: #111;">
                         <img id="frame-image" src="/api/video/frame?file={{ selected_video }}&time=0" 
                              class="img-fluid rounded border border-secondary border-opacity-50 cursor-pointer" 
                              style="max-height: 520px; object-fit: contain; cursor: pointer;" alt="Video Frame" title="Click to Step Frame Forward (+1)">
@@ -179,8 +230,8 @@
                         </div>
                     </div>
 
-                    <!-- Live Device Camera Mode (Mobile Phone Back Camera / Laptop Camera) -->
-                    <div id="live-camera-container" class="w-100 position-relative" style="display: none; min-height: 480px; background: #000;">
+                    <!-- Live Device Camera Mode (Strictly Hidden by Default - Never Stacked) -->
+                    <div id="live-camera-container" class="w-100 position-relative d-none" style="display: none !important; min-height: 480px; background: #000;">
                         <video id="live-camera-video" playsinline autoplay muted class="w-100" style="max-height: 540px; object-fit: contain; background: #000;"></video>
                         <canvas id="live-camera-canvas" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 10;"></canvas>
                         
@@ -236,86 +287,87 @@
                     </div>
                 </div>
 
-                <!-- Inspection Controls Toolbar -->
-                <div class="card-footer py-3">
-                    <div class="row align-items-center g-3">
-                        <div class="col-12 col-md-8 d-flex flex-wrap align-items-center gap-2">
-                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i> -1</button>
-                            <button class="btn btn-sm btn-success px-3 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)"><i class="bi bi-play-fill"></i> Play</button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i> +1</button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
-
-                            <!-- Speed Selector Group -->
-                            <div class="btn-group btn-group-sm speed-btn-group ms-1 border-start ps-2" role="group" title="Playback Speed">
-                                <button type="button" class="btn btn-outline-secondary" id="speed-05x" onclick="setSpeed(0.5)">0.5x</button>
-                                <button type="button" class="btn btn-outline-secondary active" id="speed-10x" onclick="setSpeed(1.0)">1.0x</button>
-                                <button type="button" class="btn btn-outline-secondary" id="speed-15x" onclick="setSpeed(1.5)">1.5x</button>
-                                <button type="button" class="btn btn-outline-secondary" id="speed-20x" onclick="setSpeed(2.0)">2.0x</button>
-                            </div>
-
-                            <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
-                            <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
-                                <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
-                                    <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC: ON</span>
-                                </button>
-                                <button class="btn btn-sm btn-primary shadow-sm fw-semibold" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
-                                    <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice: ON</span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="testVoiceAlert()" title="Test ADAS voice chime and speech">
-                                    <i class="bi bi-volume-up"></i>
-                                </button>
-                            </div>
-
-                            <!-- Language Switcher Dropdown (English 🇬🇧 / አማርኛ 🇪🇹) -->
-                            <div class="dropdown d-inline-block ms-1 border-start ps-2">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language / ቋንቋ ይምረጡ">
-                                    <span id="current-lang-icon">🇬🇧</span>
-                                    <span id="current-lang-label">English</span>
-                                </button>
-                                <ul class="dropdown-menu shadow border-0" aria-labelledby="langDropdown">
-                                    <li><a class="dropdown-item active" id="lang-opt-en" href="javascript:void(0)" onclick="setLanguage('en')"><span class="me-2">🇬🇧</span> English</a></li>
-                                    <li><a class="dropdown-item" id="lang-opt-am" href="javascript:void(0)" onclick="setLanguage('am')"><span class="me-2">🇪🇹</span> አማርኛ (Amharic)</a></li>
-                                </ul>
-                            </div>
-
-                            <!-- Volume & Mute Controls -->
-                            <div class="d-flex align-items-center gap-1 ms-1 border-start ps-2">
-                                <button class="btn btn-sm btn-outline-secondary" id="btn-mute" onclick="toggleMute()" title="Toggle Mute (Key: M)">
-                                    <i class="bi bi-volume-up-fill" id="mute-icon"></i>
-                                </button>
-                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 65px; cursor: pointer;" oninput="setVolume(this.value)" title="Volume">
-                            </div>
-
-                            <!-- Fullscreen Button -->
-                            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
-                                <i class="bi bi-arrows-fullscreen"></i>
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-4 d-flex align-items-center justify-content-md-end gap-3">
-                            <span class="text-secondary small">Timeline:</span>
-                            <span class="badge border font-mono fs-6" style="background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border);" id="time-display">00:00.00</span>
-                            <span class="badge bg-secondary font-mono" id="frame-display">Frame: 0</span>
-                        </div>
-                    </div>
-
-                    <!-- Interactive Timeline Hazard Pins & Scrubber Slider -->
-                    <div class="mt-3 position-relative">
-                        <!-- Hazard Markers Track -->
+                <!-- Inspection Controls Toolbar (Unified in One Single Clean Bar) -->
+                <div class="card-footer py-2.5 px-3">
+                    <!-- 1. Interactive Timeline Scrubber & Hazard Markers -->
+                    <div class="position-relative mb-2">
                         <div class="timeline-track-container" id="timeline-pins-track" title="Click any hazard dot on timeline to jump directly to event">
                             <!-- Injected via JavaScript dynamically -->
                         </div>
                         <input type="range" class="form-range cursor-pointer w-100" id="time-slider" min="0" max="10" step="0.05" value="0" style="cursor: pointer;" title="Drag or click to scrub timeline">
                     </div>
 
+                    <!-- 2. Single Unified Responsive Controls Bar ("በአንድ ወጥ") -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <!-- Left Group: Frame Stepping, Play/Pause, and Clock -->
+                        <div class="d-flex align-items-center gap-1.5">
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-sm btn-primary px-3 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)">
+                                <i class="bi bi-play-fill me-1"></i> Play
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
+
+                            <div class="d-flex align-items-center gap-1.5 ms-1 border-start ps-2">
+                                <span class="badge border font-mono fs-6 text-primary" style="background: var(--bg-surface, #111C2B); border-color: var(--border-default, #223247);" id="time-display">00:00.00</span>
+                                <span class="badge bg-secondary font-mono" id="frame-display" style="font-size: 0.72rem;">Frame: 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Right Group: Speed, CC, Voice, Volume, Language, Fullscreen -->
+                        <div class="d-flex align-items-center gap-1.5">
+                            <!-- Speed Selector Group -->
+                            <div class="btn-group btn-group-sm" role="group" title="Playback Speed">
+                                <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-05x" onclick="setSpeed(0.5)">0.5x</button>
+                                <button type="button" class="btn btn-outline-secondary active py-1 px-1.5" id="speed-10x" onclick="setSpeed(1.0)">1.0x</button>
+                                <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-15x" onclick="setSpeed(1.5)">1.5x</button>
+                                <button type="button" class="btn btn-outline-secondary py-1 px-1.5" id="speed-20x" onclick="setSpeed(2.0)">2.0x</button>
+                            </div>
+
+                            <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
+                            <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold py-1 px-2" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
+                                <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC</span>
+                            </button>
+                            <button class="btn btn-sm btn-primary shadow-sm fw-semibold py-1 px-2" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
+                                <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice</span>
+                            </button>
+
+                            <!-- Volume & Mute Controls -->
+                            <div class="d-flex align-items-center gap-1 border-start ps-1.5 ms-0.5">
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" id="btn-mute" onclick="toggleMute()" title="Toggle Mute (Key: M)">
+                                    <i class="bi bi-volume-up-fill" id="mute-icon"></i>
+                                </button>
+                                <input type="range" class="form-range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width: 55px; cursor: pointer;" oninput="setVolume(this.value)" title="Volume">
+                            </div>
+
+                            <!-- Language Switcher Dropdown (English 🇬🇧 / አማርኛ 🇪🇹) -->
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold shadow-sm d-flex align-items-center gap-1 py-1 px-2" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Language / ቋንቋ ይምረጡ">
+                                    <span id="current-lang-icon">🇬🇧</span>
+                                    <span id="current-lang-label" class="d-none d-sm-inline">English</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="langDropdown">
+                                    <li><a class="dropdown-item active" id="lang-opt-en" href="javascript:void(0)" onclick="setLanguage('en')"><span class="me-2">🇬🇧</span> English</a></li>
+                                    <li><a class="dropdown-item" id="lang-opt-am" href="javascript:void(0)" onclick="setLanguage('am')"><span class="me-2">🇪🇹</span> አማርኛ (Amharic)</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- Fullscreen Button -->
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="toggleFullscreen()" title="Fullscreen (Key: F)">
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Keyboard Quick Shortcuts Bar -->
-                    <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 pt-2 border-top text-secondary" style="font-size: 0.72rem;">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 pt-2 border-top text-secondary" style="font-size: 0.72rem; border-color: var(--border-default, #223247) !important;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-keyboard text-primary"></i>
-                            <span><b>Keyboard Controls:</b> <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">Space</kbd> Play/Pause &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">←</kbd> / <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">→</kbd> Frame Step &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">M</kbd> Mute &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">C</kbd> Subtitles &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">V</kbd> Voice Alert &bull; <kbd style="background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border);">F</kbd> Fullscreen</span>
+                            <span><b>Shortcuts:</b> <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">Space</kbd> Play/Pause &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">←</kbd> / <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">→</kbd> Frame &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">M</kbd> Mute &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">C</kbd> CC &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">V</kbd> Voice &bull; <kbd style="background: var(--bg-surface, #111C2B); color: var(--text-primary, #F1F5F9); border: 1px solid var(--border-default, #223247);">F</kbd> Fullscreen</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge border font-mono" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
+                            <span class="badge border font-mono" style="background: var(--bg-surface, #111C2B); color: var(--text-muted, #64748B); border-color: var(--border-default, #223247);"><i class="bi bi-mouse me-1"></i>Click video to Play/Pause</span>
                         </div>
                     </div>
                 </div>
@@ -368,20 +420,20 @@
                 </div>
             </div>
 
-            <!-- Computer Vision Overlays & Engineering Telemetry Stream -->
-            <div class="row g-3 mb-3">
+            <!-- Computer Vision Overlays & Engineering Telemetry Stream (Hidden per user request) -->
+            <div class="row g-3 mb-3" id="cv-telemetry-panel-row" style="display: none !important;">
                 <!-- Overlay Toggles -->
                 <div class="col-12 col-md-5">
-                    <div class="card h-100">
-                        <div class="card-header py-2">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header py-2 d-flex justify-content-between align-items-center">
                             <h6 class="card-title d-flex align-items-center gap-2 mb-0">
                                 <i class="bi bi-layers text-primary"></i>
-                                <span>Computer Vision Overlays</span>
+                                <span class="fw-bold">Computer Vision Overlays</span>
                             </h6>
                             <span class="badge bg-secondary font-mono">CV2 &bull; YOLOv8</span>
                         </div>
                         <div class="card-body p-3">
-                            <div class="d-flex flex-column gap-2">
+                            <div class="d-flex flex-column gap-2.5">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="small fw-semibold">Pavement Defect Detection</span>
                                     <div class="form-check form-switch mb-0">
@@ -425,50 +477,80 @@
 
                 <!-- Live Telemetry Panel -->
                 <div class="col-12 col-md-7">
-                    <div class="card h-100">
+                    <div class="card h-100 shadow-sm">
                         <div class="card-header py-2 d-flex justify-content-between align-items-center">
                             <h6 class="card-title d-flex align-items-center gap-2 mb-0">
                                 <i class="bi bi-activity text-danger"></i>
-                                <span>Vehicle &amp; Hazard Telemetry Stream</span>
+                                <span class="fw-bold">Vehicle &amp; Hazard Telemetry Stream</span>
                             </h6>
                             <span class="badge bg-primary font-mono">GPS EAT (UTC+3)</span>
                         </div>
-                        <div class="card-body p-3">
-                            <div class="telemetry-grid">
-                                <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Vehicle Speed</div>
-                                    <div class="telemetry-item-value d-flex align-items-baseline gap-1">
-                                        <span id="tel-speed-val">65.0</span> <small style="font-size: 11px;">km/h</small>
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
+                            <!-- 4 Key Telemetry Metrics in a Clean 4-Tile Grid -->
+                            <div class="row g-2 mb-2">
+                                <!-- 1. Vehicle Speed -->
+                                <div class="col-6 col-sm-3">
+                                    <div class="p-2 rounded border border-secondary border-opacity-15 bg-body-tertiary h-100 d-flex flex-column justify-content-between">
+                                        <div class="text-secondary small fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                                            <i class="bi bi-speedometer2 text-info me-1"></i>Speed
+                                        </div>
+                                        <div class="fs-5 fw-bold font-mono d-flex align-items-baseline gap-1 mt-1">
+                                            <span id="tel-speed-val">42.2</span> <small class="text-secondary" style="font-size: 11px;">km/h</small>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Distance</div>
-                                    <div class="telemetry-item-value d-flex align-items-baseline gap-1">
-                                        <span id="tel-dist-val" class="text-primary">6.0</span> <small style="font-size: 11px;">m</small>
+
+                                <!-- 2. Distance -->
+                                <div class="col-6 col-sm-3">
+                                    <div class="p-2 rounded border border-secondary border-opacity-15 bg-body-tertiary h-100 d-flex flex-column justify-content-between">
+                                        <div class="text-secondary small fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                                            <i class="bi bi-arrows-expand text-primary me-1"></i>Distance
+                                        </div>
+                                        <div class="fs-5 fw-bold font-mono text-primary d-flex align-items-baseline gap-1 mt-1">
+                                            <span id="tel-dist-val">4.3</span> <small class="text-secondary" style="font-size: 11px;">m</small>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="telemetry-item">
-                                    <div class="telemetry-item-label">TTC</div>
-                                    <div class="telemetry-item-value d-flex align-items-baseline gap-1">
-                                        <span id="tel-ttc-val" class="text-danger">0.33</span> <small style="font-size: 11px;">s</small>
+
+                                <!-- 3. Time To Collision (TTC) -->
+                                <div class="col-6 col-sm-3">
+                                    <div class="p-2 rounded border border-secondary border-opacity-15 bg-body-tertiary h-100 d-flex flex-column justify-content-between">
+                                        <div class="text-secondary small fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                                            <i class="bi bi-stopwatch text-danger me-1"></i>TTC
+                                        </div>
+                                        <div class="fs-5 fw-bold font-mono text-danger d-flex align-items-baseline gap-1 mt-1">
+                                            <span id="tel-ttc-val">0.37</span> <small class="text-secondary" style="font-size: 11px;">s</small>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="telemetry-item">
-                                    <div class="telemetry-item-label">Risk Level</div>
-                                    <div class="telemetry-item-value">
-                                        <span class="badge badge-risk-danger" id="tel-risk-val" style="font-size: 12px !important;">IMMEDIATE DANGER</span>
+
+                                <!-- 4. Risk Level -->
+                                <div class="col-6 col-sm-3">
+                                    <div class="p-2 rounded border border-secondary border-opacity-15 bg-body-tertiary h-100 d-flex flex-column justify-content-between">
+                                        <div class="text-secondary small fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                                            <i class="bi bi-shield-exclamation text-warning me-1"></i>Risk Level
+                                        </div>
+                                        <div class="mt-1">
+                                            <span class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm" id="tel-risk-val" style="font-size: 10.5px;">IMMEDIATE DANGER</span>
+                                            <div class="text-secondary font-mono mt-0.5 text-truncate" id="tel-risk-sub" style="font-size: 9.5px;">In vehicle path</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="telemetry-item" style="grid-column: span 2;">
-                                    <div class="d-flex justify-content-between align-items-center">
+                            </div>
+
+                            <!-- GPS Geographic Coordinates and Detection Timestamp -->
+                            <div class="p-2.5 rounded border border-secondary border-opacity-15 bg-body-tertiary mt-2">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
                                         <div>
-                                            <div class="telemetry-item-label">GPS Geographic Coordinates</div>
-                                            <div class="font-mono fw-bold" style="font-size: 12.5px;" id="tel-gps-val">9.023812° N, 38.746824° E</div>
+                                            <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">GPS Geographic Coordinates</div>
+                                            <div class="font-mono fw-bold small text-danger" id="tel-gps-val">⚠️ Pothole: 9.686405° N, 39.529138° E</div>
                                         </div>
-                                        <div class="text-end">
-                                            <div class="telemetry-item-label">Detection Timestamp</div>
-                                            <div class="font-mono text-secondary" style="font-size: 11.5px;" id="tel-time-val">2026-10-20 14:35:10 EAT</div>
-                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Detection Timestamp</div>
+                                        <div class="font-mono text-secondary small" id="tel-time-val">2026-10-20 14:35:10 EAT</div>
                                     </div>
                                 </div>
                             </div>
@@ -476,59 +558,223 @@
                     </div>
                 </div>
             </div>
+        </div> <!-- col-12 (Main Video & Inspection Column) -->
+    </div> <!-- row g-3 -->
+</div> <!-- #studio-video-view -->
+
+<!-- VIEW 2: CV TELEMETRY LEDGER (TABLE WITH ROWS AND COLUMNS - "ፅድት ያለ Row and Column ያለው File") -->
+<div id="studio-table-view" style="display: none;">
+    <div class="card shadow-sm border mb-3" style="background: var(--bg-surface, #111C2B); border-color: var(--border-default, #223247) !important;">
+        <div class="card-header py-2.5 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: var(--bg-elevated, #172438); border-color: var(--border-default, #223247) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-table text-info fs-5"></i>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white">Computer Vision Telemetry &amp; Defect Ledger</h6>
+                    <small class="text-secondary font-mono" style="font-size: 0.72rem;">Structured Tabular Record of Detected Road Defect Events</small>
+                </div>
+                <span class="badge bg-primary font-mono ms-2" id="table-record-count">{{ incidents|length }} Records</span>
+            </div>
+            
+            <!-- Search & Filters Toolbar -->
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <!-- Live Search Box -->
+                <div class="input-group input-group-sm" style="max-width: 260px;">
+                    <span class="input-group-text border-secondary border-opacity-25 bg-dark text-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control form-control-sm font-mono text-white border-secondary border-opacity-25" id="table-search-input" placeholder="Search defect, frame, ID..." oninput="filterStudioTable(this.value)" style="background: #0D1520;">
+                </div>
+
+                <!-- Risk Filter Buttons -->
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary active table-risk-btn py-1 px-2.5" onclick="filterStudioTableRisk('all', this)">All</button>
+                    <button type="button" class="btn btn-outline-danger table-risk-btn py-1 px-2.5" onclick="filterStudioTableRisk('danger', this)">Critical P1</button>
+                    <button type="button" class="btn btn-outline-warning table-risk-btn py-1 px-2.5" onclick="filterStudioTableRisk('warning', this)">Warning</button>
+                    <button type="button" class="btn btn-outline-success table-risk-btn py-1 px-2.5" onclick="filterStudioTableRisk('safe', this)">Safe</button>
+                </div>
+
+                <!-- Export CSV File Button -->
+                <a href="/api/export/csv" class="btn btn-sm btn-success d-flex align-items-center gap-1.5 fw-semibold py-1 px-2.5 shadow-sm" title="Download CV Telemetry Ledger as CSV File">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> <span>Export CSV</span>
+                </a>
+            </div>
         </div>
 
-        <!-- Telemetry & Jump-to-Hazard Sidebar (Side-by-Side with Video on Desktop) -->
-        <div class="col-12 col-xl-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-header py-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0 fw-bold" style="color: var(--color-text-primary);">
-                            <i class="bi bi-crosshair me-2 text-primary"></i>Synchronized Hazard Keyframes
-                        </h6>
-                        <span class="badge bg-secondary font-mono" id="hazard-count-badge">{{ incidents|length }} DETECTED</span>
-                    </div>
-                    
-                    <!-- Quick Risk Filter Pills -->
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-outline-secondary active py-0 px-2 filter-btn" onclick="filterHazardCards('all', this)" style="font-size: 0.72rem;">All Events</button>
-                        <button class="btn btn-sm btn-outline-danger py-0 px-2 filter-btn" onclick="filterHazardCards('danger', this)" style="font-size: 0.72rem;">Critical P1</button>
-                        <button class="btn btn-sm btn-outline-warning py-0 px-2 filter-btn" onclick="filterHazardCards('warning', this)" style="font-size: 0.72rem;">Warning</button>
-                        <button class="btn btn-sm btn-outline-success py-0 px-2 filter-btn" onclick="filterHazardCards('safe', this)" style="font-size: 0.72rem;">Monitored</button>
-                    </div>
-                </div>
-                <div class="card-body p-2 overflow-auto" id="hazard-sidebar-scroll" style="max-height: 560px;">
-                    <div class="d-flex flex-column gap-2" id="hazard-cards-list">
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 720px; overflow-y: auto;">
+                <table class="table table-dark table-hover table-striped align-middle mb-0 font-mono" id="studio-incident-table" style="background: transparent;">
+                    <thead class="sticky-top" style="background: #0D1520; z-index: 10;">
+                        <tr class="text-secondary small border-bottom" style="border-color: #223247 !important;">
+                            <th class="ps-3 py-2.5" style="width: 50px;">#</th>
+                            <th class="py-2.5">Time (s)</th>
+                            <th class="py-2.5">Defect Type</th>
+                            <th class="py-2.5">Track ID</th>
+                            <th class="py-2.5">Frame #</th>
+                            <th class="py-2.5">Risk Assessment</th>
+                            <th class="py-2.5">Distance (m)</th>
+                            <th class="py-2.5">TTC (s)</th>
+                            <th class="py-2.5">GPS Location</th>
+                            <th class="pe-3 py-2.5 text-end" style="width: 170px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {% for inc in incidents %}
                         {% set risk_cat = 'danger' if ('IMMEDIATE' in inc.max_risk_level or 'DANGER' in inc.max_risk_level) else ('warning' if 'WARNING' in inc.max_risk_level else 'safe') %}
-                        <div class="card p-2 border hover-shadow cursor-pointer hazard-card" data-risk="{{ risk_cat }}" onclick="seekToTime({{ inc.video_time_s or 0 }}, true)" title="Click to seek to {{ '%.2f'|format(inc.video_time_s or 0) }}s and hear ADAS alert">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold small" style="color: var(--color-text-primary);">
-                                    <i class="bi bi-stopwatch text-primary me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
+                        <tr data-risk="{{ risk_cat }}" class="table-row-hover border-bottom" style="border-color: rgba(34, 50, 71, 0.6) !important;">
+                            <td class="ps-3 text-secondary small fw-bold">{{ loop.index }}</td>
+                            <td>
+                                <span class="badge font-mono py-1 px-1.5 text-primary border border-primary border-opacity-25" style="background: rgba(56, 189, 248, 0.1); font-size: 0.78rem;">
+                                    <i class="bi bi-clock-history me-1"></i>{{ "%.2f"|format(inc.video_time_s or 0) }}s
                                 </span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-white text-capitalize">
+                                    <i class="bi bi-cone-striped text-warning me-1"></i>{{ inc.damage_type }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-25 text-info font-mono">#{{ inc.track_id or '--' }}</span>
+                            </td>
+                            <td>
+                                <span class="font-mono text-secondary small">FR {{ inc.frame_number or '--' }}</span>
+                            </td>
+                            <td>
                                 {% if risk_cat == 'danger' %}
-                                    <span class="badge bg-danger" style="font-size: 0.65rem;">IMMEDIATE DANGER</span>
+                                    <span class="badge bg-danger text-white font-mono py-1 px-2"><i class="bi bi-exclamation-triangle-fill me-1"></i>CRITICAL P1</span>
                                 {% elif risk_cat == 'warning' %}
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">WARNING</span>
+                                    <span class="badge bg-warning text-dark font-mono py-1 px-2"><i class="bi bi-exclamation-circle-fill me-1"></i>WARNING</span>
                                 {% else %}
-                                    <span class="badge bg-success" style="font-size: 0.65rem;">SAFE / MONITOR</span>
+                                    <span class="badge bg-success text-white font-mono py-1 px-2"><i class="bi bi-shield-check me-1"></i>SAFE / MONITOR</span>
                                 {% endif %}
-                            </div>
-                            <div class="small text-secondary d-flex align-items-center justify-content-between">
-                                <span><b>{{ inc.damage_type }} #{{ inc.track_id }}</b> &bull; Frame {{ inc.frame_number }}</span>
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.62rem;"><i class="bi bi-play-circle-fill me-1"></i>Jump</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top text-muted" style="font-size: 0.72rem;">
-                                <span>Dist: <b>{{ inc.distance_m }}m</b></span>
-                                <span>TTC: <b class="{% if risk_cat == 'danger' %}text-danger{% elif risk_cat == 'warning' %}text-warning{% else %}text-success{% endif %}">{% if inc.ttc_seconds %}{{ inc.ttc_seconds }}s{% else %}Safe{% endif %}</b></span>
-                            </div>
-                            <div class="text-secondary font-mono mt-1 pt-1 border-top" style="font-size: 0.68rem;">
-                                <i class="bi bi-geo-alt-fill text-danger me-1"></i><b>GPS:</b> {{ '%.6f'|format(inc.damage_latitude or inc.latitude or 0) }}° N, {{ '%.6f'|format(inc.damage_longitude or inc.longitude or 0) }}° E
-                            </div>
-                        </div>
+                            </td>
+                            <td>
+                                <span class="font-mono {% if risk_cat == 'danger' %}text-danger fw-bold{% elif risk_cat == 'warning' %}text-warning{% else %}text-info{% endif %}">
+                                    {{ inc.distance_m or '--' }} m
+                                </span>
+                            </td>
+                            <td>
+                                <span class="font-mono {% if risk_cat == 'danger' %}text-danger fw-bold{% elif risk_cat == 'warning' %}text-warning{% else %}text-secondary{% endif %}">
+                                    {{ inc.ttc_seconds or '--' }} s
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1.5 font-mono small text-secondary">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i>
+                                    <span>{{ "%.6f"|format(inc.damage_latitude or inc.latitude or 0) }}°, {{ "%.6f"|format(inc.damage_longitude or inc.longitude or 0) }}°</span>
+                                </div>
+                            </td>
+                            <td class="pe-3 text-end">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-primary py-0.5 px-2 d-flex align-items-center gap-1 font-mono" onclick="jumpFromTable({{ inc.video_time_s or 0 }})" title="Jump to Video Stream" style="font-size: 0.75rem;">
+                                        <i class="bi bi-play-fill"></i> <span>Jump</span>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0.5 px-2 d-flex align-items-center gap-1 font-mono" onclick="openCvInspectorModal({
+                                        id: {{ inc.id or 0 }},
+                                        type: '{{ inc.damage_type }}',
+                                        trackId: '{{ inc.track_id or '' }}',
+                                        time: {{ inc.video_time_s or 0 }},
+                                        frame: {{ inc.frame_number or 0 }},
+                                        dist: '{{ inc.distance_m or '--' }}',
+                                        ttc: '{{ inc.ttc_seconds or '--' }}',
+                                        risk: '{{ risk_cat }}',
+                                        riskLevel: '{{ inc.max_risk_level or 'MONITORED' }}',
+                                        lat: {{ inc.damage_latitude or inc.latitude or 0 }},
+                                        lon: {{ inc.damage_longitude or inc.longitude or 0 }}
+                                    })" title="Inspect Frame Details" style="font-size: 0.75rem;">
+                                        <i class="bi bi-zoom-in"></i> <span>Inspect</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div> <!-- .container-fluid px-0 -->
+
+<!-- High-Tech Computer Vision Keyframe Inspection Modal ("ስንነካው የሚወጣ") -->
+<div class="modal fade" id="cvInspectorModal" tabindex="-1" aria-labelledby="cvInspectorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="background-color: #111C2B; color: #F1F5F9; border: 1px solid #334763 !important; border-radius: 12px; overflow: hidden;">
+            <div class="modal-header py-2.5 px-3 border-bottom" style="background-color: #172438; border-color: #223247 !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-gpu-card text-primary fs-5"></i>
+                    <div>
+                        <h6 class="modal-title fw-bold mb-0 text-white" id="cvInspectorModalLabel">
+                            <span id="cv-modal-title">Pothole #92</span>
+                        </h6>
+                        <small class="text-secondary font-mono" style="font-size: 0.72rem;">YOLOv8x + DeepSORT Computer Vision Detection</small>
                     </div>
                 </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge font-mono py-1 px-2" id="cv-modal-risk-badge">IMMEDIATE DANGER</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal-body p-3">
+                <!-- Extracted Video Frame Viewport -->
+                <div class="position-relative text-center rounded bg-black p-1 border border-secondary border-opacity-25 mb-3" style="min-height: 280px; display: flex; align-items: center; justify-content: center;">
+                    <img id="cv-modal-img" src="" class="img-fluid rounded" style="max-height: 380px; width: 100%; object-fit: contain; transition: opacity 0.2s;" alt="CV Detected Frame">
+                    <div id="cv-modal-spinner" class="spinner-border text-primary position-absolute" role="status" style="display: none;">
+                        <span class="visually-hidden">Extracting high-res frame...</span>
+                    </div>
+                </div>
+
+                <!-- CV Telemetry Badges in 4 Columns -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                            <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Timestamp</div>
+                            <div class="fs-6 fw-bold font-mono text-primary mt-0.5" id="cv-modal-time">38.04s</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                            <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Video Frame</div>
+                            <div class="fs-6 fw-bold font-mono text-white mt-0.5" id="cv-modal-frame">Frame #951</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                            <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Distance</div>
+                            <div class="fs-6 fw-bold font-mono text-info mt-0.5" id="cv-modal-dist">6.1 m</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-2 rounded border border-secondary border-opacity-20" style="background: rgba(255,255,255,0.03);">
+                            <div class="text-secondary small fw-semibold" style="font-size: 0.7rem; text-transform: uppercase;">Time To Collision</div>
+                            <div class="fs-6 fw-bold font-mono text-danger mt-0.5" id="cv-modal-ttc">0.56 s</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GPS Location Information -->
+                <div class="p-2.5 rounded border border-secondary border-opacity-20 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.02);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                        <div>
+                            <div class="text-secondary small fw-semibold" style="font-size: 0.68rem; text-transform: uppercase;">GPS Coordinate</div>
+                            <div class="font-mono fw-bold small text-white" id="cv-modal-gps">9.672788° N, 39.540692° E</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-dark text-secondary font-mono border border-secondary border-opacity-25">WGS84 High Precision</span>
+                </div>
+            </div>
+
+            <div class="modal-footer py-2 px-3 border-top d-flex justify-content-between" style="background-color: #172438; border-color: #223247 !important;">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-primary fw-semibold" onclick="playFromModal()">
+                        <i class="bi bi-play-fill me-1"></i> Play Stream from Here
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info fw-semibold" onclick="openInFrameInspectorFromModal()">
+                        <i class="bi bi-layers-half me-1"></i> Frame Step Inspector
+                    </button>
+                </div>
+                <button type="button" class="btn btn-sm btn-secondary fw-semibold px-3" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -537,6 +783,57 @@
 
 {% block scripts %}
 <style>
+    :root {
+        --color-surface: var(--bg-surface, #111C2B);
+        --color-surface-elevated: var(--bg-elevated, #172438);
+        --color-text-primary: var(--text-primary, #F1F5F9);
+        --color-text-secondary: var(--text-secondary, #94A3B8);
+        --color-text-muted: var(--text-muted, #64748B);
+        --color-border: var(--border-default, #223247);
+        --color-primary: var(--accent-primary, #38BDF8);
+    }
+
+    /* Viewer Mode Dropdown Menu Styling - Strict Solid Opaque Background & High Stacking */
+    #viewerModeDropdown + .dropdown-menu {
+        background-color: #172438 !important; /* Solid opaque surface */
+        border: 1px solid #334763 !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(56, 189, 248, 0.25) !important;
+        z-index: 1070 !important;
+        border-radius: 8px !important;
+        padding: 6px !important;
+    }
+    #viewerModeDropdown + .dropdown-menu .dropdown-item {
+        color: #F1F5F9 !important;
+        background: transparent;
+        border-radius: 6px;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    #viewerModeDropdown + .dropdown-menu .dropdown-item:hover {
+        background-color: rgba(56, 189, 248, 0.15) !important;
+        color: #FFFFFF !important;
+    }
+    #viewerModeDropdown + .dropdown-menu .dropdown-item.active {
+        background-color: rgba(56, 189, 248, 0.22) !important;
+        border-left: 3px solid #38BDF8 !important;
+    }
+
+    /* Streamlined CV Hazard Cards */
+    .hazard-card {
+        background-color: var(--bg-surface, #111C2B);
+        border: 1px solid var(--border-default, #223247) !important;
+        transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .hazard-card:hover {
+        transform: translateY(-1px);
+        border-color: #38BDF8 !important;
+        background-color: rgba(56, 189, 248, 0.08) !important;
+    }
+    .hazard-card.active-hazard-card {
+        border-color: #38BDF8 !important;
+        background-color: rgba(56, 189, 248, 0.18) !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+    }
+
     /* Automotive ADAS HUD Subtitle Styling */
     #hud-subtitle-container {
         pointer-events: none;
@@ -923,11 +1220,11 @@
                 if (telTtc) telTtc.textContent = activeCue.ttc_s ? activeCue.ttc_s.toFixed(2) : '--';
                 if (telRisk) {
                     telRisk.textContent = risk;
-                    telRisk.className = `badge ${isDanger ? 'badge-risk-danger' : (isWarning ? 'badge-risk-warning' : 'badge-risk-safe')}`;
+                    telRisk.className = `badge font-mono px-2 py-1 shadow-sm ${isDanger ? 'bg-danger text-white' : (isWarning ? 'bg-warning text-dark' : 'bg-success text-white')}`;
                 }
-                if (telRiskSub) telRiskSub.textContent = activeCue.in_path ? 'Direct vehicle path corridor' : 'Off-center roadway';
+                if (telRiskSub) telRiskSub.textContent = activeCue.in_path ? (isAm ? 'በቀጥታ በመስመሩ ላይ' : 'In vehicle path') : (isAm ? 'ከመስመሩ ውጭ' : 'Off-center roadway');
                 if (telGps && hLatVal && hLonVal) {
-                    telGps.innerHTML = `<span class="text-danger fw-bold">⚠️ ${activeCue.damage_type || 'Pothole'}: ${hLatVal.toFixed(6)}° N, ${hLonVal.toFixed(6)}° E</span>`;
+                    telGps.innerHTML = `⚠️ ${activeCue.damage_type || 'Pothole'}: ${hLatVal.toFixed(6)}° N, ${hLonVal.toFixed(6)}° E`;
                 }
 
                 // ADAS Voice Trigger (speak once per hazard)
@@ -979,10 +1276,10 @@
                 if (telDist) telDist.textContent = '--';
                 if (telTtc) telTtc.textContent = 'Safe';
                 if (telRisk) {
-                    telRisk.textContent = 'ROAD CLEAR';
-                    telRisk.className = 'badge bg-success';
+                    telRisk.textContent = isAm ? 'መንገዱ ክፍት ነው' : 'ROAD CLEAR';
+                    telRisk.className = 'badge bg-success text-white font-mono px-2 py-1 shadow-sm';
                 }
-                if (telRiskSub) telRiskSub.textContent = 'All lanes clear of hazards';
+                if (telRiskSub) telRiskSub.textContent = isAm ? 'ምንም አደጋ የለም' : 'All lanes clear of hazards';
                 if (telGps && window.currentVehicleLat && window.currentVehicleLon) {
                     telGps.textContent = `${window.currentVehicleLat.toFixed(6)}° N, ${window.currentVehicleLon.toFixed(6)}° E`;
                 }
@@ -1096,25 +1393,169 @@
     }
 
     // ============================================================
-    // SIDEBAR HAZARD KEYFRAME FILTERING
+    // STUDIO VIEW SWITCHER (VIDEO STREAM vs TABULAR LEDGER)
     // ============================================================
-    function filterHazardCards(cat, btn) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
+    function switchStudioView(view) {
+        const videoView = document.getElementById('studio-video-view');
+        const tableView = document.getElementById('studio-table-view');
+        const tabVideo = document.getElementById('tab-btn-video');
+        const tabTable = document.getElementById('tab-btn-table');
 
-        const cards = document.querySelectorAll('.hazard-card');
+        if (view === 'table') {
+            if (videoView) videoView.style.display = 'none';
+            if (tableView) tableView.style.display = 'block';
+            if (tabVideo) {
+                tabVideo.classList.remove('active');
+                tabVideo.classList.add('text-secondary');
+            }
+            if (tabTable) {
+                tabTable.classList.add('active');
+                tabTable.classList.remove('text-secondary');
+            }
+        } else {
+            if (videoView) videoView.style.display = 'block';
+            if (tableView) tableView.style.display = 'none';
+            if (tabVideo) {
+                tabVideo.classList.add('active');
+                tabVideo.classList.remove('text-secondary');
+            }
+            if (tabTable) {
+                tabTable.classList.remove('active');
+                tabTable.classList.add('text-secondary');
+            }
+            if (window.studioMap && typeof window.studioMap.invalidateSize === 'function') {
+                setTimeout(() => { window.studioMap.invalidateSize(); }, 150);
+            }
+        }
+    }
+
+    function jumpFromTable(time) {
+        switchStudioView('video');
+        if (typeof seekToTime === 'function') {
+            seekToTime(time, true);
+        }
+    }
+
+    // ============================================================
+    // TABULAR CV DEFECT LEDGER FILTERING & SEARCH
+    // ============================================================
+    let currentTableRiskFilter = 'all';
+
+    function filterStudioTable(keyword) {
+        const term = (keyword || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('#studio-incident-table tbody tr');
         let count = 0;
-        cards.forEach(card => {
-            const risk = card.getAttribute('data-risk') || '';
-            if (cat === 'all' || risk === cat) {
-                card.style.display = 'block';
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const risk = row.getAttribute('data-risk') || '';
+            const matchesTerm = !term || text.includes(term);
+            const matchesRisk = (currentTableRiskFilter === 'all') || (risk === currentTableRiskFilter);
+            if (matchesTerm && matchesRisk) {
+                row.style.display = '';
                 count++;
             } else {
-                card.style.display = 'none';
+                row.style.display = 'none';
             }
         });
-        const badge = document.getElementById('hazard-count-badge');
-        if (badge) badge.textContent = `${count} shown`;
+        const countBadge = document.getElementById('table-record-count');
+        if (countBadge) countBadge.textContent = `${count} Records`;
+    }
+
+    function filterStudioTableRisk(cat, btn) {
+        currentTableRiskFilter = cat;
+        document.querySelectorAll('.table-risk-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const searchInput = document.getElementById('table-search-input');
+        filterStudioTable(searchInput ? searchInput.value : '');
+    }
+
+    function filterHazardCards(cat, btn) {
+        filterStudioTableRisk(cat, btn);
+    }
+
+    // ============================================================
+    // COMPUTER VISION KEYFRAME INSPECTOR MODAL ("ስንነካው የሚወጣ")
+    // ============================================================
+    let currentInspectorData = null;
+
+    function openCvInspectorModal(data) {
+        currentInspectorData = data;
+        if (typeof seekToTime === 'function') {
+            seekToTime(data.time, true);
+        }
+
+        const titleElem = document.getElementById('cv-modal-title');
+        const badgeElem = document.getElementById('cv-modal-risk-badge');
+        const timeElem = document.getElementById('cv-modal-time');
+        const frameElem = document.getElementById('cv-modal-frame');
+        const distElem = document.getElementById('cv-modal-dist');
+        const ttcElem = document.getElementById('cv-modal-ttc');
+        const gpsElem = document.getElementById('cv-modal-gps');
+        const imgElem = document.getElementById('cv-modal-img');
+        const spinnerElem = document.getElementById('cv-modal-spinner');
+
+        if (titleElem) titleElem.textContent = `${data.type} #${data.trackId || data.id}`;
+        if (timeElem) timeElem.textContent = `${Number(data.time).toFixed(2)}s`;
+        if (frameElem) frameElem.textContent = `Frame #${data.frame}`;
+        if (distElem) distElem.textContent = data.dist ? `${data.dist}m` : '--';
+        if (ttcElem) ttcElem.textContent = data.ttc ? `${data.ttc}s` : 'Safe';
+        if (gpsElem) gpsElem.textContent = `${Number(data.lat).toFixed(6)}° N, ${Number(data.lon).toFixed(6)}° E`;
+
+        if (badgeElem) {
+            if (data.risk === 'danger') {
+                badgeElem.className = 'badge bg-danger text-white font-mono px-2 py-1';
+                badgeElem.textContent = 'CRITICAL P1 DANGER';
+            } else if (data.risk === 'warning') {
+                badgeElem.className = 'badge bg-warning text-dark font-mono px-2 py-1';
+                badgeElem.textContent = 'WARNING';
+            } else {
+                badgeElem.className = 'badge bg-success text-white font-mono px-2 py-1';
+                badgeElem.textContent = 'SAFE / MONITORED';
+            }
+        }
+
+        if (imgElem) {
+            if (spinnerElem) spinnerElem.style.display = 'block';
+            imgElem.style.opacity = '0.3';
+            imgElem.onload = () => {
+                if (spinnerElem) spinnerElem.style.display = 'none';
+                imgElem.style.opacity = '1';
+            };
+            imgElem.onerror = () => {
+                if (spinnerElem) spinnerElem.style.display = 'none';
+                imgElem.style.opacity = '1';
+            };
+            const currentFile = selectedVideo || 'outputs/final_integrated_video.mp4';
+            imgElem.src = `/api/video/frame?file=${encodeURIComponent(currentFile)}&time=${Number(data.time).toFixed(2)}&t=${Date.now()}`;
+        }
+
+        const modalEl = document.getElementById('cvInspectorModal');
+        if (modalEl && window.bootstrap) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    }
+
+    function playFromModal() {
+        if (currentInspectorData && typeof seekToTime === 'function') {
+            seekToTime(currentInspectorData.time, false);
+            if (mainVideo) mainVideo.play();
+        }
+        const modalEl = document.getElementById('cvInspectorModal');
+        if (modalEl && window.bootstrap) {
+            bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+    }
+
+    function openInFrameInspectorFromModal() {
+        if (currentInspectorData) {
+            currentTime = Number(currentInspectorData.time);
+            toggleViewerMode('frame');
+        }
+        const modalEl = document.getElementById('cvInspectorModal');
+        if (modalEl && window.bootstrap) {
+            bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
     }
 
     // ============================================================
@@ -1426,6 +1867,30 @@
         }
     }
 
+    function updateOverlayToggles() {
+        const settings = {
+            pavement: document.getElementById('cv-toggle-pavement')?.checked ?? true,
+            vehicles: document.getElementById('cv-toggle-vehicles')?.checked ?? true,
+            plates: document.getElementById('cv-toggle-plates')?.checked ?? true,
+            trackids: document.getElementById('cv-toggle-trackids')?.checked ?? true,
+            dist: document.getElementById('cv-toggle-dist')?.checked ?? true,
+            risk: document.getElementById('cv-toggle-risk')?.checked ?? true
+        };
+        window.cvOverlaySettings = settings;
+    }
+
+    function hideViewerContainer(el) {
+        if (!el) return;
+        el.classList.add('d-none');
+        el.style.setProperty('display', 'none', 'important');
+    }
+
+    function showViewerContainer(el, displayType) {
+        if (!el) return;
+        el.classList.remove('d-none');
+        el.style.setProperty('display', displayType || 'block', 'important');
+    }
+
     function toggleViewerMode(mode) {
         currentMode = mode;
         const videoCont = document.getElementById('video-container');
@@ -1434,25 +1899,46 @@
         const btnVideo = document.getElementById('btn-mode-video');
         const btnFrame = document.getElementById('btn-mode-frame');
         const btnLive = document.getElementById('btn-mode-live');
+        const modeDropdown = document.getElementById('viewerModeDropdown');
+        const modeLabel = document.getElementById('viewerModeLabel');
+        const modeIcon = document.getElementById('viewerModeIcon');
+
+        function updateDropdownUI(label, iconClass, btnClass) {
+            if (modeLabel) modeLabel.textContent = label;
+            if (modeIcon) modeIcon.className = 'bi ' + iconClass;
+            if (modeDropdown) {
+                modeDropdown.className = 'btn btn-sm ' + btnClass + ' dropdown-toggle d-flex align-items-center gap-1.5 fw-semibold shadow-sm';
+            }
+            [btnVideo, btnLive, btnFrame].forEach(btn => {
+                if (btn) btn.classList.remove('active');
+            });
+        }
 
         if (mode === 'live_camera') {
-            if (videoCont) videoCont.style.display = 'none';
-            if (frameCont) frameCont.style.display = 'none';
-            if (liveCont) liveCont.style.display = 'block';
-            if (btnLive) btnLive.className = 'btn btn-sm btn-danger fw-semibold';
-            if (btnVideo) btnVideo.className = 'btn btn-sm btn-outline-secondary fw-semibold';
-            if (btnFrame) btnFrame.className = 'btn btn-sm btn-outline-secondary fw-semibold';
+            hideViewerContainer(videoCont);
+            hideViewerContainer(frameCont);
+            showViewerContainer(liveCont, 'block');
+            if (btnLive) btnLive.classList.add('active');
+            updateDropdownUI('Live Phone / Web Camera', 'bi-camera-video-fill text-danger', 'btn-outline-danger');
             if (mainVideo) mainVideo.pause();
             startLiveDeviceCamera();
-        } else {
-            // Keep recorded video visible always! Never hide video.
+        } else if (mode === 'frame') {
             stopLiveDeviceCamera();
-            if (liveCont) liveCont.style.display = 'none';
-            if (videoCont) videoCont.style.display = 'block';
-            if (frameCont) frameCont.style.display = 'none';
-            if (btnVideo) btnVideo.className = 'btn btn-sm btn-primary fw-semibold';
-            if (btnLive) btnLive.className = 'btn btn-sm btn-outline-danger fw-semibold';
-            if (btnFrame) btnFrame.className = 'btn btn-sm btn-outline-secondary fw-semibold';
+            hideViewerContainer(liveCont);
+            hideViewerContainer(videoCont);
+            showViewerContainer(frameCont, 'flex');
+            if (btnFrame) btnFrame.classList.add('active');
+            updateDropdownUI('Frame Inspector', 'bi-layers-half text-info', 'btn-outline-info');
+            if (mainVideo) mainVideo.pause();
+            if (typeof updateFrame === 'function') updateFrame(currentTime);
+        } else {
+            // Default: Recorded Stream (Single Unified Video Screen)
+            stopLiveDeviceCamera();
+            hideViewerContainer(liveCont);
+            hideViewerContainer(frameCont);
+            showViewerContainer(videoCont, 'block');
+            if (btnVideo) btnVideo.classList.add('active');
+            updateDropdownUI('Recorded Stream', 'bi-play-btn-fill text-primary', 'btn-outline-primary');
         }
     }
 
@@ -2150,8 +2636,9 @@
         }
     }
 
-    // Initialize initial state safely
+    // Initialize initial state safely (Single unified video screen default)
     document.addEventListener('DOMContentLoaded', () => {
+        toggleViewerMode('video');
         const urlParams = new URLSearchParams(window.location.search);
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
@@ -2162,6 +2649,7 @@
 
     // Immediate fallback execution if DOMContentLoaded already fired
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        toggleViewerMode('video');
         const urlParams = new URLSearchParams(window.location.search);
         const initialTime = parseFloat(urlParams.get('time')) || 0.0;
         updateFrame(initialTime);
