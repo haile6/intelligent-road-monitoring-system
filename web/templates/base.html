@@ -95,15 +95,9 @@
                 </a>
                 <a href="{{ url_for('contractors_view') }}"
                    class="nav-link {% if active_page == 'contractors' %}active{% endif %}"
-                   title="Contractor DLP">
+                   title="Contractors &amp; Warranties">
                     <i data-lucide="building-2"></i>
                     <span class="nav-item-label">Contractor DLP</span>
-                </a>
-                <a href="{{ url_for('contractors_view') }}#warranties"
-                   class="nav-link"
-                   title="Warranty Registry">
-                    <i data-lucide="file-check-2"></i>
-                    <span class="nav-item-label">Warranty Registry</span>
                     <span class="nav-item-badge nav-badge-warn">DLP</span>
                 </a>
                 <a href="{{ url_for('reports_view') }}"
@@ -349,7 +343,7 @@
             </div>
             <div class="cmd-result-item" onclick="location.href='{{ url_for('contractors_view') }}'">
                 <i data-lucide="building-2"></i>
-                <span>Contractor DLP &amp; Warranty Registry</span>
+                <span>Contractor DLP &amp; Warranties</span>
                 <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/contractors</span>
             </div>
             <div class="cmd-result-item" onclick="location.href='{{ url_for('reports_view') }}'">
