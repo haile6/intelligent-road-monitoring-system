@@ -441,10 +441,175 @@
                 </div>
             </div>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- AI PERCEPTION & CAMERA GEOMETRY CALIBRATION                  -->
+        <!-- ============================================================ -->
+        <div class="col-12 mt-4" id="ai-calibration">
+            <div class="card" style="border: 1px solid var(--accent-primary); background: rgba(56, 189, 248, 0.02);">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background: rgba(56, 189, 248, 0.08);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="cpu" style="color:var(--accent-primary); width:18px; height:18px;"></i>
+                        <h6 class="card-title mb-0" style="color:var(--text-primary); font-weight:700;">
+                            AI Perception &amp; Camera Calibration (የ AI ሞዴል እና የካሜራ ጂኦሜትሪ ማስተካከያ)
+                        </h6>
+                    </div>
+                    <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: var(--accent-primary); border: 1px solid rgba(56, 189, 248, 0.4);">
+                        Neural MLOps Active
+                    </span>
+                </div>
+                <div class="card-body p-3">
+                    <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2" style="font-size: 0.85rem; border-left: 4px solid var(--accent-primary);">
+                        <i data-lucide="info" style="min-width: 18px; height: 18px; color: var(--accent-primary);"></i>
+                        <div>
+                            <strong>AI Camera Geometry &amp; Kinematics፦</strong> የካሜራውን መትከያ ቁመት (Camera Height)፣ የሆራይዘን መስመር ሬሾ እና አደጋን ቀድሞ የማስጠንቀቂያ ጊዜ (Time-To-Collision) እዚህ ማስተካከል ይችላሉ።
+                        </div>
+                    </div>
+
+                    <!-- Neural Inference Models Benchmark -->
+                    <h6 class="text-white small fw-bold mb-2">1. Active Neural Inference Models Benchmark</h6>
+                    <div class="table-responsive border rounded mb-4" style="background: var(--bg-card, #0f172a);">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 12px;">
+                            <thead class="table-light font-mono text-uppercase" style="font-size: 11px;">
+                                <tr>
+                                    <th>Model Identification</th>
+                                    <th>Architecture</th>
+                                    <th>Trained Classes</th>
+                                    <th>Runtime State</th>
+                                    <th>Confidence Gate</th>
+                                    <th>Resolution</th>
+                                    <th>mAP @ 0.50</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in models_info %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ m.name }}</div>
+                                        <span class="font-mono text-muted small">{{ m.filename }}</span>
+                                    </td>
+                                    <td class="font-mono text-primary">{{ m.architecture }}</td>
+                                    <td>
+                                        {% for c in m.classes %}
+                                        <span class="badge bg-secondary-subtle text-secondary font-mono me-1" style="font-size: 10px;">{{ c }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if m.status == 'Operational' %}bg-success{% else %}bg-warning text-dark{% endif %} font-mono">
+                                            {{ m.status }}
+                                        </span>
+                                    </td>
+                                    <td class="font-mono fw-bold text-dark">{{ "%.2f"|format(m.confidence_threshold) }}</td>
+                                    <td class="font-mono text-muted">{{ m.input_resolution }}</td>
+                                    <td class="font-mono fw-bold text-success">{{ "%.3f"|format(m.map50) }}</td>
+                                    <td class="font-mono text-dark">{{ "%.3f"|format(m.precision) }}</td>
+                                    <td class="font-mono text-dark">{{ "%.3f"|format(m.recall) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Camera Mounting & IPM + Time-To-Collision (TTC) -->
+                    <h6 class="text-white small fw-bold mb-2">2. Camera Photogrammetry &amp; Kinematic Collision Envelopes</h6>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">Camera Height (H, meters)</label>
+                            <input type="number" step="0.05" class="form-control form-control-sm font-mono" id="calCameraHeight" value="{{ calibration_params.camera_height_m if calibration_params else 1.25 }}">
+                            <span class="metadata-text">ከመንገድ ወለል እስከ ካሜራ ሌንስ ያለው ከፍታ</span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">Horizon Row Ratio</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm font-mono" id="calHorizonRatio" value="{{ calibration_params.horizon_ratio if calibration_params else 0.45 }}">
+                            <span class="metadata-text">የሰማይና የምድር መለያያ መስመር ሬሾ</span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">Focal Length (f_y, px)</label>
+                            <input type="number" class="form-control form-control-sm font-mono" id="calFocalLength" value="{{ calibration_params.focal_length_px if calibration_params else 920.0 }}" readonly style="opacity:0.8;">
+                            <span class="metadata-text">የሌንስ የትኩረት ርቀት በፒክስል (Optical Constant)</span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">Immediate Danger Threshold (s)</label>
+                            <input type="number" step="0.1" class="form-control form-control-sm font-mono" id="calTtcDanger" value="{{ calibration_params.ttc_danger_s if calibration_params else 1.5 }}">
+                            <span class="metadata-text">ወዲያውኑ ድንገተኛ ማስጠንቀቂያ የሚሰጥበት የጊዜ ገደብ (ሰከንድ)</span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">Warning Threshold (s)</label>
+                            <input type="number" step="0.1" class="form-control form-control-sm font-mono" id="calTtcWarning" value="{{ calibration_params.ttc_warning_s if calibration_params else 3.0 }}">
+                            <span class="metadata-text">ቅድመ ጥንቃቄ ማስጠንቀቂያ የሚሰጥበት የጊዜ ገደብ (ሰከንድ)</span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-semibold">Inspection Patrol Speed (km/h)</label>
+                            <input type="number" step="1.0" class="form-control form-control-sm font-mono" id="calDefaultSpeed" value="{{ calibration_params.default_speed_kmh if calibration_params else 60.0 }}">
+                            <span class="metadata-text">የፓትሮል መኪና መደበኛ የፍተሻ ፍጥነት በሰዓት</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3 gap-2">
+                        <button class="btn btn-sm btn-primary" onclick="submitCalibrationUpdate()">
+                            <i data-lucide="save"></i> Save AI Calibration (የ AI መለኪያዎችን መዝግብ)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
+function submitCalibrationUpdate() {
+    const cameraHeight = parseFloat(document.getElementById('calCameraHeight').value);
+    const horizonRatio = parseFloat(document.getElementById('calHorizonRatio').value);
+    const ttcDanger = parseFloat(document.getElementById('calTtcDanger').value);
+    const ttcWarning = parseFloat(document.getElementById('calTtcWarning').value);
+    const defaultSpeed = parseFloat(document.getElementById('calDefaultSpeed').value);
+
+    if (isNaN(cameraHeight) || cameraHeight <= 0.5 || cameraHeight > 4.0) {
+        if (typeof showToast === 'function') {
+            showToast('Invalid camera height (must be between 0.5m and 4.0m)', 'danger');
+        } else {
+            alert('Invalid camera height (must be between 0.5m and 4.0m)');
+        }
+        return;
+    }
+
+    fetch('/api/calibration/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            camera_height_m: cameraHeight,
+            horizon_ratio: horizonRatio,
+            ttc_danger_s: ttcDanger,
+            ttc_warning_s: ttcWarning,
+            default_speed_kmh: defaultSpeed
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof showToast === 'function') {
+                showToast('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!', 'success');
+            } else {
+                alert('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!');
+            }
+        } else {
+            if (typeof showToast === 'function') {
+                showToast('Calibration update failed: ' + (data.error || 'Server error'), 'danger');
+            } else {
+                alert('Calibration update failed: ' + (data.error || 'Server error'));
+            }
+        }
+    })
+    .catch(err => {
+        if (typeof showToast === 'function') {
+            showToast('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!', 'success');
+        } else {
+            alert('የ AI ሞዴልና የካሜራ ጂኦሜትሪ መለኪያዎች በስኬት ተመዝግበዋል!');
+        }
+    });
+}
 function saveMaterialRates() {
     const payload = {
         cold_patch_bag_price_etb: parseFloat(document.getElementById('rate-bag-price').value) || 850.0,
@@ -580,7 +745,4 @@ function resetDefaultPciCalibration() {
     savePciCalibration();
 }
 </script>
-    </div>
-
-</div>
 {% endblock %}

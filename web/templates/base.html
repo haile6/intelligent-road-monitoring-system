@@ -131,28 +131,10 @@
             <nav class="d-flex flex-column gap-1">
                 <a href="{{ url_for('settings_view') }}"
                    class="nav-link {% if active_page == 'settings' %}active{% endif %}"
-                   title="Platform Settings &amp; ERA Calibration">
+                   title="Platform Settings &amp; AI Calibration">
                     <i data-lucide="settings"></i>
                     <span class="nav-item-label">Platform Settings</span>
                     <span class="nav-item-badge nav-badge-live" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">ERA</span>
-                </a>
-                <a href="{{ url_for('health_view') }}"
-                   class="nav-link {% if active_page == 'health' %}active{% endif %}"
-                   title="Health &amp; APIs">
-                    <i data-lucide="activity"></i>
-                    <span class="nav-item-label">Health &amp; APIs</span>
-                </a>
-                <a href="{{ url_for('calibration_view') }}"
-                   class="nav-link {% if active_page == 'calibration' %}active{% endif %}"
-                   title="AI Calibration">
-                    <i data-lucide="sliders"></i>
-                    <span class="nav-item-label">AI Calibration</span>
-                </a>
-                <a href="{{ url_for('audit_view') }}"
-                   class="nav-link {% if active_page == 'audit' %}active{% endif %}"
-                   title="Audit Log">
-                    <i data-lucide="history"></i>
-                    <span class="nav-item-label">Audit Log</span>
                 </a>
             </nav>
 
@@ -229,16 +211,13 @@
                                 </div>
                                 <div style="font-size: 11.5px; color: var(--text-secondary);">27 Active Contractor DLP segments require compliance verification.</div>
                             </a>
-                            <a href="{{ url_for('health_view') }}" class="p-2 rounded text-decoration-none" style="background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; display: block;">
+                            <a href="{{ url_for('settings_view') }}#ai-calibration" class="p-2 rounded text-decoration-none" style="background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; display: block;">
                                 <div class="d-flex align-items-center gap-2 mb-1">
                                     <span class="badge-status badge-status-success" style="font-size: 9.5px;">MLOPS NOMINAL</span>
-                                    <span class="text-muted font-mono" style="font-size: 10px;">77/77 Passed</span>
+                                    <span class="text-muted font-mono" style="font-size: 10px;">Operational</span>
                                 </div>
                                 <div style="font-size: 11.5px; color: var(--text-secondary);">YOLOv11s defect inference latency nominal at 4.6ms (INT8).</div>
                             </a>
-                        </div>
-                        <div class="p-2 border-top text-center" style="border-color: var(--border-subtle) !important;">
-                            <a href="{{ url_for('audit_view') }}" class="text-decoration-none" style="font-size: 11.5px; color: var(--accent-primary);">View Audit Trail &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -280,11 +259,8 @@
                                 <span class="badge-status badge-status-info font-mono" id="dropdownThemeLabel" style="font-size: 9.5px;">DARK</span>
                             </button>
                         </li>
-                        <li><a class="dropdown-item py-1.5" href="{{ url_for('calibration_view') }}"><i data-lucide="sliders" class="me-2" style="width:13px; height:13px;"></i> AI Model Calibration</a></li>
-                        <li><a class="dropdown-item py-1.5" href="{{ url_for('health_view') }}"><i data-lucide="activity" class="me-2" style="width:13px; height:13px;"></i> Subsystem Health &amp; APIs</a></li>
+                        <li><a class="dropdown-item py-1.5" href="{{ url_for('settings_view') }}#ai-calibration"><i data-lucide="sliders" class="me-2" style="width:13px; height:13px;"></i> AI Model Calibration</a></li>
                         <li><a class="dropdown-item py-1.5" href="{{ url_for('settings_view') }}"><i data-lucide="settings" class="me-2" style="width:13px; height:13px;"></i> Platform Settings</a></li>
-                        <li><hr class="dropdown-divider" style="border-color: var(--border-subtle);"></li>
-                        <li><a class="dropdown-item py-1.5" href="{{ url_for('api_v1_health') }}" target="_blank"><i data-lucide="terminal" class="me-2" style="width:13px; height:13px;"></i> REST API Gateway</a></li>
                     </ul>
                 </div>
             </div>
@@ -361,20 +337,10 @@
                 <span>Fleet Crowdsourcing &amp; De-duplication</span>
                 <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/fleet</span>
             </div>
-            <div class="cmd-result-item" onclick="location.href='{{ url_for('health_view') }}'">
-                <i data-lucide="activity"></i>
-                <span>System Health &amp; REST APIs</span>
-                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/health</span>
-            </div>
-            <div class="cmd-result-item" onclick="location.href='{{ url_for('calibration_view') }}'">
+            <div class="cmd-result-item" onclick="location.href='{{ url_for('settings_view') }}#ai-calibration'">
                 <i data-lucide="sliders"></i>
-                <span>AI Perception Calibration</span>
-                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/calibration</span>
-            </div>
-            <div class="cmd-result-item" onclick="location.href='{{ url_for('audit_view') }}'">
-                <i data-lucide="history"></i>
-                <span>System Audit Logs</span>
-                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/audit</span>
+                <span>AI Perception &amp; Camera Calibration</span>
+                <span class="ms-auto text-muted font-mono" style="font-size:10.5px;">/settings</span>
             </div>
 
             <div class="cmd-group-label mt-2">Operational Actions</div>
