@@ -365,61 +365,55 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- CONTRACTOR QUALITY SCORECARD & RANKINGS                      -->
+    <!-- INTERACTIVE AUDIT PANELS (CLICK TO OPEN MODALS)               -->
     <!-- ============================================================ -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card h-100 border p-3" style="border-color: var(--borders) !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-bar-chart-fill text-primary me-1"></i>
-                        Contractor Pavement Quality Ranking (Defect Density)
-                    </h6>
-                    <span class="badge bg-light text-secondary border font-mono">Lower is Better</span>
-                </div>
-                <div class="space-y-3">
-                    {% for c in contractors %}
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1 small">
-                            <span class="fw-semibold text-dark">{{ c.contractor_name }}</span>
-                            <span class="font-mono text-secondary">{{ c.defect_rate_per_10km }} defects / 10km (Grade {{ c.quality_grade }})</span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            {% set bar_width = [c.defect_rate_per_10km * 5, 100]|min %}
-                            <div class="progress-bar bg-{{ c.grade_color }}" role="progressbar" style="width: {{ bar_width }}%;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 10px;">
-                            <span>Corridor: {{ c.road_name }}</span>
-                            <span>Score: {{ c.quality_score }}/100</span>
-                        </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card p-3 border shadow-sm h-100 d-flex flex-row align-items-center justify-content-between"
+                 style="cursor: pointer; background: var(--bg-card); border-color: var(--borders) !important; transition: transform 0.15s ease, box-shadow 0.15s ease;"
+                 onclick="new bootstrap.Modal(document.getElementById('qualityRankingModal')).show()"
+                 onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.08)';"
+                 onmouseleave="this.style.transform='none'; this.style.boxShadow='none';"
+                 title="Click to view Contractor Pavement Quality Rankings">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56, 189, 248, 0.12); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                        <i class="bi bi-bar-chart-fill fs-5"></i>
                     </div>
-                    {% endfor %}
+                    <div>
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <span>Contractor Quality Rankings</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono" style="font-size: 10px;">36 Corridors</span>
+                        </div>
+                        <div class="text-secondary small font-mono mt-0.5">Ranked by defect density • Click to view scorecard</div>
+                    </div>
+                </div>
+                <div class="text-muted pe-2">
+                    <i class="bi bi-chevron-right fs-5"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-6">
-            <div class="card h-100 border p-3" style="border-color: var(--borders) !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-journal-check text-success me-1"></i>
-                        Contractor Liability &amp; Warranty Policy (FIDIC &amp; ERA)
-                    </h6>
-                    <span class="badge bg-success font-mono">Operational Framework</span>
+        <div class="col-md-6">
+            <div class="card p-3 border shadow-sm h-100 d-flex flex-row align-items-center justify-content-between"
+                 style="cursor: pointer; background: var(--bg-card); border-color: var(--borders) !important; transition: transform 0.15s ease, box-shadow 0.15s ease;"
+                 onclick="new bootstrap.Modal(document.getElementById('warrantyPolicyModal')).show()"
+                 onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.08)';"
+                 onmouseleave="this.style.transform='none'; this.style.boxShadow='none';"
+                 title="Click to view Contractor Liability & Warranty Policy">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: var(--success, #10b981);">
+                        <i class="bi bi-journal-check fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <span>Contractor Liability &amp; Warranty Policy</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle font-mono" style="font-size: 10px;">FIDIC &amp; ERA</span>
+                        </div>
+                        <div class="text-secondary small font-mono mt-0.5">DLP obligations &amp; rectification rules • Click to read</div>
+                    </div>
                 </div>
-                <div class="small text-secondary space-y-2">
-                    <p class="mb-2">
-                        <strong>1. Defects Liability Period (DLP):</strong> Construction firms are legally bonded to maintain roadway integrity for 24 to 36 months following official commissioning.
-                    </p>
-                    <p class="mb-2">
-                        <strong>2. Computer Vision Evidence:</strong> Every pothole and fatigue crack cataloged by the RoadEye neural pipeline is geotagged with sub-meter GPS and physical contact dimensions ($Z$).
-                    </p>
-                    <p class="mb-2">
-                        <strong>3. Automatic Rectification Orders:</strong> Formal notices include high-resolution optical captures, GPS coordinates, and a 14-day mandatory repair ultimatum before municipal back-charging.
-                    </p>
-                    <p class="mb-0">
-                        <strong>4. Future Tender Penalties:</strong> Contractors with persistent Grade D or F pavement scores receive automatic merit deductions in subsequent public highway bidding processes.
-                    </p>
+                <div class="text-muted pe-2">
+                    <i class="bi bi-chevron-right fs-5"></i>
                 </div>
             </div>
         </div>
@@ -611,6 +605,120 @@
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Close</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: CONTRACTOR QUALITY RANKINGS                           -->
+<!-- ============================================================ -->
+<div class="modal fade" id="qualityRankingModal" tabindex="-1" aria-labelledby="qualityRankingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom py-3" style="background: var(--bg-card, #f8fafc);">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="p-2 rounded bg-primary-subtle text-primary">
+                        <i class="bi bi-bar-chart-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark fs-6 mb-0">Contractor Pavement Quality Ranking (Defect Density)</h5>
+                        <div class="small text-secondary font-mono">Ranked by lowest defect density across 36 nationwide corridors</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <input type="text" id="rankingSearchInput" onkeyup="filterRankingList()" class="form-control form-control-sm" placeholder="Search contractor or road corridor...">
+                </div>
+                <div class="space-y-3" id="rankingListContainer">
+                    {% for c in contractors %}
+                    <div class="ranking-item mb-3 p-2 rounded border bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1 small">
+                            <span class="fw-bold text-dark">{{ c.contractor_name }}</span>
+                            <span class="font-mono text-secondary">{{ c.defect_rate_per_10km }} defects / 10km <span class="badge bg-{{ c.grade_color }}-subtle text-{{ c.grade_color }} border border-{{ c.grade_color }} ms-1">Grade {{ c.quality_grade }}</span></span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            {% set bar_width = [c.defect_rate_per_10km * 5, 100]|min %}
+                            <div class="progress-bar bg-{{ c.grade_color }}" role="progressbar" style="width: {{ bar_width }}%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted mt-1 font-mono" style="font-size: 11px;">
+                            <span class="text-truncate" style="max-width: 400px;">Corridor: {{ c.road_name }}</span>
+                            <span>Score: {{ c.quality_score }}/100</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer border-top py-2 px-4">
+                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: CONTRACTOR LIABILITY & WARRANTY POLICY                -->
+<!-- ============================================================ -->
+<div class="modal fade" id="warrantyPolicyModal" tabindex="-1" aria-labelledby="warrantyPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom py-3" style="background: var(--bg-card, #f8fafc);">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="p-2 rounded bg-success-subtle text-success">
+                        <i class="bi bi-journal-check fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark fs-6 mb-0">Contractor Liability &amp; Warranty Policy (FIDIC &amp; ERA)</h5>
+                        <div class="small text-secondary font-mono">Ethiopian Roads Administration Operational Framework</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 space-y-3">
+                <div class="p-3 rounded border bg-light mb-3">
+                    <div class="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-1-circle-fill text-primary"></i>
+                        <span>1. Defects Liability Period (DLP)</span>
+                    </div>
+                    <div class="text-secondary small">
+                        Construction firms are legally bonded to maintain roadway integrity for 24 to 36 months following official commissioning under standard FIDIC and Ethiopian Roads Administration (ERA) contractual covenants.
+                    </div>
+                </div>
+
+                <div class="p-3 rounded border bg-light mb-3">
+                    <div class="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-2-circle-fill text-primary"></i>
+                        <span>2. Computer Vision Evidence Verification</span>
+                    </div>
+                    <div class="text-secondary small">
+                        Every pothole and fatigue crack cataloged by the RoadEye neural pipeline is geotagged with sub-meter GPS and physical contact dimensions ($Z$), providing incontrovertible technical audit proof for liability assignment.
+                    </div>
+                </div>
+
+                <div class="p-3 rounded border bg-light mb-3">
+                    <div class="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-3-circle-fill text-primary"></i>
+                        <span>3. Automatic Rectification Orders</span>
+                    </div>
+                    <div class="text-secondary small">
+                        Formal notices include high-resolution optical captures, GPS coordinates, and a 14-day mandatory repair ultimatum before municipal back-charging occurs to the contractor's performance guarantee.
+                    </div>
+                </div>
+
+                <div class="p-3 rounded border bg-light">
+                    <div class="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-4-circle-fill text-primary"></i>
+                        <span>4. Future Tender Penalties</span>
+                    </div>
+                    <div class="text-secondary small">
+                        Contractors with persistent Grade D or F pavement scores receive automatic merit deductions in subsequent public highway bidding processes across federal and regional projects.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top py-2 px-4">
+                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -955,6 +1063,15 @@
             } else {
                 row.style.display = 'none';
             }
+        });
+    }
+
+    function filterRankingList() {
+        const q = (document.getElementById('rankingSearchInput').value || '').toLowerCase();
+        const items = document.querySelectorAll('#rankingListContainer .ranking-item');
+        items.forEach(it => {
+            const txt = it.innerText.toLowerCase();
+            it.style.display = (!q || txt.includes(q)) ? '' : 'none';
         });
     }
 
