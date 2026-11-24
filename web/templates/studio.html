@@ -123,11 +123,11 @@
     <div id="studio-video-view">
         <div class="row g-3 align-items-stretch">
             <!-- Left Column: Video Telemetry Player (Side by Side) -->
-            <div class="col-12 col-md-6 d-flex flex-column">
+            <div class="col-12 col-lg-6 d-flex flex-column">
                 <div class="card shadow-sm mb-3 flex-grow-1 d-flex flex-column bg-white border" id="studio-video-card" style="border-color: var(--border-default, #CBD5E1) !important; overflow: visible;">
                     <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white border-bottom" style="position: relative; z-index: 1050; border-color: var(--border-default, #CBD5E1) !important;">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-camera-reels text-secondary fs-5"></i>
+                            <i class="bi bi-camera-reels text-primary fs-5"></i>
                             <span class="fw-bold text-dark">Video:</span>
                             <select class="form-select form-select-sm bg-white text-dark" style="width: auto; border-color: var(--border-default, #CBD5E1);" onchange="location.href='/studio?file=' + this.value">
                                 {% for v in video_files %}
@@ -137,15 +137,15 @@
                         </div>
                         <!-- Unified Viewer Mode Dropdown -->
                         <div class="dropdown" style="position: relative; z-index: 1060;">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1.5 fw-semibold shadow-sm" type="button" id="viewerModeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Viewer Mode">
-                                <i class="bi bi-play-btn-fill text-secondary" id="viewerModeIcon"></i>
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1.5 fw-semibold shadow-sm" type="button" id="viewerModeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Viewer Mode">
+                                <i class="bi bi-play-btn-fill text-primary" id="viewerModeIcon"></i>
                                 <span id="viewerModeLabel">Recorded Stream</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow-lg p-2 bg-white border" aria-labelledby="viewerModeDropdown" style="min-width: 285px; z-index: 1070; border-color: var(--border-default, #CBD5E1) !important;">
-                                <li class="dropdown-header small font-mono px-2 py-1 text-secondary fw-bold" style="letter-spacing: 0.5px;">INSPECTION MODE</li>
+                                <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">INSPECTION MODE</li>
                                 <li>
                                     <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2 active" id="btn-mode-video" onclick="toggleViewerMode('video')">
-                                        <i class="bi bi-play-btn-fill text-dark fs-5"></i>
+                                        <i class="bi bi-play-btn-fill text-primary fs-5"></i>
                                         <div>
                                             <div class="fw-semibold text-dark">Recorded Stream</div>
                                             <div class="small text-secondary" style="font-size: 0.75rem;">Analyzed dashcam footage with AI telemetry</div>
@@ -163,7 +163,7 @@
                                 </li>
                                 <li>
                                     <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" id="btn-mode-frame" onclick="toggleViewerMode('frame')">
-                                        <i class="bi bi-layers-half text-secondary fs-5"></i>
+                                        <i class="bi bi-layers-half text-info fs-5"></i>
                                         <div>
                                             <div class="fw-semibold text-dark">Frame Inspector</div>
                                             <div class="small text-secondary" style="font-size: 0.75rem;">Step-by-step OpenCV keyframe analysis</div>
@@ -171,7 +171,7 @@
                                     </button>
                                 </li>
                                 <li><hr class="dropdown-divider my-1.5" style="border-color: var(--border-default, #CBD5E1) !important;"></li>
-                                <li class="dropdown-header small font-mono px-2 py-1 text-secondary fw-bold" style="letter-spacing: 0.5px;">HARDWARE CONFIG</li>
+                                <li class="dropdown-header small font-mono px-2 py-1 text-primary fw-bold" style="letter-spacing: 0.5px;">HARDWARE CONFIG</li>
                                 <li>
                                     <button type="button" class="dropdown-item d-flex align-items-center gap-2.5 rounded py-2 px-2" data-bs-toggle="modal" data-bs-target="#liveCameraModal">
                                         <i class="bi bi-gear-wide-connected text-secondary fs-5"></i>
@@ -303,14 +303,14 @@
                             <div class="d-flex align-items-center gap-1 flex-wrap">
                                 <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(-10)" title="Step back 10 frames (Shift + ←)"><i class="bi bi-chevron-double-left"></i> -10</button>
                                 <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(-1)" title="Step back 1 frame (←)"><i class="bi bi-chevron-left"></i></button>
-                                <button class="btn btn-sm btn-dark px-2.5 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)">
+                                <button class="btn btn-sm btn-primary px-2.5 shadow-sm fw-semibold" onclick="togglePlay()" id="btn-play" title="Play / Pause (Spacebar)">
                                     <i class="bi bi-play-fill me-1"></i> Play
                                 </button>
                                 <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(1)" title="Step forward 1 frame (→)"><i class="bi bi-chevron-right"></i></button>
                                 <button class="btn btn-sm btn-outline-secondary py-1 px-1.5" onclick="stepFrame(10)" title="Step forward 10 frames (Shift + →)">+10 <i class="bi bi-chevron-double-right"></i></button>
 
                                 <div class="d-flex align-items-center gap-1 ms-1 border-start ps-1.5">
-                                    <span class="badge border font-mono text-dark bg-light" id="time-display" style="font-size: 12px; border-color: var(--border-default, #CBD5E1) !important;">00:00.00</span>
+                                    <span class="badge border font-mono text-primary bg-light" id="time-display" style="font-size: 12px; border-color: var(--border-default, #CBD5E1) !important;">00:00.00</span>
                                     <span class="badge bg-secondary font-mono" id="frame-display" style="font-size: 0.72rem;">Frame: 0</span>
                                 </div>
                             </div>
@@ -326,11 +326,11 @@
                                 </div>
 
                                 <!-- Live Telemetry Subtitle & ADAS Voice Alert Toggles -->
-                                <button class="btn btn-sm btn-outline-secondary shadow-sm fw-semibold py-1 px-2" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
-                                    <i class="bi bi-badge-cc me-1"></i><span id="subtitles-btn-text">CC</span>
+                                <button class="btn btn-sm btn-info text-white shadow-sm fw-semibold py-1 px-2" id="btn-toggle-subtitles" onclick="toggleSubtitles()" title="Toggle Live HUD Subtitles (Key: C)">
+                                    <i class="bi bi-badge-cc-fill me-1"></i><span id="subtitles-btn-text">CC</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary shadow-sm fw-semibold py-1 px-2" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
-                                    <i class="bi bi-megaphone me-1"></i><span id="voice-btn-text">Voice</span>
+                                <button class="btn btn-sm btn-primary shadow-sm fw-semibold py-1 px-2" id="btn-toggle-voice" onclick="toggleVoiceAlerts()" title="Toggle ADAS Voice Speech (Key: V)">
+                                    <i class="bi bi-megaphone-fill me-1"></i><span id="voice-btn-text">Voice</span>
                                 </button>
 
                                 <!-- Volume & Mute Controls -->
@@ -364,26 +364,26 @@
             </div>
 
             <!-- Right Column: Synchronized GIS Road Map (Side by Side) -->
-            <div class="col-12 col-md-6 d-flex flex-column">
+            <div class="col-12 col-lg-6 d-flex flex-column">
                 <div class="card shadow-sm mb-3 flex-grow-1 d-flex flex-column bg-white border" id="sync-map-card" style="border-color: var(--border-default, #CBD5E1) !important;">
                     <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white border-bottom" style="border-color: var(--border-default, #CBD5E1) !important;">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 10px;">GIS TRACK</span>
-                            <i class="bi bi-geo-alt text-secondary fs-6"></i>
-                            <span class="fw-bold small text-dark">Corridor Sync</span>
+                            <span class="badge bg-primary font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
+                            <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
+                            <span class="fw-bold small text-dark">Corridor Track:</span>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
-                                <i class="bi bi-crosshair text-secondary"></i> <span id="map-live-lat">9.123456</span>, <span id="map-live-lon">39.123456</span>
+                                <i class="bi bi-crosshair text-primary"></i> <span id="map-live-lat">9.123456</span>, <span id="map-live-lon">39.123456</span>
                             </div>
                             <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
-                                <i class="bi bi-compass text-secondary"></i> <strong id="map-live-heading" class="text-dark">45° NE</strong>
+                                <i class="bi bi-compass text-info"></i> <strong id="map-live-heading">45° NE</strong>
                             </div>
                             <div id="map-hazard-badge" class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm d-flex align-items-center gap-1" style="font-size: 11px; display: none;">
                                 <i class="bi bi-geo-alt-fill"></i><span id="map-hazard-text">Pothole: --</span>
                             </div>
                             <button class="btn btn-sm btn-outline-secondary py-0 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
-                                <i class="bi bi-crosshair2 me-1 text-secondary"></i> Recenter
+                                <i class="bi bi-crosshair2 me-1 text-primary"></i> Recenter
                             </button>
                             <div class="form-check form-switch mb-0 ms-1 small">
                                 <input class="form-check-input" type="checkbox" id="sync-map-autopan" checked>
@@ -1604,7 +1604,7 @@
         }
 
         if (subtitlesEnabled) {
-            btn.className = 'btn btn-sm btn-dark text-white shadow-sm fw-semibold';
+            btn.className = 'btn btn-sm btn-info text-white shadow-sm fw-semibold';
             text.textContent = I18N[currentLang].ccOn;
             if (hudContainer) hudContainer.style.opacity = '1';
         } else {
@@ -1622,10 +1622,10 @@
         const badge = document.getElementById('audio-status-badge');
 
         if (voiceAlertsEnabled) {
-            btn.className = 'btn btn-sm btn-dark text-white shadow-sm fw-semibold';
+            btn.className = 'btn btn-sm btn-primary shadow-sm fw-semibold';
             text.textContent = I18N[currentLang].voiceOn;
             if (badge) {
-                badge.className = 'badge bg-secondary font-mono';
+                badge.className = 'badge bg-success font-mono';
                 badge.textContent = I18N[currentLang].audioAttached;
             }
             playAdasChime(false);
@@ -1644,7 +1644,7 @@
     // Test Voice Alert
     function testVoiceAlert() {
         voiceAlertsEnabled = true;
-        document.getElementById('btn-toggle-voice').className = 'btn btn-sm btn-dark text-white shadow-sm fw-semibold';
+        document.getElementById('btn-toggle-voice').className = 'btn btn-sm btn-primary shadow-sm fw-semibold';
         document.getElementById('voice-btn-text').textContent = I18N[currentLang].voiceOn;
         playAdasChime(true);
         speakAdasAlert(I18N[currentLang].testAlert, true);
