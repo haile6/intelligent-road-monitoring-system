@@ -670,10 +670,10 @@ function inspectHazardCluster(index) {
                 <div class="text-secondary small mb-1" style="font-size:11.5px;">
                     Unit: <b>${s.vehicle_name}</b> (${s.agency})
                 </div>
-                <div class="d-flex align-items-center gap-3 font-mono text-muted small" style="font-size:11px;">
-                    <span>Confidence: <b class="text-dark">${((s.confidence || 0.85) * 100).toFixed(1)}%</b></span>
-                    <span>Distance: <b>${(s.distance_m || 3.5).toFixed(1)}m</b></span>
-                    <span>Speed: <b>${(s.speed_kmh || 30.0).toFixed(0)} km/h</b></span>
+                <div class="d-flex align-items-center gap-1.5 flex-wrap font-mono mt-1" style="font-size:11px;">
+                    <span class="badge bg-white text-dark border px-2 py-0.5"><span class="text-secondary fw-normal">Confidence:</span> <b>${((s.confidence || 0.85) * 100).toFixed(1)}%</b></span>
+                    <span class="badge bg-white text-dark border px-2 py-0.5"><span class="text-secondary fw-normal">Distance:</span> <b>${(s.distance_m || 3.5).toFixed(1)} m</b></span>
+                    <span class="badge bg-white text-dark border px-2 py-0.5"><span class="text-secondary fw-normal">Speed:</span> <b>${(s.speed_kmh || 30.0).toFixed(0)} km/h</b></span>
                 </div>
             </div>
         `;
@@ -719,8 +719,21 @@ function inspectHazardCluster(index) {
         </div>
 
         <div class="p-3 mb-3 rounded border" style="background:#ffffff;">
-            <div class="fw-bold text-dark small text-uppercase font-mono mb-1" style="font-size:11px;">Weighted Geodesic Centroid</div>
-            <div class="font-mono text-dark" style="font-size:12.5px;">${h.damage_latitude.toFixed(6)}° N, ${h.damage_longitude.toFixed(6)}° E</div>
+            <div class="fw-bold text-dark small text-uppercase font-mono mb-2" style="font-size:11px;">Weighted Geodesic Centroid</div>
+            <div class="row g-2 font-mono">
+                <div class="col-6">
+                    <div class="p-2 rounded border bg-light text-center">
+                        <div class="small text-secondary font-mono text-uppercase" style="font-size:10px;">Centroid Latitude</div>
+                        <div class="fw-bold text-dark mt-0.5" style="font-size:13px;">${h.damage_latitude.toFixed(6)}° N</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-2 rounded border bg-light text-center">
+                        <div class="small text-secondary font-mono text-uppercase" style="font-size:10px;">Centroid Longitude</div>
+                        <div class="fw-bold text-dark mt-0.5" style="font-size:13px;">${h.damage_longitude.toFixed(6)}° E</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Sighting Timeline -->

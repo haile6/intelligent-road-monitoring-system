@@ -264,12 +264,14 @@
                                         </span>
                                         <span id="hud-hazard-title" class="fw-bold text-white text-uppercase font-mono" style="font-size: 11px;">LANE MONITORED • ALL CLEAR</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 font-mono small text-white-50" style="pointer-events: none !important; font-size: 10.5px;">
+                                    <div class="d-flex align-items-center gap-2 font-mono small text-white-50 flex-wrap" style="pointer-events: none !important; font-size: 10.5px;">
                                         <div id="hud-dist-item"><i class="bi bi-arrows-expand text-info me-0.5"></i><span id="label-dist">Dist</span>: <strong id="hud-dist-val" class="text-white">--</strong></div>
                                         <div id="hud-ttc-item"><i class="bi bi-stopwatch text-warning me-0.5"></i><span id="label-ttc">TTC</span>: <strong id="hud-ttc-val" class="text-white">--</strong></div>
                                         <div id="hud-path-item"><i class="bi bi-sign-merge-right text-primary me-0.5"></i><span id="label-corridor">Corridor</span>: <strong id="hud-path-val" class="text-white">CLEAR</strong></div>
                                         <div id="hud-speed-item"><i class="bi bi-speedometer text-secondary me-0.5"></i><span id="label-speed">Speed</span>: <strong id="hud-speed-val" class="text-white">30 km/h</strong></div>
-                                        <div id="hud-gps-item" class="d-flex align-items-center"><i class="bi bi-geo-alt-fill text-danger me-0.5"></i><span id="label-gps">Hazard</span>: <strong id="hud-gps-val" class="text-warning font-mono ms-0.5">--</strong></div>
+                                        <div id="hud-lat-item"><i class="bi bi-geo-alt-fill text-danger me-0.5"></i><span>Lat</span>: <strong id="hud-lat-val" class="text-warning font-mono">--</strong></div>
+                                        <div id="hud-lon-item"><i class="bi bi-geo-alt text-danger me-0.5"></i><span>Lon</span>: <strong id="hud-lon-val" class="text-warning font-mono">--</strong></div>
+                                        <span id="hud-gps-val" style="display:none;"></span>
                                     </div>
                                 </div>
                                 <!-- Live ADAS Voice Spoken Alert ticker -->
@@ -373,16 +375,40 @@
                             <span class="fw-bold small text-dark">Corridor Track:</span>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
-                                <i class="bi bi-crosshair text-primary"></i> <span id="map-live-lat">9.123456</span>, <span id="map-live-lon">39.123456</span>
+                            <!-- Vehicle Independent Feature Tiles -->
+                            <div class="d-inline-flex align-items-center gap-1 font-mono small">
+                                <span class="badge bg-light text-dark border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Vehicle Latitude">
+                                    <span class="text-secondary fw-normal">Lat:</span> <b id="map-live-lat">9.672500</b>° N
+                                </span>
+                                <span class="badge bg-light text-dark border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Vehicle Longitude">
+                                    <span class="text-secondary fw-normal">Lon:</span> <b id="map-live-lon">39.540950</b>° E
+                                </span>
+                                <span class="badge bg-light text-secondary border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Vehicle Speed">
+                                    <i class="bi bi-speedometer2 text-info me-0.5"></i><b id="map-live-speed">39.7 km/h</b>
+                                </span>
+                                <span class="badge bg-light text-secondary border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Heading">
+                                    <i class="bi bi-compass text-info me-0.5"></i><strong id="map-live-heading">45° NE</strong>
+                                </span>
                             </div>
-                            <div class="d-flex align-items-center gap-1 font-mono small text-secondary" style="font-size: 11.5px;">
-                                <i class="bi bi-compass text-info"></i> <strong id="map-live-heading">45° NE</strong>
+
+                            <!-- Standalone Active Hazard Feature Tiles -->
+                            <div id="map-hazard-container" class="d-inline-flex align-items-center gap-1" style="display: none !important;">
+                                <span class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm fw-bold" id="map-hazard-type">
+                                    <i class="bi bi-geo-alt-fill me-0.5"></i>POTHOLE
+                                </span>
+                                <span class="badge bg-white text-danger border border-danger font-mono px-1.5 py-1 shadow-sm" id="map-hazard-lat-tile" title="Hazard Latitude">
+                                    <span class="text-secondary fw-normal">Lat:</span> <b id="map-hazard-lat">--</b>
+                                </span>
+                                <span class="badge bg-white text-danger border border-danger font-mono px-1.5 py-1 shadow-sm" id="map-hazard-lon-tile" title="Hazard Longitude">
+                                    <span class="text-secondary fw-normal">Lon:</span> <b id="map-hazard-lon">--</b>
+                                </span>
+                                <span class="badge bg-white text-dark border border-danger font-mono px-1.5 py-1 shadow-sm" id="map-hazard-dist-tile" title="Hazard Distance">
+                                    <span class="text-secondary fw-normal">Dist:</span> <b id="map-hazard-dist">--</b>
+                                </span>
                             </div>
-                            <div id="map-hazard-badge" class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm d-flex align-items-center gap-1" style="font-size: 11px; display: none;">
-                                <i class="bi bi-geo-alt-fill"></i><span id="map-hazard-text">Pothole: --</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-secondary py-0 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
+                            <span id="map-hazard-badge" style="display:none;"><span id="map-hazard-text"></span></span>
+
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
                                 <i class="bi bi-crosshair2 me-1 text-primary"></i> Recenter
                             </button>
                             <div class="form-check form-switch mb-0 ms-1 small">
@@ -1184,6 +1210,8 @@
 
                 // Dynamic Hazard Location Coordinates on HUD
                 const hudGpsVal = document.getElementById('hud-gps-val');
+                const hudLatVal = document.getElementById('hud-lat-val');
+                const hudLonVal = document.getElementById('hud-lon-val');
                 let hLatVal = activeCue.damage_latitude || activeCue.latitude;
                 let hLonVal = activeCue.damage_longitude || activeCue.longitude;
                 if ((!hLatVal || !hLonVal) && window.currentVehicleLat && window.currentVehicleLon) {
@@ -1191,6 +1219,8 @@
                     hLatVal = proj[0];
                     hLonVal = proj[1];
                 }
+                if (hudLatVal) hudLatVal.textContent = hLatVal ? `${hLatVal.toFixed(6)}° N` : '--';
+                if (hudLonVal) hudLonVal.textContent = hLonVal ? `${hLonVal.toFixed(6)}° E` : '--';
                 if (hudGpsVal) {
                     if (hLatVal && hLonVal) {
                         hudGpsVal.innerHTML = `<span class="text-warning fw-bold">📍 ${hLatVal.toFixed(6)}° N, ${hLonVal.toFixed(6)}° E</span>`;
@@ -1250,6 +1280,14 @@
                 if (hudSpeechBar) hudSpeechBar.style.setProperty('display', 'none', 'important');
 
                 const hudGpsVal = document.getElementById('hud-gps-val');
+                const hudLatVal = document.getElementById('hud-lat-val');
+                const hudLonVal = document.getElementById('hud-lon-val');
+                if (hudLatVal) {
+                    hudLatVal.textContent = window.currentVehicleLat ? `${window.currentVehicleLat.toFixed(6)}° N` : '--';
+                }
+                if (hudLonVal) {
+                    hudLonVal.textContent = window.currentVehicleLon ? `${window.currentVehicleLon.toFixed(6)}° E` : '--';
+                }
                 if (hudGpsVal) {
                     if (window.currentVehicleLat && window.currentVehicleLon) {
                         hudGpsVal.innerHTML = `<span class="text-white-50">${window.currentVehicleLat.toFixed(6)}° N, ${window.currentVehicleLon.toFixed(6)}° E</span>`;
@@ -2131,7 +2169,7 @@
                 <div class="active-hazard-marker-container">
                     <div class="active-hazard-tag">
                         ⚠️ LIVE ${damageDet.class_name.toUpperCase()} (${damageDet.distance_m}m)<br>
-                        <span style="font-size: 9.5px; opacity: 0.95; font-family: monospace;">📍 ${hLat.toFixed(6)}, ${hLon.toFixed(6)}</span>
+                        <span style="font-size: 9.5px; opacity: 0.95; font-family: monospace;">Lat: ${hLat.toFixed(6)}° N &bull; Lon: ${hLon.toFixed(6)}° E</span>
                     </div>
                     <div class="active-hazard-dot"></div>
                 </div>
@@ -2167,9 +2205,20 @@
                 }
             }
 
+            const mapHazContainer = document.getElementById('map-hazard-container');
+            const mapHazType = document.getElementById('map-hazard-type');
+            const mapHazLat = document.getElementById('map-hazard-lat');
+            const mapHazLon = document.getElementById('map-hazard-lon');
+            const mapHazDist = document.getElementById('map-hazard-dist');
+            if (mapHazContainer) {
+                mapHazContainer.style.setProperty('display', 'inline-flex', 'important');
+                if (mapHazType) mapHazType.innerHTML = `<i class="bi bi-geo-alt-fill me-0.5"></i>${(damageDet.class_name || 'POTHOLE').toUpperCase()}`;
+                if (mapHazLat) mapHazLat.textContent = `${hLat.toFixed(6)}° N`;
+                if (mapHazLon) mapHazLon.textContent = `${hLon.toFixed(6)}° E`;
+                if (mapHazDist) mapHazDist.textContent = `${(damageDet.distance_m || 0).toFixed(1)} m`;
+            }
             if (mapHazardBadge && mapHazardText) {
-                mapHazardBadge.style.display = 'inline-flex';
-                mapHazardText.textContent = `Live ${damageDet.class_name.toUpperCase()}: ${hLat.toFixed(6)}, ${hLon.toFixed(6)}`;
+                mapHazardBadge.style.display = 'none';
             }
 
             if (statusPill) {
@@ -2181,6 +2230,10 @@
             }
 
             const hudGpsVal = document.getElementById('hud-gps-val');
+            const hudLatVal = document.getElementById('hud-lat-val');
+            const hudLonVal = document.getElementById('hud-lon-val');
+            if (hudLatVal) hudLatVal.textContent = `${hLat.toFixed(6)}° N`;
+            if (hudLonVal) hudLonVal.textContent = `${hLon.toFixed(6)}° E`;
             if (hudGpsVal) {
                 hudGpsVal.innerHTML = `<span class="text-danger fw-bold">📍 ${hLat.toFixed(6)}° N, ${hLon.toFixed(6)}° E</span>`;
             }
@@ -2407,7 +2460,10 @@
             marker.bindPopup(`
                 <div style="min-width: 180px; font-size: 12px; font-family: sans-serif;">
                     <div style="font-weight: 700; color: ${color}; text-transform: uppercase;">${inc.damage_type || 'Road Defect'}</div>
-                    <div class="font-mono text-danger my-1">📍 <b>${hLat.toFixed(6)}, ${hLon.toFixed(6)}</b></div>
+                    <div class="d-flex gap-1 my-1" style="font-family: monospace; font-size: 11px;">
+                        <span style="background: #fee2e2; color: #b91c1c; padding: 2px 5px; border-radius: 3px;">Lat: <b>${hLat.toFixed(6)}° N</b></span>
+                        <span style="background: #fee2e2; color: #b91c1c; padding: 2px 5px; border-radius: 3px;">Lon: <b>${hLon.toFixed(6)}° E</b></span>
+                    </div>
                     <div>Severity: <b>${inc.severity || 'Medium'}</b></div>
                     <div>Risk: <b>${inc.max_risk_level || 'Caution'}</b></div>
                     <div>Time: <b>${formatTime(evTime)}</b></div>
@@ -2493,8 +2549,10 @@
                 curLon = parseFloat(pt.longitude || pt.lon);
                 if (pt.speed_kmh || pt.speed) {
                     curSpeedKmh = parseFloat(pt.speed_kmh || pt.speed);
+                    const speedEl = document.getElementById('map-live-speed');
+                    if (speedEl) speedEl.textContent = `${curSpeedKmh.toFixed(1)} km/h`;
                     const headEl = document.getElementById('map-live-heading');
-                    if (headEl) headEl.textContent = `${curSpeedKmh.toFixed(1)} km/h • 45° NE`;
+                    if (headEl) headEl.textContent = `45° NE`;
                 }
             }
         }
@@ -2551,7 +2609,7 @@
                     <div class="active-hazard-marker-container">
                         <div class="active-hazard-tag">
                             ⚠️ ${damageType.toUpperCase()} (${dist.toFixed(1)}m)<br>
-                            <span style="font-size: 9.5px; opacity: 0.95; font-family: monospace;">📍 ${hLat.toFixed(6)}, ${hLon.toFixed(6)}</span>
+                            <span style="font-size: 9.5px; opacity: 0.95; font-family: monospace;">Lat: ${hLat.toFixed(6)}° N &bull; Lon: ${hLon.toFixed(6)}° E</span>
                         </div>
                         <div class="active-hazard-dot"></div>
                     </div>
@@ -2582,10 +2640,21 @@
                     hazardConnectingLine.setLatLngs([[curLat, curLon], [hLat, hLon]]);
                 }
 
-                // Update map toolbar badge
+                // Update map toolbar standalone hazard feature tiles
+                const mapHazContainer = document.getElementById('map-hazard-container');
+                const mapHazType = document.getElementById('map-hazard-type');
+                const mapHazLat = document.getElementById('map-hazard-lat');
+                const mapHazLon = document.getElementById('map-hazard-lon');
+                const mapHazDist = document.getElementById('map-hazard-dist');
+                if (mapHazContainer) {
+                    mapHazContainer.style.setProperty('display', 'inline-flex', 'important');
+                    if (mapHazType) mapHazType.innerHTML = `<i class="bi bi-geo-alt-fill me-0.5"></i>${(damageType || 'POTHOLE').toUpperCase()}`;
+                    if (mapHazLat) mapHazLat.textContent = `${hLat.toFixed(6)}° N`;
+                    if (mapHazLon) mapHazLon.textContent = `${hLon.toFixed(6)}° E`;
+                    if (mapHazDist) mapHazDist.textContent = `${dist.toFixed(1)} m`;
+                }
                 if (mapHazardBadge && mapHazardText) {
-                    mapHazardBadge.style.display = 'inline-flex';
-                    mapHazardText.textContent = `${damageType.toUpperCase()}: ${hLat.toFixed(6)}, ${hLon.toFixed(6)} (${dist.toFixed(1)}m)`;
+                    mapHazardBadge.style.display = 'none';
                 }
 
                 // Update bottom status pill to high-visibility alert
@@ -2612,7 +2681,11 @@
                     hazardConnectingLine = null;
                 }
 
-                // Hide map toolbar badge
+                // Hide map toolbar hazard container
+                const mapHazContainer = document.getElementById('map-hazard-container');
+                if (mapHazContainer) {
+                    mapHazContainer.style.setProperty('display', 'none', 'important');
+                }
                 if (mapHazardBadge) {
                     mapHazardBadge.style.display = 'none';
                 }

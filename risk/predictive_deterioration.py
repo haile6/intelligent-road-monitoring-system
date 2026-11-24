@@ -407,6 +407,8 @@ class CostOfInactionForecaster:
             "damage_type": dtype,
             "current_severity": risk,
             "days_horizon": days_horizon,
+            "latitude": float(incident.get("damage_latitude") or incident.get("latitude") or 9.672788),
+            "longitude": float(incident.get("damage_longitude") or incident.get("longitude") or 39.540692),
             "dimensions_measured": depth_measured or area_measured or vol_measured,
             "current_dimensions": {
                 "width_cm": current_width_cm,
