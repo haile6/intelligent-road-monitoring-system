@@ -139,9 +139,6 @@
     <div class="page-header-row mb-3">
         <div>
             <h1 class="page-main-title">Fleet Crowdsourcing &amp; Spatial De-duplication</h1>
-            <div class="text-secondary small font-mono">
-                Multi-Vehicle Patrol Corroboration • Bayesian Probability Fusion • Route A2 Debre Berhan
-            </div>
         </div>
 
         <div class="page-actions-bar">
@@ -267,11 +264,6 @@
         <div class="p-2 position-relative" style="background:#ffffff;">
             <div id="fleetGisMap"></div>
         </div>
-
-        <div class="fleet-panel-footer d-flex justify-content-between align-items-center font-mono">
-            <span class="text-dark"><b>{{ fleet_data.canonical_unique_hazards }}</b> Unique Physical Defects Geocoded</span>
-            <span>Click any map marker to inspect multi-vehicle sighting history</span>
-        </div>
     </div>
 
     <!-- ============================================================ -->
@@ -279,20 +271,10 @@
     <!-- ============================================================ -->
     <div class="fleet-panel-card mb-4">
         <div class="fleet-panel-header py-3">
-            <div>
-                <div class="fleet-panel-title">
-                    <i data-lucide="truck" style="color:var(--accent-primary);"></i>
-                    Active Patrol Fleet Units
-                    <span class="badge bg-success-subtle text-success border border-success-subtle font-mono ms-2" style="font-size: 10.5px;">4 Units Online</span>
-                </div>
-                <div class="text-secondary small font-mono mt-0.5">
-                    Click any vehicle row to view full telemetry profile, sensor rig specs, and detection history
-                </div>
-            </div>
-            <div>
-                <span class="badge bg-light text-secondary border font-mono small px-2 py-1">
-                    Continuous Telemetry Sync Active
-                </span>
+            <div class="fleet-panel-title">
+                <i data-lucide="truck" style="color:var(--accent-primary);"></i>
+                Active Patrol Fleet Units
+                <span class="badge bg-success-subtle text-success border border-success-subtle font-mono ms-2" style="font-size: 10.5px;">4 Units Online</span>
             </div>
         </div>
 
@@ -351,11 +333,6 @@
                 </tbody>
             </table>
         </div>
-
-        <div class="fleet-panel-footer d-flex justify-content-between align-items-center font-mono">
-            <span>Route A2 Corridor Patrol Fleet Roster</span>
-            <span>Click any row to open telemetry modal and view captured incidents</span>
-        </div>
     </div>
 
     <!-- ============================================================ -->
@@ -364,14 +341,9 @@
     <div class="fleet-panel-card mb-4">
         <div class="fleet-panel-header py-3">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 w-100">
-                <div>
-                    <div class="fleet-panel-title">
-                        <i data-lucide="layers" style="color:var(--accent-primary);"></i>
-                        Canonical Verified Hazards Ledger
-                    </div>
-                    <div class="text-secondary small font-mono mt-0.5">
-                        Deduplicated physical defects verified through multi-vehicle Bayesian fusion
-                    </div>
+                <div class="fleet-panel-title">
+                    <i data-lucide="layers" style="color:var(--accent-primary);"></i>
+                    Canonical Verified Hazards Ledger
                 </div>
 
                 <!-- Filters -->
@@ -472,11 +444,6 @@
                 </tbody>
             </table>
         </div>
-
-        <div class="fleet-panel-footer d-flex justify-content-between align-items-center font-mono">
-            <span>Showing {{ fleet_data.canonical_hazards|length }} canonical hazards</span>
-            <span>Click any hazard row or "Passes" button to inspect detailed sighting passes</span>
-        </div>
     </div>
 
 </div>
@@ -492,7 +459,6 @@
                     <div id="modalVehicleDot" style="width: 14px; height: 14px; border-radius: 50%; background: #0284c7;"></div>
                     <div>
                         <h5 class="modal-title fw-bold text-dark fs-6 mb-0" id="modalVehicleTitle">Vehicle Telemetry Profile</h5>
-                        <div class="small text-secondary font-mono" id="modalVehicleSubtitle">Patrol Unit Specifications &amp; Live Corridor Incidents</div>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -500,8 +466,7 @@
             <div class="modal-body p-4" id="fleetVehicleModalBody">
                 <!-- Injected via JavaScript -->
             </div>
-            <div class="modal-footer border-top py-2 px-3 bg-light d-flex justify-content-between">
-                <span class="small font-mono text-muted" id="modalVehicleFooterMeta">Route A2 Telemetry System</span>
+            <div class="modal-footer border-top py-2 px-3 bg-light d-flex justify-content-end">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -605,9 +570,7 @@ function inspectFleetVehicle(vehicleId) {
 
     // Update modal header
     document.getElementById('modalVehicleTitle').textContent = `${v.vehicle_name} (${v.vehicle_id})`;
-    document.getElementById('modalVehicleSubtitle').textContent = `${v.agency} • Driver: ${v.driver}`;
     document.getElementById('modalVehicleDot').style.background = v.color || '#0284c7';
-    document.getElementById('modalVehicleFooterMeta').textContent = `Total Telemetry Records: ${vehicleSightings.length} captures on Route A2`;
 
     // Build modal body HTML
     let sightingsHtml = '';
@@ -755,7 +718,6 @@ function inspectHazardCluster(index) {
         <div class="p-3 mb-3 rounded border" style="background:#ffffff;">
             <div class="fw-bold text-dark small text-uppercase font-mono mb-1" style="font-size:11px;">Weighted Geodesic Centroid</div>
             <div class="font-mono text-dark" style="font-size:12.5px;">${h.damage_latitude.toFixed(6)}° N, ${h.damage_longitude.toFixed(6)}° E</div>
-            <div class="text-secondary small font-mono mt-1">Eliminated ${h.sightings_count - 1} redundant dispatch duplicates</div>
         </div>
 
         <!-- Sighting Timeline -->
