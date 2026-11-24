@@ -6,7 +6,7 @@
 {% block extra_head %}
 <!-- Leaflet GIS Mapping CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
-<link rel="stylesheet" href="/static/css/patrol_simulator.css?v=1.1" />
+<link rel="stylesheet" href="/static/css/patrol_simulator.css?v=2.0" />
 <style>
     #map {
         height: 650px;
@@ -66,6 +66,79 @@
         border-color: #94A3B8 !important;
         transform: translateX(2px);
     }
+
+    /* Harmonized Crisp White Telemetry HUD & Dock */
+    .patrol-cockpit-hud {
+        background: rgba(255, 255, 255, 0.96) !important;
+        border: 1.5px solid #BAC7D5 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+        color: #0F172A !important;
+    }
+    .cockpit-hud-header {
+        border-bottom: 1px solid #E2E8F0 !important;
+    }
+    .cockpit-title {
+        color: #0284C7 !important;
+    }
+    .cockpit-landmark-banner {
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        color: #0F172A !important;
+    }
+    .cockpit-gauge-card {
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+    }
+    .cockpit-compass-dial {
+        background: #FFFFFF !important;
+        border: 1.5px solid #CBD5E1 !important;
+    }
+    .cockpit-odometer-row {
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        color: #0F172A !important;
+    }
+
+    .patrol-playback-dock {
+        background: rgba(255, 255, 255, 0.96) !important;
+        border: 1px solid #BAC7D5 !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
+        color: #0F172A !important;
+    }
+    .patrol-telemetry-cluster {
+        background: #F1F5F9 !important;
+        border: 1px solid #E2E8F0 !important;
+    }
+    .patrol-badge-pill {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #0F172A !important;
+    }
+    .patrol-route-select {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #0F172A !important;
+    }
+    .patrol-btn-action {
+        background: #F8FAFC !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #334155 !important;
+    }
+    .patrol-btn-action.active {
+        background: #0284C7 !important;
+        border-color: #0284C7 !important;
+        color: #FFFFFF !important;
+    }
+    .patrol-btn-range {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #475569 !important;
+    }
+    .patrol-btn-range.active {
+        background: #0284C7 !important;
+        border-color: #0284C7 !important;
+        color: #FFFFFF !important;
+    }
 </style>
 {% endblock %}
 
@@ -116,52 +189,52 @@
                     <i class="bi bi-layers-half text-primary"></i>
                     <span class="fw-semibold">Map Layers</span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-end p-2.5 shadow-lg" aria-labelledby="mapLayersDropdown" style="min-width: 270px; background: var(--bg-surface); border: 1px solid var(--border-default); z-index: 1050;">
-                    <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom" style="border-color: var(--border-default) !important;">
-                        <span class="small fw-bold text-white font-mono"><i class="bi bi-layers me-1 text-primary"></i>MAP LAYERS</span>
-                        <span class="badge bg-secondary font-mono" style="font-size: 10px;">5 Active</span>
+                <div class="dropdown-menu dropdown-menu-end p-2.5 shadow-lg" aria-labelledby="mapLayersDropdown" style="min-width: 270px; background: #ffffff; border: 1px solid var(--border-default, #CBD5E1); z-index: 1050;">
+                    <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom" style="border-color: #E2E8F0 !important;">
+                        <span class="small fw-bold text-dark font-mono"><i class="bi bi-layers me-1 text-primary"></i>MAP LAYERS</span>
+                        <span class="badge bg-secondary-subtle text-secondary border font-mono" style="font-size: 10px;">5 Active</span>
                     </div>
 
                     <!-- 1. National Corridors -->
                     <div class="form-check py-1 mb-1">
                         <input class="form-check-input" type="checkbox" id="toggleContractors" checked onchange="toggleLayer('contractors', this.checked)">
-                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleContractors" style="cursor: pointer;">
+                        <label class="form-check-label small fw-semibold text-dark w-100 d-flex align-items-center justify-content-between" for="toggleContractors" style="cursor: pointer;">
                             <span>
                                 <span class="gis-legend-line" style="background: #10B981;"></span>
                                 <span>National Corridors</span>
                             </span>
-                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">{{ contractors|length }}</span>
+                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 10px;">{{ contractors|length }}</span>
                         </label>
                     </div>
 
                     <!-- 2. Debre Berhan OSM -->
                     <div class="form-check py-1 mb-1">
                         <input class="form-check-input" type="checkbox" id="toggleOsm" checked onchange="toggleLayer('osm', this.checked)">
-                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleOsm" style="cursor: pointer;">
+                        <label class="form-check-label small fw-semibold text-dark w-100 d-flex align-items-center justify-content-between" for="toggleOsm" style="cursor: pointer;">
                             <span>
                                 <span class="gis-legend-line" style="background: #0284C7;"></span>
                                 <span>Debre Berhan OSM</span>
                             </span>
-                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">66</span>
+                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 10px;">66</span>
                         </label>
                     </div>
 
                     <!-- 3. GPS Trajectory -->
                     <div class="form-check py-1 mb-1">
                         <input class="form-check-input" type="checkbox" id="toggleGps" checked onchange="toggleLayer('gps', this.checked)">
-                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleGps" style="cursor: pointer;">
+                        <label class="form-check-label small fw-semibold text-dark w-100 d-flex align-items-center justify-content-between" for="toggleGps" style="cursor: pointer;">
                             <span>
                                 <span class="gis-legend-line" style="background: #38BDF8;"></span>
                                 <span>GPS Trajectory</span>
                             </span>
-                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">Live</span>
+                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 10px;">Live</span>
                         </label>
                     </div>
 
                     <!-- 4. Detected Hazards -->
                     <div class="form-check py-1 mb-1">
                         <input class="form-check-input" type="checkbox" id="toggleHazards" checked onchange="toggleLayer('hazards', this.checked)">
-                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="toggleHazards" style="cursor: pointer;">
+                        <label class="form-check-label small fw-semibold text-dark w-100 d-flex align-items-center justify-content-between" for="toggleHazards" style="cursor: pointer;">
                             <span>
                                 <span class="gis-legend-dot" style="background: #EF4444;"></span>
                                 <span>Detected Hazards</span>
@@ -173,12 +246,12 @@
                     <!-- 5. PCI Heatmap -->
                     <div class="form-check py-1 mb-2">
                         <input class="form-check-input" type="checkbox" id="togglePciHeatmap" onchange="toggleLayer('pci', this.checked)">
-                        <label class="form-check-label small fw-semibold text-light w-100 d-flex align-items-center justify-content-between" for="togglePciHeatmap" style="cursor: pointer;">
+                        <label class="form-check-label small fw-semibold text-dark w-100 d-flex align-items-center justify-content-between" for="togglePciHeatmap" style="cursor: pointer;">
                             <span>
                                 <span class="gis-legend-dot" style="background: linear-gradient(90deg, #10b981, #eab308, #ef4444);"></span>
                                 <span>PCI Heatmap</span>
                             </span>
-                            <span class="badge bg-dark text-secondary font-mono" style="font-size: 10px;">ASTM</span>
+                            <span class="badge bg-light text-secondary border font-mono" style="font-size: 10px;">ASTM</span>
                         </label>
                     </div>
 
@@ -247,10 +320,10 @@
                     <div id="patrolHazardBanner" class="patrol-hazard-banner">
                         <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
                             <span class="badge bg-danger" id="bannerRiskBadge">DANGER</span>
-                            <span class="fw-bold text-white" id="bannerDefectTitle" style="font-size: 13.5px;">Defect #55 (POTHOLE)</span>
+                            <span class="fw-bold text-dark" id="bannerDefectTitle" style="font-size: 13.5px;">Defect #55 (POTHOLE)</span>
                         </div>
-                        <div class="small" id="bannerDefectMeta" style="color: #CBD5E1; font-size: 11px;">
-                            Distance: <b class="text-white" id="bannerDist">2.8m</b> &bull; TTC: <b class="text-danger" id="bannerTtc">0.34s</b> &bull; <span class="font-mono text-white-50" id="bannerCoords">9.12481° N, 39.12482° E</span>
+                        <div class="small" id="bannerDefectMeta" style="color: #475569; font-size: 11px;">
+                            Distance: <b class="text-dark" id="bannerDist">2.8m</b> &bull; TTC: <b class="text-danger" id="bannerTtc">0.34s</b> &bull; <span class="font-mono text-secondary" id="bannerCoords">9.12481° N, 39.12482° E</span>
                         </div>
                     </div>
 
@@ -311,9 +384,9 @@
                                 <div class="cockpit-progress-track">
                                     <div class="cockpit-progress-bar" id="cockpitProgressBar" style="width: 0%;"></div>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 10px; color: #94A3B8;">
-                                    <span>Remaining: <b class="text-white font-monospace" id="cockpitRemDist">0.00 km</b></span>
-                                    <span>ETA: <b class="text-info font-mono" id="cockpitEtaTime">00:00</b></span>
+                                <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 10px; color: #64748B;">
+                                    <span>Remaining: <b class="text-dark font-monospace" id="cockpitRemDist">0.00 km</b></span>
+                                    <span>ETA: <b class="text-primary font-mono" id="cockpitEtaTime">00:00</b></span>
                                 </div>
                             </div>
                         </div>
@@ -347,7 +420,7 @@
                                 <div class="patrol-telemetry-cluster">
                                     <div class="patrol-badge-pill" id="patrolSpeedPill" title="Live Vehicle Speedometer">
                                         <i class="bi bi-speedometer2 text-info" id="patrolSpeedIcon"></i>
-                                        <span class="patrol-badge-speed"><span id="patrolSpeed">0</span> <small class="text-white-50" style="font-size: 10px;">km/h</small></span>
+                                        <span class="patrol-badge-speed"><span id="patrolSpeed">0</span> <small class="text-secondary" style="font-size: 10px;">km/h</small></span>
                                     </div>
                                     <div class="patrol-badge-pill" id="patrolHeadingPill" title="Dynamic Compass Heading & Bearing Angle">
                                         <div class="patrol-compass-mini-dial" title="Rotating Compass Rose">
@@ -362,7 +435,7 @@
                                     </div>
                                     <div class="patrol-badge-pill d-flex align-items-center gap-1" id="patrolRadarPill" title="360° Proximity Sonar Radar Horizon">
                                         <i class="bi bi-broadcast text-danger"></i>
-                                        <span class="text-white-50" style="font-size: 10px; font-weight: 600;">RADAR:</span>
+                                        <span class="text-secondary" style="font-size: 10px; font-weight: 600;">RADAR:</span>
                                         <div class="btn-group btn-group-sm patrol-radar-pills" role="group" id="patrolRadarPillsGroup">
                                             <button type="button" class="btn patrol-btn-range" id="btnRadar25" onclick="simulatorSetRadarRange(25, this)" title="25m Proximity">25m</button>
                                             <button type="button" class="btn patrol-btn-range" id="btnRadar50" onclick="simulatorSetRadarRange(50, this)" title="50m Proximity">50m</button>
@@ -376,7 +449,7 @@
                                     </div>
                                     <div class="form-check form-switch ms-1 mb-0" style="font-size: 11px;">
                                         <input class="form-check-input" type="checkbox" id="patrolAutoPan" checked onchange="simulatorToggleAutoPan(this.checked)">
-                                        <label class="form-check-label text-white-50" for="patrolAutoPan">Track</label>
+                                        <label class="form-check-label text-dark fw-semibold" for="patrolAutoPan">Track</label>
                                     </div>
                                     <button class="btn btn-sm patrol-btn-action px-2 ms-1" id="btnAudioToggle" title="Toggle Sonar Audio Ping (ON)" onclick="simulatorToggleAudio(this)">
                                         <i class="bi bi-volume-up-fill text-info"></i>
@@ -429,12 +502,12 @@
                         <span>Patrol Video Stream</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <select class="form-select form-select-sm py-0 px-2 fw-semibold text-light bg-dark border-secondary" id="patrolVideoSelector" onchange="switchPatrolVideo(this.value)" style="font-size: 11px; width: auto;" title="Switch Video Stream">
+                        <select class="form-select form-select-sm py-0 px-2 fw-semibold text-dark bg-white border" id="patrolVideoSelector" onchange="switchPatrolVideo(this.value)" style="font-size: 11px; width: auto;" title="Switch Video Stream">
                             <option value="/media/video/outputs/final_integrated_video.mp4" selected>📍 Debre Berhan 40s AI Sync</option>
                             <option value="/media/video/outputs/annotated_gemini_generated_video_dadfa683.mp4">🏙️ Real Traffic Dashcam (3m 29s)</option>
                             <option value="/media/video/data/debre_berhan_test_video.mp4">📹 Raw 40s Camera View</option>
                         </select>
-                        <button class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 11px;" onclick="toggleDashcamMute(this)" title="Mute/Unmute Video Audio">
+                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px;" onclick="toggleDashcamMute(this)" title="Mute/Unmute Video Audio">
                             <i class="bi bi-volume-mute-fill" id="dashcamAudioIcon"></i>
                         </button>
                     </div>

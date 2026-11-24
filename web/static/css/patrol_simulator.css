@@ -118,17 +118,17 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 950;
-    background: rgba(15, 23, 42, 0.88);
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid #CBD5E1;
     border-radius: 16px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.15);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.05);
     padding: 12px 20px;
     min-width: 520px;
     width: auto;
     max-width: 90%;
-    color: #F8FAFC;
+    color: #0F172A;
     transition: all 0.25s ease;
 }
 
@@ -167,9 +167,9 @@
 }
 
 .patrol-btn-action {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #E2E8F0;
+    background: #F8FAFC;
+    border: 1px solid #CBD5E1;
+    color: #334155;
     border-radius: 8px;
     padding: 6px 12px;
     font-size: 12px;
@@ -179,7 +179,7 @@
 
 .patrol-btn-action:hover, .patrol-btn-action.active {
     background: #0284C7;
-    border-color: #38BDF8;
+    border-color: #0284C7;
     color: #FFFFFF;
 }
 
@@ -194,14 +194,14 @@
 .patrol-scrubber-input {
     flex-grow: 1;
     height: 6px;
-    accent-color: #38BDF8;
+    accent-color: #0284C7;
     cursor: pointer;
 }
 
 .patrol-scrubber-time {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    color: #94A3B8;
+    color: #475569;
     min-width: 75px;
     text-align: right;
 }
@@ -212,10 +212,10 @@
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
-    background: rgba(0, 0, 0, 0.32);
+    background: #F1F5F9;
     border-radius: 10px;
     padding: 6px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid #E2E8F0;
 }
 
 .patrol-badge-pill {
@@ -226,8 +226,9 @@
     font-weight: 600;
     padding: 3px 8px;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #E2E8F0;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #0F172A;
 }
 
 .patrol-badge-pill i {
@@ -235,14 +236,14 @@
 }
 
 .patrol-badge-speed {
-    color: #38BDF8;
+    color: #0284C7;
     font-family: 'JetBrains Mono', monospace;
 }
 
 .patrol-badge-hazard {
-    background: rgba(239, 68, 68, 0.22);
-    border: 1px solid rgba(239, 68, 68, 0.5);
-    color: #FCA5A5;
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #DC2626;
     animation: badge-pulse 1.8s infinite;
 }
 
@@ -253,9 +254,9 @@
 
 /* Route Selector inside dock */
 .patrol-route-select {
-    background: rgba(15, 23, 42, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #F1F5F9;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #0F172A;
     font-size: 11.5px;
     font-weight: 600;
     border-radius: 8px;
@@ -264,8 +265,8 @@
 }
 
 .patrol-route-select option {
-    background: #0F172A;
-    color: #F8FAFC;
+    background: #FFFFFF;
+    color: #0F172A;
 }
 
 /* Responsive adjustments */
@@ -289,16 +290,17 @@
     opacity: 0;
     pointer-events: none;
     z-index: 1050;
-    background: rgba(15, 23, 42, 0.94);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1.5px solid #EF4444;
     border-radius: 12px;
     padding: 9px 20px;
-    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.35);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     min-width: 340px;
     text-align: center;
+    color: #0F172A;
 }
 
 .patrol-hazard-banner.active {
@@ -454,9 +456,9 @@
     width: 17px;
     height: 17px;
     border-radius: 50%;
-    background: radial-gradient(circle, #1E293B 40%, #0F172A 100%);
-    border: 1.5px solid rgba(245, 158, 11, 0.65);
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
+    background: #FFFFFF;
+    border: 1.5px solid #CBD5E1;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -467,7 +469,7 @@
     position: absolute;
     width: 2px;
     height: 12px;
-    background: linear-gradient(to bottom, #EF4444 50%, #E2E8F0 50%);
+    background: linear-gradient(to bottom, #EF4444 50%, #94A3B8 50%);
     border-radius: 1px;
     transform-origin: center center;
     transition: transform 0.09s linear;
@@ -488,20 +490,20 @@
 .patrol-remaining-dist {
     font-size: 9.5px;
     font-family: 'JetBrains Mono', monospace;
-    color: #94A3B8;
+    color: #64748B;
     margin-left: 3px;
     letter-spacing: -0.2px;
 }
 
 /* Speedometer dynamic color accents */
 .patrol-badge-pill.speed-cornering .patrol-badge-speed {
-    color: #38BDF8 !important; /* Cornering / low speed Cyan */
+    color: #0284C7 !important;
 }
 .patrol-badge-pill.speed-cruising .patrol-badge-speed {
-    color: #10B981 !important; /* Cruising Neon Green */
+    color: #059669 !important;
 }
 .patrol-badge-pill.speed-high .patrol-badge-speed {
-    color: #F59E0B !important; /* Highway / Fast Amber */
+    color: #D97706 !important;
 }
 
 /* --- FLOATING LIVE COCKPIT TELEMETRY HUD CARD --- */
@@ -510,15 +512,15 @@
     top: 14px;
     right: 14px;
     width: 260px;
-    background: rgba(15, 23, 42, 0.90);
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border: 1.5px solid #CBD5E1;
     border-radius: 12px;
     padding: 10px 12px;
     z-index: 1000;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 18px rgba(56, 189, 248, 0.15);
-    color: #F8FAFC;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #0F172A;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -535,14 +537,14 @@
     align-items: center;
     justify-content: space-between;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid #E2E8F0;
 }
 
 .cockpit-title {
     font-size: 10.5px;
     font-weight: 800;
     letter-spacing: 0.06em;
-    color: #38BDF8;
+    color: #0284C7;
     text-transform: uppercase;
 }
 
@@ -563,7 +565,7 @@
 .cockpit-toggle-btn {
     background: transparent;
     border: none;
-    color: #94A3B8;
+    color: #64748B;
     padding: 0 4px;
     font-size: 11px;
     cursor: pointer;
@@ -571,7 +573,7 @@
 }
 
 .cockpit-toggle-btn:hover {
-    color: #FFFFFF;
+    color: #0F172A;
 }
 
 .cockpit-hud-grid {
@@ -582,8 +584,8 @@
 }
 
 .cockpit-gauge-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
     border-radius: 8px;
     padding: 7px;
     text-align: center;
@@ -596,7 +598,7 @@
 .cockpit-gauge-label {
     font-size: 9px;
     font-weight: 700;
-    color: #94A3B8;
+    color: #64748B;
     letter-spacing: 0.04em;
     margin-bottom: 3px;
 }
@@ -612,20 +614,20 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 26px;
     font-weight: 800;
-    color: #38BDF8;
+    color: #0284C7;
     line-height: 1;
 }
 
 .cockpit-speed-unit {
     font-size: 10px;
-    color: #94A3B8;
+    color: #64748B;
     font-weight: 700;
 }
 
 .cockpit-speed-bar-track {
     width: 100%;
     height: 3px;
-    background: rgba(255, 255, 255, 0.1);
+    background: #E2E8F0;
     border-radius: 2px;
     margin-top: 5px;
     overflow: hidden;
@@ -633,7 +635,7 @@
 
 .cockpit-speed-bar-fill {
     height: 100%;
-    background: #38BDF8;
+    background: #0284C7;
     transition: width 0.15s ease, background 0.2s ease;
 }
 
@@ -647,10 +649,10 @@
     text-transform: uppercase;
 }
 
-.tag-idle { background: rgba(148, 163, 184, 0.2); color: #CBD5E1; }
-.tag-cornering { background: rgba(56, 189, 248, 0.2); color: #38BDF8; }
-.tag-cruising { background: rgba(16, 185, 129, 0.2); color: #10B981; }
-.tag-high { background: rgba(245, 158, 11, 0.2); color: #F59E0B; }
+.tag-idle { background: #E2E8F0; color: #475569; }
+.tag-cornering { background: #E0F2FE; color: #0284C7; }
+.tag-cruising { background: #D1FAE5; color: #059669; }
+.tag-high { background: #FEF3C7; color: #D97706; }
 
 /* Cockpit Compass Rose */
 .cockpit-compass-wrapper {
@@ -665,9 +667,9 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: radial-gradient(circle, #1E293B, #0F172A);
-    border: 1.5px solid rgba(245, 158, 11, 0.5);
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+    background: #FFFFFF;
+    border: 1.5px solid #CBD5E1;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.06);
 }
 
 .cockpit-compass-ticks {
@@ -679,9 +681,9 @@
 }
 
 .tick-n { position: absolute; top: 0px; left: 50%; transform: translateX(-50%); color: #EF4444; }
-.tick-e { position: absolute; right: 1px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
-.tick-s { position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); color: #94A3B8; }
-.tick-w { position: absolute; left: 1px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+.tick-e { position: absolute; right: 1px; top: 50%; transform: translateY(-50%); color: #64748B; }
+.tick-s { position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); color: #64748B; }
+.tick-w { position: absolute; left: 1px; top: 50%; transform: translateY(-50%); color: #64748B; }
 
 .cockpit-compass-pointer {
     position: absolute;
@@ -691,7 +693,7 @@
     height: 24px;
     margin-top: -12px;
     margin-left: -1.25px;
-    background: linear-gradient(to bottom, #EF4444 50%, #E2E8F0 50%);
+    background: linear-gradient(to bottom, #EF4444 50%, #94A3B8 50%);
     border-radius: 1px;
     transform-origin: center center;
     transition: transform 0.09s linear;
@@ -710,15 +712,15 @@
 
 .cockpit-heading-readout {
     font-size: 11px;
-    color: #F59E0B;
+    color: #D97706;
     margin-top: 2px;
 }
 
 /* Odometer Row */
 .cockpit-odometer-row {
     margin-top: 8px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
     border-radius: 8px;
     padding: 7px 9px;
 }
@@ -726,26 +728,26 @@
 .cockpit-sub-label {
     font-size: 9.5px;
     font-weight: 700;
-    color: #94A3B8;
+    color: #64748B;
 }
 
 .cockpit-odo-values {
     font-size: 11px;
     font-weight: 700;
-    color: #10B981;
+    color: #059669;
 }
 
 .cockpit-progress-track {
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: #E2E8F0;
     border-radius: 2px;
     overflow: hidden;
 }
 
 .cockpit-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #10B981, #38BDF8);
+    background: linear-gradient(90deg, #059669, #0284C7);
     transition: width 0.15s ease;
 }
 
@@ -855,18 +857,18 @@
 .cockpit-landmark-banner {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(56, 189, 248, 0.25);
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
     border-radius: 6px;
     padding: 3px 8px;
     margin-top: 6px;
     font-size: 10px;
     font-weight: 700;
-    color: #F1F5F9;
+    color: #0F172A;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .cockpit-landmark-banner i {
@@ -884,18 +886,18 @@
 }
 
 .patrol-dashcam-card {
-    background: #0F172A;
-    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
 }
 
 .dashcam-header {
-    background: linear-gradient(90deg, #1E293B, #0F172A);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
     padding: 8px 14px;
     display: flex;
     align-items: center;
@@ -905,7 +907,7 @@
 .dashcam-title {
     font-size: 11px;
     font-weight: 800;
-    color: #38BDF8;
+    color: #0F172A;
     letter-spacing: 0.06em;
     display: flex;
     align-items: center;
@@ -1049,9 +1051,9 @@
 }
 
 .patrol-btn-range {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    color: #94A3B8;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #475569;
     font-size: 10.5px;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
@@ -1063,15 +1065,15 @@
 }
 
 .patrol-btn-range:hover {
-    background: rgba(56, 189, 248, 0.25);
-    color: #38BDF8;
-    border-color: #38BDF8;
+    background: #F1F5F9;
+    color: #0F172A;
+    border-color: #94A3B8;
     transform: translateY(-0.5px);
 }
 
 .patrol-btn-range.active {
-    background: linear-gradient(135deg, #0284C7, #0369A1) !important;
+    background: #0284C7 !important;
     color: #FFFFFF !important;
-    border-color: #38BDF8 !important;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    border-color: #0284C7 !important;
+    box-shadow: 0 0 8px rgba(2, 132, 199, 0.4);
 }
