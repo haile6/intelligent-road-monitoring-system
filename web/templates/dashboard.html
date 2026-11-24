@@ -567,85 +567,155 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
     const cost = (bags * bagPrice) + Math.max(350, Math.round(areaNum * laborRate));
 
     const contentHtml = `
+        <!-- Incident Header Summary Card -->
         <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge-status badge-defect-pothole">INCIDENT #${id}</span>
-                <span class="badge-status" style="background:rgba(56,189,248,0.15); color:var(--accent-primary); border:1px solid rgba(56,189,248,0.3);">
+                <span class="badge-status badge-defect-pothole font-mono">INCIDENT #${id}</span>
+                <span class="badge-status font-mono" style="background:rgba(56,189,248,0.15); color:var(--accent-primary); border:1px solid rgba(56,189,248,0.3);">
                     CONFIDENCE ${(conf * 100).toFixed(1)}%
                 </span>
             </div>
-            <h5 class="fw-bold mb-1" style="font-size:16px; color:var(--text-primary); text-transform:capitalize;">${type.replace('_', ' ')}</h5>
+            <h5 class="fw-bold mb-1 text-capitalize" style="font-size:16px; color:var(--text-primary);">${type.replace('_', ' ')}</h5>
             <div class="text-secondary small font-mono">${dualFactors || 'Dual-Layer Physical & Kinematic Risk Analysis'}</div>
         </div>
 
-        <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="kpi-metric-card p-2" style="min-height:75px;">
-                <span class="kpi-label-text">Dual-Layer Risk</span>
-                <div class="fw-bold font-mono" style="color:${riskColor}; font-size:15px; margin-top:4px;">${risk}</div>
+        <!-- Section 1: Kinematic & Navigation Risk (Individual Feature Cards) -->
+        <div class="mb-3">
+            <div class="d-flex align-items-center gap-1.5 mb-2 font-mono text-uppercase text-secondary" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
+                <i data-lucide="shield-alert" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                <span>Kinematic Risk Telemetry</span>
             </div>
-            <div class="kpi-metric-card p-2" style="min-height:75px;">
-                <span class="kpi-label-text">Kinematic TTC</span>
-                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${ttc > 0 ? ttc.toFixed(2) + 's' : 'N/A (Off-Path)'}</div>
-            </div>
-            <div class="kpi-metric-card p-2" style="min-height:75px;">
-                <span class="kpi-label-text">Ground Distance</span>
-                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${dist.toFixed(1)} m</div>
-            </div>
-            <div class="kpi-metric-card p-2" style="min-height:75px;">
-                <span class="kpi-label-text">Vehicle Velocity</span>
-                <div class="fw-bold font-mono text-white" style="font-size:15px; margin-top:4px;">${speed.toFixed(1)} km/h</div>
+            <div class="kpi-row-grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="kpi-metric-card p-2.5" style="min-height:72px;">
+                    <span class="kpi-label-text">Dual-Layer Risk</span>
+                    <div class="fw-bold font-mono" style="color:${riskColor}; font-size:15px; margin-top:3px;">${risk}</div>
+                </div>
+                <div class="kpi-metric-card p-2.5" style="min-height:72px;">
+                    <span class="kpi-label-text">Kinematic TTC</span>
+                    <div class="fw-bold font-mono" style="color:var(--text-primary); font-size:15px; margin-top:3px;">${ttc > 0 ? ttc.toFixed(2) + 's' : 'N/A (Off-Path)'}</div>
+                </div>
+                <div class="kpi-metric-card p-2.5" style="min-height:72px;">
+                    <span class="kpi-label-text">Ground Distance</span>
+                    <div class="fw-bold font-mono" style="color:var(--text-primary); font-size:15px; margin-top:3px;">${dist.toFixed(1)} m</div>
+                </div>
+                <div class="kpi-metric-card p-2.5" style="min-height:72px;">
+                    <span class="kpi-label-text">Vehicle Velocity</span>
+                    <div class="fw-bold font-mono" style="color:var(--text-primary); font-size:15px; margin-top:3px;">${speed.toFixed(1)} km/h</div>
+                </div>
             </div>
         </div>
 
-        <div class="panel-card p-3 mb-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Geodesic Location</div>
-            <div class="font-mono text-white mb-1" style="font-size:13px;">${lat.toFixed(6)}° N, ${lon.toFixed(6)}° E</div>
-            <div class="text-secondary small font-mono">Elevation: Ground Plane Projection (Camera H=1.2m)</div>
+        <!-- Section 2: Geodesic Coordinates & Elevation (Separated Standalone Feature Tiles) -->
+        <div class="mb-3">
+            <div class="d-flex align-items-center gap-1.5 mb-2 font-mono text-uppercase text-secondary" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
+                <i data-lucide="map-pin" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                <span>Geodesic Coordinates &amp; Elevation</span>
+            </div>
+            <div class="row g-2">
+                <!-- Feature: Latitude -->
+                <div class="col-6">
+                    <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                        <span class="kpi-label-text">Latitude</span>
+                        <div class="fw-bold font-mono" style="color:var(--text-primary); font-size:13.5px; margin-top:3px;">
+                            ${lat.toFixed(6)}° N
+                        </div>
+                    </div>
+                </div>
+                <!-- Feature: Longitude -->
+                <div class="col-6">
+                    <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                        <span class="kpi-label-text">Longitude</span>
+                        <div class="fw-bold font-mono" style="color:var(--text-primary); font-size:13.5px; margin-top:3px;">
+                            ${lon.toFixed(6)}° E
+                        </div>
+                    </div>
+                </div>
+                <!-- Feature: Optical Elevation Datum -->
+                <div class="col-12">
+                    <div class="kpi-metric-card p-2.5" style="min-height:60px;">
+                        <span class="kpi-label-text">Optical Elevation Datum</span>
+                        <div class="font-mono text-secondary small" style="margin-top:2px;">
+                            <span class="fw-bold" style="color:var(--text-primary);">Ground Plane Projection</span> (Camera Height: 1.2m)
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 3D Pothole Depth & Volumetric Cavity Spec -->
-        <div class="panel-card p-3 mb-3" id="drawerVolumetricCard">
+        <!-- Section 3: 3D Depth & Volumetric Physical Spec (Separated Standalone Feature Tiles) -->
+        <div class="mb-3" id="drawerVolumetricCard">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="panel-title" style="font-size:12px;">
+                <div class="d-flex align-items-center gap-1.5 font-mono text-uppercase text-secondary" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
                     <i data-lucide="box" style="width:13px; height:13px; color:var(--accent-primary);"></i>
-                    3D Depth &amp; Volumetric Repair Spec
+                    <span>3D Volumetric Cavity Spec</span>
                 </div>
                 <span class="badge-status badge-status-info font-mono" id="drawerDepthBadge" style="font-size:9.5px;">ERA Standard</span>
             </div>
-            <div class="row g-2 mb-2 font-mono" style="font-size:11.5px;">
-                <div class="col-4">
-                    <span class="text-secondary small">Footprint:</span>
-                    <div class="text-white fw-bold" id="drawerDimVal">${areaNum.toFixed(2)} m²</div>
+            <div class="row g-2 mb-2">
+                <!-- Feature: Surface Footprint -->
+                <div class="col-12 col-sm-4">
+                    <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                        <span class="kpi-label-text">Surface Footprint</span>
+                        <div class="fw-bold font-mono" id="drawerDimVal" style="color:var(--text-primary); font-size:13.5px; margin-top:3px;">
+                            ${areaNum.toFixed(2)} m²
+                        </div>
+                    </div>
                 </div>
-                <div class="col-4">
-                    <span class="text-secondary small">Max Depth (Dmax):</span>
-                    <div class="text-warning fw-bold" id="drawerDepthVal">⬇ ${depthNum.toFixed(1)} cm</div>
+                <!-- Feature: Max Depth -->
+                <div class="col-6 col-sm-4">
+                    <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                        <span class="kpi-label-text">Max Depth (Dmax)</span>
+                        <div class="fw-bold font-mono text-warning" id="drawerDepthVal" style="font-size:13.5px; margin-top:3px;">
+                            ⬇ ${depthNum.toFixed(1)} cm
+                        </div>
+                    </div>
                 </div>
-                <div class="col-4">
-                    <span class="text-secondary small">Cavity Vol:</span>
-                    <div class="text-info fw-bold" id="drawerVolVal">${volNum.toFixed(1)} L</div>
+                <!-- Feature: Cavity Volume -->
+                <div class="col-6 col-sm-4">
+                    <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                        <span class="kpi-label-text">Cavity Volume</span>
+                        <div class="fw-bold font-mono text-info" id="drawerVolVal" style="font-size:13.5px; margin-top:3px;">
+                            ${volNum.toFixed(1)} L
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="p-2 rounded" style="background:var(--bg-sunken); font-size:11px;">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="text-secondary">Cold Patch Required:</span>
-                    <span class="text-white fw-bold font-mono" id="drawerBagsVal">${bags} Bags (25kg)</span>
+
+            <!-- Material & Budget Tiles (Separated) -->
+            <div class="row g-2">
+                <!-- Feature: Cold Patch Asphalt Required -->
+                <div class="col-12 col-sm-6">
+                    <div class="kpi-metric-card p-2.5" style="min-height:72px;">
+                        <span class="kpi-label-text">Cold Patch Required</span>
+                        <div class="fw-bold font-mono" id="drawerBagsVal" style="color:var(--text-primary); font-size:14px; margin-top:3px;">
+                            ${bags} Bags (25kg)
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-secondary">Est. Repair Budget:</span>
-                    <span class="text-success fw-bold font-mono" id="drawerCostVal">${cost.toLocaleString()} ETB</span>
+                <!-- Feature: Estimated Repair Budget -->
+                <div class="col-12 col-sm-6">
+                    <div class="kpi-metric-card p-2.5" style="min-height:72px;">
+                        <span class="kpi-label-text">Est. Repair Budget</span>
+                        <div class="fw-bold font-mono text-success" id="drawerCostVal" style="font-size:14px; margin-top:3px;">
+                            ${cost.toLocaleString()} ETB
+                        </div>
+                    </div>
                 </div>
-                <div class="text-muted small mt-1 font-mono" style="font-size:10px;">
-                    (Calculated @ ${bagPrice} ETB/bag • <a href="/settings" class="text-info text-decoration-none">Adjust Material Rates</a>)
-                </div>
+            </div>
+            <div class="text-muted small mt-1.5 font-mono text-center" style="font-size:10px;">
+                (Calculated @ ${bagPrice} ETB/bag • <a href="/settings" class="text-info text-decoration-none">Adjust Material Rates</a>)
             </div>
         </div>
 
+        <!-- Section 4: Work Order Directives -->
         <div class="panel-card p-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Work Order Directives</div>
+            <div class="d-flex align-items-center gap-1.5 mb-2 font-mono text-uppercase text-secondary" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
+                <i data-lucide="clipboard-list" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                <span>Work Order Directives</span>
+            </div>
             <p class="text-secondary small mb-2">Recommended Maintenance: Cold-mix asphalt patch within 48h emergency envelope.</p>
-            <a href="/reports" class="btn btn-sm btn-outline-primary w-100 justify-content-center">
-                <i data-lucide="clipboard-list" style="width:13px; height:13px;"></i> View in Work Orders
+            <a href="/reports" class="btn btn-sm btn-outline-primary w-100 justify-content-center d-flex align-items-center gap-1.5">
+                <i data-lucide="clipboard-check" style="width:13px; height:13px;"></i> View in Work Orders
             </a>
         </div>
     `;

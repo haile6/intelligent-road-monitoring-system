@@ -267,50 +267,81 @@
             <div class="modal-body">
                 <input type="hidden" id="modalIncId">
 
-                <div class="p-3 rounded mb-3" style="background: var(--bg-main); border: 1px solid var(--border-default);">
+                <!-- Incident Header Card -->
+                <div class="panel-card p-3 mb-3" style="background: var(--bg-main); border: 1px solid var(--border-default);">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-bold font-mono text-accent" id="modalTrackId">#--</span>
                         <span class="badge-status" id="modalSeverityBadge">--</span>
                     </div>
-                    <div class="font-mono text-secondary small" id="modalGpsLocation">Coordinates: --</div>
                 </div>
 
-                <!-- 3D Pothole Depth & Volumetric Estimation Spec -->
-                <div class="p-3 rounded mb-3" id="modalVolumetricCard" style="background: var(--bg-main); border: 1px solid var(--border-default);">
+                <!-- Geodesic Coordinates (Separated Individual Tiles) -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center gap-1.5 mb-2 font-mono text-uppercase text-secondary" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
+                        <i data-lucide="map-pin" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                        <span>Geodesic Coordinates</span>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="kpi-metric-card p-2.5" style="min-height:64px;">
+                                <span class="kpi-label-text">Latitude</span>
+                                <div class="fw-bold font-mono" id="modalLatText" style="color:var(--text-primary); font-size:13.5px; margin-top:2px;">--</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="kpi-metric-card p-2.5" style="min-height:64px;">
+                                <span class="kpi-label-text">Longitude</span>
+                                <div class="fw-bold font-mono" id="modalLonText" style="color:var(--text-primary); font-size:13.5px; margin-top:2px;">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D Pothole Depth & Volumetric Estimation Spec (Separated Standalone Feature Tiles) -->
+                <div class="mb-3" id="modalVolumetricCard">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold d-flex align-items-center gap-1" style="font-size: 12px; color: var(--accent-primary);">
-                            <i data-lucide="box" style="width:13px; height:13px;"></i> 3D Depth &amp; Volumetric Repair Spec
+                        <span class="d-flex align-items-center gap-1.5 font-mono text-uppercase text-secondary" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
+                            <i data-lucide="box" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                            <span>3D Depth &amp; Volumetric Spec</span>
                         </span>
                         <span class="badge-status badge-status-info font-mono" id="modalDepthTierBadge" style="font-size: 9.5px;">--</span>
                     </div>
 
-                    <div class="row g-2 mb-2 font-mono" style="font-size: 11.5px;">
-                        <div class="col-4">
-                            <span class="text-secondary small">Dimensions:</span>
-                            <div class="text-white fw-bold" id="modalDimensionsText">-- × -- cm</div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-12 col-sm-4">
+                            <div class="kpi-metric-card p-2.5" style="min-height:66px;">
+                                <span class="kpi-label-text">Surface Footprint</span>
+                                <div class="fw-bold font-mono" id="modalDimensionsText" style="color:var(--text-primary); font-size:13px; margin-top:2px;">-- × -- cm</div>
+                            </div>
                         </div>
-                        <div class="col-4">
-                            <span class="text-secondary small">Max Depth:</span>
-                            <div class="text-warning fw-bold" id="modalDepthText">-- cm</div>
+                        <div class="col-6 col-sm-4">
+                            <div class="kpi-metric-card p-2.5" style="min-height:66px;">
+                                <span class="kpi-label-text">Max Depth (Dmax)</span>
+                                <div class="fw-bold font-mono text-warning" id="modalDepthText" style="font-size:13px; margin-top:2px;">-- cm</div>
+                            </div>
                         </div>
-                        <div class="col-4">
-                            <span class="text-secondary small">Cavity Volume:</span>
-                            <div class="text-info fw-bold" id="modalVolumeText">-- L</div>
+                        <div class="col-6 col-sm-4">
+                            <div class="kpi-metric-card p-2.5" style="min-height:66px;">
+                                <span class="kpi-label-text">Cavity Volume</span>
+                                <div class="fw-bold font-mono text-info" id="modalVolumeText" style="font-size:13px; margin-top:2px;">-- L</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="p-2 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 11px;">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-secondary">Cold Patch Required:</span>
-                            <span class="text-white fw-bold font-mono" id="modalBagsText">-- Bags (25kg)</span>
+                    <!-- Material & Cost Tiles (Separated) -->
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6">
+                            <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                                <span class="kpi-label-text">Cold Patch Required</span>
+                                <div class="fw-bold font-mono" id="modalBagsText" style="color:var(--text-primary); font-size:13.5px; margin-top:2px;">-- Bags (25kg)</div>
+                                <div class="text-secondary small font-mono mt-0.5" id="modalTackText" style="font-size:10px;">--</div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-secondary">Tack Coat &amp; Compaction:</span>
-                            <span class="text-secondary font-mono" id="modalTackText">-- L / Bulking 1.22×</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-secondary">Estimated Patch Cost:</span>
-                            <span class="text-success fw-bold font-mono" id="modalCostText">-- ETB</span>
+                        <div class="col-12 col-sm-6">
+                            <div class="kpi-metric-card p-2.5" style="min-height:68px;">
+                                <span class="kpi-label-text">Estimated Patch Cost</span>
+                                <div class="fw-bold font-mono text-success" id="modalCostText" style="font-size:13.5px; margin-top:2px;">-- ETB</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -368,7 +399,10 @@
 function openIncidentDrawer(inc) {
     document.getElementById('modalIncId').value = inc.id;
     document.getElementById('modalTrackId').textContent = 'Defect #' + (inc.track_id || inc.id) + ' (' + (inc.damage_type || 'Pothole') + ')';
-    document.getElementById('modalGpsLocation').textContent = 'Location: ' + (inc.damage_latitude ? inc.damage_latitude.toFixed(5) : '9.6800') + '° N, ' + (inc.damage_longitude ? inc.damage_longitude.toFixed(5) : '39.5300') + '° E';
+    const latEl = document.getElementById('modalLatText');
+    if (latEl) latEl.textContent = (inc.damage_latitude ? inc.damage_latitude.toFixed(6) : '9.680000') + '° N';
+    const lonEl = document.getElementById('modalLonText');
+    if (lonEl) lonEl.textContent = (inc.damage_longitude ? inc.damage_longitude.toFixed(6) : '39.530000') + '° E';
 
     const badge = document.getElementById('modalSeverityBadge');
     badge.textContent = inc.max_risk_level || 'SAFE';
