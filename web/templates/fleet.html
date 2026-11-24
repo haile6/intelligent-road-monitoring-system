@@ -9,31 +9,76 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 
 <style>
-/* Fleet Map */
+/* Clean White Enterprise Harmonization */
+:root {
+    --fleet-card-bg: #ffffff;
+    --fleet-border: #CBD5E1;
+    --fleet-border-subtle: #E2E8F0;
+    --fleet-text-main: #0F172A;
+    --fleet-text-muted: #64748B;
+    --fleet-bg-light: #F8FAFC;
+}
+
+/* Fleet GIS Map Container */
 #fleetGisMap {
-    height: 420px;
+    height: 440px;
     width: 100%;
-    border-radius: var(--radius-sm);
-    background: #080D16;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid var(--fleet-border);
 }
 
-.fleet-vehicle-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    padding: 14px;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-.fleet-vehicle-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent-primary);
+/* White Card Panels */
+.fleet-panel-card {
+    background: #ffffff;
+    border: 1px solid var(--fleet-border);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    color: var(--fleet-text-main);
+    overflow: hidden;
 }
 
+.fleet-panel-header {
+    background: #ffffff;
+    border-bottom: 1px solid var(--fleet-border-subtle);
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fleet-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--fleet-text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fleet-panel-footer {
+    background: var(--fleet-bg-light);
+    border-top: 1px solid var(--fleet-border-subtle);
+    padding: 10px 18px;
+    font-size: 11.5px;
+    color: var(--fleet-text-muted);
+}
+
+/* Interactive Fleet Table */
+.fleet-table-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+.fleet-table-row:hover td {
+    background-color: rgba(2, 132, 199, 0.05) !important;
+}
+
+/* Sighting History Timeline Drawer */
 .sighting-timeline-step {
     position: relative;
-    padding-left: 26px;
-    padding-bottom: 16px;
-    border-left: 2px dashed var(--border-default);
+    padding-left: 28px;
+    padding-bottom: 18px;
+    border-left: 2px dashed #CBD5E1;
 }
 .sighting-timeline-step:last-child {
     border-left: 2px solid transparent;
@@ -42,21 +87,45 @@
 .sighting-timeline-dot {
     position: absolute;
     left: -7px;
-    top: 0;
+    top: 2px;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    border: 2px solid var(--bg-surface);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
+/* Pill Filter Buttons */
+.fleet-filter-btn {
+    border: 1px solid var(--fleet-border);
+    background: #ffffff;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.fleet-filter-btn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+.fleet-filter-btn.active {
+    background: #0284C7;
+    border-color: #0284C7;
+    color: #ffffff;
+}
+
+/* Pulse Beacon */
 .pulse-beacon-multi {
-    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7);
     animation: pulseBeacon 1.8s infinite;
 }
 @keyframes pulseBeacon {
-    0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(2, 132, 199, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
 }
 </style>
 {% endblock %}
@@ -89,42 +158,42 @@
     <!-- ============================================================ -->
     <!-- 2. HIGH-DENSITY EXECUTIVE KPI GRID (7 METRICS)               -->
     <!-- ============================================================ -->
-    <div class="kpi-row-grid">
+    <div class="kpi-row-grid mb-4">
 
         <!-- 1. Active Patrol Fleet -->
-        <div class="kpi-metric-card accent-primary">
+        <div class="kpi-metric-card accent-primary" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Reporting Fleet</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Reporting Fleet</span>
                 <div class="kpi-icon-pill"><i data-lucide="truck"></i></div>
             </div>
             <div class="d-flex align-items-baseline gap-2">
-                <div class="kpi-number-display">{{ fleet_data.active_fleet_count }}</div>
+                <div class="kpi-number-display" style="color:var(--fleet-text-main);">{{ fleet_data.active_fleet_count }}</div>
                 <span class="badge-status badge-status-success font-mono" style="font-size: 10px;">ALL ONLINE</span>
             </div>
         </div>
 
         <!-- 2. Raw Sensed Detections -->
-        <div class="kpi-metric-card accent-warning">
+        <div class="kpi-metric-card accent-warning" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Raw Observations</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Raw Observations</span>
                 <div class="kpi-icon-pill" style="color: var(--warning);"><i data-lucide="eye"></i></div>
             </div>
-            <div class="kpi-number-display">{{ fleet_data.total_raw_observations }}</div>
+            <div class="kpi-number-display" style="color:var(--fleet-text-main);">{{ fleet_data.total_raw_observations }}</div>
         </div>
 
         <!-- 3. Canonical Verified Hazards -->
-        <div class="kpi-metric-card accent-primary">
+        <div class="kpi-metric-card accent-primary" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Canonical Hazards</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Canonical Hazards</span>
                 <div class="kpi-icon-pill" style="color: var(--accent-primary);"><i data-lucide="shield-check"></i></div>
             </div>
             <div class="kpi-number-display text-accent">{{ fleet_data.canonical_unique_hazards }}</div>
         </div>
 
         <!-- 4. De-duplication Redundancy Elimination -->
-        <div class="kpi-metric-card accent-success">
+        <div class="kpi-metric-card accent-success" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Duplicate Elimination</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Duplicate Elimination</span>
                 <div class="kpi-icon-pill" style="color: var(--success);"><i data-lucide="minimize-2"></i></div>
             </div>
             <div class="d-flex align-items-baseline gap-2">
@@ -134,178 +203,211 @@
         </div>
 
         <!-- 5. Multi-Vehicle Corroboration -->
-        <div class="kpi-metric-card accent-indigo">
+        <div class="kpi-metric-card accent-indigo" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Corroborated Rate</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Corroborated Rate</span>
                 <div class="kpi-icon-pill" style="color: #6366f1;"><i data-lucide="users"></i></div>
             </div>
             <div class="d-flex align-items-baseline gap-2">
-                <div class="kpi-number-display font-mono" style="color:#818cf8;">{{ fleet_data.corroboration_percentage }}%</div>
+                <div class="kpi-number-display font-mono" style="color:#6366f1;">{{ fleet_data.corroboration_percentage }}%</div>
                 <small class="text-secondary font-mono" style="font-size:11px;">({{ fleet_data.multi_sighting_hazards_count }} hazards)</small>
             </div>
         </div>
 
         <!-- 6. Average Fused Confidence -->
-        <div class="kpi-metric-card accent-primary">
+        <div class="kpi-metric-card accent-primary" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Bayesian Certainty</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Bayesian Certainty</span>
                 <div class="kpi-icon-pill"><i data-lucide="trending-up"></i></div>
             </div>
             <div class="d-flex align-items-baseline gap-2">
-                <div class="kpi-number-display font-mono">{{ fleet_data.average_fused_confidence_pct }}%</div>
+                <div class="kpi-number-display font-mono" style="color:var(--fleet-text-main);">{{ fleet_data.average_fused_confidence_pct }}%</div>
                 <span class="text-success small font-mono fw-bold">+{{ fleet_data.average_confidence_gain_pct }}%</span>
             </div>
         </div>
 
         <!-- 7. High-Consensus Verified Tier -->
-        <div class="kpi-metric-card accent-danger">
+        <div class="kpi-metric-card accent-danger" style="background:#ffffff; border-color:var(--fleet-border);">
             <div class="kpi-top-meta">
-                <span class="kpi-label-text">Critical Hazards</span>
+                <span class="kpi-label-text" style="color:var(--fleet-text-muted);">Critical Hazards</span>
                 <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
             </div>
             <div class="kpi-number-display text-danger">
-                {{ stats.immediate_danger or 20 }}
+                {{ stats.immediate_danger or 44 }}
             </div>
         </div>
 
     </div>
 
     <!-- ============================================================ -->
-    <!-- 3. REPORTING FLEET UNITS & LIVE GIS CLUSTER MAP              -->
+    <!-- 3. SPATIAL DE-DUPLICATION GIS MAP (CLEAN WHITE CARD)          -->
     <!-- ============================================================ -->
-    <div class="row g-3 mb-4">
+    <div class="fleet-panel-card mb-4">
+        <div class="fleet-panel-header">
+            <div class="fleet-panel-title">
+                <i data-lucide="map-pin" style="color:var(--accent-primary);"></i>
+                Spatial De-Duplication GIS Map
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono ms-2" style="font-size: 10.5px;">Route A2 Debre Berhan</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 font-mono" style="font-size: 11.5px;">
+                <span class="d-flex align-items-center gap-1.5">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                    <b class="text-dark">Corroborated Multi-Pass</b>
+                </span>
+                <span class="d-flex align-items-center gap-1.5">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>
+                    <b class="text-dark">Single Sighting Pass</b>
+                </span>
+            </div>
+        </div>
 
-        <!-- Column A: Reporting Fleet Units -->
-        <div class="col-12 col-xl-5">
-            <div class="panel-card h-100">
-                <div class="panel-header d-flex justify-content-between align-items-center">
-                    <div class="panel-title">
-                        <i data-lucide="radio" style="color:var(--accent-primary);"></i>
-                        Active Patrol Fleet Units
-                    </div>
-                    <span class="badge-status badge-status-info font-mono" style="font-size:10px;">ROUTE A2</span>
-                </div>
+        <div class="p-2 position-relative" style="background:#ffffff;">
+            <div id="fleetGisMap"></div>
+        </div>
+    </div>
 
-                <div class="panel-body p-3 d-flex flex-column gap-2.5">
+    <!-- ============================================================ -->
+    <!-- 4. ACTIVE PATROL FLEET UNITS (CONVERTED TO CLEAN TABLE PART)  -->
+    <!-- ============================================================ -->
+    <div class="fleet-panel-card mb-4">
+        <div class="fleet-panel-header py-3">
+            <div class="fleet-panel-title">
+                <i data-lucide="truck" style="color:var(--accent-primary);"></i>
+                Active Patrol Fleet Units
+                <span class="badge bg-success-subtle text-success border border-success-subtle font-mono ms-2" style="font-size: 10.5px;">4 Units Online</span>
+            </div>
+        </div>
+
+        <div class="table-responsive border-0">
+            <table class="table table-hover align-middle mb-0" style="background:#ffffff;">
+                <thead style="background:#f8fafc; border-bottom: 1px solid var(--fleet-border);">
+                    <tr>
+                        <th style="width: 140px; color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Vehicle ID</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Vehicle Name</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Agency</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Assigned Driver</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Camera &amp; Edge Rig</th>
+                        <th style="width: 100px; color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Status</th>
+                        <th style="width: 120px; color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Sightings</th>
+                        <th style="width: 120px; text-align: right; color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Telemetry</th>
+                    </tr>
+                </thead>
+                <tbody>
                     {% for item in fleet_data.vehicle_contributions %}
                     {% set v = item.vehicle %}
-                    <div class="fleet-vehicle-card" style="border-left: 3px solid {{ v.color }};">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <div>
-                                <span class="fw-bold font-mono text-white" style="font-size:12.5px;">{{ v.vehicle_id }}</span>
-                                <span class="text-secondary small ms-1">&bull; {{ v.vehicle_name }}</span>
+                    <tr class="fleet-table-row" onclick="inspectFleetVehicle('{{ v.vehicle_id }}')">
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: {{ v.color }}; display: inline-block;"></span>
+                                <span class="font-mono fw-bold text-dark">{{ v.vehicle_id }}</span>
                             </div>
-                            <span class="badge-status" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 9.5px;">
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark" style="font-size: 12.5px;">{{ v.vehicle_name }}</div>
+                        </td>
+                        <td>
+                            <span class="text-secondary small fw-semibold">{{ v.agency }}</span>
+                        </td>
+                        <td>
+                            <div class="text-dark small fw-semibold">{{ v.driver }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border font-mono" style="font-size: 11px;">
+                                {{ v.hardware }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle font-mono" style="font-size: 10.5px;">
                                 {{ v.status }}
                             </span>
-                        </div>
-                        <div class="text-secondary small mb-1" style="font-size: 11px;">
-                            <span>{{ v.agency }}</span> &bull; <span>Driver: <b>{{ v.driver }}</b></span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: var(--border-subtle) !important;">
-                            <span class="font-mono text-muted small" style="font-size:10px;">{{ v.hardware }}</span>
-                            <span class="badge-status font-mono" style="background: var(--bg-sunken); color: {{ v.color }};">
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono fw-bold" style="font-size: 11px;">
                                 {{ item.sightings_count }} Sightings
                             </span>
-                        </div>
-                    </div>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary py-0.5 px-2.5 font-mono" style="font-size: 11px;" onclick="event.stopPropagation(); inspectFleetVehicle('{{ v.vehicle_id }}')">
+                                <i data-lucide="info" style="width:12px; height:12px;"></i> Inspect
+                            </button>
+                        </td>
+                    </tr>
                     {% endfor %}
-                </div>
-            </div>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Column B: Interactive GIS Fleet Clusters Map -->
-        <div class="col-12 col-xl-7">
-            <div class="panel-card h-100">
-                <div class="panel-header d-flex justify-content-between align-items-center">
-                    <div class="panel-title">
-                        <i data-lucide="map-pin" style="color:var(--accent-primary);"></i>
-                        Spatial De-Duplication GIS Map
-                    </div>
-                    <div class="d-flex align-items-center gap-2 font-mono" style="font-size: 11px;">
-                        <span class="d-flex align-items-center gap-1"><span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span> Corroborated</span>
-                        <span class="d-flex align-items-center gap-1 ms-2"><span style="width:8px; height:8px; border-radius:50%; background:#f59e0b; display:inline-block;"></span> Single Pass</span>
-                    </div>
-                </div>
-
-                <div class="panel-body p-2 position-relative">
-                    <div id="fleetGisMap"></div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- ============================================================ -->
-    <!-- 4. CANONICAL VERIFIED HAZARDS LEDGER                         -->
+    <!-- 5. CANONICAL VERIFIED HAZARDS LEDGER (WHITE THEMED TABLE)     -->
     <!-- ============================================================ -->
-    <div class="panel-card mb-4">
-        <div class="panel-header py-3">
+    <div class="fleet-panel-card mb-4">
+        <div class="fleet-panel-header py-3">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 w-100">
-                <div>
-                    <div class="panel-title">
-                        <i data-lucide="layers" style="color:var(--accent-primary);"></i>
-                        Canonical Verified Hazards Ledger
-                    </div>
+                <div class="fleet-panel-title">
+                    <i data-lucide="layers" style="color:var(--accent-primary);"></i>
+                    Canonical Verified Hazards Ledger
                 </div>
 
                 <!-- Filters -->
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    <div class="search-input-wrap">
-                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted); position: absolute; left: 10px;"></i>
-                        <input type="text" class="form-control form-control-sm ps-4" id="fleetTableFilter" placeholder="Filter ID, type, coords..." style="width: 180px; font-size: 11.5px;">
+                    <div class="position-relative">
+                        <i data-lucide="search" style="width: 14px; height: 14px; color: var(--fleet-text-muted); position: absolute; left: 10px; top: 8px;"></i>
+                        <input type="text" class="form-control form-control-sm ps-4" id="fleetTableFilter" placeholder="Search ID, class, coordinates..." style="width: 200px; font-size: 11.5px; border-color: var(--fleet-border);">
                     </div>
 
-                    <div class="filter-pills-row">
-                        <button class="filter-pill-btn active" onclick="filterFleetTable('ALL', this)">All ({{ fleet_data.canonical_hazards|length }})</button>
-                        <button class="filter-pill-btn" onclick="filterFleetTable('CORROBORATED', this)">Corroborated ({{ fleet_data.multi_sighting_hazards_count }})</button>
-                        <button class="filter-pill-btn" onclick="filterFleetTable('SINGLE', this)">Single Sighting</button>
+                    <div class="d-flex gap-1">
+                        <button class="fleet-filter-btn active" onclick="filterFleetTable('ALL', this)">All ({{ fleet_data.canonical_hazards|length }})</button>
+                        <button class="fleet-filter-btn" onclick="filterFleetTable('CORROBORATED', this)">Corroborated ({{ fleet_data.multi_sighting_hazards_count }})</button>
+                        <button class="fleet-filter-btn" onclick="filterFleetTable('SINGLE', this)">Single Sighting</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="table-container-responsive border-0">
-            <table class="enterprise-table" id="fleetHazardsTable">
-                <thead>
+        <div class="table-responsive border-0">
+            <table class="table table-hover align-middle mb-0" id="fleetHazardsTable" style="background:#ffffff;">
+                <thead style="background:#f8fafc; border-bottom: 1px solid var(--fleet-border);">
                     <tr>
-                        <th style="width: 110px;">Canonical ID</th>
-                        <th>Defect Class</th>
-                        <th>Fleet Sightings</th>
-                        <th>Bayesian Certainty</th>
-                        <th>Verification Status</th>
-                        <th>Spread Radius</th>
-                        <th>Geodesic Centroid</th>
-                        <th>Risk Severity</th>
-                        <th style="width: 100px; text-align: right;">Action</th>
+                        <th style="width: 120px; color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Canonical ID</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Defect Class</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Fleet Sightings</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Bayesian Certainty</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Verification Status</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Spread Radius</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Geodesic Centroid</th>
+                        <th style="color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Risk Severity</th>
+                        <th style="width: 100px; text-align: right; color: #475569; font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="fleetTbody">
                     {% for h in fleet_data.canonical_hazards %}
                     <tr class="fleet-hazard-row"
+                        style="cursor: pointer;"
+                        onclick="inspectHazardCluster({{ loop.index0 }})"
                         data-sightings="{{ h.sightings_count }}"
                         data-search="{{ h.canonical_id }} {{ h.damage_type }} {{ h.max_risk_level }} {{ h.damage_latitude }} {{ h.damage_longitude }}">
-                        <td class="font-mono fw-bold text-accent">{{ h.canonical_id }}</td>
+                        <td class="font-mono fw-bold text-primary">{{ h.canonical_id }}</td>
                         <td>
                             {% if 'pothole' in h.damage_type.lower() %}
-                            <span class="badge-status badge-defect-pothole">Pothole</span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-mono">Pothole</span>
                             {% else %}
-                            <span class="badge-status badge-defect-crack">Alligator Crack</span>
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle font-mono">Alligator Crack</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if h.sightings_count > 1 %}
-                            <span class="badge-status" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); font-family: var(--font-mono); font-weight: 700;">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle font-mono fw-bold">
                                 <i data-lucide="check-check" style="width:11px; height:11px; vertical-align:-1px;"></i> {{ h.sightings_count }} SIGHTINGS
                             </span>
                             {% else %}
-                            <span class="badge-status font-mono text-muted" style="background: var(--bg-sunken); border: 1px solid var(--border-default);">
+                            <span class="badge bg-light text-secondary border font-mono">
                                 1 Sighting
                             </span>
                             {% endif %}
                         </td>
                         <td class="font-mono">
-                            <span class="fw-bold {% if h.bayesian_fusion.fused_confidence >= 0.95 %}text-success{% elif h.bayesian_fusion.fused_confidence >= 0.80 %}text-info{% else %}text-warning{% endif %}">
+                            <span class="fw-bold {% if h.bayesian_fusion.fused_confidence >= 0.95 %}text-success{% elif h.bayesian_fusion.fused_confidence >= 0.80 %}text-primary{% else %}text-warning{% endif %}">
                                 {{ h.bayesian_fusion.confidence_percentage }}%
                             </span>
                             {% if h.bayesian_fusion.confidence_gain > 0 %}
@@ -313,28 +415,29 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="text-white small" style="font-size: 11px;">
+                            <span class="text-dark small fw-semibold" style="font-size: 11.5px;">
                                 {{ h.bayesian_fusion.verification_status }}
                             </span>
                         </td>
-                        <td class="font-mono text-muted" style="font-size: 11px;">
+                        <td class="font-mono text-secondary" style="font-size: 11.5px;">
                             &plusmn;{{ h.spatial_spread_radius_m }} m
                         </td>
-                        <td class="font-mono text-muted" style="font-size: 11px;">
+                        <td class="font-mono text-secondary" style="font-size: 11.5px;">
                             {{ "%.5f"|format(h.damage_latitude) }}° N, {{ "%.5f"|format(h.damage_longitude) }}° E
                         </td>
                         <td>
                             {% if 'IMMEDIATE' in h.max_risk_level.upper() or 'DANGER' in h.max_risk_level.upper() %}
-                            <span class="badge-status badge-status-danger">Immediate Danger</span>
+                            <span class="badge bg-danger text-white font-mono">Immediate Danger</span>
                             {% elif 'CAUTION' in h.max_risk_level.upper() or 'WARN' in h.max_risk_level.upper() %}
-                            <span class="badge-status badge-status-warning">Caution</span>
+                            <span class="badge bg-warning text-dark font-mono">Caution</span>
                             {% else %}
-                            <span class="badge-status badge-status-success">Safe</span>
+                            <span class="badge bg-success text-white font-mono">Safe</span>
                             {% endif %}
                         </td>
                         <td style="text-align: right;">
-                            <button class="btn btn-sm btn-outline-primary row-hover-action py-0.5 px-2"
-                                    onclick="inspectHazardCluster({{ loop.index0 }})"
+                            <button class="btn btn-sm btn-outline-primary py-0.5 px-2.5 font-mono"
+                                    style="font-size: 11px;"
+                                    onclick="event.stopPropagation(); inspectHazardCluster({{ loop.index0 }})"
                                     title="View Multi-Vehicle Timeline">
                                 <i data-lucide="history" style="width:12px; height:12px;"></i> Passes
                             </button>
@@ -349,11 +452,37 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- 5. JAVASCRIPT: MAP & SIGHTING TIMELINE DRAWER                -->
+<!-- 6. MODAL: FLEET VEHICLE TELEMETRY PROFILE                    -->
+<!-- ============================================================ -->
+<div class="modal fade" id="fleetVehicleModal" tabindex="-1" aria-labelledby="fleetVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="background:#ffffff;">
+            <div class="modal-header border-bottom py-3" style="background:#f8fafc;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div id="modalVehicleDot" style="width: 14px; height: 14px; border-radius: 50%; background: #0284c7;"></div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark fs-6 mb-0" id="modalVehicleTitle">Vehicle Telemetry Profile</h5>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="fleetVehicleModalBody">
+                <!-- Injected via JavaScript -->
+            </div>
+            <div class="modal-footer border-top py-2 px-3 bg-light d-flex justify-content-end">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 7. JAVASCRIPT: MAP, VEHICLE MODAL & TIMELINE DRAWER           -->
 <!-- ============================================================ -->
 <script>
 const fleetData = {{ fleet_data|tojson }};
 const canonicalHazards = fleetData.canonical_hazards || [];
+const fleetVehicles = fleetData.fleet_vehicles || [];
 
 let fleetMap = null;
 let clusterMarkers = [];
@@ -361,24 +490,26 @@ let clusterMarkers = [];
 document.addEventListener('DOMContentLoaded', function() {
     initFleetMap();
     initFleetTableSearch();
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 });
 
 function initFleetMap() {
     if (!canonicalHazards || canonicalHazards.length === 0) return;
 
-    const centerLat = canonicalHazards[0].damage_latitude || 9.123456;
-    const centerLon = canonicalHazards[0].damage_longitude || 39.123456;
+    const centerLat = canonicalHazards[0].damage_latitude || 9.680000;
+    const centerLon = canonicalHazards[0].damage_longitude || 39.530000;
 
     fleetMap = L.map('fleetGisMap', {
         zoomControl: true,
         scrollWheelZoom: true
-    }).setView([centerLat, centerLon], 16);
+    }).setView([centerLat, centerLon], 14);
 
-    // OpenStreetMap with dark tiles filter
+    // Standard Clean OpenStreetMap Layer (No Dark Inversion)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19,
-        className: 'leaflet-dark-tiles'
+        maxZoom: 19
     }).addTo(fleetMap);
 
     // Plot canonical markers
@@ -390,10 +521,10 @@ function initFleetMap() {
         const marker = L.circleMarker([h.damage_latitude, h.damage_longitude], {
             radius: radius,
             fillColor: color,
-            color: '#FFFFFF',
+            color: '#ffffff',
             weight: 2,
             opacity: 1,
-            fillOpacity: 0.90
+            fillOpacity: 0.9
         }).addTo(fleetMap);
 
         marker.bindTooltip(`<b>${h.canonical_id}</b><br>${h.damage_type.toUpperCase()} • ${h.sightings_count} Sighting(s)<br>Certainty: ${h.bayesian_fusion.confidence_percentage}%`, {
@@ -410,8 +541,116 @@ function initFleetMap() {
     // Fit map bounds
     const bounds = canonicalHazards.map(h => [h.damage_latitude, h.damage_longitude]);
     if (bounds.length > 0) {
-        fleetMap.fitBounds(bounds, { padding: [30, 30] });
+        fleetMap.fitBounds(bounds, { padding: [35, 35] });
     }
+}
+
+// Function to inspect a fleet vehicle in modal
+function inspectFleetVehicle(vehicleId) {
+    const v = fleetVehicles.find(x => x.vehicle_id === vehicleId);
+    if (!v) return;
+
+    const vContrib = (fleetData.vehicle_contributions || []).find(c => c.vehicle.vehicle_id === vehicleId);
+    const sightingsCount = vContrib ? vContrib.sightings_count : 0;
+
+    // Collect all sightings recorded by this vehicle
+    const vehicleSightings = [];
+    canonicalHazards.forEach(h => {
+        (h.raw_incidents || []).forEach(inc => {
+            if (inc.vehicle_id === vehicleId) {
+                vehicleSightings.push({
+                    canonical_id: h.canonical_id,
+                    damage_type: h.damage_type,
+                    latitude: inc.damage_latitude || h.damage_latitude,
+                    longitude: inc.damage_longitude || h.damage_longitude,
+                    confidence: inc.confidence || 0.85,
+                    observation_time: inc.observation_time || 'Recent',
+                    risk_level: h.max_risk_level
+                });
+            }
+        });
+    });
+
+    // Update modal header
+    document.getElementById('modalVehicleTitle').textContent = `${v.vehicle_name} (${v.vehicle_id})`;
+    document.getElementById('modalVehicleDot').style.background = v.color || '#0284c7';
+
+    // Build modal body HTML
+    let sightingsHtml = '';
+    vehicleSightings.forEach((s, idx) => {
+        sightingsHtml += `
+            <tr>
+                <td class="font-mono fw-bold text-primary">${s.canonical_id}</td>
+                <td><span class="badge ${s.damage_type.includes('pothole') ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning-emphasis'}">${s.damage_type.toUpperCase()}</span></td>
+                <td class="font-mono text-muted small">${s.latitude.toFixed(5)}°, ${s.longitude.toFixed(5)}°</td>
+                <td class="font-mono fw-bold text-success">${(s.confidence * 100).toFixed(1)}%</td>
+                <td><span class="badge ${s.risk_level.includes('DANGER') ? 'bg-danger' : 'bg-warning text-dark'}">${s.risk_level}</span></td>
+                <td class="text-secondary small font-mono">${s.observation_time}</td>
+            </tr>
+        `;
+    });
+
+    const bodyHtml = `
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 rounded border bg-light">
+                    <div class="small text-secondary font-mono text-uppercase">Vehicle Status</div>
+                    <div class="fs-5 fw-bold text-success mt-1 d-flex align-items-center gap-1.5">
+                        <span style="width:8px; height:8px; border-radius:50%; background:#10b981;"></span> ${v.status}
+                    </div>
+                    <div class="small text-muted mt-1">Vehicle Type: ${v.vehicle_type}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 rounded border bg-light">
+                    <div class="small text-secondary font-mono text-uppercase">Assigned Driver</div>
+                    <div class="fs-6 fw-bold text-dark mt-1">${v.driver}</div>
+                    <div class="small text-muted mt-1">${v.agency}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 rounded border bg-light">
+                    <div class="small text-secondary font-mono text-uppercase">Corridor Detections</div>
+                    <div class="fs-5 fw-bold text-primary mt-1">${sightingsCount} Sightings</div>
+                    <div class="small text-muted mt-1">Route A2 Debre Berhan</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-3 rounded border mb-4" style="background:#ffffff;">
+            <div class="fw-bold text-dark small text-uppercase font-mono mb-2">On-Board Sensor &amp; Compute Rig</div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono p-2">${v.hardware}</span>
+                <span class="text-secondary small font-mono">Calibrated FOV • Real-Time Edge CV Pipeline</span>
+            </div>
+        </div>
+
+        <div class="fw-bold text-dark mb-2 d-flex justify-content-between align-items-center">
+            <span>Detections Logged by ${v.vehicle_id}</span>
+            <span class="badge bg-light text-secondary border font-mono">${vehicleSightings.length} Recorded Sightings</span>
+        </div>
+
+        <div class="table-responsive border rounded" style="max-height: 260px; overflow-y: auto;">
+            <table class="table table-sm table-hover align-middle mb-0" style="font-size: 11.5px;">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th>Hazard ID</th>
+                        <th>Defect Class</th>
+                        <th>Coordinates</th>
+                        <th>Confidence</th>
+                        <th>Risk Tier</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sightingsHtml || '<tr><td colspan="6" class="text-center text-muted p-3">No detections recorded for this vehicle.</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    document.getElementById('fleetVehicleModalBody').innerHTML = bodyHtml;
+    new bootstrap.Modal(document.getElementById('fleetVehicleModal')).show();
 }
 
 // Sighting History Slide-Over Drawer
@@ -423,16 +662,16 @@ function inspectHazardCluster(index) {
     (h.raw_incidents || []).forEach((s, sIdx) => {
         timelineHtml += `
             <div class="sighting-timeline-step">
-                <div class="sighting-timeline-dot" style="background:${s.vehicle_color || '#38bdf8'};"></div>
+                <div class="sighting-timeline-dot" style="background:${s.vehicle_color || '#0284c7'};"></div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-bold font-mono text-white" style="font-size:12px;">Pass #${sIdx + 1} &bull; ${s.vehicle_id}</span>
+                    <span class="fw-bold font-mono text-dark" style="font-size:12.5px;">Pass #${sIdx + 1} &bull; ${s.vehicle_id}</span>
                     <span class="font-mono text-secondary small">${s.observation_time || 'Just now'}</span>
                 </div>
-                <div class="text-secondary small mb-1" style="font-size:11px;">
+                <div class="text-secondary small mb-1" style="font-size:11.5px;">
                     Unit: <b>${s.vehicle_name}</b> (${s.agency})
                 </div>
-                <div class="d-flex align-items-center gap-3 font-mono text-muted small" style="font-size:10.5px;">
-                    <span>Confidence: <b class="text-white">${((s.confidence || 0.85) * 100).toFixed(1)}%</b></span>
+                <div class="d-flex align-items-center gap-3 font-mono text-muted small" style="font-size:11px;">
+                    <span>Confidence: <b class="text-dark">${((s.confidence || 0.85) * 100).toFixed(1)}%</b></span>
                     <span>Distance: <b>${(s.distance_m || 3.5).toFixed(1)}m</b></span>
                     <span>Speed: <b>${(s.speed_kmh || 30.0).toFixed(0)} km/h</b></span>
                 </div>
@@ -441,45 +680,52 @@ function inspectHazardCluster(index) {
     });
 
     const contentHtml = `
-        <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
+        <div class="p-3 mb-3 rounded border" style="background:#ffffff; border-color:var(--fleet-border) !important;">
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="fw-bold font-mono text-accent">${h.canonical_id}</span>
-                <span class="badge-status" style="background:${h.sightings_count > 1 ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}; color:${h.sightings_count > 1 ? '#10b981' : '#f59e0b'};">
+                <span class="fw-bold font-mono text-primary fs-6">${h.canonical_id}</span>
+                <span class="badge ${h.sightings_count > 1 ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning-emphasis border border-warning-subtle'} font-mono">
                     ${h.sightings_count} SIGHTING(S)
                 </span>
             </div>
-            <h5 class="fw-bold mb-1 text-white text-capitalize" style="font-size:16px;">${h.damage_type.replace('_', ' ')}</h5>
-            <div class="text-secondary small font-mono">${h.bayesian_fusion.verification_status_am}</div>
+            <h5 class="fw-bold mb-1 text-dark text-capitalize" style="font-size:16px;">${h.damage_type.replace('_', ' ')}</h5>
+            <div class="text-secondary small font-mono">${h.bayesian_fusion.verification_status}</div>
         </div>
 
-        <div class="kpi-row-grid mb-3" style="grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">Fused Certainty</span>
-                <div class="fw-bold font-mono text-success" style="font-size:18px;">${h.bayesian_fusion.confidence_percentage}%</div>
+        <div class="row g-2 mb-3">
+            <div class="col-6">
+                <div class="p-2.5 rounded border bg-light text-center">
+                    <div class="small text-secondary font-mono text-uppercase" style="font-size:10px;">Fused Certainty</div>
+                    <div class="fw-bold font-mono text-success fs-5">${h.bayesian_fusion.confidence_percentage}%</div>
+                </div>
             </div>
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">Bayesian Boost</span>
-                <div class="fw-bold font-mono text-accent" style="font-size:18px;">+${h.bayesian_fusion.confidence_gain_percentage}%</div>
+            <div class="col-6">
+                <div class="p-2.5 rounded border bg-light text-center">
+                    <div class="small text-secondary font-mono text-uppercase" style="font-size:10px;">Bayesian Boost</div>
+                    <div class="fw-bold font-mono text-primary fs-5">+${h.bayesian_fusion.confidence_gain_percentage}%</div>
+                </div>
             </div>
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">Spatial Spread</span>
-                <div class="fw-bold font-mono text-white" style="font-size:18px;">&plusmn;${h.spatial_spread_radius_m} m</div>
+            <div class="col-6">
+                <div class="p-2.5 rounded border bg-light text-center">
+                    <div class="small text-secondary font-mono text-uppercase" style="font-size:10px;">Spatial Spread</div>
+                    <div class="fw-bold font-mono text-dark fs-5">&plusmn;${h.spatial_spread_radius_m} m</div>
+                </div>
             </div>
-            <div class="kpi-metric-card p-2" style="min-height:70px;">
-                <span class="kpi-label-text">Consensus Tier</span>
-                <div class="fw-bold font-mono text-info" style="font-size:14px; margin-top:4px;">${h.bayesian_fusion.consensus_level}</div>
+            <div class="col-6">
+                <div class="p-2.5 rounded border bg-light text-center">
+                    <div class="small text-secondary font-mono text-uppercase" style="font-size:10px;">Consensus Tier</div>
+                    <div class="fw-bold font-mono text-dark small mt-1">${h.bayesian_fusion.consensus_level}</div>
+                </div>
             </div>
         </div>
 
-        <div class="panel-card p-3 mb-3">
-            <div class="panel-title mb-2" style="font-size:12px;">Weighted Geodesic Centroid</div>
-            <div class="font-mono text-white" style="font-size:12.5px;">${h.damage_latitude.toFixed(6)}° N, ${h.damage_longitude.toFixed(6)}° E</div>
-            <div class="text-secondary small font-mono mt-1">Eliminated ${h.sightings_count - 1} redundant dispatch duplicates</div>
+        <div class="p-3 mb-3 rounded border" style="background:#ffffff;">
+            <div class="fw-bold text-dark small text-uppercase font-mono mb-1" style="font-size:11px;">Weighted Geodesic Centroid</div>
+            <div class="font-mono text-dark" style="font-size:12.5px;">${h.damage_latitude.toFixed(6)}° N, ${h.damage_longitude.toFixed(6)}° E</div>
         </div>
 
         <!-- Sighting Timeline -->
-        <div class="panel-card p-3">
-            <div class="panel-title mb-3" style="font-size:12px;">Fleet Multi-Pass Sighting Timeline</div>
+        <div class="p-3 rounded border" style="background:#ffffff;">
+            <div class="fw-bold text-dark small text-uppercase font-mono mb-3" style="font-size:11.5px;">Fleet Multi-Pass Sighting Timeline</div>
             <div class="sighting-timeline-list">
                 ${timelineHtml}
             </div>
@@ -499,7 +745,7 @@ function inspectHazardCluster(index) {
 }
 
 function filterFleetTable(mode, btn) {
-    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.fleet-filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
     const rows = document.querySelectorAll('#fleetTbody tr.fleet-hazard-row');
