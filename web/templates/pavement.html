@@ -956,7 +956,8 @@
                         <th>PCI</th>
                         <th>Condition</th>
                         <th>IRI</th>
-                        <th>Defects</th>
+                        <th class="text-center" style="width: 75px;" title="Detected Potholes">PTH</th>
+                        <th class="text-center" style="width: 75px;" title="Detected Alligator Cracks">CRK</th>
                         <th>Intervention</th>
                         <th>Cost</th>
                         <th style="width: 80px; text-align: right;" class="pe-3">Action</th>
@@ -994,11 +995,13 @@
                             </span>
                             <small class="text-secondary">m/km</small>
                         </td>
-                        <td class="font-mono">
+                        <td class="font-mono text-center">
                             <span class="badge font-mono py-0.5 px-1.5" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3);">
                                 {{ seg.potholes_count }} PTH
                             </span>
-                            <span class="badge font-mono py-0.5 px-1.5 ms-1" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3);">
+                        </td>
+                        <td class="font-mono text-center">
+                            <span class="badge font-mono py-0.5 px-1.5" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3);">
                                 {{ seg.cracks_count }} CRK
                             </span>
                         </td>
@@ -1034,7 +1037,7 @@
 
                     <!-- INTERACTIVE EXPANDABLE DETAIL ROW -->
                     <tr class="segment-detail-row" id="detail-{{ seg.segment_id }}" style="display: none;">
-                        <td colspan="11" class="p-0 border-0">
+                        <td colspan="12" class="p-0 border-0">
                             <div class="segment-expanded-panel p-3 mx-2 my-2 rounded" style="border-left: 4px solid {{ seg.color }} !important;">
                                 
                                 <!-- Header Strip of Expanded Section -->
@@ -1071,55 +1074,71 @@
                                         <table class="nested-spec-table font-mono">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 28%;" class="ps-3">Recommended Intervention &amp; Rationale</th>
-                                                    <th style="width: 14%;" class="text-center">PCI Index</th>
-                                                    <th style="width: 14%;" class="text-center">Roughness (IRI)</th>
-                                                    <th style="width: 14%;" class="text-center">Observed Defects</th>
-                                                    <th style="width: 15%;" class="text-center">Materials Required</th>
-                                                    <th style="width: 15%;" class="text-end pe-3">Estimated Budget</th>
+                                                    <th class="ps-3" style="min-width: 200px;">Recommended Intervention</th>
+                                                    <th style="min-width: 170px;">Trigger Rationale</th>
+                                                    <th class="text-center" style="min-width: 75px;">PCI Score</th>
+                                                    <th class="text-center" style="min-width: 90px;">PCI Rating</th>
+                                                    <th class="text-center" style="min-width: 80px;">IRI (m/km)</th>
+                                                    <th class="text-center" style="min-width: 80px;">IRI Rating</th>
+                                                    <th class="text-center" style="min-width: 75px;">Potholes</th>
+                                                    <th class="text-center" style="min-width: 75px;">Cracks</th>
+                                                    <th class="text-center" style="min-width: 105px;">HMA Asphalt</th>
+                                                    <th class="text-center" style="min-width: 95px;">Tack Coat</th>
+                                                    <th class="text-end" style="min-width: 115px;">Budget (ETB)</th>
+                                                    <th class="text-end pe-3" style="min-width: 95px;">Budget (USD)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td class="ps-3 py-2">
-                                                        <div class="fw-bold text-white mb-1" style="font-size: 12px;">{{ seg.treatment }}</div>
+                                                    <td class="ps-3 py-2 fw-bold text-white" style="font-size: 12px;">
+                                                        {{ seg.treatment }}
+                                                    </td>
+                                                    <td class="py-2">
                                                         {% if seg.trigger_reason %}
-                                                        <div>
-                                                            <span class="badge border font-mono text-warning" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); font-size: 9.5px; font-weight: 500;">
-                                                                {{ seg.trigger_reason }}
-                                                            </span>
-                                                        </div>
+                                                        <span class="badge border font-mono text-warning" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); font-size: 10px; font-weight: 500;">
+                                                            {{ seg.trigger_reason }}
+                                                        </span>
+                                                        {% else %}
+                                                        <span class="text-secondary small">Standard Lifecycle</span>
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center py-2">
                                                         <span class="pci-score-badge d-inline-block px-2 py-0.5" style="background: rgba(255,255,255,0.05); color: {{ seg.color }}; border: 1px solid {{ seg.color }}; font-weight: 700; font-size: 12.5px;">
                                                             {{ seg.pci }}
                                                         </span>
-                                                        <div class="small fw-semibold mt-1" style="color: {{ seg.color }}; font-size: 10.5px;">{{ seg.pci_rating }}</div>
                                                     </td>
                                                     <td class="text-center py-2">
-                                                        <div class="fw-bold" style="color: {% if seg.iri >= 7.0 %}#ef4444{% elif seg.iri >= 4.0 %}#f97316{% else %}#10b981{% endif %}; font-size: 12.5px;">
-                                                            {{ seg.iri }} <small class="text-secondary fw-normal" style="font-size: 9.5px;">m/km</small>
-                                                        </div>
-                                                        <div class="small text-secondary" style="font-size: 10.5px;">{{ seg.iri_rating }}</div>
+                                                        <span class="badge-status" style="background: {{ seg.color_rgba }}; color: white; font-size: 10.5px;">
+                                                            {{ seg.pci_rating }}
+                                                        </span>
                                                     </td>
-                                                    <td class="text-center py-2">
-                                                        <div class="d-flex justify-content-center gap-1">
-                                                            <span class="badge font-mono py-1 px-1.5" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px;">
-                                                                {{ seg.potholes_count }} PTH
-                                                            </span>
-                                                            <span class="badge font-mono py-1 px-1.5" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 10px;">
-                                                                {{ seg.cracks_count }} CRK
-                                                            </span>
-                                                        </div>
+                                                    <td class="text-center py-2 font-mono fw-bold" style="color: {% if seg.iri >= 7.0 %}#ef4444{% elif seg.iri >= 4.0 %}#f97316{% else %}#10b981{% endif %}; font-size: 12.5px;">
+                                                        {{ seg.iri }}
                                                     </td>
-                                                    <td class="text-center py-2">
-                                                        <div class="fw-semibold text-white" style="font-size: 11.5px;">{{ seg.materials.hot_mix_asphalt_tonnes }} T <small class="text-secondary">HMA</small></div>
-                                                        <div class="small text-cyan mt-0.5" style="font-size: 10.5px; color: #38BDF8;">{{ seg.materials.tack_coat_liters }} L <small>Tack</small></div>
+                                                    <td class="text-center py-2 font-mono small text-secondary" style="font-size: 11px;">
+                                                        {{ seg.iri_rating }}
                                                     </td>
-                                                    <td class="text-end pe-3 py-2">
-                                                        <div class="fw-bold font-mono" style="color: #38BDF8; font-size: 13.5px;">{{ "{:,.0f}".format(seg.cost_etb) }} ETB</div>
-                                                        <div class="small text-secondary font-mono" style="font-size: 10.5px;">${{ "{:,.0f}".format(seg.cost_usd) }} USD</div>
+                                                    <td class="text-center py-2 font-mono">
+                                                        <span class="badge font-mono py-1 px-2" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10.5px;">
+                                                            {{ seg.potholes_count }} PTH
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center py-2 font-mono">
+                                                        <span class="badge font-mono py-1 px-2" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 10.5px;">
+                                                            {{ seg.cracks_count }} CRK
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center py-2 font-mono fw-semibold text-white" style="font-size: 11.5px;">
+                                                        {{ seg.materials.hot_mix_asphalt_tonnes }} <small class="text-secondary">Tonnes</small>
+                                                    </td>
+                                                    <td class="text-center py-2 font-mono fw-semibold text-cyan" style="font-size: 11.5px; color: #38BDF8;">
+                                                        {{ seg.materials.tack_coat_liters }} <small class="text-secondary">Liters</small>
+                                                    </td>
+                                                    <td class="text-end py-2 font-mono fw-bold" style="color: #38BDF8; font-size: 13px;">
+                                                        {{ "{:,.0f}".format(seg.cost_etb) }} ETB
+                                                    </td>
+                                                    <td class="text-end pe-3 py-2 font-mono text-secondary" style="font-size: 11.5px;">
+                                                        ${{ "{:,.0f}".format(seg.cost_usd) }}
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -1142,9 +1161,10 @@
                                                 <tr>
                                                     <th style="width: 110px;">Item Code</th>
                                                     <th>Description of Work</th>
-                                                    <th style="width: 140px;">Quantity &amp; Unit</th>
-                                                    <th style="width: 140px;" class="text-end">Unit Rate (ETB)</th>
-                                                    <th style="width: 150px;" class="text-end pe-3">Subtotal (ETB)</th>
+                                                    <th style="width: 95px;" class="text-center">Quantity</th>
+                                                    <th style="width: 65px;" class="text-center">Unit</th>
+                                                    <th style="width: 130px;" class="text-end">Unit Rate (ETB)</th>
+                                                    <th style="width: 140px;" class="text-end pe-3">Subtotal (ETB)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1152,7 +1172,8 @@
                                                 <tr>
                                                     <td class="font-mono fw-semibold text-info">{{ item.item_code }}</td>
                                                     <td class="text-white">{{ item.description }}</td>
-                                                    <td class="font-mono">{{ item.quantity }} {{ item.unit }}</td>
+                                                    <td class="font-mono text-center">{{ item.quantity }}</td>
+                                                    <td class="font-mono text-center text-secondary">{{ item.unit }}</td>
                                                     <td class="font-mono text-end text-secondary">{{ "{:,.0f}".format(item.unit_rate_etb) }}</td>
                                                     <td class="font-mono text-end fw-bold text-white pe-3">{{ "{:,.0f}".format(item.total_etb) }}</td>
                                                 </tr>
@@ -1160,7 +1181,7 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr class="fw-bold">
-                                                    <td colspan="4" class="text-end pe-3 text-secondary" style="font-size: 11px;">Total Scheduled Bill of Quantities (BoQ):</td>
+                                                    <td colspan="5" class="text-end pe-3 text-secondary" style="font-size: 11px;">Total Scheduled Bill of Quantities (BoQ):</td>
                                                     <td class="text-end font-mono pe-3 fw-bold" style="color: var(--accent-primary, #38BDF8); font-size: 12.5px;">{{ "{:,.0f}".format(seg.cost_etb) }} ETB</td>
                                                 </tr>
                                             </tfoot>
