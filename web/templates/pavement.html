@@ -381,38 +381,60 @@
     border-color: #CBD5E1 !important;
 }
 
-/* BoQ Nested Table */
+/* BoQ & Specification Nested Tables */
+.nested-spec-table,
 .nested-boq-table {
     width: 100%;
     font-size: 11px;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
 }
+.nested-spec-table th,
 .nested-boq-table th {
     background: #111C2B;
     color: #94A3B8;
-    padding: 6px 10px;
+    padding: 7px 10px;
     font-size: 10px;
     text-transform: uppercase;
     border-bottom: 1px solid #223247;
+    border-top: 1px solid #223247;
 }
+.nested-spec-table td,
 .nested-boq-table td {
-    padding: 6px 10px;
+    padding: 8px 10px;
     border-bottom: 1px solid #172438;
     color: #E2E8F0;
+    vertical-align: middle;
+}
+.nested-spec-table tfoot td,
+.nested-boq-table tfoot td {
+    background: #141F30;
+    border-top: 2px solid #223247;
+    color: #FFFFFF;
 }
 
+[data-theme="bright"] .nested-spec-table th,
+[data-theme="light"] .nested-spec-table th,
 [data-theme="bright"] .nested-boq-table th,
 [data-theme="light"] .nested-boq-table th {
-    background: #E2E8F0 !important;
+    background: #F1F5F9 !important;
     color: #475569 !important;
-    border-bottom: 1px solid #CBD5E1 !important;
+    border-color: #CBD5E1 !important;
 }
+[data-theme="bright"] .nested-spec-table td,
+[data-theme="light"] .nested-spec-table td,
 [data-theme="bright"] .nested-boq-table td,
 [data-theme="light"] .nested-boq-table td {
     background: #FFFFFF !important;
     color: #0F172A !important;
-    border-bottom: 1px solid #E2E8F0 !important;
+    border-color: #E2E8F0 !important;
+}
+[data-theme="bright"] .nested-spec-table tfoot td,
+[data-theme="light"] .nested-spec-table tfoot td,
+[data-theme="bright"] .nested-boq-table tfoot td,
+[data-theme="light"] .nested-boq-table tfoot td {
+    background: #F8FAFC !important;
+    border-top: 2px solid #CBD5E1 !important;
+    color: #0F172A !important;
 }
 
 /* Filter Pills */
@@ -1034,111 +1056,127 @@
                                     </div>
                                 </div>
 
-                                <!-- 4-Section Organized Grid -->
-                                <div class="row g-2 mb-3">
-                                    
-                                    <!-- Mini Card 1: Recommended Rehabilitation & Rationale -->
-                                    <div class="col-12 col-md-6 col-xl-3">
-                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
-                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Recommended Intervention</div>
-                                            <div class="fw-bold text-white mb-2" style="font-size: 12.5px;">{{ seg.treatment }}</div>
-                                            <div class="d-flex flex-wrap align-items-center gap-1">
-                                                <span class="badge bg-secondary font-mono" style="font-size: 0.65rem;">Priority: {{ seg.urgency }}</span>
-                                                {% if seg.trigger_reason %}
-                                                <span class="badge border font-mono text-warning" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); font-size: 0.65rem;">
-                                                    {{ seg.trigger_reason }}
-                                                </span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Mini Card 2: PCI & Roughness Assessment -->
-                                    <div class="col-12 col-md-6 col-xl-3">
-                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
-                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">PCI &amp; IRI Condition</div>
-                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
-                                                <span class="text-secondary small">PCI:</span>
-                                                <span class="fw-bold fs-6" style="color: {{ seg.color }};">{{ seg.pci }} ({{ seg.pci_rating }})</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
-                                                <span class="text-secondary small">IRI:</span>
-                                                <span class="fw-bold" style="color: {% if seg.iri >= 7.0 %}#ef4444{% elif seg.iri >= 4.0 %}#f97316{% else %}#10b981{% endif %};">{{ seg.iri }} m/km ({{ seg.iri_rating }})</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-baseline font-mono small border-top pt-1 mt-1" style="border-color: #1E293B !important;">
-                                                <span class="text-secondary">Defects:</span>
-                                                <span class="text-danger fw-bold">{{ seg.potholes_count }} PTH</span> &bull; <span class="text-warning fw-bold">{{ seg.cracks_count }} CRK</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Mini Card 3: Material Requirements -->
-                                    <div class="col-12 col-md-6 col-xl-3">
-                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
-                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Required Materials</div>
-                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
-                                                <span class="text-secondary small">HMA Asphalt:</span>
-                                                <span class="fw-bold text-white">{{ seg.materials.hot_mix_asphalt_tonnes }} Tonnes</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-baseline my-1 font-mono">
-                                                <span class="text-secondary small">Tack Coat:</span>
-                                                <span class="fw-bold text-cyan" style="color: #38BDF8;">{{ seg.materials.tack_coat_liters }} Liters</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Mini Card 4: Rehabilitation Financials -->
-                                    <div class="col-12 col-md-6 col-xl-3">
-                                        <div class="p-2.5 rounded h-100 border" style="background: #111C2B; border-color: #1E293B !important;">
-                                            <div class="text-secondary small fw-semibold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">Estimated Cost</div>
-                                            <div class="fs-5 fw-bold font-mono text-white mb-0.5">{{ "{:,.0f}".format(seg.cost_etb) }} ETB</div>
-                                            <div class="font-mono text-info small" style="font-size: 11.5px;">${{ "{:,.0f}".format(seg.cost_usd) }} USD</div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <!-- Bill of Quantities (BoQ) Nested Table -->
-                                <div class="card border mb-3" style="background: #111C2B; border-color: #1E293B !important;">
-                                    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center" style="background: #172438; border-color: #1E293B !important;">
-                                        <span class="fw-bold text-white font-mono small" style="font-size: 11.5px;">
-                                            <i data-lucide="file-spreadsheet" style="width:13px; height:13px; display:inline;" class="text-cyan me-1"></i>
-                                            Bill of Quantities (BoQ) &bull; Block {{ seg.segment_id }}
+                                <!-- 1. Pavement Condition & Physical Diagnostics Table -->
+                                <div class="card border mb-3" style="background: var(--bg-surface, #FFFFFF); border-color: var(--border-default, #CBD5E1) !important;">
+                                    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #F8FAFC); border-color: var(--border-default, #CBD5E1) !important;">
+                                        <span class="fw-bold font-mono small d-flex align-items-center gap-1.5" style="color: var(--text-primary, #0F172A); font-size: 11.5px;">
+                                            <i data-lucide="activity" style="width:13px; height:13px; color:var(--accent-primary, #0284C7);"></i>
+                                            Pavement Condition &amp; Engineering Diagnostics &bull; Block {{ seg.segment_id }}
                                         </span>
-                                        <span class="font-mono fw-bold" style="color: #38BDF8; font-size: 12px;">Total: {{ "{:,.0f}".format(seg.cost_etb) }} ETB</span>
+                                        <span class="badge font-mono" style="background: rgba(2, 132, 199, 0.1); color: var(--accent-primary, #0284C7); border: 1px solid rgba(2, 132, 199, 0.25); font-size: 10px;">
+                                            Priority: {{ seg.urgency }}
+                                        </span>
                                     </div>
                                     <div class="table-responsive">
-                                        <table class="nested-boq-table font-mono">
+                                        <table class="nested-spec-table font-mono">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 100px;">Item Code</th>
-                                                    <th>Description of Work</th>
-                                                    <th style="width: 140px;">Quantity &amp; Unit</th>
-                                                    <th style="width: 140px;" class="text-end">Unit Rate (ETB)</th>
-                                                    <th style="width: 150px;" class="text-end">Subtotal (ETB)</th>
+                                                    <th style="width: 28%;" class="ps-3">Recommended Intervention &amp; Rationale</th>
+                                                    <th style="width: 14%;" class="text-center">PCI Index</th>
+                                                    <th style="width: 14%;" class="text-center">Roughness (IRI)</th>
+                                                    <th style="width: 14%;" class="text-center">Observed Defects</th>
+                                                    <th style="width: 15%;" class="text-center">Materials Required</th>
+                                                    <th style="width: 15%;" class="text-end pe-3">Estimated Budget</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {% for item in seg.boq_items %}
                                                 <tr>
-                                                    <td class="font-mono text-info fw-semibold">{{ item.item_code }}</td>
-                                                    <td class="text-white">{{ item.description }}</td>
-                                                    <td class="font-mono">{{ item.quantity }} {{ item.unit }}</td>
-                                                    <td class="font-mono text-end text-secondary">{{ "{:,.0f}".format(item.unit_rate_etb) }}</td>
-                                                    <td class="font-mono text-end fw-bold text-white">{{ "{:,.0f}".format(item.total_etb) }}</td>
+                                                    <td class="ps-3 py-2">
+                                                        <div class="fw-bold text-white mb-1" style="font-size: 12px;">{{ seg.treatment }}</div>
+                                                        {% if seg.trigger_reason %}
+                                                        <div>
+                                                            <span class="badge border font-mono text-warning" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); font-size: 9.5px; font-weight: 500;">
+                                                                {{ seg.trigger_reason }}
+                                                            </span>
+                                                        </div>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center py-2">
+                                                        <span class="pci-score-badge d-inline-block px-2 py-0.5" style="background: rgba(255,255,255,0.05); color: {{ seg.color }}; border: 1px solid {{ seg.color }}; font-weight: 700; font-size: 12.5px;">
+                                                            {{ seg.pci }}
+                                                        </span>
+                                                        <div class="small fw-semibold mt-1" style="color: {{ seg.color }}; font-size: 10.5px;">{{ seg.pci_rating }}</div>
+                                                    </td>
+                                                    <td class="text-center py-2">
+                                                        <div class="fw-bold" style="color: {% if seg.iri >= 7.0 %}#ef4444{% elif seg.iri >= 4.0 %}#f97316{% else %}#10b981{% endif %}; font-size: 12.5px;">
+                                                            {{ seg.iri }} <small class="text-secondary fw-normal" style="font-size: 9.5px;">m/km</small>
+                                                        </div>
+                                                        <div class="small text-secondary" style="font-size: 10.5px;">{{ seg.iri_rating }}</div>
+                                                    </td>
+                                                    <td class="text-center py-2">
+                                                        <div class="d-flex justify-content-center gap-1">
+                                                            <span class="badge font-mono py-1 px-1.5" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px;">
+                                                                {{ seg.potholes_count }} PTH
+                                                            </span>
+                                                            <span class="badge font-mono py-1 px-1.5" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 10px;">
+                                                                {{ seg.cracks_count }} CRK
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center py-2">
+                                                        <div class="fw-semibold text-white" style="font-size: 11.5px;">{{ seg.materials.hot_mix_asphalt_tonnes }} T <small class="text-secondary">HMA</small></div>
+                                                        <div class="small text-cyan mt-0.5" style="font-size: 10.5px; color: #38BDF8;">{{ seg.materials.tack_coat_liters }} L <small>Tack</small></div>
+                                                    </td>
+                                                    <td class="text-end pe-3 py-2">
+                                                        <div class="fw-bold font-mono" style="color: #38BDF8; font-size: 13.5px;">{{ "{:,.0f}".format(seg.cost_etb) }} ETB</div>
+                                                        <div class="small text-secondary font-mono" style="font-size: 10.5px;">${{ "{:,.0f}".format(seg.cost_usd) }} USD</div>
+                                                    </td>
                                                 </tr>
-                                                {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
 
-                                <!-- Required Construction Equipment Fleet -->
-                                <div class="p-2.5 rounded border" style="background: #111C2B; border-color: #1E293B !important;">
-                                    <span class="fw-bold text-secondary font-mono small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Required Construction Fleet:</span>
-                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                <!-- 2. Bill of Quantities (BoQ) Nested Table -->
+                                <div class="card border mb-3" style="background: var(--bg-surface, #FFFFFF); border-color: var(--border-default, #CBD5E1) !important;">
+                                    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #F8FAFC); border-color: var(--border-default, #CBD5E1) !important;">
+                                        <span class="fw-bold font-mono small d-flex align-items-center gap-1.5" style="color: var(--text-primary, #0F172A); font-size: 11.5px;">
+                                            <i data-lucide="file-spreadsheet" style="width:13px; height:13px; color:var(--accent-primary, #0284C7);"></i>
+                                            Bill of Quantities (BoQ) &bull; Block {{ seg.segment_id }}
+                                        </span>
+                                        <span class="font-mono fw-bold" style="color: var(--accent-primary, #0284C7); font-size: 12px;">Total: {{ "{:,.0f}".format(seg.cost_etb) }} ETB</span>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="nested-boq-table font-mono">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 110px;">Item Code</th>
+                                                    <th>Description of Work</th>
+                                                    <th style="width: 140px;">Quantity &amp; Unit</th>
+                                                    <th style="width: 140px;" class="text-end">Unit Rate (ETB)</th>
+                                                    <th style="width: 150px;" class="text-end pe-3">Subtotal (ETB)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in seg.boq_items %}
+                                                <tr>
+                                                    <td class="font-mono fw-semibold text-info">{{ item.item_code }}</td>
+                                                    <td class="text-white">{{ item.description }}</td>
+                                                    <td class="font-mono">{{ item.quantity }} {{ item.unit }}</td>
+                                                    <td class="font-mono text-end text-secondary">{{ "{:,.0f}".format(item.unit_rate_etb) }}</td>
+                                                    <td class="font-mono text-end fw-bold text-white pe-3">{{ "{:,.0f}".format(item.total_etb) }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="fw-bold">
+                                                    <td colspan="4" class="text-end pe-3 text-secondary" style="font-size: 11px;">Total Scheduled Bill of Quantities (BoQ):</td>
+                                                    <td class="text-end font-mono pe-3 fw-bold" style="color: var(--accent-primary, #38BDF8); font-size: 12.5px;">{{ "{:,.0f}".format(seg.cost_etb) }} ETB</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Required Construction Equipment Fleet -->
+                                <div class="p-2.5 rounded border d-flex flex-wrap align-items-center gap-2" style="background: var(--bg-surface, #FFFFFF); border-color: var(--border-default, #CBD5E1) !important;">
+                                    <span class="fw-bold text-secondary font-mono small text-uppercase d-flex align-items-center gap-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">
+                                        <i data-lucide="truck" style="width:12px; height:12px; color:var(--accent-primary, #0284C7);"></i>
+                                        Required Construction Fleet:
+                                    </span>
+                                    <div class="d-flex flex-wrap gap-1.5">
                                         {% for eq in seg.equipment_fleet %}
-                                        <span class="badge border font-mono text-white-50" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); font-size: 0.72rem;">
+                                        <span class="badge border font-mono" style="background: var(--bg-subtle, #F1F5F9); color: var(--text-primary, #334155); border-color: var(--border-default, #CBD5E1); font-size: 0.72rem;">
                                             &bull; {{ eq }}
                                         </span>
                                         {% endfor %}
