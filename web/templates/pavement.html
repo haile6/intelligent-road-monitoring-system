@@ -160,24 +160,17 @@
     box-shadow: 0 6px 18px rgba(2, 132, 199, 0.15) !important;
 }
 
-.kpi-card-refined::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: var(--roadeye-border);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+/* Clean white KPI cards — omit unnecessary rainbow top bars */
+.kpi-card-refined::before,
+.kpi-card-refined.accent-pci::before,
+.kpi-card-refined.accent-iri::before,
+.kpi-card-refined.accent-budget::before,
+.kpi-card-refined.accent-usd::before,
+.kpi-card-refined.accent-hma::before,
+.kpi-card-refined.accent-tack::before,
+.kpi-card-refined.accent-hotspots::before {
+    display: none;
 }
-.kpi-card-refined.accent-pci::before { background: var(--roadeye-emerald); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
-.kpi-card-refined.accent-iri::before { background: var(--roadeye-amber); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-.kpi-card-refined.accent-budget::before { background: var(--roadeye-rose); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-.kpi-card-refined.accent-usd::before { background: #818CF8; box-shadow: 0 0 10px rgba(129, 140, 248, 0.5); }
-.kpi-card-refined.accent-hma::before { background: #F97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.5); }
-.kpi-card-refined.accent-tack::before { background: var(--roadeye-cyan); box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
-.kpi-card-refined.accent-hotspots::before { background: var(--roadeye-rose); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
 
 /* Typography contrast for both Dark and Bright modes */
 .kpi-card-refined .kpi-title {

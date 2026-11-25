@@ -826,22 +826,15 @@ main.content-area {
     box-shadow: var(--shadow-md);
 }
 
-/* Top accent color stripe */
-.kpi-metric-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--border-strong);
+/* Clean white cards — no unnecessary decorative top color stripes */
+.kpi-metric-card::before,
+.kpi-metric-card.accent-danger::before,
+.kpi-metric-card.accent-warning::before,
+.kpi-metric-card.accent-success::before,
+.kpi-metric-card.accent-primary::before,
+.kpi-metric-card.accent-indigo::before {
+    display: none;
 }
-
-.kpi-metric-card.accent-danger::before   { background: var(--danger); }
-.kpi-metric-card.accent-warning::before  { background: var(--warning); }
-.kpi-metric-card.accent-success::before  { background: var(--success); }
-.kpi-metric-card.accent-primary::before  { background: var(--accent-primary); }
-.kpi-metric-card.accent-indigo::before   { background: var(--accent-secondary); }
 
 .kpi-top-meta {
     display: flex;
