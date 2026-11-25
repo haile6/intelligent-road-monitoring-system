@@ -351,12 +351,61 @@
     color: #64748B !important;
 }
 
-/* Expandable Detail Row Container */
+/* Expandable Detail Row Container & Horizontal Scroll Management */
+tr.segment-detail-row > td {
+    max-width: 0 !important;
+    width: 100% !important;
+}
 .segment-expanded-panel {
     background: #0A101A;
     border: 1px solid #223247;
     border-radius: 8px;
     box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.6);
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* Explicit Horizontal Scrollable Viewports with High-Visibility Scrollbar */
+.table-responsive-main {
+    max-height: 850px;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+.table-responsive-spec,
+.table-responsive-boq {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+}
+.table-responsive-main::-webkit-scrollbar,
+.table-responsive-spec::-webkit-scrollbar,
+.table-responsive-boq::-webkit-scrollbar {
+    height: 8px !important;
+    width: 8px !important;
+}
+.table-responsive-main::-webkit-scrollbar-track,
+.table-responsive-spec::-webkit-scrollbar-track,
+.table-responsive-boq::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.08) !important;
+    border-radius: 4px;
+}
+.table-responsive-main::-webkit-scrollbar-thumb,
+.table-responsive-spec::-webkit-scrollbar-thumb,
+.table-responsive-boq::-webkit-scrollbar-thumb {
+    background: #0284C7 !important;
+    border-radius: 4px;
+}
+.table-responsive-main::-webkit-scrollbar-thumb:hover,
+.table-responsive-spec::-webkit-scrollbar-thumb:hover,
+.table-responsive-boq::-webkit-scrollbar-thumb:hover {
+    background: #0369A1 !important;
 }
 
 [data-theme="bright"] .segment-expanded-panel,
@@ -945,7 +994,7 @@
                 </div>
             </div>
 
-            <div class="table-responsive" style="max-height: 800px; overflow-y: auto;">
+            <div class="table-responsive table-responsive-main">
             <table class="table-pavement-ledger mb-0 font-mono" id="pavementSegmentsTable">
                 <thead class="sticky-top" style="z-index: 10;">
                     <tr>
@@ -1070,22 +1119,30 @@
                                             Priority: {{ seg.urgency }}
                                         </span>
                                     </div>
-                                    <div class="table-responsive">
+                                    <!-- Visual Scroll Indicator Hint -->
+                                    <div class="d-flex align-items-center justify-content-between px-3 py-1 bg-light bg-opacity-50 border-bottom text-secondary font-mono" style="font-size: 10px;">
+                                        <span class="d-flex align-items-center gap-1">
+                                            <i data-lucide="move-horizontal" style="width:12px; height:12px; color:var(--accent-primary);"></i>
+                                            <span>Horizontal Scroll active &bull; Drag scrollbar or swipe horizontally to view all 12 columns</span>
+                                        </span>
+                                        <span class="text-muted">12 Standalone Metrics</span>
+                                    </div>
+                                    <div class="table-responsive table-responsive-spec">
                                         <table class="nested-spec-table font-mono">
                                             <thead>
                                                 <tr>
-                                                    <th class="ps-3" style="min-width: 200px;">Recommended Intervention</th>
-                                                    <th style="min-width: 170px;">Trigger Rationale</th>
-                                                    <th class="text-center" style="min-width: 75px;">PCI Score</th>
-                                                    <th class="text-center" style="min-width: 90px;">PCI Rating</th>
-                                                    <th class="text-center" style="min-width: 80px;">IRI (m/km)</th>
-                                                    <th class="text-center" style="min-width: 80px;">IRI Rating</th>
-                                                    <th class="text-center" style="min-width: 75px;">Potholes</th>
-                                                    <th class="text-center" style="min-width: 75px;">Cracks</th>
-                                                    <th class="text-center" style="min-width: 105px;">HMA Asphalt</th>
-                                                    <th class="text-center" style="min-width: 95px;">Tack Coat</th>
-                                                    <th class="text-end" style="min-width: 115px;">Budget (ETB)</th>
-                                                    <th class="text-end pe-3" style="min-width: 95px;">Budget (USD)</th>
+                                                    <th class="ps-3" style="min-width: 170px;">Recommended Intervention</th>
+                                                    <th style="min-width: 140px;">Trigger Rationale</th>
+                                                    <th class="text-center" style="min-width: 65px;">PCI Score</th>
+                                                    <th class="text-center" style="min-width: 75px;">PCI Rating</th>
+                                                    <th class="text-center" style="min-width: 70px;">IRI (m/km)</th>
+                                                    <th class="text-center" style="min-width: 70px;">IRI Rating</th>
+                                                    <th class="text-center" style="min-width: 65px;">Potholes</th>
+                                                    <th class="text-center" style="min-width: 65px;">Cracks</th>
+                                                    <th class="text-center" style="min-width: 85px;">HMA Asphalt</th>
+                                                    <th class="text-center" style="min-width: 80px;">Tack Coat</th>
+                                                    <th class="text-end" style="min-width: 105px;">Budget (ETB)</th>
+                                                    <th class="text-end pe-3" style="min-width: 85px;">Budget (USD)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1155,7 +1212,7 @@
                                         </span>
                                         <span class="font-mono fw-bold" style="color: var(--accent-primary, #0284C7); font-size: 12px;">Total: {{ "{:,.0f}".format(seg.cost_etb) }} ETB</span>
                                     </div>
-                                    <div class="table-responsive">
+                                    <div class="table-responsive table-responsive-boq">
                                         <table class="nested-boq-table font-mono">
                                             <thead>
                                                 <tr>
