@@ -1223,20 +1223,49 @@ class MLDeteriorationEngine:
             pred_pci = float(current_pci) - drop_60 - (rate_per_30d * extra_m * (1.0 + 0.12 * extra_m))
         pred_pci = round(max(12.0, min(float(current_pci), pred_pci)), 1)
 
-        # ML-driven cost escalation based on predicted PCI drop & threshold crossings
+        # ERA Bill-of-Quantities (BoQ) Cost Escalation driven by ML-predicted PCI & physical defect expansion
         pci_loss = max(0.0, float(current_pci) - pred_pci)
-        threshold_mult = 1.0
-        if pred_pci < 55.0:
-            threshold_mult = 1.65  # Reconstruction threshold
-        elif pred_pci < 70.0:
-            threshold_mult = 1.35  # Mill & Overlay threshold
-        elif pred_pci < 80.0:
-            threshold_mult = 1.15  # Patch & Seal expansion
-
-        esc_ratio = round(max(1.10, min(5.80, (1.0 + 0.085 * pci_loss) * threshold_mult)), 2)
         cost_today = round(float(base_cost_today_etb), 2)
-        projected_cost = round(cost_today * esc_ratio, 2)
-        net_savings = round(projected_cost - cost_today, 2)
+
+        # Compute physical defect expansion cost using real ERA 2026 Schedule of Rates
+        today_defect = MaintenanceCostEstimator.estimate_defect_repair_cost(
+            damage_type="pothole",
+            width_cm=45.0,
+            depth_cm=5.2,
+            volume_liters=6.5,
+            risk_level="CAUTION"
+        )
+        proj_width_cm = min(140.0, 45.0 + (pci_loss * 2.2))
+        proj_depth_cm = min(18.0, 5.2 + (pci_loss * 0.25))
+        proj_vol_l = round(0.5 * ((proj_width_cm / 100.0) ** 2) * (proj_depth_cm / 100.0) * 1000.0, 2)
+        delayed_defect = MaintenanceCostEstimator.estimate_defect_repair_cost(
+            damage_type="pothole",
+            width_cm=proj_width_cm,
+            depth_cm=proj_depth_cm,
+            volume_liters=proj_vol_l,
+            risk_level="IMMEDIATE_DANGER" if pred_pci < 70.0 else "WARNING"
+        )
+
+        boq_defect_ratio = delayed_defect["total_estimated_repair_cost_etb"] / max(
+            1.0, today_defect["total_estimated_repair_cost_etb"]
+        )
+
+        # Add ERA structural rehabilitation transition when ML-predicted PCI crosses ASTM/ERA thresholds
+        # ERA-MIL-01 (420 ETB/m2) + ERA-TC-02 (180 ETB/m2) + ERA-AC-03 (2650 ETB/m2) = 3,250 ETB/m2
+        era_structural_adder_etb = 0.0
+        if pred_pci < 55.0:
+            # Full reconstruction threshold (~45% of corridor segments impacted -> 1400 m2 @ ERA base + HMA rate)
+            era_structural_adder_etb = 1400.0 * (MaintenanceUnitRatesERA.CRUSHED_AGGREGATE_BASE_PER_M3 * 0.20 + 3250.0)
+        elif pred_pci < 70.0:
+            # Mill & 50mm Overlay threshold (~25% of corridor segments impacted -> 700 m2 @ 3,250 ETB/m2)
+            era_structural_adder_etb = 700.0 * 3250.0
+        elif pred_pci < 80.0:
+            # Preventive surface overlay on deteriorated blocks (~10% -> 250 m2 @ 2,830 ETB/m2)
+            era_structural_adder_etb = 250.0 * (180.0 + 2650.0)
+
+        projected_cost = round((cost_today * boq_defect_ratio) + era_structural_adder_etb, 2)
+        esc_ratio = round(max(1.0, projected_cost / max(1.0, cost_today)), 2)
+        net_savings = round(max(0.0, projected_cost - cost_today), 2)
 
         return {
             "success": True,
