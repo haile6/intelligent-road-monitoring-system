@@ -22,7 +22,9 @@ def main():
     parser = argparse.ArgumentParser(description="Road Monitoring System Web Management Panel")
     parser.add_argument("--host", default="0.0.0.0", help="Host IP to bind (default: 0.0.0.0 for mobile and local access)")
     parser.add_argument("--port", type=int, default=8080, help="Port to listen on (default: 8080)")
-    parser.add_argument("--debug", action="store_true", default=True, help="Enable Flask debug mode")
+    parser.add_argument("--debug", action="store_true", default=False, help="Enable Flask debug mode")
+    parser.add_argument("--reload", action="store_true", default=False, help="Enable Werkzeug code reloader")
+    parser.add_argument("--no-browser", action="store_true", default=False, help="Do not open browser automatically")
     args = parser.parse_args()
 
     app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -93,9 +95,10 @@ def main():
             pass
         webbrowser.open(studio_url)
 
-    threading.Thread(target=auto_open_browser, daemon=True).start()
+    if not args.no_browser:
+        threading.Thread(target=auto_open_browser, daemon=True).start()
 
-    app.run(host=args.host, port=target_port, debug=args.debug)
+    app.run(host=args.host, port=target_port, debug=args.debug, use_reloader=args.reload)
 
 if __name__ == "__main__":
     main()

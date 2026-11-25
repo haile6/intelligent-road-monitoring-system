@@ -2532,11 +2532,11 @@ def api_v1_edge_quantize():
 def _warm_analytics_cache():
     """Pre-warm pavement and forecast caches in background after worker boot."""
     try:
-        get_pavement_assessment_cache(50.0)
-        get_forecast_simulation_cache()
-        _get_ml_forecast_bundle()
+        with app.app_context():
+            get_pavement_assessment_cache(50.0)
+            get_forecast_simulation_cache()
     except Exception as _warm_err:
-        print(f"[*] Notice: Background cache warm-up: {_warm_err}")
+        pass
 
 
 if "unittest" not in sys.modules:
