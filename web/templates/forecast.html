@@ -188,23 +188,20 @@
         <!-- ======================================================== -->
         <div class="tab-pane fade show active" id="sim-pane" role="tabpanel">
 
-            <!-- Main Interactive Simulator Row (Simple ML Controls + Auto ANPR Telemetry) -->
+            <!-- Main Interactive Simulator Row (Ultra-Clean Controls) -->
             <div class="row g-3 mb-3">
                 <div class="col-12">
                     <div class="sim-hero-panel">
                         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                             <div class="fw-bold d-flex align-items-center gap-2" style="font-size: 14px; color: var(--text-primary);">
-                                <i data-lucide="cpu" style="color:var(--accent-primary); width:16px; height:16px;"></i>
-                                <span>ML Scenario Controls</span>
-                                <span class="badge bg-white text-dark border font-mono fw-normal" style="font-size: 10.5px;">
-                                    {{ ml_sim_init.ml_model_used }}
-                                </span>
+                                <i data-lucide="sliders-horizontal" style="color:var(--accent-primary); width:16px; height:16px;"></i>
+                                <span>What-If Scenario Controls</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                <span class="badge bg-white text-dark border font-mono py-1 px-2" style="font-size: 11px;" title="Automatically computed from ANPR camera plate detections">
-                                    <i data-lucide="truck" style="width:12px; height:12px; color:#ef4444; display:inline;" class="me-1"></i>
-                                    Trucks: <b id="lbl-auto-truck">{{ live_inputs.truck_telemetry.truck_pct }}%</b> <span class="text-secondary">(ANPR Auto)</span>
-                                </span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary font-mono py-1 px-2.5 d-flex align-items-center gap-1.5" onclick="openMlVariablesModal()" style="font-size: 11.5px;" title="View ML Input Variables Table">
+                                    <i data-lucide="table" style="width:13px; height:13px; color:var(--accent-primary);"></i>
+                                    <span>ML Variables</span>
+                                </button>
                                 <select id="scenarioPresetSelect" class="form-select form-select-sm font-mono" onchange="applyPreset(this.value)" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-default); font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 28px 4px 10px; cursor: pointer; min-width: 175px;">
                                     <option value="BEGA" selected>Bega (Dry Season)</option>
                                     <option value="BELG">Belg (Mild Rain)</option>
@@ -213,15 +210,6 @@
                                     <option value="CUSTOM" id="opt-custom" disabled>Custom Parameters</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <!-- Clean Detected Corridor Features Strip -->
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 pb-2 border-bottom font-mono" style="font-size: 11px; border-color: var(--border-subtle) !important;">
-                            <span class="text-secondary fw-semibold">Detected Features:</span>
-                            <span class="badge bg-white text-dark border px-2 py-1">PCI: <b>{{ live_inputs.current_pci }}</b></span>
-                            <span class="badge bg-white text-dark border px-2 py-1">IRI: <b>{{ live_inputs.current_iri }} m/km</b></span>
-                            <span class="badge bg-white text-dark border px-2 py-1">GPS: <b>{{ live_inputs.lat }}°N, {{ live_inputs.lon }}°E</b></span>
-                            <span class="badge bg-white text-dark border px-2 py-1">Daily Rain: <b id="lbl-daily-rain">{{ ml_sim_init.features_used.daily_rainfall_mm }} mm/d</b></span>
                         </div>
 
                         <div class="row g-3">
@@ -524,6 +512,7 @@ let simState = {
 
 let liveChart = null;
 let mlFetchTimer = null;
+let latestMlResult = mlSimInit;
 
 document.addEventListener('DOMContentLoaded', function() {
     applyMlResultToUI(mlSimInit);
@@ -630,6 +619,7 @@ function recompute() {
 }
 
 function applyMlResultToUI(res) {
+    latestMlResult = res;
     const costToday = Math.round(res.cost_today_etb || 0);
     const costDelayed = Math.round(res.projected_cost_etb || 0);
     const netSavings = Math.round(res.net_savings_etb || 0);
@@ -855,6 +845,72 @@ function inspectTrajectory(idx) {
         function() { closeDetailDrawer(); }
     );
 }
+
+// Open Clickable ML Variables Table Modal
+function openMlVariablesModal() {
+    const r = latestMlResult || mlSimInit || {};
+    const f = r.features_used || {};
+    const t = r.truck_telemetry || liveInputsInit.truck_telemetry || {};
+
+    const rows = [
+        { name: 'Current PCI', val: (f.current_pci ?? liveInputsInit.current_pci) + ' / 100', src: 'ASTM D6433 & YOLOv8 Detection' },
+        { name: 'Roughness (IRI)', val: (f.current_iri ?? liveInputsInit.current_iri) + ' m/km', src: 'Corridor Longitudinal Telemetry' },
+        { name: 'Latitude', val: (f.latitude ?? liveInputsInit.lat) + ' °N', src: 'GPS Corridor Track' },
+        { name: 'Longitude', val: (f.longitude ?? liveInputsInit.lon) + ' °E', src: 'GPS Corridor Track' },
+        { name: 'Monthly Rainfall', val: (f.rain_mm_mo ?? simState.rain_mm) + ' mm/mo', src: 'Scenario / Weather Archive' },
+        { name: 'Daily Rainfall', val: (f.daily_rainfall_mm ?? (simState.rain_mm / 30).toFixed(2)) + ' mm/day', src: 'Derived Atmospheric Flux' },
+        { name: 'Ambient Temperature', val: (f.temperature_c ?? simState.temp_c) + ' °C', src: 'Ethiopian Met / Scenario' },
+        { name: 'Heavy Freight (Trucks)', val: (t.truck_pct ?? f.truck_pct) + '% (' + (t.heavy_vehicles || 0) + '/' + (t.total_readable_vehicles || 0) + ' plates)', src: t.source || 'ANPR Plate Detection' },
+        { name: 'Avg. Potholes / 100m', val: liveInputsInit.potholes_count ?? 1, src: 'YOLOv8 + 3D SfS Detection' },
+        { name: 'Avg. Cracks / 100m', val: liveInputsInit.cracks_count ?? 0, src: 'YOLOv8 Surface Crack Detection' },
+        { name: 'Active ML Model', val: r.ml_model_used || 'HistGradientBoosting Regressor', src: 'Scikit-Learn Pipeline' },
+        { name: 'Predicted Future PCI', val: (r.predicted_pci ?? '--') + ' (' + (r.days_horizon || simState.days) + ' Days)', src: 'ML Multi-Horizon Inference' }
+    ];
+
+    const tbody = document.getElementById('mlVariablesTbody');
+    if (tbody) {
+        tbody.innerHTML = rows.map(row => `
+            <tr>
+                <td class="fw-semibold">${row.name}</td>
+                <td class="font-mono fw-bold text-primary">${row.val}</td>
+                <td class="text-secondary small">${row.src}</td>
+            </tr>
+        `).join('');
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('mlVariablesModal'));
+    modal.show();
+    if (window.lucide) lucide.createIcons();
+}
 </script>
+
+<!-- Modal: Clickable ML Input Variables Table -->
+<div class="modal fade" id="mlVariablesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-surface, #FFFFFF); color: var(--text-primary, #0F172A); border: 1px solid var(--border-default, #CBD5E1);">
+            <div class="modal-header py-2.5 px-3" style="border-bottom: 1px solid var(--border-default, #CBD5E1);">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="table" style="width:16px; height:16px; color:var(--accent-primary);"></i>
+                    <h6 class="modal-title fw-bold mb-0 font-mono">Machine Learning Input Variables &amp; Telemetry</h6>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 font-mono" style="font-size: 12px;">
+                        <thead style="background: var(--bg-elevated, #F8FAFC);">
+                            <tr>
+                                <th class="ps-3 py-2 text-secondary">Variable / Feature</th>
+                                <th class="py-2 text-secondary">Live Value</th>
+                                <th class="pe-3 py-2 text-secondary">Data Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mlVariablesTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
