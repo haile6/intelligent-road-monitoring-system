@@ -304,8 +304,14 @@
                                 {% else %}
                                 <span class="badge-status badge-status-success">Safe / Monitored</span>
                                 {% endif %}
-                                <div class="text-secondary font-mono" style="font-size:10px; margin-top:3px;">
-                                    {{ inc.dual_risk_factors or 'Structural: ' ~ (inc.severity or 'High') ~ ' • TTC: ' ~ ("%.1f"|format(inc.ttc_seconds or 1.5)) ~ 's' }}
+                                <div class="d-flex flex-wrap gap-1 mt-1 font-mono" style="font-size:9.5px;">
+                                    <span class="badge bg-white text-dark border px-1.5 py-0.5" title="Physical Defect Severity"><span class="text-secondary fw-normal">Structural:</span> <b>{{ inc.severity or 'Severe' }}</b></span>
+                                    <span class="badge bg-white text-dark border px-1.5 py-0.5" title="Maximum Measured Depth"><span class="text-secondary fw-normal">Dmax:</span> <b>{{ "%.1f"|format(inc.depth_max_cm or 6.5) }}cm</b></span>
+                                    {% if inc.ever_in_path or (inc.ttc_seconds and inc.ttc_seconds > 0) %}
+                                    <span class="badge bg-white text-danger border border-danger-subtle px-1.5 py-0.5" title="Direct Vehicle Collision Trajectory"><span class="text-secondary fw-normal">Path:</span> <b>In-Path ({{ "%.2f"|format(inc.ttc_seconds or 1.5) }}s)</b></span>
+                                    {% else %}
+                                    <span class="badge bg-white text-secondary border px-1.5 py-0.5" title="Roadside Asset Risk"><span class="text-secondary fw-normal">Path:</span> <b>Off-Path</b></span>
+                                    {% endif %}
                                 </div>
                             </td>
                             <td>
@@ -566,6 +572,23 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
     const bags = Math.max(1, Math.ceil((volNum * 2.35 * 1.15) / 25.0));
     const cost = (bags * bagPrice) + Math.max(350, Math.round(areaNum * laborRate));
 
+    // Parse dual factors into distinct standalone attributes
+    let sevVal = 'Severe';
+    let depthVal = depthNum > 0 ? depthNum.toFixed(1) + ' cm' : 'N/A';
+    let pathVal = (ttc > 0 && ttc < 10) ? 'In-Path' : 'Off-Path';
+    let ttcVal = (ttc > 0 && ttc < 10) ? ttc.toFixed(2) + 's' : 'N/A';
+
+    if (dualFactors) {
+        const mSev = dualFactors.match(/Structural:\s*([^(|]+)/i);
+        if (mSev) sevVal = mSev[1].trim();
+        const mDepth = dualFactors.match(/\(D:\s*([^)]+)\)/i) || dualFactors.match(/Dmax:\s*([^|()\s]+)/i);
+        if (mDepth) depthVal = mDepth[1].trim();
+        const mPath = dualFactors.match(/\|\s*([^(\n]+)/i);
+        if (mPath) pathVal = mPath[1].trim();
+        const mTtc = dualFactors.match(/\(TTC\s*([^)]+)\)/i) || dualFactors.match(/TTC:\s*([^|s]+s?)/i);
+        if (mTtc) ttcVal = mTtc[1].trim();
+    }
+
     const contentHtml = `
         <!-- Incident Header Summary Card -->
         <div class="panel-card p-3 mb-3" style="background:var(--bg-main); border:1px solid var(--border-default);">
@@ -576,7 +599,12 @@ function inspectIncident(id, type, conf, risk, dist, ttc, speed, lat, lon, video
                 </span>
             </div>
             <h5 class="fw-bold mb-1 text-capitalize" style="font-size:16px; color:var(--text-primary);">${type.replace('_', ' ')}</h5>
-            <div class="text-secondary small font-mono">${dualFactors || 'Dual-Layer Physical & Kinematic Risk Analysis'}</div>
+            <div class="d-flex flex-wrap gap-1.5 mt-2 font-mono" style="font-size:11px;">
+                <span class="badge bg-white text-dark border px-2 py-1 shadow-sm"><span class="text-secondary fw-normal">Structural:</span> <b>${sevVal}</b></span>
+                <span class="badge bg-white text-dark border px-2 py-1 shadow-sm"><span class="text-secondary fw-normal">Depth (Dmax):</span> <b>${depthVal}</b></span>
+                <span class="badge bg-white ${pathVal.toLowerCase().includes('in-path') ? 'text-danger border-danger-subtle' : 'text-secondary border'} px-2 py-1 shadow-sm"><span class="text-secondary fw-normal">Trajectory:</span> <b>${pathVal}</b></span>
+                <span class="badge bg-white text-dark border px-2 py-1 shadow-sm"><span class="text-secondary fw-normal">TTC:</span> <b>${ttcVal}</b></span>
+            </div>
         </div>
 
         <!-- Section 1: Kinematic & Navigation Risk (Individual Feature Cards) -->

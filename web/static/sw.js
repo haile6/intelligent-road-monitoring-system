@@ -1,7 +1,7 @@
-// RoadEye™ Progressive Web App (PWA) Service Worker v5
-const CACHE_NAME = 'roadeye-pwa-v5';
+// RoadEye™ Progressive Web App (PWA) Service Worker v6
+const CACHE_NAME = 'roadeye-pwa-v6';
 const PRECACHE_ASSETS = [
-  '/static/css/custom.css?v=8.3',
+  '/static/css/custom.css?v=8.4',
   '/static/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png'

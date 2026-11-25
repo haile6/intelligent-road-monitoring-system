@@ -12,8 +12,25 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Enterprise Custom Design System v8.1 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=8.3">
+    <!-- Enterprise Custom Design System v8.4 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=8.4">
+
+    <!-- Design Guarantee: Eliminate decorative rainbow/colored borders on all cards -->
+    <style>
+        .kpi-metric-card, .kpi-card, .kpi-card-refined, .card, .panel-card {
+            border-top-color: var(--border-default, #CBD5E1) !important;
+        }
+        .kpi-metric-card::before, .kpi-metric-card::after,
+        .kpi-card::before, .kpi-card::after,
+        .kpi-card-refined::before, .kpi-card-refined::after,
+        .card::before, .card::after {
+            display: none !important;
+            content: none !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+    </style>
 
     <!-- Immediate Theme Initialization (Prevents FOUC & Supports ?theme= URL query) -->
     <script>
