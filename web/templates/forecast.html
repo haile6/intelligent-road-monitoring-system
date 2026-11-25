@@ -188,18 +188,24 @@
         <!-- ======================================================== -->
         <div class="tab-pane fade show active" id="sim-pane" role="tabpanel">
 
-            <!-- Main Interactive Simulator Row (Full Width 3-Slider Controls) -->
-            <div class="row g-3 mb-4">
+            <!-- Main Interactive Simulator Row (Simple ML Controls + Auto ANPR Telemetry) -->
+            <div class="row g-3 mb-3">
                 <div class="col-12">
                     <div class="sim-hero-panel">
                         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                             <div class="fw-bold d-flex align-items-center gap-2" style="font-size: 14px; color: var(--text-primary);">
-                                <i data-lucide="sliders-horizontal" style="color:var(--accent-primary); width:16px; height:16px;"></i>
-                                <span>What-If Scenario Controls</span>
+                                <i data-lucide="cpu" style="color:var(--accent-primary); width:16px; height:16px;"></i>
+                                <span>ML Scenario Controls</span>
+                                <span class="badge bg-white text-dark border font-mono fw-normal" style="font-size: 10.5px;">
+                                    {{ ml_sim_init.ml_model_used }}
+                                </span>
                             </div>
-                            <div class="d-flex align-items-center gap-1.5">
-                                <label for="scenarioPresetSelect" class="small text-muted font-mono d-none d-sm-inline" style="font-size: 11px;">Scenario:</label>
-                                <select id="scenarioPresetSelect" class="form-select form-select-sm font-mono" onchange="applyPreset(this.value)" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-default); font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 28px 4px 10px; cursor: pointer; min-width: 195px;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="badge bg-white text-dark border font-mono py-1 px-2" style="font-size: 11px;" title="Automatically computed from ANPR camera plate detections">
+                                    <i data-lucide="truck" style="width:12px; height:12px; color:#ef4444; display:inline;" class="me-1"></i>
+                                    Trucks: <b id="lbl-auto-truck">{{ live_inputs.truck_telemetry.truck_pct }}%</b> <span class="text-secondary">(ANPR Auto)</span>
+                                </span>
+                                <select id="scenarioPresetSelect" class="form-select form-select-sm font-mono" onchange="applyPreset(this.value)" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-default); font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 28px 4px 10px; cursor: pointer; min-width: 175px;">
                                     <option value="BEGA" selected>Bega (Dry Season)</option>
                                     <option value="BELG">Belg (Mild Rain)</option>
                                     <option value="KIREMT">Kiremt (Monsoon)</option>
@@ -209,46 +215,55 @@
                             </div>
                         </div>
 
+                        <!-- Clean Detected Corridor Features Strip -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 pb-2 border-bottom font-mono" style="font-size: 11px; border-color: var(--border-subtle) !important;">
+                            <span class="text-secondary fw-semibold">Detected Features:</span>
+                            <span class="badge bg-white text-dark border px-2 py-1">PCI: <b>{{ live_inputs.current_pci }}</b></span>
+                            <span class="badge bg-white text-dark border px-2 py-1">IRI: <b>{{ live_inputs.current_iri }} m/km</b></span>
+                            <span class="badge bg-white text-dark border px-2 py-1">GPS: <b>{{ live_inputs.lat }}°N, {{ live_inputs.lon }}°E</b></span>
+                            <span class="badge bg-white text-dark border px-2 py-1">Daily Rain: <b id="lbl-daily-rain">{{ ml_sim_init.features_used.daily_rainfall_mm }} mm/d</b></span>
+                        </div>
+
                         <div class="row g-3">
-                            <!-- Slider 1: Rainfall -->
+                            <!-- Slider 1: Monthly Rainfall -->
                             <div class="col-12 col-md-4">
                                 <div class="range-slider-row">
                                     <div class="range-slider-header">
                                         <span class="text-secondary d-flex align-items-center gap-1.5">
                                             <i data-lucide="cloud-drizzle" style="width:14px; height:14px; color:#38bdf8;"></i>
-                                            <span>Monthly Rainfall:</span>
+                                            <span>Rainfall:</span>
                                         </span>
-                                        <span class="font-mono text-accent fw-bold fs-6" id="lbl-rain">15 mm/mo</span>
+                                        <span class="font-mono text-accent fw-bold fs-6" id="lbl-rain">{{ live_inputs.rain_mm_mo|int }} mm/mo</span>
                                     </div>
-                                    <input type="range" class="form-range" id="slider-rain" min="0" max="350" step="5" value="15" oninput="onRainChange(this.value)">
+                                    <input type="range" class="form-range" id="slider-rain" min="0" max="350" step="5" value="{{ live_inputs.rain_mm_mo|int }}" oninput="onRainChange(this.value)">
                                 </div>
                             </div>
 
-                            <!-- Slider 2: Delay Horizon -->
+                            <!-- Slider 2: Ambient Temperature -->
                             <div class="col-12 col-md-4">
                                 <div class="range-slider-row">
                                     <div class="range-slider-header">
                                         <span class="text-secondary d-flex align-items-center gap-1.5">
-                                            <i data-lucide="calendar" style="width:14px; height:14px; color:#f59e0b;"></i>
-                                            <span>Intervention Delay:</span>
+                                            <i data-lucide="thermometer" style="width:14px; height:14px; color:#ef4444;"></i>
+                                            <span>Temperature:</span>
                                         </span>
-                                        <span class="font-mono text-warning fw-bold fs-6" id="lbl-days">60 Days (2 Months)</span>
+                                        <span class="font-mono fw-bold fs-6" id="lbl-temp" style="color: var(--text-primary) !important;">{{ live_inputs.temp_c }} °C</span>
                                     </div>
-                                    <input type="range" class="form-range" id="slider-days" min="15" max="180" step="15" value="60" oninput="onDaysChange(this.value)">
+                                    <input type="range" class="form-range" id="slider-temp" min="5" max="35" step="0.5" value="{{ live_inputs.temp_c }}" oninput="onTempChange(this.value)">
                                 </div>
                             </div>
 
-                            <!-- Slider 3: Heavy Truck Freight -->
+                            <!-- Slider 3: Delay Horizon -->
                             <div class="col-12 col-md-4">
                                 <div class="range-slider-row mb-0">
                                     <div class="range-slider-header">
                                         <span class="text-secondary d-flex align-items-center gap-1.5">
-                                            <i data-lucide="truck" style="width:14px; height:14px; color:#ef4444;"></i>
-                                            <span>Heavy Freight Proportion:</span>
+                                            <i data-lucide="calendar" style="width:14px; height:14px; color:#f59e0b;"></i>
+                                            <span>Delay Horizon:</span>
                                         </span>
-                                        <span class="font-mono fw-bold fs-6" id="lbl-truck" style="color: var(--text-primary) !important;">24% Trucks</span>
+                                        <span class="font-mono text-warning fw-bold fs-6" id="lbl-days">60 Days (2.0 Mo)</span>
                                     </div>
-                                    <input type="range" class="form-range" id="slider-truck" min="5" max="50" step="1" value="24" oninput="onTruckChange(this.value)">
+                                    <input type="range" class="form-range" id="slider-days" min="15" max="180" step="15" value="60" oninput="onDaysChange(this.value)">
                                 </div>
                             </div>
                         </div>
@@ -270,7 +285,7 @@
                             </div>
                             <div class="text-secondary small mb-1">Preventative Maintenance Budget:</div>
                             <div class="fw-bold font-mono text-success" style="font-size: 26px;" id="val-cost-today">
-                                {{ "{:,.0f}".format(forecast_data.total_cost_today_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
+                                {{ "{:,.0f}".format(ml_sim_init.cost_today_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
                     </div>
@@ -284,17 +299,19 @@
                                 <span class="fw-bold" style="font-size: 13.5px; color: var(--text-primary); letter-spacing: 0.3px;">
                                     If Delayed
                                 </span>
-                                <i data-lucide="alert-triangle" style="color:#ef4444; width:18px; height:18px;"></i>
+                                <span class="badge bg-white text-dark border font-mono" style="font-size: 11px;">
+                                    ML PCI: <b id="lbl-pred-pci">{{ ml_sim_init.predicted_pci }}</b>
+                                </span>
                             </div>
-                            <div class="text-secondary small mb-1">Projected Cost at <span id="lbl-delayed-horizon-text">60 Days</span>:</div>
+                            <div class="text-secondary small mb-1">ML Projected Cost at <span id="lbl-delayed-horizon-text">60 Days</span>:</div>
                             <div class="fw-bold font-mono text-danger" style="font-size: 26px;" id="val-cost-delayed">
-                                {{ "{:,.0f}".format(forecast_data.total_cost_inaction_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
+                                {{ "{:,.0f}".format(ml_sim_init.projected_cost_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
                         <div class="mt-3 pt-2 d-flex justify-content-between align-items-center" style="border-top: 1px solid var(--border-subtle);">
                             <span class="text-secondary small">Cost Escalation:</span>
                             <span class="fw-bold font-mono text-danger" id="lbl-escalation-ratio" style="font-size: 13.5px;">
-                                {{ forecast_data.cost_escalation_ratio }}× Escalation
+                                {{ ml_sim_init.escalation_ratio }}× Escalation
                             </span>
                         </div>
                     </div>
@@ -312,7 +329,7 @@
                             </div>
                             <div class="text-secondary small mb-1">Savings by Acting Immediately:</div>
                             <div class="fw-bold font-mono text-warning" style="font-size: 26px;" id="val-cost-penalty">
-                                +{{ "{:,.0f}".format(forecast_data.total_cost_of_inaction_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
+                                +{{ "{:,.0f}".format(ml_sim_init.net_savings_etb) }} <small class="fs-6 fw-normal text-secondary">ETB</small>
                             </div>
                         </div>
                         <div class="mt-3 pt-2" style="border-top: 1px solid var(--border-subtle);">
@@ -325,7 +342,7 @@
                 </div>
             </div>
 
-            <!-- Dynamic Deterioration Curve Chart (Updates live as sliders move!) -->
+            <!-- Dynamic Deterioration Curve Chart (Updates live from ML backend!) -->
             <div class="panel-card mb-4">
                 <div class="panel-header d-flex justify-content-between align-items-center">
                     <div class="panel-title">
@@ -333,8 +350,8 @@
                         <span>Corridor Degradation Trajectory</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge font-mono" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
-                            Live Interactive Simulation
+                        <span class="badge font-mono" id="lbl-ml-model-badge" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
+                            ML Model: {{ ml_sim_init.ml_model_used }}
                         </span>
                     </div>
                 </div>
@@ -495,37 +512,21 @@ const serverData = {{ forecast_data|tojson }};
 const trajectories = serverData.defect_trajectories || [];
 
 // Simulation State
+const mlSimInit = {{ ml_sim_init|tojson }};
+const liveInputsInit = {{ live_inputs|tojson }};
+
 let simState = {
-    rain_mm: 15.0,
+    rain_mm: parseFloat(liveInputsInit.rain_mm_mo) || 15.0,
+    temp_c: parseFloat(liveInputsInit.temp_c) || 16.5,
     days: 60,
-    truck_pct: 24.0,
-    // ERA Calibration coefficients
-    moisture_scale: 0.18,
-    pothole_w_rate: 0.35,
-    pothole_d_rate: 0.28,
-    base_dry_rain: 15.0
+    truck_pct: parseFloat(liveInputsInit.truck_telemetry?.truck_pct) || 24.0
 };
 
-// Base cost today
-let baseCostToday = parseFloat(serverData.total_cost_today_etb) || 450000;
-let basePci = parseFloat(serverData.current_pci) || 78.0;
 let liveChart = null;
+let mlFetchTimer = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch calibration params if available
-    fetch('/api/settings/calibration')
-        .then(r => r.json())
-        .then(d => {
-            if (d && d.calibration) {
-                simState.moisture_scale = d.calibration.moisture_scaling_factor || 0.18;
-                simState.pothole_w_rate = d.calibration.pothole_width_growth_rate || 0.35;
-                simState.pothole_d_rate = d.calibration.pothole_depth_growth_rate || 0.28;
-                simState.base_dry_rain = d.calibration.baseline_dry_rain_mm || 15.0;
-            }
-            recompute();
-        })
-        .catch(() => recompute());
-
+    applyMlResultToUI(mlSimInit);
     initLedgerFilters();
     if (window.lucide) lucide.createIcons();
 });
@@ -538,27 +539,27 @@ function applyPreset(preset) {
     }
 
     if (preset === 'BEGA') {
-        setSliderValues(15, 30, 15);
+        setSliderValues(15, 16.5, 60);
     } else if (preset === 'BELG') {
-        setSliderValues(95, 60, 24);
+        setSliderValues(95, 18.0, 60);
     } else if (preset === 'KIREMT') {
-        setSliderValues(280, 90, 35);
+        setSliderValues(280, 14.5, 90);
     } else if (preset === 'WORST') {
-        setSliderValues(320, 180, 45);
+        setSliderValues(320, 14.0, 180);
     }
 }
 
-function setSliderValues(rain, days, truck) {
+function setSliderValues(rain, temp, days) {
     simState.rain_mm = rain;
+    simState.temp_c = temp;
     simState.days = days;
-    simState.truck_pct = truck;
 
     const rSlider = document.getElementById('slider-rain');
+    const tSlider = document.getElementById('slider-temp');
     const dSlider = document.getElementById('slider-days');
-    const tSlider = document.getElementById('slider-truck');
     if (rSlider) rSlider.value = rain;
+    if (tSlider) tSlider.value = temp;
     if (dSlider) dSlider.value = days;
-    if (tSlider) tSlider.value = truck;
     recompute();
 }
 
@@ -576,45 +577,63 @@ function onRainChange(val) {
     markCustomPreset();
     recompute();
 }
+function onTempChange(val) {
+    simState.temp_c = parseFloat(val);
+    markCustomPreset();
+    recompute();
+}
 function onDaysChange(val) {
     simState.days = parseInt(val);
     markCustomPreset();
     recompute();
 }
-function onTruckChange(val) {
-    simState.truck_pct = parseFloat(val);
-    markCustomPreset();
-    recompute();
-}
 
-// Master Client-Side Recomputation Engine
+// Master ML-Backed Recomputation Engine
 function recompute() {
     const rain = simState.rain_mm;
+    const temp = simState.temp_c;
     const days = simState.days;
     const t_months = days / 30.0;
-    const truckFactor = Math.max(0.6, Math.min(2.2, simState.truck_pct / 20.0));
 
-    // Update Slider Labels
+    // Update Slider Labels Immediately
     const lRain = document.getElementById('lbl-rain');
     if (lRain) lRain.innerText = rain.toFixed(0) + ' mm/mo';
+    const lDailyRain = document.getElementById('lbl-daily-rain');
+    if (lDailyRain) lDailyRain.innerText = (rain / 30.0).toFixed(2) + ' mm/d';
+    const lTemp = document.getElementById('lbl-temp');
+    if (lTemp) lTemp.innerText = temp.toFixed(1) + ' °C';
     const lDays = document.getElementById('lbl-days');
     if (lDays) lDays.innerText = days + ' Days (' + t_months.toFixed(1) + ' Mo)';
-    const lTruck = document.getElementById('lbl-truck');
-    if (lTruck) lTruck.innerText = simState.truck_pct.toFixed(0) + '% Trucks';
     const lDelayed = document.getElementById('lbl-delayed-horizon-text');
     if (lDelayed) lDelayed.innerText = days + ' Days';
 
-    // Compute Moisture factor: m = 1 + scale * ln(1 + rain / 15)
-    const m = 1.0 + simState.moisture_scale * Math.log(1.0 + rain / simState.base_dry_rain);
+    // Debounced Backend ML Simulation Request
+    clearTimeout(mlFetchTimer);
+    mlFetchTimer = setTimeout(() => {
+        fetch('/api/forecast/ml_simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                rain_mm_mo: rain,
+                temp_c: temp,
+                days_horizon: days
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res && res.success) {
+                applyMlResultToUI(res);
+            }
+        })
+        .catch(err => console.warn('ML simulation update error:', err));
+    }, 100);
+}
 
-    // Compute Physical Defect Expansion
-    const widthGrowth = 1.0 + simState.pothole_w_rate * m * t_months;
-
-    // Cost Escalation
-    const escalationRatio = Math.max(1.15, Math.min(5.8, (1.0 + 0.20 * m * t_months * truckFactor) * Math.pow(widthGrowth, 1.25)));
-    const costToday = baseCostToday;
-    const costDelayed = Math.round(costToday * escalationRatio);
-    const netSavings = costDelayed - costToday;
+function applyMlResultToUI(res) {
+    const costToday = Math.round(res.cost_today_etb || 0);
+    const costDelayed = Math.round(res.projected_cost_etb || 0);
+    const netSavings = Math.round(res.net_savings_etb || 0);
+    const escalationRatio = parseFloat(res.escalation_ratio || 1.0);
 
     const elCostToday = document.getElementById('val-cost-today');
     if (elCostToday) elCostToday.innerHTML = costToday.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
@@ -624,34 +643,31 @@ function recompute() {
     if (elCostPenalty) elCostPenalty.innerHTML = '+' + netSavings.toLocaleString() + ' <small class="fs-6 fw-normal text-secondary">ETB</small>';
     const elEsc = document.getElementById('lbl-escalation-ratio');
     if (elEsc) elEsc.innerText = escalationRatio.toFixed(2) + '× Escalation';
+    const elPredPci = document.getElementById('lbl-pred-pci');
+    if (elPredPci && res.predicted_pci !== undefined) elPredPci.innerText = res.predicted_pci;
+    const elModelBadge = document.getElementById('lbl-ml-model-badge');
+    if (elModelBadge && res.ml_model_used) elModelBadge.innerText = 'ML Model: ' + res.ml_model_used;
+    const elAutoTruck = document.getElementById('lbl-auto-truck');
+    if (elAutoTruck && res.truck_telemetry?.truck_pct !== undefined) {
+        elAutoTruck.innerText = res.truck_telemetry.truck_pct + '%';
+    }
 
-    // Update Degradation Chart
-    updateDegradationChart(basePci, m, truckFactor);
+    if (res.trajectory) {
+        updateDegradationChart(res.trajectory);
+    }
 }
 
-// Chart.js Degradation Trajectory
-function updateDegradationChart(startPci, m, truckFactor) {
+// Chart.js ML Degradation Trajectory
+function updateDegradationChart(trajectory) {
     const ctx = document.getElementById('liveInteractiveChart');
     if (!ctx || typeof Chart === 'undefined') return;
 
-    const horizons = [0, 30, 60, 90, 180];
-    const labels = ['Day 0 (Today)', '30 Days', '60 Days', '90 Days', '180 Days'];
-
-    // Inaction degradation drop
-    const inactionPoints = horizons.map(d => {
-        if (d === 0) return startPci;
-        const t = d / 30.0;
-        const drop = (4.2 * t * (1.0 + (m - 1.0) * 0.75) * truckFactor);
-        return Math.max(15.0, Math.round((startPci - drop) * 10) / 10);
-    });
-
-    // Maintained timely repair (stays strong)
-    const maintainedPoints = horizons.map(d => {
-        if (d === 0) return startPci;
-        return Math.max(76.0, Math.round((startPci - (d / 60.0) * 1.5) * 10) / 10);
-    });
+    const labels = trajectory.labels || ['Day 0 (Today)', '30 Days', '60 Days', '90 Days', '180 Days'];
+    const inactionPoints = trajectory.inaction_pci || [];
+    const maintainedPoints = trajectory.maintained_pci || [];
 
     if (liveChart) {
+        liveChart.data.labels = labels;
         liveChart.data.datasets[0].data = inactionPoints;
         liveChart.data.datasets[1].data = maintainedPoints;
         liveChart.update('none');

@@ -1243,4 +1243,57 @@ def update_pci_calibration(new_values: dict) -> dict:
     return current
 
 
+def get_detected_truck_proportion() -> dict:
+    """
+    Compute Heavy/Commercial Truck Proportion (%) directly from ANPR plate detections.
+    Ethiopian plate codes 3- (Commercial/Freight) and 4- (Heavy/Gov/Truck) are
+    classified as heavy/commercial freight vehicles.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        total_reads = cursor.execute("SELECT COUNT(*) FROM plate_readings").fetchone()[0]
+        rows = cursor.execute(
+            "SELECT DISTINCT vehicle_id, plate_text FROM plate_readings "
+            "WHERE plate_text IS NOT NULL AND plate_text != '' AND plate_text NOT LIKE '%UNREADABLE%'"
+        ).fetchall()
+    except Exception:
+        conn.close()
+        return {
+            "truck_pct": 24.0,
+            "heavy_vehicles": 0,
+            "total_readable_vehicles": 0,
+            "total_plate_reads": 0,
+            "source": "ERA Default Baseline"
+        }
+    conn.close()
+
+    if not rows:
+        return {
+            "truck_pct": 24.0,
+            "heavy_vehicles": 0,
+            "total_readable_vehicles": 0,
+            "total_plate_reads": int(total_reads or 0),
+            "source": "ERA Default Baseline"
+        }
+
+    heavy_count = 0
+    for r in rows:
+        plate = str(r["plate_text"] if isinstance(r, sqlite3.Row) else r[1]).upper()
+        if "3-" in plate or "4-" in plate or "TRUCK" in plate:
+            heavy_count += 1
+
+    total_readable = len(rows)
+    truck_pct = round((heavy_count / total_readable) * 100.0, 1)
+    return {
+        "truck_pct": truck_pct,
+        "heavy_vehicles": heavy_count,
+        "total_readable_vehicles": total_readable,
+        "total_plate_reads": int(total_reads or 0),
+        "source": "ANPR Plate Detection"
+    }
+
+
+
 

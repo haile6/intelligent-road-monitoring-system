@@ -926,6 +926,59 @@ def _get_ml_forecast_bundle():
     return bundle
 
 
+def _get_live_corridor_ml_inputs():
+    """Gather detected PCI, IRI, Lat/Lon, Weather, and ANPR Truck % from SQLite for ML simulation."""
+    forecast_data = get_forecast_simulation_cache()
+    pavement = get_pavement_assessment_cache(50.0)
+    truck_telemetry = db_manager.get_detected_truck_proportion()
+
+    current_pci = float(pavement.get("overall_pci") or forecast_data.get("current_pci") or 83.8)
+    current_iri = float(pavement.get("average_iri") or 4.1)
+    n_segs = max(1, len(pavement.get("segments") or []))
+    potholes_cnt = max(1, int(round(float(pavement.get("total_potholes") or 12) / n_segs)))
+    cracks_cnt = max(0, int(round(float(pavement.get("total_cracks") or 5) / n_segs)))
+    base_cost_today = float(forecast_data.get("total_cost_today_etb") or 950000.0)
+
+    lat = 9.6800
+    lon = 39.5300
+    temp_c = 16.5
+    rain_30d = 15.0
+    try:
+        conn = sqlite3.connect(db_manager.DB_PATH)
+        conn.row_factory = sqlite3.Row
+        w_row = conn.cursor().execute(
+            "SELECT latitude, longitude, temperature_mean_c, precipitation_mm FROM weather_observations ORDER BY date DESC LIMIT 1"
+        ).fetchone()
+        if w_row:
+            if w_row["latitude"] is not None:
+                lat = float(w_row["latitude"])
+            if w_row["longitude"] is not None:
+                lon = float(w_row["longitude"])
+            if w_row["temperature_mean_c"] is not None:
+                temp_c = float(w_row["temperature_mean_c"])
+        r_sum = conn.cursor().execute(
+            "SELECT SUM(precipitation_mm) FROM (SELECT precipitation_mm FROM weather_observations ORDER BY date DESC LIMIT 30)"
+        ).fetchone()
+        if r_sum and r_sum[0] is not None:
+            rain_30d = max(5.0, float(r_sum[0]))
+        conn.close()
+    except Exception:
+        pass
+
+    return {
+        "current_pci": round(current_pci, 1),
+        "current_iri": round(current_iri, 2),
+        "lat": round(lat, 5),
+        "lon": round(lon, 5),
+        "temp_c": round(temp_c, 1),
+        "rain_mm_mo": round(rain_30d, 1),
+        "potholes_count": potholes_cnt,
+        "cracks_count": cracks_cnt,
+        "base_cost_today_etb": base_cost_today,
+        "truck_telemetry": truck_telemetry,
+    }
+
+
 @app.route("/forecast")
 def forecast_view():
     """Predictive Deterioration & Rainy Season Simulator Dashboard."""
@@ -938,6 +991,21 @@ def forecast_view():
     ml_performance = bundle["ml_performance"]
     seasonal_investigation = bundle["seasonal_investigation"]
     data_quality_report = bundle["data_quality_report"]
+
+    live_inputs = _get_live_corridor_ml_inputs()
+    ml_sim_init = ml_engine.simulate_corridor_ml_what_if(
+        rain_mm_mo=live_inputs["rain_mm_mo"],
+        temp_c=live_inputs["temp_c"],
+        days_horizon=60,
+        truck_pct=live_inputs["truck_telemetry"]["truck_pct"],
+        current_pci=live_inputs["current_pci"],
+        current_iri=live_inputs["current_iri"],
+        lat=live_inputs["lat"],
+        lon=live_inputs["lon"],
+        potholes_count=live_inputs["potholes_count"],
+        cracks_count=live_inputs["cracks_count"],
+        base_cost_today_etb=live_inputs["base_cost_today_etb"],
+    )
 
     return render_template(
         "forecast.html",
@@ -952,7 +1020,9 @@ def forecast_view():
         data_quality_report=data_quality_report,
         production_mode=ml_engine.production_mode,
         feature_names=ml_engine.FEATURE_NAMES,
-        features_count=len(ml_engine.FEATURE_NAMES)
+        features_count=len(ml_engine.FEATURE_NAMES),
+        live_inputs=live_inputs,
+        ml_sim_init=ml_sim_init
     )
 
 
@@ -993,6 +1063,38 @@ def api_forecast_simulate():
     days = int(req.get("days_horizon") or 60)
     data = get_forecast_simulation_cache(season=season, days_horizon=days)
     return jsonify(data)
+
+
+@app.route("/api/forecast/ml_simulate", methods=["POST"])
+def api_forecast_ml_simulate():
+    """
+    Run ML-powered What-If deterioration & cost simulation using detected corridor PCI, IRI,
+    Lat/Lon, daily rainfall, temperature, and ANPR plate-detected Truck %.
+    """
+    req = request.get_json() or {}
+    live_inputs = _get_live_corridor_ml_inputs()
+
+    rain_mm_mo = float(req.get("rain_mm_mo") if req.get("rain_mm_mo") is not None else live_inputs["rain_mm_mo"])
+    temp_c = float(req.get("temp_c") if req.get("temp_c") is not None else live_inputs["temp_c"])
+    days_horizon = int(req.get("days_horizon") or 60)
+    # Truck % is automatically sourced from ANPR plate detections unless overridden
+    truck_pct = float(req.get("truck_pct") if req.get("truck_pct") is not None else live_inputs["truck_telemetry"]["truck_pct"])
+
+    result = ml_engine.simulate_corridor_ml_what_if(
+        rain_mm_mo=rain_mm_mo,
+        temp_c=temp_c,
+        days_horizon=days_horizon,
+        truck_pct=truck_pct,
+        current_pci=live_inputs["current_pci"],
+        current_iri=live_inputs["current_iri"],
+        lat=live_inputs["lat"],
+        lon=live_inputs["lon"],
+        potholes_count=live_inputs["potholes_count"],
+        cracks_count=live_inputs["cracks_count"],
+        base_cost_today_etb=live_inputs["base_cost_today_etb"],
+    )
+    result["truck_telemetry"] = live_inputs["truck_telemetry"]
+    return jsonify(result)
 
 
 @app.route("/api/predictions/summary")
