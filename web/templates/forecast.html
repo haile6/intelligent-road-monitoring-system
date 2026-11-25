@@ -384,13 +384,15 @@
                     </div>
                 </div>
 
-                <div class="table-container-responsive border-0">
+                <div class="table-responsive" style="overflow-x: auto;">
                     <table class="enterprise-table" id="forecastDefectsTable">
                         <thead>
                             <tr>
                                 <th style="width: 70px;">ID</th>
                                 <th>Defect Type</th>
-                                <th>Dimensions</th>
+                                <th class="text-center">Width (cm)</th>
+                                <th class="text-center">Depth (cm)</th>
+                                <th class="text-center">Volume (L)</th>
                                 <th>Projected Condition (60d)</th>
                                 <th>Cost Today</th>
                                 <th>Delayed Cost</th>
@@ -410,9 +412,9 @@
                                         <span class="badge-status badge-defect-crack">Crack</span>
                                         {% endif %}
                                     </td>
-                                    <td class="font-mono text-muted small">
-                                        {{ d.current_dimensions.width_cm }}cm × {{ d.current_dimensions.depth_cm }}cm ({{ d.current_dimensions.volume_liters }}L)
-                                    </td>
+                                    <td class="font-mono text-center">{{ d.current_dimensions.width_cm }} cm</td>
+                                    <td class="font-mono text-center">{{ d.current_dimensions.depth_cm }} cm</td>
+                                    <td class="font-mono text-center">{{ d.current_dimensions.volume_liters }} L</td>
                                     <td>
                                         <div class="fw-semibold" style="font-size: 11.5px; color: var(--text-primary);">{{ d.projected_state }}</div>
                                     </td>
@@ -436,7 +438,7 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-muted font-mono">
+                                    <td colspan="10" class="text-center py-4 text-muted font-mono">
                                         No defects recorded for this corridor.
                                     </td>
                                 </tr>
