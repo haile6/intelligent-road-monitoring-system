@@ -59,7 +59,7 @@
     <div class="kpi-row-grid">
 
         <!-- 1. Total Verified Hazards -->
-        <div onclick="openAndFilterLedger('ALL');" class="kpi-metric-card accent-primary text-decoration-none" style="cursor: pointer;" title="Click to view all incidents on dashboard">
+        <div onclick="openAndFilterLedger('ALL');" class="kpi-metric-card text-decoration-none" style="cursor: pointer;" title="Click to view all incidents on dashboard">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Total Hazards</span>
                 <div class="kpi-icon-pill"><i data-lucide="cone"></i></div>
@@ -68,7 +68,7 @@
         </div>
 
         <!-- 2. Immediate Danger -->
-        <div onclick="openAndFilterLedger('DANGER');" class="kpi-metric-card accent-danger text-decoration-none" style="cursor: pointer;" title="Click to view Immediate Danger incidents">
+        <div onclick="openAndFilterLedger('DANGER');" class="kpi-metric-card text-decoration-none" style="cursor: pointer;" title="Click to view Immediate Danger incidents">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-danger">Immediate Danger</span>
                 <div class="kpi-icon-pill" style="color:var(--danger);"><i data-lucide="alert-octagon"></i></div>
@@ -77,7 +77,7 @@
         </div>
 
         <!-- 3. Warning / Caution -->
-        <div onclick="openAndFilterLedger('WARNING');" class="kpi-metric-card accent-warning text-decoration-none" style="cursor: pointer;" title="Click to view Warning incidents">
+        <div onclick="openAndFilterLedger('WARNING');" class="kpi-metric-card text-decoration-none" style="cursor: pointer;" title="Click to view Warning incidents">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-warning">Warning</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="alert-triangle"></i></div>
@@ -86,7 +86,7 @@
         </div>
 
         <!-- 4. Safe / Monitoring -->
-        <div onclick="openAndFilterLedger('SAFE');" class="kpi-metric-card accent-success text-decoration-none" style="cursor: pointer;" title="Click to view Safe incidents">
+        <div onclick="openAndFilterLedger('SAFE');" class="kpi-metric-card text-decoration-none" style="cursor: pointer;" title="Click to view Safe incidents">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-success">Safe</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
@@ -95,7 +95,7 @@
         </div>
 
         <!-- 5. Corridor Coverage -->
-        <a href="{{ url_for('map_view') }}" class="kpi-metric-card accent-primary text-decoration-none">
+        <a href="{{ url_for('map_view') }}" class="kpi-metric-card text-decoration-none">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Corridor Coverage</span>
                 <div class="kpi-icon-pill"><i data-lucide="signpost"></i></div>
@@ -104,7 +104,7 @@
         </a>
 
         <!-- 6. Active Work Orders -->
-        <a href="{{ url_for('reports_view') }}" class="kpi-metric-card accent-indigo text-decoration-none">
+        <a href="{{ url_for('reports_view') }}" class="kpi-metric-card text-decoration-none">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Active Work Orders</span>
                 <div class="kpi-icon-pill"><i data-lucide="clipboard-check"></i></div>
@@ -113,7 +113,7 @@
         </a>
 
         <!-- 7. Contractor DLP Warranties -->
-        <a href="{{ url_for('contractors_view') }}" class="kpi-metric-card accent-warning text-decoration-none">
+        <a href="{{ url_for('contractors_view') }}" class="kpi-metric-card text-decoration-none">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Warranties</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="shield-alert"></i></div>

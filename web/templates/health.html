@@ -33,7 +33,7 @@
     <!-- ============================================================ -->
     <div class="kpi-row-grid mb-4">
         <!-- 1. Video Input Stream -->
-        <div class="kpi-metric-card {% if health.video_input.ok %}accent-success{% else %}accent-danger{% endif %}">
+        <div class="kpi-metric-card {% if health.video_input.ok %}{% else %}{% endif %}">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">1. Video Ingest</span>
                 <div class="kpi-icon-pill" style="color:{% if health.video_input.ok %}var(--success){% else %}var(--danger){% endif %};">
@@ -46,7 +46,7 @@
         </div>
 
         <!-- 2. AI Neural Models -->
-        <div class="kpi-metric-card {% if health.models.ok %}accent-success{% else %}accent-warning{% endif %}">
+        <div class="kpi-metric-card {% if health.models.ok %}{% else %}{% endif %}">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">2. Neural Core</span>
                 <div class="kpi-icon-pill" style="color:{% if health.models.ok %}var(--success){% else %}var(--warning){% endif %};">
@@ -59,7 +59,7 @@
         </div>
 
         <!-- 3. SQLite Database -->
-        <div class="kpi-metric-card {% if health.database.ok %}accent-success{% else %}accent-danger{% endif %}">
+        <div class="kpi-metric-card {% if health.database.ok %}{% else %}{% endif %}">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">3. Database</span>
                 <div class="kpi-icon-pill" style="color:{% if health.database.ok %}var(--success){% else %}var(--danger){% endif %};">
@@ -72,7 +72,7 @@
         </div>
 
         <!-- 4. GPS Telemetry Provider -->
-        <div class="kpi-metric-card {% if health.gps.ok %}accent-success{% else %}accent-warning{% endif %}">
+        <div class="kpi-metric-card {% if health.gps.ok %}{% else %}{% endif %}">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">4. GPS</span>
                 <div class="kpi-icon-pill" style="color:{% if health.gps.ok %}var(--success){% else %}var(--warning){% endif %};">
@@ -85,7 +85,7 @@
         </div>
 
         <!-- 5. ANPR / OCR Engine -->
-        <div class="kpi-metric-card accent-success">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">5. ANPR</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="car"></i></div>
@@ -96,7 +96,7 @@
         </div>
 
         <!-- 6. Auditory Subsystem -->
-        <div class="kpi-metric-card accent-success">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">6. Audio</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="volume-2"></i></div>
@@ -105,7 +105,7 @@
         </div>
 
         <!-- 7. Disk Storage Usage -->
-        <div class="kpi-metric-card accent-primary">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">7. Storage</span>
                 <div class="kpi-icon-pill"><i data-lucide="hard-drive"></i></div>
@@ -116,7 +116,7 @@
         </div>
 
         <!-- 8. Pipeline Background Queue -->
-        <div class="kpi-metric-card accent-indigo">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">8. Jobs Queue</span>
                 <div class="kpi-icon-pill"><i data-lucide="activity"></i></div>

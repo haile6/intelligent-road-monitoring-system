@@ -1,7 +1,7 @@
-// RoadEye™ Progressive Web App (PWA) Service Worker v4 (Multi-factor Risk & 3D Depth)
-const CACHE_NAME = 'roadeye-pwa-v4';
+// RoadEye™ Progressive Web App (PWA) Service Worker v5
+const CACHE_NAME = 'roadeye-pwa-v5';
 const PRECACHE_ASSETS = [
-  '/static/css/custom.css?v=5.4',
+  '/static/css/custom.css?v=8.3',
   '/static/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png'

@@ -28,7 +28,7 @@
     <!-- 2. SUMMARY METRICS ROW (4 REAL KPIS)                         -->
     <!-- ============================================================ -->
     <div class="kpi-row-grid mb-4">
-        <div class="kpi-metric-card accent-primary">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Total Scans</span>
                 <div class="kpi-icon-pill"><i data-lucide="camera"></i></div>
@@ -36,7 +36,7 @@
             <div class="kpi-number-display">{{ plates|length }}</div>
         </div>
 
-        <div class="kpi-metric-card accent-success">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-success">Resolved Plates</span>
                 <div class="kpi-icon-pill" style="color:var(--success);"><i data-lucide="check-circle-2"></i></div>
@@ -44,7 +44,7 @@
             <div class="kpi-number-display text-success">{{ ocr_read|length }}</div>
         </div>
 
-        <div class="kpi-metric-card accent-indigo">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text">Registrations</span>
                 <div class="kpi-icon-pill"><i data-lucide="file-text"></i></div>
@@ -52,7 +52,7 @@
             <div class="kpi-number-display">{{ unique_vehicles|length }}</div>
         </div>
 
-        <div class="kpi-metric-card accent-warning">
+        <div class="kpi-metric-card">
             <div class="kpi-top-meta">
                 <span class="kpi-label-text text-warning">Tracked Vehicles</span>
                 <div class="kpi-icon-pill" style="color:var(--warning);"><i data-lucide="truck"></i></div>
