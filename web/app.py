@@ -159,8 +159,40 @@ def pwa_service_worker():
 def dashboard():
     """Executive Dashboard with KPI metrics, risk breakdown, and quick actions."""
     stats = db_manager.get_dashboard_stats()
-    recent_incidents = db_manager.get_all_incidents()[:8]
+    all_incidents = db_manager.get_all_incidents()
+    recent_incidents = all_incidents[:8]
     recent_runs = db_manager.get_recent_pipeline_runs(5)
+
+    # Use spatially de-duplicated canonical hazards on the main dashboard KPIs
+    try:
+        fleet_res = get_fleet_crowdsourcing_cache()
+        canonical_hazards = fleet_res.get("canonical_hazards") or []
+        if canonical_hazards:
+            danger_cnt = sum(
+                1 for h in canonical_hazards
+                if "IMMEDIATE" in (h.get("max_risk_level") or "").upper()
+                or "DANGER" in (h.get("max_risk_level") or "").upper()
+            )
+            warn_cnt = sum(
+                1 for h in canonical_hazards
+                if not ("IMMEDIATE" in (h.get("max_risk_level") or "").upper() or "DANGER" in (h.get("max_risk_level") or "").upper())
+                and ("WARN" in (h.get("max_risk_level") or "").upper() or "CAUTION" in (h.get("max_risk_level") or "").upper())
+            )
+            safe_cnt = len(canonical_hazards) - danger_cnt - warn_cnt
+            active_wo_cnt = sum(
+                1 for h in canonical_hazards
+                if (h.get("status") or "Reported") not in ("Repaired", "Dismissed")
+            )
+            stats["raw_observations"] = len(all_incidents)
+            stats["total_hazards"] = len(canonical_hazards)
+            stats["total_incidents"] = len(canonical_hazards)
+            stats["immediate_danger"] = danger_cnt
+            stats["warning_caution"] = warn_cnt
+            stats["caution_count"] = warn_cnt
+            stats["safe_count"] = safe_cnt
+            stats["active_work_orders"] = active_wo_cnt
+    except Exception:
+        pass
 
     input_video = os.path.join(BASE_DIR, "data", "test_video.mp4")
     output_video = os.path.join(BASE_DIR, "outputs", "annotated_phase9.mp4")
