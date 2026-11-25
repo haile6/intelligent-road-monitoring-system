@@ -165,7 +165,7 @@
                         </div>
 
                         <!-- Corridor Civil Engineering Schedule Rates -->
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <label class="form-label small fw-semibold">
                                 Full-Depth Reconstruction Rate (per m²)
                             </label>
@@ -176,18 +176,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-4">
-                            <label class="form-label small fw-semibold">
-                                50mm Asphalt Overlay Rate (per m²)
-                            </label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text font-mono">ETB/m²</span>
-                                <input type="number" step="50" class="form-control font-mono fw-bold" id="rate-overlay" 
-                                       value="{{ material_rates.overlay_rate_m2_etb or 2650.0 }}">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <label class="form-label small fw-semibold">
                                 Cold Planar Milling Rate (per m²)
                             </label>
@@ -399,6 +388,64 @@
                         </div>
                     </div>
 
+                    <h6 class="text-white small fw-bold mt-3 mb-2">3. IRI Roughness Vertical Bump Weights (meters per defect / km)</h6>
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label small fw-semibold text-danger">
+                                Pothole High Bump (&gt;5cm, n<sub>high</sub>)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">m / defect</span>
+                                <input type="number" step="0.01" min="0" class="form-control font-mono fw-bold" id="calib-iri-pth-high"
+                                       value="{{ pci_calibration.iri_pothole_high_bump if pci_calibration is defined and pci_calibration.iri_pothole_high_bump is defined else 0.32 }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label small fw-semibold text-warning">
+                                Pothole Medium Bump (2.5–5cm, n<sub>med</sub>)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">m / defect</span>
+                                <input type="number" step="0.01" min="0" class="form-control font-mono fw-bold" id="calib-iri-pth-med"
+                                       value="{{ pci_calibration.iri_pothole_med_bump if pci_calibration is defined and pci_calibration.iri_pothole_med_bump is defined else 0.16 }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label small fw-semibold text-success">
+                                Pothole Low Bump (&lt;2.5cm, n<sub>low</sub>)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">m / defect</span>
+                                <input type="number" step="0.01" min="0" class="form-control font-mono fw-bold" id="calib-iri-pth-low"
+                                       value="{{ pci_calibration.iri_pothole_low_bump if pci_calibration is defined and pci_calibration.iri_pothole_low_bump is defined else 0.07 }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label small fw-semibold text-danger">
+                                Crack High Bump (c<sub>high</sub>)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">m / defect</span>
+                                <input type="number" step="0.01" min="0" class="form-control font-mono fw-bold" id="calib-iri-crk-high"
+                                       value="{{ pci_calibration.iri_crack_high_bump if pci_calibration is defined and pci_calibration.iri_crack_high_bump is defined else 0.12 }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label small fw-semibold text-info">
+                                Crack Med/Low Bump (c<sub>other</sub>)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text font-mono">m / defect</span>
+                                <input type="number" step="0.01" min="0" class="form-control font-mono fw-bold" id="calib-iri-crk-other"
+                                       value="{{ pci_calibration.iri_crack_other_bump if pci_calibration is defined and pci_calibration.iri_crack_other_bump is defined else 0.05 }}">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-end mt-3 gap-2">
                         <button class="btn btn-sm btn-outline-secondary" onclick="resetDefaultPciCalibration()">
                             <i data-lucide="rotate-ccw"></i> Reset to ASTM Defaults
@@ -573,17 +620,23 @@ function submitCalibrationUpdate() {
     });
 }
 
+const MATERIAL_RATE_SCHEMA = [
+    { id: 'rate-bag-price',   key: 'cold_patch_bag_price_etb',     def: 850.0 },
+    { id: 'rate-labor-m2',    key: 'labor_compaction_rate_m2_etb', def: 450.0 },
+    { id: 'rate-tack-coat',   key: 'tack_coat_per_liter_etb',      def: 120.0 },
+    { id: 'rate-hot-mix',     key: 'hot_mix_ton_etb',              def: 14500.0 },
+    { id: 'rate-reconstruct', key: 'reconstruction_rate_m2_etb',   def: 7800.0 },
+    { id: 'rate-milling',     key: 'milling_rate_m2_etb',          def: 420.0 },
+    { id: 'rate-fx-usd',      key: 'etb_to_usd_rate',              def: 128.0 }
+];
+
 function saveMaterialRates() {
-    const payload = {
-        cold_patch_bag_price_etb: parseFloat(document.getElementById('rate-bag-price').value) || 850.0,
-        labor_compaction_rate_m2_etb: parseFloat(document.getElementById('rate-labor-m2').value) || 450.0,
-        tack_coat_per_liter_etb: parseFloat(document.getElementById('rate-tack-coat').value) || 120.0,
-        hot_mix_ton_etb: parseFloat(document.getElementById('rate-hot-mix').value) || 14500.0,
-        reconstruction_rate_m2_etb: parseFloat(document.getElementById('rate-reconstruct').value) || 7800.0,
-        milling_rate_m2_etb: parseFloat(document.getElementById('rate-milling').value) || 420.0,
-        overlay_rate_m2_etb: parseFloat(document.getElementById('rate-overlay').value) || 2650.0,
-        etb_to_usd_rate: parseFloat(document.getElementById('rate-fx-usd').value) || 128.0
-    };
+    const payload = {};
+    MATERIAL_RATE_SCHEMA.forEach(({ id, key, def }) => {
+        const el = document.getElementById(id);
+        const parsed = el ? parseFloat(el.value) : NaN;
+        payload[key] = Number.isFinite(parsed) && parsed >= 0 ? parsed : def;
+    });
 
     localStorage.setItem('roadeye_material_rates', JSON.stringify(payload));
     localStorage.setItem('roadeye_bag_price', payload.cold_patch_bag_price_etb);
@@ -611,14 +664,10 @@ function saveMaterialRates() {
 }
 
 function resetDefaultRates() {
-    document.getElementById('rate-bag-price').value = 850.0;
-    document.getElementById('rate-labor-m2').value = 450.0;
-    document.getElementById('rate-tack-coat').value = 120.0;
-    document.getElementById('rate-hot-mix').value = 14500.0;
-    document.getElementById('rate-reconstruct').value = 7800.0;
-    document.getElementById('rate-overlay').value = 2650.0;
-    document.getElementById('rate-milling').value = 420.0;
-    document.getElementById('rate-fx-usd').value = 128.0;
+    MATERIAL_RATE_SCHEMA.forEach(({ id, def }) => {
+        const el = document.getElementById(id);
+        if (el) el.value = def;
+    });
     saveMaterialRates();
 }
 
@@ -659,18 +708,30 @@ function resetDefaultCalibration() {
     saveCalibrationParams();
 }
 
+const PCI_CALIBRATION_SCHEMA = [
+    { id: 'calib-pth-high-scale', key: 'astm_pothole_high_scale', def: 38.0 },
+    { id: 'calib-pth-high-exp',   key: 'astm_pothole_high_exp',   def: 0.45 },
+    { id: 'calib-pth-med-scale',  key: 'astm_pothole_med_scale',  def: 24.0 },
+    { id: 'calib-pth-med-exp',    key: 'astm_pothole_med_exp',    def: 0.40 },
+    { id: 'calib-pth-low-scale',  key: 'astm_pothole_low_scale',  def: 14.0 },
+    { id: 'calib-pth-low-exp',    key: 'astm_pothole_low_exp',    def: 0.35 },
+    { id: 'calib-base-iri',       key: 'base_highway_iri',        def: 1.8 },
+    { id: 'calib-iri-pth-high',   key: 'iri_pothole_high_bump',   def: 0.32 },
+    { id: 'calib-iri-pth-med',    key: 'iri_pothole_med_bump',    def: 0.16 },
+    { id: 'calib-iri-pth-low',    key: 'iri_pothole_low_bump',    def: 0.07 },
+    { id: 'calib-iri-crk-high',   key: 'iri_crack_high_bump',     def: 0.12 },
+    { id: 'calib-iri-crk-other',  key: 'iri_crack_other_bump',    def: 0.05 },
+    { id: 'calib-corridor-width', key: 'standard_corridor_width_m', def: 7.00 },
+    { id: 'calib-lane-width',     key: 'standard_lane_width_m',     def: 3.50 }
+];
+
 function savePciCalibration() {
-    const payload = {
-        astm_pothole_high_scale: parseFloat(document.getElementById('calib-pth-high-scale').value) || 38.0,
-        astm_pothole_high_exp: parseFloat(document.getElementById('calib-pth-high-exp').value) || 0.45,
-        astm_pothole_med_scale: parseFloat(document.getElementById('calib-pth-med-scale').value) || 24.0,
-        astm_pothole_med_exp: parseFloat(document.getElementById('calib-pth-med-exp').value) || 0.40,
-        astm_pothole_low_scale: parseFloat(document.getElementById('calib-pth-low-scale').value) || 14.0,
-        astm_pothole_low_exp: parseFloat(document.getElementById('calib-pth-low-exp').value) || 0.35,
-        base_highway_iri: parseFloat(document.getElementById('calib-base-iri').value) || 1.8,
-        standard_corridor_width_m: parseFloat(document.getElementById('calib-corridor-width').value) || 7.00,
-        standard_lane_width_m: parseFloat(document.getElementById('calib-lane-width').value) || 3.50
-    };
+    const payload = {};
+    PCI_CALIBRATION_SCHEMA.forEach(({ id, key, def }) => {
+        const el = document.getElementById(id);
+        const parsed = el ? parseFloat(el.value) : NaN;
+        payload[key] = Number.isFinite(parsed) && parsed >= 0 ? parsed : def;
+    });
 
     fetch('/api/settings/pci-calibration', {
         method: 'POST',
@@ -694,15 +755,10 @@ function savePciCalibration() {
 }
 
 function resetDefaultPciCalibration() {
-    document.getElementById('calib-pth-high-scale').value = 38.0;
-    document.getElementById('calib-pth-high-exp').value = 0.45;
-    document.getElementById('calib-pth-med-scale').value = 24.0;
-    document.getElementById('calib-pth-med-exp').value = 0.40;
-    document.getElementById('calib-pth-low-scale').value = 14.0;
-    document.getElementById('calib-pth-low-exp').value = 0.35;
-    document.getElementById('calib-base-iri').value = 1.8;
-    document.getElementById('calib-corridor-width').value = 7.00;
-    document.getElementById('calib-lane-width').value = 3.50;
+    PCI_CALIBRATION_SCHEMA.forEach(({ id, def }) => {
+        const el = document.getElementById(id);
+        if (el) el.value = def;
+    });
     savePciCalibration();
 }
 </script>

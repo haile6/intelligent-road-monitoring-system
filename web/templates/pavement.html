@@ -840,7 +840,7 @@
                                 <div class="standard-title" style="color: #FFFFFF !important; font-weight: 700;">Full Reconstruction</div>
                                 <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">PCI &lt; 40 / IRI &ge; 7.0</div>
                             </div>
-                            <div class="standard-rate rate-red font-mono" style="color: #F87171 !important; font-weight: 800;">7,800 ETB/m²</div>
+                            <div class="standard-rate rate-red font-mono" style="color: #F87171 !important; font-weight: 800;">{{ "{:,.0f}".format(assessment.rates_summary.rate_reconstruct if assessment.rates_summary else 7800) }} ETB/m²</div>
                         </div>
                     </div>
 
@@ -849,9 +849,9 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <div class="standard-title" style="color: #FFFFFF !important; font-weight: 700;">Mill &amp; 50mm Overlay</div>
-                                <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">40 &le; PCI &lt; 70</div>
+                                <div class="standard-criteria font-mono" style="color: #CBD5E1 !important;">40 &le; PCI &lt; 70 / IRI &ge; 4.0</div>
                             </div>
-                            <div class="standard-rate rate-amber font-mono" style="color: #FBBF24 !important; font-weight: 800;">3,250 ETB/m²</div>
+                            <div class="standard-rate rate-amber font-mono" style="color: #FBBF24 !important; font-weight: 800;">~{{ "{:,.0f}".format(assessment.rates_summary.effective_mill_overlay_m2 if assessment.rates_summary else 2676) }} ETB/m²</div>
                         </div>
                     </div>
 
@@ -1238,7 +1238,7 @@
                         </div>
                         <div class="col-12 col-md-4">
                             <div class="fw-bold mb-1" style="color: var(--text-primary);">ERA Standard Specifications</div>
-                            <div>Ethiopian Roads Administration schedule of unit rates: Cold Milling (450 ETB/m²), AC Overlay (2,800 ETB/m²), Tack Coat (180 ETB/L).</div>
+                            <div>Ethiopian Roads Administration schedule of unit rates: Cold Milling ({{ "{:,.0f}".format(assessment.rates_summary.rate_milling if assessment.rates_summary else 420) }} ETB/m²), Tack Coat ({{ "{:,.0f}".format(assessment.rates_summary.rate_tack_liter if assessment.rates_summary else 120) }} ETB/L @ 0.55 L/m²), HMA AC 60/70 ({{ "{:,.0f}".format(assessment.rates_summary.rate_hot_mix_ton if assessment.rates_summary else 14500) }} ETB/Tonne), Paving &amp; Compaction ({{ "{:,.0f}".format(assessment.rates_summary.rate_laying_m2 if assessment.rates_summary else 450) }} ETB/m²).</div>
                         </div>
                     </div>
                 </div>

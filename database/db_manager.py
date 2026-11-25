@@ -1201,6 +1201,11 @@ DEFAULT_PCI_CALIBRATION = {
     "astm_crack_low_scale": 8.5,
     "astm_crack_low_exp": 0.32,
     "base_highway_iri": 1.8,
+    "iri_pothole_high_bump": 0.32,
+    "iri_pothole_med_bump": 0.16,
+    "iri_pothole_low_bump": 0.07,
+    "iri_crack_high_bump": 0.12,
+    "iri_crack_other_bump": 0.05,
     "standard_lane_width_m": 3.50,
     "standard_corridor_width_m": 7.00
 }
@@ -1229,6 +1234,8 @@ def update_pci_calibration(new_values: dict) -> dict:
         if k in DEFAULT_PCI_CALIBRATION:
             try:
                 val = float(v)
+                if val < 0.0:
+                    continue
                 set_setting(k, val, f"Engineering calibration parameter for {k}")
                 current[k] = val
             except (ValueError, TypeError):

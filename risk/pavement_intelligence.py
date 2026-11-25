@@ -240,6 +240,11 @@ class InternationalRoughnessIndex:
     """
 
     BASE_HIGHWAY_IRI = 1.8  # Nominal newly paved asphalt roughness (m/km)
+    POTHOLE_HIGH_BUMP_M = 0.32
+    POTHOLE_MED_BUMP_M = 0.16
+    POTHOLE_LOW_BUMP_M = 0.07
+    CRACK_HIGH_BUMP_M = 0.12
+    CRACK_OTHER_BUMP_M = 0.05
 
     @classmethod
     def get_rating_info(cls, iri_value: float) -> Dict[str, Any]:
@@ -283,20 +288,27 @@ class InternationalRoughnessIndex:
         c_high = sum(1 for c in cracks if "IMMEDIATE" in str(c.get("max_risk_level", "")).upper() or "DANGER" in str(c.get("max_risk_level", "")).upper())
         c_other = len(cracks) - c_high
 
-        # Pothole contribution normalized to m/km
-        # A single critical pothole in 250m causes vehicle impact of ~0.35m vertical bump equivalent
-        delta_potholes = ((p_high * 0.32) + (p_med * 0.16) + (p_low * 0.07)) / seg_km
-
-        # Cracking contribution to surface texture roughness
-        delta_cracking = ((c_high * 0.12) + (c_other * 0.05)) / seg_km
-
         base_iri = cls.BASE_HIGHWAY_IRI
+        w_p_high = cls.POTHOLE_HIGH_BUMP_M
+        w_p_med = cls.POTHOLE_MED_BUMP_M
+        w_p_low = cls.POTHOLE_LOW_BUMP_M
+        w_c_high = cls.CRACK_HIGH_BUMP_M
+        w_c_other = cls.CRACK_OTHER_BUMP_M
         try:
             from database import db_manager
             calib = db_manager.get_pci_calibration()
-            base_iri = float(calib.get("base_highway_iri", base_iri))
+            base_iri = max(0.0, float(calib.get("base_highway_iri", base_iri)))
+            w_p_high = max(0.0, float(calib.get("iri_pothole_high_bump", w_p_high)))
+            w_p_med = max(0.0, float(calib.get("iri_pothole_med_bump", w_p_med)))
+            w_p_low = max(0.0, float(calib.get("iri_pothole_low_bump", w_p_low)))
+            w_c_high = max(0.0, float(calib.get("iri_crack_high_bump", w_c_high)))
+            w_c_other = max(0.0, float(calib.get("iri_crack_other_bump", w_c_other)))
         except Exception:
             pass
+
+        # Pothole & cracking contributions normalized to m/km (configurable via Settings)
+        delta_potholes = ((p_high * w_p_high) + (p_med * w_p_med) + (p_low * w_p_low)) / seg_km
+        delta_cracking = ((c_high * w_c_high) + (c_other * w_c_other)) / seg_km
 
         estimated_iri = min(16.0, max(base_iri, base_iri + delta_potholes + delta_cracking))
         
@@ -331,8 +343,11 @@ class AsphaltBudgetEstimator:
     RATE_POTHOLE_COLD_PATCH_PER_M2 = 2850.0      # Cold-mix asphalt patching & compaction
     RATE_CRACK_SEALING_PER_M = 480.0             # Hot-poured elastomeric polymer sealant
     RATE_MILLING_50MM_PER_M2 = 420.0             # Cold planar milling 50mm depth
-    RATE_TACK_COAT_PER_M2 = 180.0                # Bitumen emulsion tack coat (0.55 L/m2)
-    RATE_ASPHALT_OVERLAY_50MM_PER_M2 = 2650.0    # 50mm Hot Mix Asphalt Wearing Course
+    RATE_TACK_COAT_PER_LITER = 120.0             # Bitumen emulsion tack coat per Liter (K1-60)
+    RATE_HOT_MIX_PER_TONNE = 14500.0             # Hot Mix Asphalt Wearing Course (AC 60/70) per Tonne
+    RATE_PAVING_COMPACTION_PER_M2 = 450.0        # Asphalt paving, screeding & compaction labor/plant
+    RATE_TACK_COAT_PER_M2 = 180.0                # Legacy alias retained for backward compatibility
+    RATE_ASPHALT_OVERLAY_50MM_PER_M2 = 2650.0    # Legacy alias retained for backward compatibility
     RATE_FULL_RECONSTRUCTION_PER_M2 = 7800.0     # Sub-base, DBM binder 60mm & wearing 50mm
 
     # Material Constants
@@ -341,6 +356,44 @@ class AsphaltBudgetEstimator:
     TACK_COAT_APPLICATION_RATE_L_M2 = 0.55       # Liters of emulsion per m2
     STANDARD_LANE_WIDTH_M = 3.50                 # 1 Lane width
     STANDARD_CORRIDOR_WIDTH_M = 7.00             # 2-lane carriageway width
+
+    @classmethod
+    def get_effective_rates(cls) -> Dict[str, float]:
+        """Load effective ERA unit rates from database settings with safe defaults."""
+        rate_reconstruct = cls.RATE_FULL_RECONSTRUCTION_PER_M2
+        rate_milling = cls.RATE_MILLING_50MM_PER_M2
+        rate_tack_liter = cls.RATE_TACK_COAT_PER_LITER
+        rate_hot_mix_ton = cls.RATE_HOT_MIX_PER_TONNE
+        rate_laying_m2 = cls.RATE_PAVING_COMPACTION_PER_M2
+        fx_usd = cls.ETB_TO_USD_RATE
+        try:
+            from database import db_manager
+            m_rates = db_manager.get_material_rates()
+            rate_reconstruct = max(0.0, float(m_rates.get("reconstruction_rate_m2_etb") or rate_reconstruct))
+            rate_milling = max(0.0, float(m_rates.get("milling_rate_m2_etb") or rate_milling))
+            rate_tack_liter = max(0.0, float(m_rates.get("tack_coat_per_liter_etb") or rate_tack_liter))
+            rate_hot_mix_ton = max(0.0, float(m_rates.get("hot_mix_ton_etb") or rate_hot_mix_ton))
+            rate_laying_m2 = max(0.0, float(m_rates.get("labor_compaction_rate_m2_etb") or rate_laying_m2))
+            fx_usd = max(1.0, float(m_rates.get("etb_to_usd_rate") or fx_usd))
+        except Exception:
+            pass
+
+        effective_mill_overlay_m2 = round(
+            rate_milling
+            + (cls.TACK_COAT_APPLICATION_RATE_L_M2 * rate_tack_liter)
+            + (0.05 * cls.DENSITY_HMA_TONNES_PER_M3 * rate_hot_mix_ton)
+            + rate_laying_m2,
+            2
+        )
+        return {
+            "rate_reconstruct": rate_reconstruct,
+            "rate_milling": rate_milling,
+            "rate_tack_liter": rate_tack_liter,
+            "rate_hot_mix_ton": rate_hot_mix_ton,
+            "rate_laying_m2": rate_laying_m2,
+            "fx_usd": fx_usd,
+            "effective_mill_overlay_m2": effective_mill_overlay_m2
+        }
 
     @classmethod
     def estimate_segment_budget(cls, 
@@ -371,20 +424,13 @@ class AsphaltBudgetEstimator:
         intervention_level = "PREVENTIVE"
 
         # Dynamically load municipal rates if configured by the city authority
-        rate_reconstruct = cls.RATE_FULL_RECONSTRUCTION_PER_M2
-        rate_milling = cls.RATE_MILLING_50MM_PER_M2
-        rate_overlay = cls.RATE_ASPHALT_OVERLAY_50MM_PER_M2
-        rate_tack = cls.RATE_TACK_COAT_PER_M2
-        fx_usd = cls.ETB_TO_USD_RATE
-        try:
-            from database import db_manager
-            m_rates = db_manager.get_material_rates()
-            rate_reconstruct = float(m_rates.get("reconstruction_rate_m2_etb") or rate_reconstruct)
-            rate_milling = float(m_rates.get("milling_rate_m2_etb") or rate_milling)
-            rate_overlay = float(m_rates.get("overlay_rate_m2_etb") or rate_overlay)
-            fx_usd = float(m_rates.get("etb_to_usd_rate") or fx_usd)
-        except Exception:
-            pass
+        rates = cls.get_effective_rates()
+        rate_reconstruct = rates["rate_reconstruct"]
+        rate_milling = rates["rate_milling"]
+        rate_tack_liter = rates["rate_tack_liter"]
+        rate_hot_mix_ton = rates["rate_hot_mix_ton"]
+        rate_laying_m2 = rates["rate_laying_m2"]
+        fx_usd = rates["fx_usd"]
 
         # Determine Intervention Level based on ASTM D6433 & ERA triggers:
         # 1. PCI < 40 or IRI >= 7.0: Heavy Structural Failure -> Full-Depth Reconstruction
@@ -442,9 +488,14 @@ class AsphaltBudgetEstimator:
                 trigger_reason = f"Functional Distress (PCI {pci_score:.1f} < 70)"
                 trigger_reason_am = "የአስፋልት ወለል ማሻሻያ"
 
+            asphalt_tonnes = total_surface_area_m2 * 0.05 * cls.DENSITY_HMA_TONNES_PER_M3
+            tack_coat_liters = total_surface_area_m2 * cls.TACK_COAT_APPLICATION_RATE_L_M2
+            cold_patch_tonnes = 0.0
+
             cost_milling = total_surface_area_m2 * rate_milling
-            cost_tack = total_surface_area_m2 * rate_tack
-            cost_overlay = total_surface_area_m2 * rate_overlay
+            cost_tack = tack_coat_liters * rate_tack_liter
+            cost_overlay_supply = asphalt_tonnes * rate_hot_mix_ton
+            cost_laying = total_surface_area_m2 * rate_laying_m2
 
             boq_items.append({
                 "item_code": "ERA-MIL-01",
@@ -457,23 +508,27 @@ class AsphaltBudgetEstimator:
             boq_items.append({
                 "item_code": "ERA-TC-02",
                 "description": "Bituminous Emulsion Tack Coat (K1-60 @ 0.55 L/m²)",
-                "unit": "m²",
-                "quantity": round(total_surface_area_m2, 1),
-                "unit_rate_etb": rate_tack,
+                "unit": "L",
+                "quantity": round(tack_coat_liters, 1),
+                "unit_rate_etb": rate_tack_liter,
                 "total_etb": round(cost_tack, 2)
             })
             boq_items.append({
                 "item_code": "ERA-AC-03",
-                "description": "50mm Hot-Mix Asphalt Concrete Wearing Course (AC 60/70)",
+                "description": "50mm Hot-Mix Asphalt Concrete Supply (AC 60/70)",
+                "unit": "Tonnes",
+                "quantity": round(asphalt_tonnes, 1),
+                "unit_rate_etb": rate_hot_mix_ton,
+                "total_etb": round(cost_overlay_supply, 2)
+            })
+            boq_items.append({
+                "item_code": "ERA-LAY-04",
+                "description": "Asphalt Paving, Screeding & Vibratory Compaction (50mm)",
                 "unit": "m²",
                 "quantity": round(total_surface_area_m2, 1),
-                "unit_rate_etb": rate_overlay,
-                "total_etb": round(cost_overlay, 2)
+                "unit_rate_etb": rate_laying_m2,
+                "total_etb": round(cost_laying, 2)
             })
-
-            asphalt_tonnes = total_surface_area_m2 * 0.05 * cls.DENSITY_HMA_TONNES_PER_M3
-            tack_coat_liters = total_surface_area_m2 * cls.TACK_COAT_APPLICATION_RATE_L_M2
-            cold_patch_tonnes = 0.0
 
         elif pci_score < 85.0 or potholes_count > 0 or cracks_count > 0:
             intervention_level = "LOCALIZED_REPAIR"
@@ -816,6 +871,7 @@ class CorridorPavementSegmenter:
             },
             "condition_distribution": rating_counts,
             "critical_hotspots_count": len(critical_hotspots),
+            "rates_summary": AsphaltBudgetEstimator.get_effective_rates(),
             "segments": processed_segments
         }
 
@@ -856,6 +912,7 @@ class CorridorPavementSegmenter:
             },
             "condition_distribution": {pci_data["rating"]: 1},
             "critical_hotspots_count": 1 if pci_data["pci"] < 55.0 else 0,
+            "rates_summary": AsphaltBudgetEstimator.get_effective_rates(),
             "segments": [{
                 "segment_index": 1,
                 "segment_id": "KP-01",

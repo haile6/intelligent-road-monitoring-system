@@ -96,6 +96,40 @@ class TestInternationalRoughnessIndex(unittest.TestCase):
         self.assertEqual(InternationalRoughnessIndex.get_rating_info(6.5)["rating"], "Poor")
         self.assertEqual(InternationalRoughnessIndex.get_rating_info(8.5)["rating"], "Very Poor")
 
+    def test_iri_calibration_weights_override(self):
+        """Updating IRI bump weights in db_manager should dynamically affect estimate_iri."""
+        from database import db_manager
+
+        potholes = [
+            {"max_risk_level": "IMMEDIATE_DANGER"},
+            {"max_risk_level": "CAUTION"},
+            {"max_risk_level": "SAFE"},
+        ]
+        cracks = [
+            {"max_risk_level": "IMMEDIATE_DANGER"},
+            {"max_risk_level": "SAFE"},
+        ]
+
+        baseline = db_manager.get_pci_calibration()
+        try:
+            db_manager.update_pci_calibration({
+                "base_highway_iri": 2.0,
+                "iri_pothole_high_bump": 0.50,
+                "iri_pothole_med_bump": 0.25,
+                "iri_pothole_low_bump": 0.10,
+                "iri_crack_high_bump": 0.20,
+                "iri_crack_other_bump": 0.05,
+            })
+            res = InternationalRoughnessIndex.estimate_iri(potholes, cracks, segment_length_km=0.25)
+            # delta_potholes = (0.50 + 0.25 + 0.10) / 0.25 = 3.40
+            # delta_cracking = (0.20 + 0.05) / 0.25 = 1.00
+            # total = 2.0 + 3.40 + 1.00 = 6.40
+            self.assertAlmostEqual(res["delta_potholes"], 3.40, places=2)
+            self.assertAlmostEqual(res["delta_cracking"], 1.00, places=2)
+            self.assertAlmostEqual(res["iri"], 6.40, places=2)
+        finally:
+            db_manager.update_pci_calibration(baseline)
+
 
 class TestAsphaltBudgetEstimator(unittest.TestCase):
     """Test ERA schedule of rates and rehabilitation budget estimation."""
@@ -156,6 +190,67 @@ class TestAsphaltBudgetEstimator(unittest.TestCase):
         )
         expected_usd = budget["total_cost_etb"] / AsphaltBudgetEstimator.ETB_TO_USD_RATE
         self.assertAlmostEqual(budget["total_cost_usd"], expected_usd, delta=0.1)
+
+    def test_mill_and_overlay_boq_bills_by_liters_and_tonnes(self):
+        """Mill & Overlay BoQ should bill Tack Coat by Liters and HMA by Tonnes using Settings rates."""
+        from database import db_manager
+
+        baseline = db_manager.get_material_rates()
+        try:
+            db_manager.update_material_rates({
+                "milling_rate_m2_etb": 420.0,
+                "tack_coat_per_liter_etb": 120.0,
+                "hot_mix_ton_etb": 14500.0,
+                "labor_compaction_rate_m2_etb": 450.0,
+                "etb_to_usd_rate": 128.0,
+            })
+            budget = AsphaltBudgetEstimator.estimate_segment_budget(
+                pci_score=85.5,
+                iri_score=5.0,
+                potholes_count=1,
+                cracks_count=0,
+                segment_length_m=50.0,
+                carriageway_width_m=7.0,
+            )
+            items = {item["item_code"]: item for item in budget["boq_items"]}
+            self.assertEqual(items["ERA-MIL-01"]["unit"], "m²")
+            self.assertEqual(items["ERA-MIL-01"]["quantity"], 350.0)
+            self.assertEqual(items["ERA-MIL-01"]["total_etb"], 147000.0)
+
+            self.assertEqual(items["ERA-TC-02"]["unit"], "L")
+            self.assertEqual(items["ERA-TC-02"]["quantity"], 192.5)
+            self.assertEqual(items["ERA-TC-02"]["unit_rate_etb"], 120.0)
+            self.assertEqual(items["ERA-TC-02"]["total_etb"], 23100.0)
+
+            self.assertEqual(items["ERA-AC-03"]["unit"], "Tonnes")
+            self.assertEqual(items["ERA-AC-03"]["quantity"], 42.0)
+            self.assertEqual(items["ERA-AC-03"]["unit_rate_etb"], 14500.0)
+            self.assertEqual(items["ERA-AC-03"]["total_etb"], 609000.0)
+
+            self.assertEqual(items["ERA-LAY-04"]["unit"], "m²")
+            self.assertEqual(items["ERA-LAY-04"]["quantity"], 350.0)
+            self.assertEqual(items["ERA-LAY-04"]["total_etb"], 157500.0)
+
+            self.assertEqual(budget["total_cost_etb"], 936600.0)
+
+            # Verify Settings rate updates propagate dynamically
+            db_manager.update_material_rates({
+                "tack_coat_per_liter_etb": 180.0,
+                "hot_mix_ton_etb": 15000.0,
+            })
+            updated = AsphaltBudgetEstimator.estimate_segment_budget(
+                pci_score=85.5,
+                iri_score=5.0,
+                potholes_count=1,
+                cracks_count=0,
+                segment_length_m=50.0,
+                carriageway_width_m=7.0,
+            )
+            updated_items = {item["item_code"]: item for item in updated["boq_items"]}
+            self.assertEqual(updated_items["ERA-TC-02"]["total_etb"], 34650.0)
+            self.assertEqual(updated_items["ERA-AC-03"]["total_etb"], 630000.0)
+        finally:
+            db_manager.update_material_rates(baseline)
 
 
 class TestCorridorPavementSegmenter(unittest.TestCase):
