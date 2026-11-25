@@ -8,6 +8,7 @@ import sys
 import json
 import csv
 import io
+import gzip
 import time
 import threading
 import subprocess
@@ -71,7 +72,52 @@ def request_entity_too_large(error):
 # Background pipeline execution state
 pipeline_threads = {}
 
-# Ensure database is initialized on WSGI (Gunicorn / Render) startup
+# Thread-safe in-memory TTL cache for heavy pavement & ML forecast computations
+_ANALYTICS_CACHE = {}
+_ANALYTICS_LOCK = threading.Lock()
+_ANALYTICS_TTL_SECONDS = 120.0
+
+
+def invalidate_analytics_cache():
+    """Clear cached pavement/forecast/ML payloads after data or calibration updates."""
+    with _ANALYTICS_LOCK:
+        _ANALYTICS_CACHE.clear()
+
+
+@app.after_request
+def compress_response(response):
+    """Compress large HTML/JSON responses with gzip to speed up remote page loads."""
+    try:
+        if (
+            response.status_code != 200
+            or response.direct_passthrough
+            or "Content-Encoding" in response.headers
+        ):
+            return response
+        accept_encoding = request.headers.get("Accept-Encoding", "").lower()
+        if "gzip" not in accept_encoding:
+            return response
+        ctype = response.content_type or ""
+        if not (
+            ctype.startswith("text/")
+            or ctype.startswith("application/json")
+            or ctype.startswith("application/javascript")
+        ):
+            return response
+        data = response.get_data()
+        if len(data) < 1024:
+            return response
+        compressed = gzip.compress(data, compresslevel=6)
+        response.set_data(compressed)
+        response.headers["Content-Encoding"] = "gzip"
+        response.headers["Vary"] = "Accept-Encoding"
+        response.headers["Content-Length"] = len(compressed)
+    except Exception:
+        pass
+    return response
+
+
+# Ensure database is initialized on WSGI (Gunicorn / Render / Railway) startup
 try:
     db_manager.init_db()
 except Exception as _e:
@@ -441,20 +487,31 @@ def api_contractor_claim_notice(cid):
 # ============================================================
 
 def get_pavement_assessment_cache(block_size: float = 50.0):
-    """Retrieve or compute corridor pavement intelligence metrics."""
+    """Retrieve or compute corridor pavement intelligence metrics (with TTL cache)."""
     try:
         bs_arg = request.args.get("block_size")
         if bs_arg:
             block_size = float(bs_arg)
     except Exception:
         pass
+
+    cache_key = ("pavement", round(float(block_size), 2))
+    now = time.time()
+    with _ANALYTICS_LOCK:
+        cached = _ANALYTICS_CACHE.get(cache_key)
+        if cached and (now - cached[0]) < _ANALYTICS_TTL_SECONDS:
+            return cached[1]
+
     gps_pts = db_manager.get_gps_track_points()
     incidents = db_manager.get_all_incidents()
-    return CorridorPavementSegmenter.segment_corridor(
+    result = CorridorPavementSegmenter.segment_corridor(
         gps_points=gps_pts,
         incidents=incidents,
         target_segment_length_m=block_size
     )
+    with _ANALYTICS_LOCK:
+        _ANALYTICS_CACHE[cache_key] = (time.time(), result)
+    return result
 
 
 @app.route("/pavement")
@@ -787,6 +844,13 @@ def get_forecast_simulation_cache(season=None, days_horizon: int = 60):
     except Exception:
         pass
 
+    cache_key = ("forecast", active_season, int(days_horizon))
+    now = time.time()
+    with _ANALYTICS_LOCK:
+        cached = _ANALYTICS_CACHE.get(cache_key)
+        if cached and (now - cached[0]) < _ANALYTICS_TTL_SECONDS:
+            return cached[1]
+
     incidents = db_manager.get_all_incidents()
     # Compute baseline corridor PCI from pavement intelligence
     pavement_summary = get_pavement_assessment_cache()
@@ -826,7 +890,40 @@ def get_forecast_simulation_cache(season=None, days_horizon: int = 60):
         "latest_weather_date": live_weather_date,
         "is_scenario_simulation": (active_season != calendar_season)
     }
+    with _ANALYTICS_LOCK:
+        _ANALYTICS_CACHE[cache_key] = (time.time(), res)
     return res
+
+
+def _get_ml_forecast_bundle():
+    """Retrieve or compute ML predictions and audit metrics (cached)."""
+    cache_key = ("ml_forecast_bundle",)
+    now = time.time()
+    with _ANALYTICS_LOCK:
+        cached = _ANALYTICS_CACHE.get(cache_key)
+        if cached and (now - cached[0]) < _ANALYTICS_TTL_SECONDS:
+            return cached[1]
+
+    try:
+        ml_predictions = ml_engine.predict_corridor_segments()
+        ml_performance = ml_engine.train_and_evaluate(allow_synthetic_benchmark=True) if not ml_engine.evaluation_metrics else ml_engine.evaluation_metrics
+        seasonal_investigation = SeasonalHypothesisInvestigator().evaluate_seasonal_rates()
+        data_quality_report = DataQualityValidator.audit_dataset()
+    except Exception:
+        ml_predictions = []
+        ml_performance = {}
+        seasonal_investigation = {}
+        data_quality_report = {}
+
+    bundle = {
+        "ml_predictions": ml_predictions,
+        "ml_performance": ml_performance,
+        "seasonal_investigation": seasonal_investigation,
+        "data_quality_report": data_quality_report,
+    }
+    with _ANALYTICS_LOCK:
+        _ANALYTICS_CACHE[cache_key] = (time.time(), bundle)
+    return bundle
 
 
 @app.route("/forecast")
@@ -835,18 +932,12 @@ def forecast_view():
     forecast_data = get_forecast_simulation_cache()
     stats = db_manager.get_dashboard_stats()
     now_str = datetime.now().strftime("%B %d, %Y - %H:%M")
-    
-    # Machine Learning Multi-Horizon Predictions & Scientific Audit
-    try:
-        ml_predictions = ml_engine.predict_corridor_segments()
-        ml_performance = ml_engine.train_and_evaluate(allow_synthetic_benchmark=True) if not ml_engine.evaluation_metrics else ml_engine.evaluation_metrics
-        seasonal_investigation = SeasonalHypothesisInvestigator().evaluate_seasonal_rates()
-        data_quality_report = DataQualityValidator.audit_dataset()
-    except Exception as e:
-        ml_predictions = []
-        ml_performance = {}
-        seasonal_investigation = {}
-        data_quality_report = {}
+
+    bundle = _get_ml_forecast_bundle()
+    ml_predictions = bundle["ml_predictions"]
+    ml_performance = bundle["ml_performance"]
+    seasonal_investigation = bundle["seasonal_investigation"]
+    data_quality_report = bundle["data_quality_report"]
 
     return render_template(
         "forecast.html",
@@ -1351,6 +1442,7 @@ def api_material_rates():
     if request.method == "POST":
         payload = request.get_json() or {}
         updated = db_manager.update_material_rates(payload)
+        invalidate_analytics_cache()
         return jsonify({"success": True, "rates": updated, "message": "Municipal material procurement rates updated successfully."})
     rates = db_manager.get_material_rates()
     return jsonify({"success": True, "rates": rates})
@@ -1362,6 +1454,7 @@ def api_calibration_params():
     if request.method == "POST":
         payload = request.get_json() or {}
         updated = db_manager.update_calibration_params(payload)
+        invalidate_analytics_cache()
         return jsonify({"success": True, "calibration": updated, "message": "ERA Pavement Deterioration Calibration updated successfully."})
     calibration = db_manager.get_calibration_params()
     return jsonify({"success": True, "calibration": calibration})
@@ -1373,6 +1466,7 @@ def api_pci_calibration():
     if request.method == "POST":
         payload = request.get_json() or {}
         updated = db_manager.update_pci_calibration(payload)
+        invalidate_analytics_cache()
         return jsonify({
             "success": True,
             "calibration": updated,
@@ -2433,6 +2527,20 @@ def api_v1_edge_quantize():
         "active_profile": asdict(profile),
         "edge_hardware_benchmarks": benchmarks
     })
+
+
+def _warm_analytics_cache():
+    """Pre-warm pavement and forecast caches in background after worker boot."""
+    try:
+        get_pavement_assessment_cache(50.0)
+        get_forecast_simulation_cache()
+        _get_ml_forecast_bundle()
+    except Exception as _warm_err:
+        print(f"[*] Notice: Background cache warm-up: {_warm_err}")
+
+
+if "unittest" not in sys.modules:
+    threading.Thread(target=_warm_analytics_cache, daemon=True).start()
 
 
 if __name__ == "__main__":
