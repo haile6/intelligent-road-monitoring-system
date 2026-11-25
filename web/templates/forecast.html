@@ -451,41 +451,86 @@
 
 
         <!-- ======================================================== -->
-        <!-- TAB 3: SCIENTIFIC AUDITS (CLEAN COMPACT CARDS)           -->
+        <!-- TAB 3: SCIENTIFIC AUDITS (CLEAN COMPARISON TABLE)        -->
         <!-- ======================================================== -->
         <div class="tab-pane fade" id="audit-pane" role="tabpanel">
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-4">
-                    <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold font-mono" style="color: var(--text-primary);">Ridge L2 Regressor</span>
-                            <span class="badge bg-white text-dark border font-mono">R² = 0.998</span>
+            {% set b30 = ml_performance.get('benchmark_30d_pci', {}) if ml_performance else {} %}
+            {% set hgb_m = b30.get('hist_gradient_boosting', {'r2': 0.698, 'mae': 4.64, 'rmse': 11.20}) %}
+            {% set ridge_m = b30.get('ridge_regression', {'r2': 0.999, 'mae': 0.48, 'rmse': 0.68}) %}
+            {% set rf_m = b30.get('random_forest', {'r2': 0.927, 'mae': 3.11, 'rmse': 5.49}) %}
+            {% set mkv_m = b30.get('markov_model_baseline', {'r2': 0.832, 'mae': 7.28, 'rmse': 8.33}) %}
+
+            <div class="panel-card mb-4">
+                <div class="panel-header py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <div>
+                        <div class="panel-title">
+                            <i data-lucide="cpu" style="color:var(--accent-primary);"></i>
+                            Machine Learning Model Evaluation &amp; Comparison
                         </div>
-                        <div class="text-secondary small mb-2">Physical Linear Baseline Model for Level PCI</div>
-                        <div class="font-mono small text-muted">MAE: 0.69 • RMSE: 0.92</div>
+                        <div class="text-secondary small">
+                            30-Day Held-Out Chronological Benchmark (23 Mechanism Features)
+                        </div>
                     </div>
+                    <span class="badge bg-white text-dark border font-mono" style="font-size: 11px;">
+                        Samples: {{ ml_performance.get('total_samples', 210) if ml_performance else 210 }}
+                    </span>
                 </div>
 
-                <div class="col-12 col-md-4">
-                    <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold font-mono" style="color: var(--text-primary);">Random Forest Regressor</span>
-                            <span class="badge bg-white text-dark border font-mono">R² = 0.896</span>
-                        </div>
-                        <div class="text-secondary small mb-2">Ensemble Multi-Horizon Degradation Model</div>
-                        <div class="font-mono small text-muted">MAE: 3.82 • RMSE: 7.33</div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="p-3 rounded h-100" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold font-mono" style="color: var(--text-primary);">Markov 5-State Engine</span>
-                            <span class="badge bg-white text-dark border font-mono">R² = 0.843</span>
-                        </div>
-                        <div class="text-secondary small mb-2">Pavement Deterioration Transition Probability</div>
-                        <div class="font-mono small text-muted">MAE: 7.67 • RMSE: 9.00</div>
-                    </div>
+                <div class="table-responsive" style="overflow-x: auto;">
+                    <table class="enterprise-table mb-0 font-mono" style="font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Model Name</th>
+                                <th>Algorithm Type</th>
+                                <th class="text-center">R²</th>
+                                <th class="text-center">MAE (PCI)</th>
+                                <th class="text-center">RMSE (PCI)</th>
+                                <th class="text-end pe-3">Role / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-3 fw-bold" style="color: var(--text-primary);">HistGradientBoosting Regressor</td>
+                                <td class="text-secondary">Non-Linear Gradient Boosted Trees</td>
+                                <td class="text-center fw-bold">{{ "%.3f"|format(hgb_m.r2) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(hgb_m.mae) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(hgb_m.rmse) }}</td>
+                                <td class="text-end pe-3">
+                                    <span class="badge bg-white text-primary border border-primary-subtle">Active What-If Simulator</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3 fw-bold" style="color: var(--text-primary);">Ridge L2 Regressor</td>
+                                <td class="text-secondary">L2-Regularized Linear Model</td>
+                                <td class="text-center fw-bold">{{ "%.3f"|format(ridge_m.r2) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(ridge_m.mae) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(ridge_m.rmse) }}</td>
+                                <td class="text-end pe-3">
+                                    <span class="badge bg-white text-dark border">Best Spatial Generalizer</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3 fw-bold" style="color: var(--text-primary);">Random Forest Regressor</td>
+                                <td class="text-secondary">Bootstrap Decision Tree Ensemble</td>
+                                <td class="text-center fw-bold">{{ "%.3f"|format(rf_m.r2) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(rf_m.mae) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(rf_m.rmse) }}</td>
+                                <td class="text-end pe-3">
+                                    <span class="badge bg-white text-secondary border">Ensemble Benchmark</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3 fw-bold" style="color: var(--text-primary);">Markov 5-State Engine</td>
+                                <td class="text-secondary">Empirical Transition Matrix</td>
+                                <td class="text-center fw-bold">{{ "%.3f"|format(mkv_m.r2) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(mkv_m.mae) }}</td>
+                                <td class="text-center">{{ "%.2f"|format(mkv_m.rmse) }}</td>
+                                <td class="text-end pe-3">
+                                    <span class="badge bg-white text-secondary border">Probabilistic Baseline</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div><!-- /#audit-pane -->
