@@ -245,9 +245,9 @@
     <div class="fleet-panel-card mb-4">
         <div class="fleet-panel-header">
             <div class="fleet-panel-title">
-                <i data-lucide="map-pin" style="color:var(--accent-primary);"></i>
+                <i data-lucide="map-pin" class="text-secondary"></i>
                 Spatial De-Duplication GIS Map
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono ms-2" style="font-size: 10.5px;">Route A2 Debre Berhan</span>
+                <span class="badge bg-white text-dark border font-mono ms-2" style="font-size: 10.5px;">Route A2 Debre Berhan</span>
             </div>
             <div class="d-flex align-items-center gap-3 font-mono" style="font-size: 11.5px;">
                 <span class="d-flex align-items-center gap-1.5">
@@ -272,9 +272,9 @@
     <div class="fleet-panel-card mb-4">
         <div class="fleet-panel-header py-3">
             <div class="fleet-panel-title">
-                <i data-lucide="truck" style="color:var(--accent-primary);"></i>
+                <i data-lucide="truck" class="text-secondary"></i>
                 Active Patrol Fleet Units
-                <span class="badge bg-success-subtle text-success border border-success-subtle font-mono ms-2" style="font-size: 10.5px;">4 Units Online</span>
+                <span class="badge bg-white text-dark border font-mono ms-2" style="font-size: 10.5px;">4 Units Online</span>
             </div>
         </div>
 
@@ -317,17 +317,17 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle font-mono" style="font-size: 10.5px;">
+                            <span class="badge bg-white text-dark border font-mono" style="font-size: 10.5px;">
                                 {{ v.status }}
                             </span>
                         </td>
                         <td>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono fw-bold" style="font-size: 11px;">
+                            <span class="badge bg-white text-dark border font-mono fw-bold" style="font-size: 11px;">
                                 {{ item.sightings_count }} Sightings
                             </span>
                         </td>
                         <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary py-0.5 px-2.5 font-mono" style="font-size: 11px;" onclick="event.stopPropagation(); inspectFleetVehicle('{{ v.vehicle_id }}')">
+                            <button class="btn btn-sm btn-outline-secondary bg-white text-dark py-0.5 px-2.5 font-mono" style="font-size: 11px;" onclick="event.stopPropagation(); inspectFleetVehicle('{{ v.vehicle_id }}')">
                                 <i data-lucide="info" style="width:12px; height:12px;"></i> Inspect
                             </button>
                         </td>
@@ -620,7 +620,7 @@ function inspectFleetVehicle(vehicleId) {
         <div class="p-3 rounded border mb-4" style="background:#ffffff;">
             <div class="fw-bold text-dark small text-uppercase font-mono mb-2">On-Board Sensor &amp; Compute Rig</div>
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono p-2">${v.hardware}</span>
+                <span class="badge bg-white text-dark border font-mono p-2">${v.hardware}</span>
                 <span class="text-secondary small font-mono">Calibrated FOV • Real-Time Edge CV Pipeline</span>
             </div>
         </div>

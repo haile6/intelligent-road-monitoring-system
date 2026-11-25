@@ -155,12 +155,12 @@
 
         <!-- Rate Customizer Panel (Combined in the same row) -->
         <div class="col-12 col-xl-4">
-            <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between p-3" style="border-left: 3px solid var(--accent-primary);">
+            <div class="kpi-metric-card h-100 d-flex flex-column justify-content-between p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-1.5 fw-bold text-dark" style="font-size: 13px;">
-                        <i class="bi bi-sliders2-vertical text-primary"></i>
+                        <i class="bi bi-sliders2-vertical text-secondary"></i>
                         <span>Municipal Unit Repair Rates</span>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono" style="font-size: 9px;">Configurable</span>
+                        <span class="badge bg-white text-secondary border font-mono" style="font-size: 9px;">Configurable</span>
                     </div>
                     <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" onclick="resetStandardRates()" title="Reset to standard ERA baseline rates (28,000 / 18,000 ETB)" style="font-size: 11px;">
                         <i class="bi bi-arrow-counterclockwise"></i> Reset
@@ -382,7 +382,7 @@
                     <div>
                         <div class="fw-bold text-dark d-flex align-items-center gap-2">
                             <span>Contractor Quality Rankings</span>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono" style="font-size: 10px;">36 Corridors</span>
+                            <span class="badge bg-white text-dark border font-mono" style="font-size: 10px;">36 Corridors</span>
                         </div>
                         <div class="text-secondary small font-mono mt-0.5">Ranked by defect density • Click to view scorecard</div>
                     </div>
@@ -401,13 +401,13 @@
                  onmouseleave="this.style.transform='none'; this.style.boxShadow='none';"
                  title="Click to view Contractor Liability & Warranty Policy">
                 <div class="d-flex align-items-center gap-3">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: var(--success, #10b981);">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffffff; border: 1px solid var(--borders); display: flex; align-items: center; justify-content: center; color: #334155;">
                         <i class="bi bi-journal-check fs-5"></i>
                     </div>
                     <div>
                         <div class="fw-bold text-dark d-flex align-items-center gap-2">
                             <span>Contractor Liability &amp; Warranty Policy</span>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle font-mono" style="font-size: 10px;">FIDIC &amp; ERA</span>
+                            <span class="badge bg-white text-dark border font-mono" style="font-size: 10px;">FIDIC &amp; ERA</span>
                         </div>
                         <div class="text-secondary small font-mono mt-0.5">DLP obligations &amp; rectification rules • Click to read</div>
                     </div>
@@ -427,9 +427,9 @@
 <div class="modal fade" id="contractorDetailModal" tabindex="-1" aria-labelledby="contractorDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-bottom py-3" style="background: var(--bg-card, #f8fafc);">
+            <div class="modal-header border-bottom py-3 bg-white">
                 <div class="d-flex align-items-center gap-2 flex-grow-1 me-2 text-truncate">
-                    <div class="p-2 rounded bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                    <div class="p-2 rounded bg-white text-dark border d-flex align-items-center justify-content-center">
                         <i class="bi bi-signpost-split fs-5"></i>
                     </div>
                     <div class="text-truncate">
@@ -616,9 +616,9 @@
 <div class="modal fade" id="qualityRankingModal" tabindex="-1" aria-labelledby="qualityRankingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-bottom py-3" style="background: var(--bg-card, #f8fafc);">
+            <div class="modal-header border-bottom py-3 bg-white">
                 <div class="d-flex align-items-center gap-2">
-                    <div class="p-2 rounded bg-primary-subtle text-primary">
+                    <div class="p-2 rounded bg-white text-dark border">
                         <i class="bi bi-bar-chart-fill fs-5"></i>
                     </div>
                     <div>
@@ -664,9 +664,9 @@
 <div class="modal fade" id="warrantyPolicyModal" tabindex="-1" aria-labelledby="warrantyPolicyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-bottom py-3" style="background: var(--bg-card, #f8fafc);">
+            <div class="modal-header border-bottom py-3 bg-white">
                 <div class="d-flex align-items-center gap-2">
-                    <div class="p-2 rounded bg-success-subtle text-success">
+                    <div class="p-2 rounded bg-white text-dark border">
                         <i class="bi bi-journal-check fs-5"></i>
                     </div>
                     <div>
@@ -823,12 +823,12 @@
 <div class="modal fade" id="claimNoticeModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
+            <div class="modal-header bg-white text-dark border-bottom">
                 <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-text text-warning"></i>
+                    <i class="bi bi-file-earmark-text text-secondary"></i>
                     <span>Official Warranty Defect Claim Notice</span>
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4 bg-light">
                 <div class="claim-paper p-4 p-md-5 rounded shadow-sm" id="printableClaimArea">
