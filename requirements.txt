@@ -7,13 +7,16 @@ gunicorn>=21.2.0
 jinja2>=3.1.0
 werkzeug>=3.0.0
 
-# Deep Learning, Computer Vision & YOLO Inference
+# Deep Learning, Computer Vision & ML Deterioration
 torch>=2.0.0
 torchvision>=0.15.0
 ultralytics>=8.0.0
 opencv-python-headless>=4.8.0
 pillow>=9.5.0
 numpy>=1.24.0
+scikit-learn>=1.3.0
+joblib>=1.3.0
+scipy>=1.10.0
 
 # Geospatial GIS Mapping & Media Telemetry
 folium>=0.15.0
