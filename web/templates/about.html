@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}RoadEye™ — About Project &amp; System Architecture{% endblock %}
+{% block breadcrumb %}About Project{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="page-header-row mb-3">
+        <div>
+            <h1 class="page-main-title d-flex align-items-center gap-2">
+                <i data-lucide="info" style="color:var(--accent-primary);"></i>
+                About RoadEye™ Project
+            </h1>
+        </div>
+        <div class="page-actions-bar">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5">
+                <i data-lucide="layout-dashboard" style="width:13px; height:13px;"></i>
+                <span>Operations Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 1. Project Overview Hero Card -->
+    <div class="panel-card p-4 mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-default);">
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+            <div style="width: 56px; height: 56px; min-width: 56px; border-radius: 50%; overflow: hidden; border: 1px solid var(--border-default);">
+                <img src="{{ url_for('static', filename='icons/roadeye_logo_circular.png') }}" alt="RoadEye Logo" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div>
+                <h4 class="fw-bold mb-1" style="color: var(--text-primary); font-size: 17px;">
+                    RoadEye™: Intelligent Road Surface Monitoring, Predictive Pavement Maintenance &amp; ADAS Hazard Intelligence Platform
+                </h4>
+                <p class="text-secondary mb-0" style="font-size: 13px; line-height: 1.55;">
+                    An end-to-end Computer Vision, Multi-Vehicle Crowdsourcing, and Machine Learning decision-support system built for Ethiopian highway corridors (<strong>Route A2 · Addis Ababa – Debre Berhan</strong>) following <strong>ERA 2026</strong>, <strong>ASTM D6433</strong>, and <strong>FIDIC Clause 11</strong> engineering standards.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Multi-Stakeholder Problem & Solution Table -->
+    <div class="panel-card mb-4">
+        <div class="panel-header py-3">
+            <div class="panel-title">
+                <i data-lucide="target" style="color:var(--accent-primary);"></i>
+                <span>Problems Addressed &amp; System Solutions</span>
+            </div>
+        </div>
+        <div class="table-responsive" style="overflow-x: auto;">
+            <table class="enterprise-table mb-0" style="font-size: 12.5px;">
+                <thead>
+                    <tr>
+                        <th style="width: 18%;" class="ps-3">Stakeholder</th>
+                        <th style="width: 41%;">Core Challenge</th>
+                        <th style="width: 41%;" class="pe-3">RoadEye™ Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ps-3 fw-bold" style="color: var(--text-primary);">Drivers &amp; Road Users</td>
+                        <td class="text-secondary">Unmarked deep potholes and cracks cause tire/suspension damage, panic swerving, and preventable collisions—with no localized road-hazard alerts.</td>
+                        <td style="color: var(--text-primary);">Real-time YOLOv8 hazard detection combined with kinematic Time-to-Collision (TTC) and bilingual <strong>Amharic &amp; English ADAS warnings</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td class="ps-3 fw-bold" style="color: var(--text-primary);">Road Authority (ERA)</td>
+                        <td class="text-secondary">Slow manual surveys, duplicate sightings inflating budgets, lack of standardized PCI/IRI metrics, and no ML forecast for rainy-season cost escalation.</td>
+                        <td style="color: var(--text-primary);">8.0 m Haversine spatial de-duplication + Bayesian fusion, automated <strong>ASTM D6433 PCI/IRI &amp; ERA BoQ</strong>, and <strong>Scikit-Learn ML deterioration forecasting</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td class="ps-3 fw-bold" style="color: var(--text-primary);">Contractor Governance</td>
+                        <td class="text-secondary">Roads failing prematurely within the Defects Liability Period (DLP) often lack timestamped GPS evidence to enforce contractor-funded repairs.</td>
+                        <td class="pe-3" style="color: var(--text-primary);">Automated 5-stage <strong>Work Order Kanban</strong> and printable <strong>ERA / FIDIC Clause 11 Warranty Claim Notices</strong> with itemized repair liabilities.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. End-to-End Architecture Pipeline (Clean White Cards) -->
+    <div class="panel-card p-3 mb-4">
+        <div class="panel-title mb-3">
+            <i data-lucide="git-branch" style="color:var(--accent-primary);"></i>
+            <span>End-to-End Engineering Pipeline</span>
+        </div>
+        <div class="row g-2">
+            <div class="col-12 col-md-6 col-xl">
+                <div class="kpi-metric-card h-100 p-3">
+                    <span class="kpi-label-text">1. Vision &amp; 3D Depth</span>
+                    <div class="small text-secondary mt-2">YOLOv8 detects potholes &amp; cracks; monocular 3D SfS estimates depth (Dmax) and cavity volume.</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <div class="kpi-metric-card h-100 p-3">
+                    <span class="kpi-label-text">2. ANPR &amp; ADAS Safety</span>
+                    <div class="small text-secondary mt-2">Tracks dual-layer risk (Structural + TTC) and auto-computes heavy truck % from Ethiopian plates.</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <div class="kpi-metric-card h-100 p-3">
+                    <span class="kpi-label-text">3. Fleet De-Duplication</span>
+                    <div class="small text-secondary mt-2">8.0 m Haversine spatial clustering &amp; Bayesian fusion merge repeat passes into verified hazards.</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <div class="kpi-metric-card h-100 p-3">
+                    <span class="kpi-label-text">4. ERA BoQ &amp; ML Forecast</span>
+                    <div class="small text-secondary mt-2">Generates ASTM D6433 PCI/IRI, ERA 2026 BoQ costs, and HistGradientBoosting future forecasts.</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <div class="kpi-metric-card h-100 p-3">
+                    <span class="kpi-label-text">5. Dispatch &amp; DLP Claims</span>
+                    <div class="small text-secondary mt-2">Tracks crew repair workflows and enforces FIDIC Clause 11 contractor warranty rectification.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Technical Stack & Standards Table -->
+    <div class="panel-card mb-4">
+        <div class="panel-header py-3">
+            <div class="panel-title">
+                <i data-lucide="layers" style="color:var(--accent-primary);"></i>
+                <span>Engineering Standards &amp; Technology Stack</span>
+            </div>
+        </div>
+        <div class="table-responsive" style="overflow-x: auto;">
+            <table class="enterprise-table mb-0 font-mono" style="font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Domain</th>
+                        <th>Models, Standards &amp; Frameworks</th>
+                        <th class="pe-3">Module</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ps-3 fw-bold">Computer Vision &amp; 3D</td>
+                        <td class="text-secondary">YOLOv8 Object Detection, Monocular Shape-from-Shading (SfS), ByteTrack, ANPR OCR</td>
+                        <td class="pe-3"><a href="/studio">AI Telemetry Studio</a></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-3 fw-bold">Crowdsourcing &amp; GIS</td>
+                        <td class="text-secondary">Haversine Geodesic Clustering (ε = 8.0 m), Bayesian Confidence Fusion, Leaflet.js</td>
+                        <td class="pe-3"><a href="/fleet">Fleet Crowdsourcing</a></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-3 fw-bold">Pavement &amp; Costing</td>
+                        <td class="text-secondary">ASTM D6433 PCI, Roughness IRI (m/km), ERA 2026 Schedule of Rates (BoQ)</td>
+                        <td class="pe-3"><a href="/pavement">Pavement Intelligence</a></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-3 fw-bold">Machine Learning</td>
+                        <td class="text-secondary">Scikit-Learn (HistGradientBoosting, Ridge L2, Random Forest), 23 Mechanism Features</td>
+                        <td class="pe-3"><a href="/forecast">Deterioration Forecast</a></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-3 fw-bold">Governance &amp; Backend</td>
+                        <td class="text-secondary">FIDIC Clause 11 DLP Enforcement, Python Flask, SQLite, Bootstrap 5</td>
+                        <td class="pe-3"><a href="/contractors">Contractors &amp; Warranties</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
