@@ -372,42 +372,9 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-white text-dark border font-mono" style="font-size: 10px;">GIS SYNCHRONIZATION</span>
                             <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
-                            <span class="fw-bold small text-dark">Corridor Track:</span>
+                            <span class="fw-bold small text-dark">Corridor Track</span>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <!-- Vehicle Independent Feature Tiles -->
-                            <div class="d-inline-flex align-items-center gap-1 font-mono small">
-                                <span class="badge bg-light text-dark border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Vehicle Latitude">
-                                    <span class="text-secondary fw-normal">Lat:</span> <b id="map-live-lat">9.672500</b>° N
-                                </span>
-                                <span class="badge bg-light text-dark border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Vehicle Longitude">
-                                    <span class="text-secondary fw-normal">Lon:</span> <b id="map-live-lon">39.540950</b>° E
-                                </span>
-                                <span class="badge bg-light text-secondary border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Vehicle Speed">
-                                    <i class="bi bi-speedometer2 text-info me-0.5"></i><b id="map-live-speed">39.7 km/h</b>
-                                </span>
-                                <span class="badge bg-light text-secondary border font-mono px-1.5 py-1" style="border-color: #CBD5E1 !important;" title="Heading">
-                                    <i class="bi bi-compass text-info me-0.5"></i><strong id="map-live-heading">45° NE</strong>
-                                </span>
-                            </div>
-
-                            <!-- Standalone Active Hazard Feature Tiles -->
-                            <div id="map-hazard-container" class="d-inline-flex align-items-center gap-1" style="display: none !important;">
-                                <span class="badge bg-danger text-white font-mono px-2 py-1 shadow-sm fw-bold" id="map-hazard-type">
-                                    <i class="bi bi-geo-alt-fill me-0.5"></i>POTHOLE
-                                </span>
-                                <span class="badge bg-white text-danger border border-danger font-mono px-1.5 py-1 shadow-sm" id="map-hazard-lat-tile" title="Hazard Latitude">
-                                    <span class="text-secondary fw-normal">Lat:</span> <b id="map-hazard-lat">--</b>
-                                </span>
-                                <span class="badge bg-white text-danger border border-danger font-mono px-1.5 py-1 shadow-sm" id="map-hazard-lon-tile" title="Hazard Longitude">
-                                    <span class="text-secondary fw-normal">Lon:</span> <b id="map-hazard-lon">--</b>
-                                </span>
-                                <span class="badge bg-white text-dark border border-danger font-mono px-1.5 py-1 shadow-sm" id="map-hazard-dist-tile" title="Hazard Distance">
-                                    <span class="text-secondary fw-normal">Dist:</span> <b id="map-hazard-dist">--</b>
-                                </span>
-                            </div>
-                            <span id="map-hazard-badge" style="display:none;"><span id="map-hazard-text"></span></span>
-
                             <button class="btn btn-sm btn-outline-secondary py-1 px-2 fw-semibold" onclick="recenterStudioMap()" title="Center map on vehicle position">
                                 <i class="bi bi-crosshair2 me-1 text-primary"></i> Recenter
                             </button>
