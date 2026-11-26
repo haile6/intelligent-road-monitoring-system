@@ -211,12 +211,6 @@ def dashboard():
     )
 
 
-@app.route("/about")
-def about_view():
-    """About Project & System Architecture Overview."""
-    return render_template("about.html", active_page="about")
-
-
 @app.route("/incidents")
 def incidents_view():
     """Incident Management Table with status updates, filtering, and priority handling."""
